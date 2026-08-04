@@ -1,0 +1,429 @@
+/* ═══════════════════════════════════════════ */
+/*  Import Google Fonts (Inter + Montserrat)   */
+/* ═══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #F8FAFC;   /* surface-soft (was #f5f0e8) */
+  color: #081B43;              /* heading/ink (was #2a2520) */
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* All headings use Montserrat + heading color */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', 'Inter', sans-serif;
+  color: #081B43 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/*  GLOBAL OVERRIDE — Dark Tailwind classes → NEW BLUE THEME  */
+/*  (Rebranding is done here in ONE place — most page files    */
+/*   don't need to be touched)                                 */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ─── Dark Backgrounds (slate) → Light Blue Theme ─── */
+.bg-slate-950 { background-color: #F8FAFC !important; }  /* page bg */
+.bg-slate-900 { background-color: #FFFFFF !important; }  /* card / panel */
+.bg-slate-800 { background-color: #F8FAFC !important; }  /* subtle bg */
+.bg-slate-700 { background-color: #F1F5F9 !important; }  /* input / muted */
+
+/* Dark backgrounds with opacity */
+.bg-slate-800\/50 { background-color: rgba(248, 250, 252, 0.6) !important; }
+.bg-slate-900\/50 { background-color: rgba(255, 255, 255, 0.6) !important; }
+
+/* ─── Dark Text (slate) → Ink Colors ─── */
+.text-white      { color: #081B43 !important; }
+.text-slate-300  { color: #081B43 !important; }
+.text-slate-400  { color: #5F6B7A !important; }
+.text-slate-500  { color: #94A3B8 !important; }
+.text-slate-600  { color: #CBD5E1 !important; }
+
+/* ─── Borders (slate) → Line Colors ─── */
+.border-slate-700 { border-color: #E5E7EB !important; }
+.border-slate-800 { border-color: #E5E7EB !important; }
+.border-slate-600 { border-color: #CBD5E1 !important; }
+
+/* ─── Blue → Brand Blue (deeper, more professional) ─── */
+.bg-blue-600       { background-color: #2563EB !important; }
+.bg-blue-700       { background-color: #1D4ED8 !important; }
+.bg-blue-500       { background-color: #3B82F6 !important; }
+.bg-blue-500\/10   { background-color: rgba(37, 99, 235, 0.10) !important; }
+.bg-blue-500\/20   { background-color: rgba(37, 99, 235, 0.20) !important; }
+
+.text-blue-400     { color: #2563EB !important; }
+.text-blue-500     { color: #2563EB !important; }
+.text-blue-600     { color: #0F3D91 !important; }
+.text-blue-300     { color: #3B82F6 !important; }
+
+.border-blue-500                { border-color: #2563EB !important; }
+.hover\:border-blue-500:hover   { border-color: #2563EB !important; }
+.focus\:border-blue-500:focus   { border-color: #2563EB !important; }
+.focus\:ring-blue-500\/20:focus {
+  --tw-ring-color: rgba(37, 99, 235, 0.20) !important;
+}
+
+/* Hover states */
+.hover\:bg-blue-700:hover        { background-color: #1D4ED8 !important; }
+.hover\:bg-slate-700:hover       { background-color: #EEF6FF !important; }
+.hover\:bg-slate-800:hover       { background-color: #F1F5F9 !important; }
+.hover\:bg-slate-800\/50:hover   { background-color: rgba(238, 246, 255, 0.7) !important; }
+
+/* ─── Status Colors (kept saturated, slight adjustment) ─── */
+.text-green-500  { color: #16A34A !important; }
+.text-green-400  { color: #15803D !important; }
+.text-red-500    { color: #DC2626 !important; }
+.text-red-400    { color: #B91C1C !important; }
+.text-yellow-500 { color: #F59E0B !important; }
+.text-yellow-400 { color: #D97706 !important; }
+.text-orange-500 { color: #EA580C !important; }
+.text-orange-400 { color: #C2410C !important; }
+.text-purple-500 { color: #9333EA !important; }
+.text-purple-400 { color: #7E22CE !important; }
+
+.bg-green-500\/10   { background-color: rgba(22, 163, 74, 0.10) !important; }
+.bg-green-500\/20   { background-color: rgba(22, 163, 74, 0.20) !important; }
+.bg-red-500\/10     { background-color: rgba(220, 38, 38, 0.10) !important; }
+.bg-red-500\/20     { background-color: rgba(220, 38, 38, 0.20) !important; }
+.bg-orange-500\/10  { background-color: rgba(234, 88, 12, 0.10) !important; }
+.bg-orange-500\/20  { background-color: rgba(234, 88, 12, 0.20) !important; }
+.bg-yellow-500\/10  { background-color: rgba(245, 158, 11, 0.10) !important; }
+.bg-yellow-500\/20  { background-color: rgba(245, 158, 11, 0.20) !important; }
+.bg-purple-500\/10  { background-color: rgba(147, 51, 234, 0.10) !important; }
+.bg-purple-500\/20  { background-color: rgba(147, 51, 234, 0.20) !important; }
+
+/* Status border tints */
+.border-green-500\/20  { border-color: rgba(22, 163, 74, 0.25) !important; }
+.border-green-500\/30  { border-color: rgba(22, 163, 74, 0.35) !important; }
+.border-red-500\/20    { border-color: rgba(220, 38, 38, 0.25) !important; }
+.border-red-500\/30    { border-color: rgba(220, 38, 38, 0.35) !important; }
+.border-red-500\/40    { border-color: rgba(220, 38, 38, 0.45) !important; }
+.border-orange-500\/20 { border-color: rgba(234, 88, 12, 0.25) !important; }
+.border-orange-500\/30 { border-color: rgba(234, 88, 12, 0.35) !important; }
+.border-orange-500\/40 { border-color: rgba(234, 88, 12, 0.45) !important; }
+.border-yellow-500\/20 { border-color: rgba(245, 158, 11, 0.25) !important; }
+.border-yellow-500\/40 { border-color: rgba(245, 158, 11, 0.45) !important; }
+.border-blue-500\/20   { border-color: rgba(37, 99, 235, 0.25) !important; }
+.border-blue-500\/30   { border-color: rgba(37, 99, 235, 0.35) !important; }
+
+/* ─── Gradient backgrounds (dark → light blue) ─── */
+.from-slate-900 { --tw-gradient-from: #F8FAFC !important; }
+.via-slate-800  { --tw-gradient-via:  #FFFFFF !important; }
+.to-slate-900   { --tw-gradient-to:   #EEF6FF !important; }
+
+.bg-gradient-to-br.from-slate-900 {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #EEF6FF 100%) !important;
+}
+
+/* Placeholder text */
+.placeholder-slate-500::placeholder { color: #94A3B8 !important; }
+
+/* Card divider styles */
+.divide-slate-800 > * + * { border-color: #E5E7EB !important; }
+
+/* Shadow overrides — use brand shadow */
+.shadow-lg, .shadow-xl, .shadow-2xl {
+  box-shadow: 0px 4px 20px rgba(8, 27, 67, 0.08) !important;
+}
+
+.disabled\:opacity-50:disabled { opacity: 0.5; }
+
+/* ─── Special: active navigation state ─── */
+.bg-blue-600.text-white {
+  background-color: #081B43 !important;
+  color: #FFFFFF !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/*  GRAY color overrides (Trends / Alarms)     */
+/* ═══════════════════════════════════════════ */
+
+.bg-gray-950 { background-color: #F8FAFC !important; }
+.bg-gray-900 { background-color: #FFFFFF !important; }
+.bg-gray-800 { background-color: #F8FAFC !important; }
+.bg-gray-700 { background-color: #F1F5F9 !important; }
+.bg-gray-600 { background-color: #CBD5E1 !important; }
+
+.hover\:bg-gray-700:hover { background-color: #EEF6FF !important; }
+.hover\:bg-gray-800:hover { background-color: #F1F5F9 !important; }
+.hover\:bg-gray-600:hover { background-color: #CBD5E1 !important; }
+
+.disabled\:bg-gray-700:disabled {
+  background-color: #F1F5F9 !important;
+  color: #94A3B8 !important;
+  opacity: 0.6;
+}
+
+.text-gray-100 { color: #081B43 !important; }
+.text-gray-200 { color: #081B43 !important; }
+.text-gray-300 { color: #334155 !important; }
+.text-gray-400 { color: #5F6B7A !important; }
+.text-gray-500 { color: #94A3B8 !important; }
+.text-gray-600 { color: #CBD5E1 !important; }
+
+.border-gray-600 { border-color: #CBD5E1 !important; }
+.border-gray-700 { border-color: #E5E7EB !important; }
+.border-gray-800 { border-color: #E5E7EB !important; }
+
+/* Green/Red action colors (kept saturated) */
+.bg-green-600  { background-color: #16A34A !important; color: #FFFFFF !important; }
+.bg-green-700  { background-color: #15803D !important; color: #FFFFFF !important; }
+.hover\:bg-green-600:hover { background-color: #16A34A !important; }
+.hover\:bg-green-700:hover { background-color: #15803D !important; }
+
+.bg-red-600  { background-color: #DC2626 !important; color: #FFFFFF !important; }
+.bg-red-700  { background-color: #B91C1C !important; color: #FFFFFF !important; }
+.hover\:bg-red-600:hover { background-color: #DC2626 !important; }
+.hover\:bg-red-700:hover { background-color: #B91C1C !important; }
+
+.bg-orange-600  { background-color: #EA580C !important; color: #FFFFFF !important; }
+.bg-orange-700  { background-color: #C2410C !important; color: #FFFFFF !important; }
+.hover\:bg-orange-600:hover { background-color: #EA580C !important; }
+.hover\:bg-orange-700:hover { background-color: #C2410C !important; }
+
+.bg-yellow-600  { background-color: #F59E0B !important; color: #FFFFFF !important; }
+.bg-yellow-700  { background-color: #D97706 !important; color: #FFFFFF !important; }
+
+/* Red error backgrounds */
+.bg-red-900     { background-color: #FEE2E2 !important; }
+.border-red-600 { border-color: #DC2626 !important; }
+.text-red-200   { color: #7F1D1D !important; font-weight: 600 !important; }
+
+/* Green success backgrounds */
+.bg-green-900     { background-color: #DCFCE7 !important; }
+.border-green-600 { border-color: #16A34A !important; }
+.text-green-200   { color: #14532D !important; font-weight: 600 !important; }
+
+/* Chart container styling */
+.bg-gray-900.rounded-lg.border.border-gray-700 {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  box-shadow: 0px 4px 20px rgba(8, 27, 67, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/*  LIVE VALUES & NUMBERS - Enhanced contrast  */
+/* ═══════════════════════════════════════════ */
+
+.text-blue-400.font-mono.font-bold {
+  color: #081B43 !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+}
+
+.font-mono.font-bold { color: #081B43 !important; }
+
+.text-2xl.font-bold, .text-3xl.font-bold {
+  color: #081B43 !important;
+  font-weight: 800 !important;
+}
+
+p.text-2xl, p.text-3xl, p.text-4xl {
+  color: #081B43 !important;
+  font-weight: 700 !important;
+}
+
+td .text-blue-400 {
+  color: #081B43 !important;
+  font-weight: 700 !important;
+}
+
+.bg-blue-500\/10 p,
+.bg-green-500\/10 p,
+.bg-purple-500\/10 p,
+.bg-red-500\/10 p {
+  color: #081B43 !important;
+}
+
+.text-xs.font-medium { font-weight: 700 !important; }
+
+.opacity-70 {
+  opacity: 0.85 !important;
+  color: #5F6B7A !important;
+  font-weight: 600 !important;
+}
+
+/* Better placeholder visibility */
+input::placeholder,
+textarea::placeholder,
+select option {
+  color: #94A3B8 !important;
+}
+
+/* ─── Status pills (Online/Offline etc.) ─── */
+.bg-green-500\/10.text-green-400 {
+  background-color: rgba(22, 163, 74, 0.12) !important;
+  color: #14532D !important;
+  font-weight: 700 !important;
+}
+
+.bg-red-500\/10.text-red-400 {
+  background-color: rgba(220, 38, 38, 0.10) !important;
+  color: #7F1D1D !important;
+  font-weight: 700 !important;
+}
+
+/* Data type badges (INT / BOOL / REAL) */
+.bg-blue-500\/10.text-blue-400.font-mono {
+  background-color: rgba(37, 99, 235, 0.12) !important;
+  color: #0F3D91 !important;
+  font-weight: 700 !important;
+}
+
+.bg-purple-500\/10.text-purple-400 {
+  background-color: rgba(147, 51, 234, 0.10) !important;
+  color: #581C87 !important;
+  font-weight: 700 !important;
+}
+
+/* Table rows */
+tbody td { color: #334155 !important; }
+tbody td p { color: #334155 !important; }
+tbody td p.text-white {
+  color: #081B43 !important;
+  font-weight: 600 !important;
+}
+
+/* Monospace address / code */
+.font-mono.text-sm,
+.font-mono.text-xs {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/*  Form inputs                                */
+/* ═══════════════════════════════════════════ */
+input, select, textarea {
+  color: #081B43 !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+input.bg-gray-700, input.bg-gray-800,
+textarea.bg-gray-700, textarea.bg-gray-800 {
+  background-color: #F8FAFC !important;
+  color: #081B43 !important;
+  border: 1px solid #E5E7EB !important;
+}
+
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  background-color: #F8FAFC !important;
+  color: #081B43 !important;
+  border: 1px solid #E5E7EB !important;
+}
+
+select.bg-gray-700 {
+  background-color: #FFFFFF !important;
+  color: #081B43 !important;
+  border: 1px solid #E5E7EB !important;
+}
+
+button.bg-gray-700.text-gray-300 {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border: 1px solid #E5E7EB !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/*  Scrollbar — Blue Theme                     */
+/* ═══════════════════════════════════════════ */
+::-webkit-scrollbar         { width: 8px; height: 8px; }
+::-webkit-scrollbar-track   { background: #F1F5F9; }
+::-webkit-scrollbar-thumb   { background: #CBD5E1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ═══════════════════════════════════════════ */
+/*  CUSTOM COMPONENT CLASSES                   */
+/* ═══════════════════════════════════════════ */
+
+/* Kept for backward compatibility — now renders as Montserrat semi-bold */
+.serif-italic {
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  color: #2563EB;
+}
+
+/* Glass card (was cream, now white with subtle blue shadow) */
+.glass-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0px 4px 20px rgba(8, 27, 67, 0.06);
+  border: 1px solid #E5E7EB;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0px 12px 40px rgba(8, 27, 67, 0.12);
+}
+
+/* Brand gradient (was gold, now blue) */
+.gold-gradient {
+  background: linear-gradient(135deg, #2563EB 0%, #0F3D91 100%);
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #2563EB 0%, #0F3D91 100%);
+}
+
+/* Page background gradient (was cream, now soft blue) */
+.cream-gradient {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 50%, #EEF6FF 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #F8FBFF 0%, #EEF6FF 100%);
+}
+
+/* Blueprint grid background (subtle blue lines) */
+.blueprint-bg {
+  background-image:
+    linear-gradient(to right, rgba(15, 61, 145, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 61, 145, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════ */
+/*  Toast slide-in animation (kept)            */
+/* ═══════════════════════════════════════════ */
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Loading spinner accent */
+.animate-pulse {
+  color: #2563EB !important;
+}
+
+/* Big icons dimmer */
+.text-6xl, .text-4xl {
+  opacity: 0.5;
+}

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="tankBodyV" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="50%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="tankLiquidV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Top dome -->
+  <ellipse cx="50" cy="15" rx="25" ry="8" fill="url(#tankBodyV)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Main cylindrical body -->
+  <rect x="25" y="15" width="50" height="65" fill="url(#tankBodyV)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Liquid inside (60% full) -->
+  <rect x="27" y="42" width="46" height="38" fill="url(#tankLiquidV)"/>
+
+  <!-- Liquid surface wave -->
+  <path d="M 27 42 Q 35 40 45 42 T 63 42 T 73 42" fill="none" stroke="#0369a1" stroke-width="1" opacity="0.6"/>
+
+  <!-- Bottom dome -->
+  <ellipse cx="50" cy="80" rx="25" ry="6" fill="#64748b" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Top inlet pipe -->
+  <rect x="46" y="4" width="8" height="10" fill="#71717a" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Bottom outlet pipe -->
+  <rect x="46" y="82" width="8" height="14" fill="#71717a" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Level indicator sight glass (vertical) -->
+  <rect x="76" y="20" width="4" height="60" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <rect x="76" y="45" width="4" height="35" fill="#38bdf8"/>
+
+  <!-- Level markings -->
+  <line x1="80" y1="30" x2="84" y2="30" stroke="#1e293b" stroke-width="0.8"/>
+  <line x1="80" y1="50" x2="84" y2="50" stroke="#1e293b" stroke-width="0.8"/>
+  <line x1="80" y1="70" x2="84" y2="70" stroke="#1e293b" stroke-width="0.8"/>
+
+  <!-- Tank label plate -->
+  <rect x="35" y="55" width="30" height="10" fill="#f5f0e8" stroke="#78716c" stroke-width="0.5" rx="1"/>
+  <text x="50" y="62" text-anchor="middle" font-family="Arial" font-size="7" font-weight="bold" fill="#1c1917">TANK</text>
+</svg>

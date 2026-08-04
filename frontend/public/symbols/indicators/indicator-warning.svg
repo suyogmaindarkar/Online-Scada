@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="warnLight" cx="0.4" cy="0.3">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="60%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Warning triangle background -->
+  <polygon points="50,15 88,80 12,80" fill="url(#warnLight)" stroke="#78350f" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Exclamation mark -->
+  <rect x="47" y="35" width="6" height="25" fill="#000" rx="1"/>
+  <circle cx="50" cy="68" r="3.5" fill="#000"/>
+
+  <!-- Glow/highlight (top-left of triangle) -->
+  <polygon points="50,15 60,30 40,30" fill="#fbbf24" opacity="0.6"/>
+
+  <!-- Base plate -->
+  <rect x="20" y="82" width="60" height="8" fill="#525252" stroke="#171717" stroke-width="1"/>
+
+  <!-- Mounting bolts -->
+  <circle cx="28" cy="86" r="1.5" fill="#171717"/>
+  <circle cx="72" cy="86" r="1.5" fill="#171717"/>
+</svg>

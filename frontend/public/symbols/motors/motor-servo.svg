@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="servoBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+  </defs>
+  <rect x="30" y="15" width="40" height="15" fill="#1e293b" stroke="#0f172a" stroke-width="1"/>
+  <circle cx="50" cy="22" r="3" fill="#22c55e"/>
+  <rect x="25" y="30" width="50" height="45" fill="url(#servoBody)" stroke="#1e3a8a" stroke-width="1"/>
+  <rect x="30" y="40" width="40" height="1.5" fill="#0f172a"/>
+  <rect x="30" y="45" width="40" height="1.5" fill="#0f172a"/>
+  <rect x="30" y="50" width="40" height="1.5" fill="#0f172a"/>
+  <rect x="30" y="55" width="40" height="1.5" fill="#0f172a"/>
+  <rect x="30" y="60" width="40" height="1.5" fill="#0f172a"/>
+  <rect x="20" y="75" width="60" height="8" fill="#6b7280" stroke="#1f2937" stroke-width="1"/>
+  <rect x="47" y="83" width="6" height="12" fill="#9ca3af" stroke="#1f2937" stroke-width="0.8"/>
+</svg>
