@@ -152,19 +152,26 @@ const PropertyTable = ({
   tags,
   onUpdate,
   onOpenTagBinding,
+   selectedElements = [],       // ✅ NEW
+  onUpdateMultiple,
 }) => {
-  if (!element) {
-    return (
-      <div
-        className="flex-1 flex items-center justify-center"
-        style={{ background: '#FFFFFF' }}
-      >
-        <p className="text-[11px]" style={{ color: COLORS.inkSubtle }}>
-          Select an element to view properties
-        </p>
-      </div>
-    );
-  }
+// ✅ Multi-select: show common properties editor
+if (!element && selectedElements && selectedElements.length > 1) {
+  return <MultiSelectProperties selectedElements={selectedElements} onUpdateMultiple={onUpdateMultiple} />;
+}
+
+if (!element) {
+  return (
+    <div
+      className="flex-1 flex items-center justify-center"
+      style={{ background: '#FFFFFF' }}
+    >
+      <p className="text-[11px]" style={{ color: COLORS.inkSubtle }}>
+        Select an element to view properties
+      </p>
+    </div>
+  );
+}
 
   // ─────────────────────────────────────────────────────────
   // Property definitions per category
@@ -628,5 +635,112 @@ function generateDefaultName(type, id) {
   };
   return `${typeLabels[type] || 'Object'}_${shortId}`;
 }
+// ═══════════════════════════════════════════════════════════
+// ✅ T035: MULTI-SELECT PROPERTIES EDITOR
+// Shows common properties that can be applied to all selected elements
+// ═══════════════════════════════════════════════════════════
+const MultiSelectProperties = ({ selectedElements, onUpdateMultiple }) => {
+  // Common editable properties for multi-select
+  const commonProps = [
+    { key: 'x', label: 'Position X', unit: 'px', step: 1 },
+    { key: 'y', label: 'Position Y', unit: 'px', step: 1 },
+    { key: 'width', label: 'Width', unit: 'px', step: 1, min: 1 },
+    { key: 'height', label: 'Height', unit: 'px', step: 1, min: 1 },
+    { key: 'rotation', label: 'Rotation', unit: '°', step: 1, min: 0, max: 360 },
+    { key: 'opacity', label: 'Opacity', unit: '', step: 0.1, min: 0, max: 1 },
+  ];
 
+  // Show empty for properties where values differ
+  const getCommonValue = (key) => {
+    const first = selectedElements[0]?.[key];
+    const allSame = selectedElements.every(el => el[key] === first);
+    return allSame ? first : '';
+  };
+
+  const handleChange = (key, value) => {
+    if (value === '' || value === null) return;
+    const numericValue = key === 'opacity' ? parseFloat(value) : parseFloat(value);
+    if (isNaN(numericValue)) return;
+    onUpdateMultiple({ [key]: numericValue });
+  };
+
+  const inputStyle = {
+    background: '#FFFFFF',
+    border: `1px solid ${COLORS.lineDefault}`,
+    color: COLORS.heading,
+  };
+
+  return (
+    <div className="flex-1 overflow-auto" style={{ background: '#FFFFFF' }}>
+      {/* Header */}
+      <div
+        className="sticky top-0 z-10"
+        style={{
+          background: '#F8FAFC',
+          borderBottom: `1px solid ${COLORS.lineDefault}`,
+          padding: '8px 12px',
+        }}
+      >
+        <p className="text-[11px] font-bold" style={{ color: COLORS.heading, fontFamily: COLORS.fonts.heading }}>
+          Common Properties
+        </p>
+        <p className="text-[10px] mt-0.5" style={{ color: COLORS.inkMuted }}>
+          Applies to {selectedElements.length} selected elements — leave blank for "mixed values"
+        </p>
+      </div>
+
+      {/* Grid of common props */}
+      <div style={{ padding: '12px' }}>
+        <div className="grid grid-cols-2 gap-3">
+          {commonProps.map((prop) => {
+            const commonValue = getCommonValue(prop.key);
+            const isMixed = commonValue === '';
+            return (
+              <div key={prop.key}>
+                <label className="block text-[10px] font-semibold mb-1 uppercase" style={{ color: COLORS.inkMuted }}>
+                  {prop.label} {prop.unit && <span style={{ color: COLORS.inkSubtle }}>({prop.unit})</span>}
+                </label>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={commonValue}
+                    placeholder={isMixed ? 'Mixed' : '0'}
+                    onChange={(e) => handleChange(prop.key, e.target.value)}
+                    min={prop.min}
+                    max={prop.max}
+                    step={prop.step}
+                    className="w-full h-7 px-2 text-[11px] rounded outline-none transition-colors"
+                    style={{
+                      ...inputStyle,
+                      fontStyle: isMixed ? 'italic' : 'normal',
+                      color: isMixed ? COLORS.inkSubtle : COLORS.heading,
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = COLORS.brandAccent; }}
+                    onBlur={(e) => { e.target.style.borderColor = COLORS.lineDefault; }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Info box */}
+        <div
+          className="mt-4 p-3 rounded-lg"
+          style={{
+            background: COLORS.surfaceHover,
+            border: `1px solid ${COLORS.brandAccent}30`,
+          }}
+        >
+          <p className="text-[11px] font-semibold" style={{ color: COLORS.brandAccent }}>
+            💡 Multi-edit mode
+          </p>
+          <p className="text-[10px] mt-1" style={{ color: COLORS.inkBody }}>
+            Any change here applies to ALL {selectedElements.length} selected elements. To edit individual properties, deselect all and click a single element.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 export default PropertyTable;

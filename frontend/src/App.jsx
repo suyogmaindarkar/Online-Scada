@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import { AlarmNotificationProvider } from './context/AlarmNotificationContext'; // ✅ NEW
+import { AlarmNotificationProvider } from './context/AlarmNotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
@@ -13,6 +13,7 @@ import Runtime from './pages/Runtime';
 import Alarms from './pages/Alarms';
 import Trends from './pages/Trends';
 import Recipes from './pages/Recipes';
+import Reports from './pages/Reports';   // ✅ NEW
 import Users from './pages/Users';
 import Settings from './pages/Settings';
 
@@ -20,7 +21,6 @@ function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        {/* ✅ NEW: Global alarm notifications — plays sound from ANY page */}
         <AlarmNotificationProvider>
           <BrowserRouter>
             <div
@@ -38,6 +38,7 @@ function App() {
                 <Route path="/alarms"    element={<ProtectedRoute><MainLayout><Alarms /></MainLayout></ProtectedRoute>} />
                 <Route path="/trends"    element={<ProtectedRoute><MainLayout><Trends /></MainLayout></ProtectedRoute>} />
                 <Route path="/recipes"   element={<ProtectedRoute><MainLayout><Recipes /></MainLayout></ProtectedRoute>} />
+                <Route path="/reports"   element={<ProtectedRoute><MainLayout><Reports /></MainLayout></ProtectedRoute>} />  {/* ✅ NEW */}
                 <Route path="/users"     element={<ProtectedRoute><MainLayout><Users /></MainLayout></ProtectedRoute>} />
                 <Route path="/settings"  element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
 

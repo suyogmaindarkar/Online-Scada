@@ -1,5 +1,14 @@
+// ═══════════════════════════════════════════════════════════
+// DesignCanvas — Round 7 Enhancements
+//
+// Task Bundle applied:
+//   ✅ T035  — Multi-select: selectedIds array, Shift+Click, multi-drag
+//   ✅ T036  — Group visualization: dashed purple rect around groups
+//   ✅ T038  — Z-order supported via elements array ordering
+// ═══════════════════════════════════════════════════════════
+
 import { Stage, Layer, Rect, Circle, Line, Text, Group, RegularPolygon, Ellipse, Arc, Path, Transformer } from 'react-konva';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import Konva from 'konva';
 import { tagAPI } from '../../services/api';
 import { resolveElementBindings } from '../../utils/bindingUtils';
@@ -9,9 +18,10 @@ import useImage from '../../hooks/useImage';
 
 const DesignCanvas = ({
   elements,
-  selectedId,
+  selectedIds = [],       // ✅ CHANGED: array instead of single ID
   onSelect,
   onUpdate,
+  onUpdateMultiple,       // ✅ NEW: for coordinated multi-element updates
   width,
   height,
   backgroundColor,
@@ -26,6 +36,37 @@ const DesignCanvas = ({
   const elementRefs = useRef({});
   const [flashState, setFlashState] = useState(false);
 
+  // ═══════════════════════════════════════════════════════════
+  // ✅ T036: Compute group bounding boxes for visualization
+  // Only shows the dashed purple rect when a group member is selected
+  // ═══════════════════════════════════════════════════════════
+  const groupBounds = useMemo(() => {
+    const groups = new Map();
+    elements.forEach(el => {
+      if (!el.groupId) return;
+      if (!groups.has(el.groupId)) {
+        groups.set(el.groupId, {
+          minX: Infinity,
+          minY: Infinity,
+          maxX: -Infinity,
+          maxY: -Infinity,
+          elIds: [],
+        });
+      }
+      const g = groups.get(el.groupId);
+      const elX = el.x || 0;
+      const elY = el.y || 0;
+      const elW = el.width || 0;
+      const elH = el.height || 0;
+      g.minX = Math.min(g.minX, elX);
+      g.minY = Math.min(g.minY, elY);
+      g.maxX = Math.max(g.maxX, elX + elW);
+      g.maxY = Math.max(g.maxY, elY + elH);
+      g.elIds.push(el.id);
+    });
+    return groups;
+  }, [elements]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setFlashState((prev) => !prev);
@@ -33,21 +74,28 @@ const DesignCanvas = ({
     return () => clearInterval(interval);
   }, []);
 
+  // ═══════════════════════════════════════════════════════════
+  // ✅ T035: Attach Transformer to ALL selected nodes
+  // ═══════════════════════════════════════════════════════════
   useEffect(() => {
     if (!transformerRef.current) return;
 
-    if (selectedId && elementRefs.current[selectedId]) {
-      transformerRef.current.nodes([elementRefs.current[selectedId]]);
-      transformerRef.current.getLayer()?.batchDraw();
-    } else {
-      transformerRef.current.nodes([]);
-      transformerRef.current.getLayer()?.batchDraw();
-    }
-  }, [selectedId, elements]);
+    const nodes = selectedIds
+      .map(id => elementRefs.current[id])
+      .filter(Boolean);
 
+    transformerRef.current.nodes(nodes);
+    transformerRef.current.getLayer()?.batchDraw();
+  }, [selectedIds, elements]);
+
+  // ═══════════════════════════════════════════════════════════
+  // ✅ T035: Stage click handler — deselect only if no shift key
+  // ═══════════════════════════════════════════════════════════
   const handleStageClick = (e) => {
     if (e.target === e.target.getStage()) {
-      onSelect(null);
+      if (!e.evt.shiftKey) {
+        onSelect(null);
+      }
     }
   };
 
@@ -59,6 +107,10 @@ const DesignCanvas = ({
     }
   };
 
+  // ═══════════════════════════════════════════════════════════
+  // ✅ T035: Multi-drag — if dragged element is part of selection with 2+,
+  //         move ALL selected elements by the same delta
+  // ═══════════════════════════════════════════════════════════
   const handleDragEnd = (e, id) => {
     const bypass = isBypassSnapKey(e.evt);
     const shouldSnap = snapEnabled && !bypass;
@@ -72,6 +124,31 @@ const DesignCanvas = ({
       newY = snapped.y;
       e.target.x(newX);
       e.target.y(newY);
+    }
+
+    // If dragging one of multiple-selected → move all together
+    if (selectedIds.includes(id) && selectedIds.length > 1) {
+      const draggedEl = elements.find(el => el.id === id);
+      if (draggedEl) {
+        const deltaX = newX - draggedEl.x;
+        const deltaY = newY - draggedEl.y;
+
+        // Update each selected element individually with its own delta-adjusted position
+        selectedIds.forEach(sid => {
+          if (sid === id) {
+            onUpdate(sid, { x: newX, y: newY });
+          } else {
+            const otherEl = elements.find(e => e.id === sid);
+            if (otherEl) {
+              onUpdate(sid, {
+                x: (otherEl.x || 0) + deltaX,
+                y: (otherEl.y || 0) + deltaY,
+              });
+            }
+          }
+        });
+        return;
+      }
     }
 
     onUpdate(id, { x: newX, y: newY });
@@ -122,7 +199,7 @@ const DesignCanvas = ({
 
   const renderElement = (originalEl) => {
     const el = originalEl;
-    const isSelected = el.id === selectedId;
+    const isSelected = selectedIds.includes(el.id); // ✅ Multi-select aware
     const liveValue = null;
 
     let fillColor = normalizeColor(el.fill);
@@ -179,9 +256,13 @@ const DesignCanvas = ({
 
     if (!isVisible) return null;
 
+    // ✅ T035: Pass shiftKey to onSelect for multi-select support
     const handleElementClick = async (e) => {
       e.cancelBubble = true;
-      onSelect(el.id);
+      const shiftKey = e.evt?.shiftKey || false;
+      onSelect(el.id, shiftKey);
+
+      // Button action (existing logic preserved)
       if (el.type === 'button' && el.action?.targetTag) {
         try {
           let value = el.action.targetValue;
@@ -756,7 +837,7 @@ const DesignCanvas = ({
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        backgroundColor: '#F1F5F9',  // ✅ Blue-gray canvas surround (was cream #ebe3d5)
+        backgroundColor: '#F1F5F9',
       }}
     >
       <div
@@ -773,7 +854,7 @@ const DesignCanvas = ({
             linear-gradient(to bottom, rgba(15, 61, 145, 0.10) 1px, transparent 1px)`,
           backgroundSize: '10px 10px, 10px 10px, 50px 50px, 50px 50px',
           backgroundPosition: '-1px -1px, -1px -1px, -1px -1px, -1px -1px',
-          border: '1px solid #CBD5E1',  // ✅ Clean gray border (was gold #c9a876)
+          border: '1px solid #CBD5E1',
           borderRadius: '4px',
           boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.08)',
         }}
@@ -788,18 +869,49 @@ const DesignCanvas = ({
           style={{ background: 'transparent' }}
         >
           <Layer>
+            {/* ═══════════════════════════════════════════════════════════
+                ✅ T036: GROUP VISUALIZATION — dashed purple rects
+                Rendered FIRST (below all elements) so they appear behind.
+                Only visible when any member of the group is selected.
+                Non-interactive (listening={false}) so they don't block clicks.
+                ═══════════════════════════════════════════════════════════ */}
+            {Array.from(groupBounds.entries()).map(([groupId, bounds]) => {
+              const anySelected = bounds.elIds.some(id => selectedIds.includes(id));
+              if (!anySelected) return null;
+              if (!isFinite(bounds.minX) || !isFinite(bounds.minY)) return null;
+
+              return (
+                <Rect
+                  key={`group-${groupId}`}
+                  x={bounds.minX - 6}
+                  y={bounds.minY - 6}
+                  width={(bounds.maxX - bounds.minX) + 12}
+                  height={(bounds.maxY - bounds.minY) + 12}
+                  stroke="#9333EA"
+                  strokeWidth={1.5}
+                  dash={[6, 4]}
+                  fill="rgba(147, 51, 234, 0.04)"
+                  cornerRadius={4}
+                  listening={false}
+                />
+              );
+            })}
+
+            {/* All elements */}
             {elements.map((el) => renderElement(el))}
+
+            {/* Transformer — attaches to all selected via useEffect */}
             <Transformer
               ref={transformerRef}
-              borderStroke="#2563EB"          // ✅ Brand blue (was #0078d4)
+              borderStroke="#2563EB"
               borderStrokeWidth={1}
               borderDash={[4, 3]}
               anchorFill="#ffffff"
-              anchorStroke="#2563EB"          // ✅ Brand blue
+              anchorStroke="#2563EB"
               anchorStrokeWidth={1.5}
               anchorSize={8}
               anchorCornerRadius={1}
-              rotateEnabled={true}
+              rotateEnabled={selectedIds.length === 1}  // ✅ Only rotate when single selected
               rotationSnaps={[]}
               rotateAnchorOffset={30}
               keepRatio={false}

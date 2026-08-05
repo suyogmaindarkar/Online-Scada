@@ -16,6 +16,7 @@ import {
   Zap,
   LogOut,
   User,
+   FileText, 
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -56,6 +57,7 @@ const Sidebar = () => {
     { path: '/alarms',    icon: Bell,            label: 'Alarms', badge: unreadAlarms },
     { path: '/trends',    icon: TrendingUp,      label: 'Trends' },
     { path: '/recipes',   icon: ChefHat,         label: 'Recipes' },
+      { path: '/reports',   icon: FileText,        label: 'Reports' },   // ✅ NEW
     { path: '/users',     icon: Users,           label: 'Users' },
     { path: '/settings',  icon: SettingsIcon,    label: 'Settings' },
   ];
