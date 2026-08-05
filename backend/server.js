@@ -110,12 +110,13 @@ app.use('/api/trends', trendRoutes);
 app.use('/api/recipes', require('./src/routes/recipeRoutes'));
 app.use('/api/users', require('./src/routes/userRoutes'));
 app.use('/api/settings', require('./src/routes/settingsRoutes'));
-app.use('/api/reports', require('./src/routes/reportRoutes'));  // ✅ Round 6
+app.use('/api/reports', require('./src/routes/reportRoutes'));
+app.use('/api/discovery', require('./src/routes/discoveryRoutes'));  // ✅ Round 6
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════
 // SYSTEM ROUTES
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 app.get('/', (req, res) => {
   res.json({
     success: true,

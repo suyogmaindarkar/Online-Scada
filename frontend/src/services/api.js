@@ -122,7 +122,14 @@ export const screenAPI = {
   update: (id, data) => api.put(`/screens/${id}`, data),
   delete: (id) => api.delete(`/screens/${id}`),
 };
-
+// ===== DISCOVERY APIs =====
+export const discoveryAPI = {
+  getNetworks: () => api.get('/discovery/networks'),
+  startScan: (options = {}) => api.post('/discovery/scan', options),
+  getProgress: () => api.get('/discovery/progress'),
+  cancelScan: () => api.post('/discovery/cancel'),
+   probeDevice:  (ip, ports) => api.post('/discovery/probe', { ip, ports }),
+};
 // ===== GRAPHICS APIs =====
 export const graphicsAPI = {
   getAllGraphics: () => api.get('/graphics'),
