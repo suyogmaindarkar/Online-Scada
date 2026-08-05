@@ -822,6 +822,36 @@ const DesignCanvas = ({
         );
       }
 
+// ✅ Digital Clock (design-time preview — shows current time)
+case 'digitalClock': {
+  const now = new Date();
+  const previewText = formatClockText(now, el);
+  return (
+    <Group key={el.id} {...commonProps}>
+      <Rect
+        width={el.width}
+        height={el.height}
+        fill={normalizeColor(el.clockBackgroundColor) || '#081B43'}
+        cornerRadius={8}
+        stroke={normalizeColor(el.clockAccentColor) || '#2563EB'}
+        strokeWidth={1}
+      />
+      <Text
+        x={0}
+        y={el.height / 2 - 10}
+        width={el.width}
+        text={previewText}
+        fontSize={el.fontSize || 18}
+        fontStyle="bold"
+        fill={normalizeColor(el.clockTextColor) || '#FFFFFF'}
+        align="center"
+        fontFamily="monospace"
+      />
+    </Group>
+  );
+}
+
+
       default:
         return null;
     }
@@ -957,6 +987,70 @@ function interpolateColor(color1, color2, ratio) {
   const g = Math.round(g1 + (g2 - g1) * ratio);
   const b = Math.round(b1 + (b2 - b1) * ratio);
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// Clock formatting helper (shared with RuntimeCanvas)
+// ═══════════════════════════════════════════════════════════
+function formatClockText(date, el) {
+  const showSeconds = el.clockShowSeconds !== false;
+  const is12h = el.clockTimeFormat === '12h';
+  const displayMode = el.clockDisplayMode || 'timeAndDate';
+  const dateFormat = el.clockDateFormat || 'DD/MM/YYYY';
+
+  // ─── Time formatting ───
+  let hours = date.getHours();
+  const mins = String(date.getMinutes()).padStart(2, '0');
+  const secs = String(date.getSeconds()).padStart(2, '0');
+  let ampm = '';
+  if (is12h) {
+    ampm = hours >= 12 ? ' PM' : ' AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+  }
+  const hh = String(hours).padStart(2, '0');
+  const timeStr = showSeconds
+    ? `${hh}:${mins}:${secs}${ampm}`
+    : `${hh}:${mins}${ampm}`;
+
+  // ─── Date formatting ───
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekdayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+    'Thursday', 'Friday', 'Saturday'][date.getDay()];
+
+  let dateStr = '';
+  switch (dateFormat) {
+    case 'DD/MM/YYYY': dateStr = `${day}/${month}/${year}`; break;
+    case 'MM/DD/YYYY': dateStr = `${month}/${day}/${year}`; break;
+    case 'YYYY-MM-DD': dateStr = `${year}-${month}-${day}`; break;
+    case 'Long':      dateStr = `${monthNamesLong[date.getMonth()]} ${day}, ${year}`; break;
+    case 'Short':     dateStr = `${monthNamesShort[date.getMonth()]} ${day}, ${year}`; break;
+    default:          dateStr = `${day}/${month}/${year}`;
+  }
+
+  // ─── Timezone (short) ───
+  let tzStr = '';
+  if (el.clockShowTimezone) {
+    try {
+      const tzMatch = date.toString().match(/\(([^)]+)\)/);
+      tzStr = tzMatch ? ` ${tzMatch[1].split(' ').map(w => w[0]).join('')}` : '';
+    } catch {}
+  }
+
+  // ─── Assemble by display mode ───
+  switch (displayMode) {
+    case 'timeOnly':    return timeStr + tzStr;
+    case 'dateOnly':    return dateStr;
+    case 'longFormat':  return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`;
+    case 'timeAndDate':
+    default:            return `${timeStr}${tzStr}  ·  ${dateStr}`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════

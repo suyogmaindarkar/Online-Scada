@@ -6,6 +6,7 @@ import {
   Cylinder, Droplet, Cog, ToggleLeft, Gauge, Activity,
   MousePointer2, BarChart3, ListChecks, Hash, TextCursor,
   Radio,
+   Clock,  
   // Windows Objects
   CheckSquare, MousePointerClick, CircleDot,
   // Layout
@@ -47,6 +48,7 @@ const CATEGORIES = [
       { type: 'listBox', icon: ListChecks, label: 'List Box' },
       { type: 'numericDisplay', icon: Hash, label: 'Numeric Display' },
       { type: 'textDisplay', icon: Type, label: 'Text Display' },
+      { type: 'digitalClock', icon: Clock, label: 'Digital Clock' }, 
     ],
   },
   {
@@ -131,6 +133,23 @@ const getDefaults = (type) => {
     checkBox:          { fill: 'transparent', stroke: '#2563EB', width: 20, height: 20 },
     radioButton:       { fill: 'transparent', stroke: '#2563EB', width: 20, height: 20 },
     roundButton:       { fill: '#2563EB', width: 60, height: 60, fontColor: '#FFFFFF', text: 'BTN' },
+
+    digitalClock: {
+  fill: '#081B43',
+  width: 200,
+  height: 70,
+  fontSize: 20,
+  fontColor: '#FFFFFF',
+  clockDisplayMode: 'timeAndDate',
+  clockTimeFormat: '24h',
+  clockShowSeconds: true,
+  clockDateFormat: 'DD/MM/YYYY',
+  clockShowTimezone: false,
+  clockTimeSource: 'local',
+  clockBackgroundColor: '#081B43',
+  clockTextColor: '#FFFFFF',
+  clockAccentColor: '#2563EB',
+},
   };
 
   return { ...baseDefaults, ...(typeDefaults[type] || {}) };

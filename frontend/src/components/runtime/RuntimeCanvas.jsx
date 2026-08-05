@@ -10,7 +10,7 @@ import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { Image as KonvaImage } from 'react-konva';
 import useImage from '../../hooks/useImage';
-
+import { useServerTime } from '../../context/ServerTimeContext';
 const RuntimeCanvas = ({
   elements,
   width,
@@ -25,7 +25,14 @@ const RuntimeCanvas = ({
   const [flashState, setFlashState] = useState(false);
   const flashIntervalRef = useRef(null);
   const [pressedButtons, setPressedButtons] = useState({});
-
+// ✅ Live server time subscription (updates every second)
+const { serverTime } = useServerTime();
+// Also track local time — updates every 1s via own tick
+const [localTime, setLocalTime] = useState(new Date());
+useEffect(() => {
+  const tick = setInterval(() => setLocalTime(new Date()), 1000);
+  return () => clearInterval(tick);
+}, []);
   useEffect(() => {
     let fastestSpeed = 500;
     elements.forEach((el) => {
@@ -1009,6 +1016,49 @@ const RuntimeCanvas = ({
         );
       }
 
+
+// ✅ Digital Clock — LIVE time display (ticks every second)
+case 'digitalClock': {
+  const source = el.clockTimeSource || 'local';
+  const currentTime = source === 'server' ? serverTime : localTime;
+  const clockText = formatClockText(currentTime, el);
+
+  return (
+    <Group key={el.id} {...commonProps}>
+      <Rect
+        width={el.width}
+        height={el.height}
+        fill={normalizeColor(el.clockBackgroundColor) || '#081B43'}
+        cornerRadius={8}
+        stroke={normalizeColor(el.clockAccentColor) || '#2563EB'}
+        strokeWidth={1}
+      />
+      <Text
+        x={0}
+        y={el.height / 2 - 10}
+        width={el.width}
+        text={clockText}
+        fontSize={el.fontSize || 18}
+        fontStyle="bold"
+        fill={normalizeColor(el.clockTextColor) || '#FFFFFF'}
+        align="center"
+        fontFamily="monospace"
+      />
+      {/* Small "SRV" indicator badge if using server time */}
+      {source === 'server' && (
+        <Text
+          x={el.width - 30}
+          y={4}
+          text="SRV"
+          fontSize={7}
+          fill={normalizeColor(el.clockAccentColor) || '#2563EB'}
+          fontStyle="bold"
+        />
+      )}
+    </Group>
+  );
+}
+
       default:
         return null;
     }
@@ -1246,5 +1296,66 @@ const SvgSymbolElement = ({ el, commonProps }) => {
     />
   );
 };
+
+// ═══════════════════════════════════════════════════════════
+// Clock formatting helper (same logic as DesignCanvas)
+// ═══════════════════════════════════════════════════════════
+function formatClockText(date, el) {
+  const showSeconds = el.clockShowSeconds !== false;
+  const is12h = el.clockTimeFormat === '12h';
+  const displayMode = el.clockDisplayMode || 'timeAndDate';
+  const dateFormat = el.clockDateFormat || 'DD/MM/YYYY';
+
+  let hours = date.getHours();
+  const mins = String(date.getMinutes()).padStart(2, '0');
+  const secs = String(date.getSeconds()).padStart(2, '0');
+  let ampm = '';
+  if (is12h) {
+    ampm = hours >= 12 ? ' PM' : ' AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+  }
+  const hh = String(hours).padStart(2, '0');
+  const timeStr = showSeconds
+    ? `${hh}:${mins}:${secs}${ampm}`
+    : `${hh}:${mins}${ampm}`;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekdayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+    'Thursday', 'Friday', 'Saturday'][date.getDay()];
+
+  let dateStr = '';
+  switch (dateFormat) {
+    case 'DD/MM/YYYY': dateStr = `${day}/${month}/${year}`; break;
+    case 'MM/DD/YYYY': dateStr = `${month}/${day}/${year}`; break;
+    case 'YYYY-MM-DD': dateStr = `${year}-${month}-${day}`; break;
+    case 'Long':      dateStr = `${monthNamesLong[date.getMonth()]} ${day}, ${year}`; break;
+    case 'Short':     dateStr = `${monthNamesShort[date.getMonth()]} ${day}, ${year}`; break;
+    default:          dateStr = `${day}/${month}/${year}`;
+  }
+
+  let tzStr = '';
+  if (el.clockShowTimezone) {
+    try {
+      const tzMatch = date.toString().match(/\(([^)]+)\)/);
+      tzStr = tzMatch ? ` ${tzMatch[1].split(' ').map(w => w[0]).join('')}` : '';
+    } catch {}
+  }
+
+  switch (displayMode) {
+    case 'timeOnly':    return timeStr + tzStr;
+    case 'dateOnly':    return dateStr;
+    case 'longFormat':  return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`;
+    case 'timeAndDate':
+    default:            return `${timeStr}${tzStr}  ·  ${dateStr}`;
+  }
+}
+
 
 export default RuntimeCanvas;

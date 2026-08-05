@@ -1,16 +1,18 @@
 // ═══════════════════════════════════════════════════════════
 // Element-Specific Properties Configuration
 // Defines what appears in Property Panel for each element type
+//
+// Task Bundle applied:
+//   ✅ CLOCK — Digital clock element with format/source properties
 // ═══════════════════════════════════════════════════════════
 
 /**
  * Returns element-specific properties for the given type
- * These add to the standard Geometry/Colors/Styles/etc.
  */
 export const getElementSpecificProperties = (elementType, element = {}) => {
   const configs = {
     // ─────────────────────────────────────────────────────
-    // MOTOR — running state, RPM, direction
+    // MOTOR
     // ─────────────────────────────────────────────────────
     motor: [
       { key: 'motorRPM', label: 'RPM', type: 'number',
@@ -32,7 +34,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // TANK — level, capacity, warnings
+    // TANK
     // ─────────────────────────────────────────────────────
     tank: [
       { key: 'tankMinLevel', label: 'Min Level', type: 'number',
@@ -57,7 +59,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // PUMP — flow, RPM, direction
+    // PUMP
     // ─────────────────────────────────────────────────────
     pump: [
       { key: 'pumpFlowRate', label: 'Flow Rate', type: 'number',
@@ -77,7 +79,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // VALVE — position, type
+    // VALVE
     // ─────────────────────────────────────────────────────
     valve: [
       { key: 'valveType', label: 'Valve Type', type: 'select',
@@ -97,7 +99,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // BAR — bar chart properties
+    // BAR
     // ─────────────────────────────────────────────────────
     bar: [
       { key: 'barMin', label: 'Min Value', type: 'number',
@@ -129,7 +131,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // I/O FIELD — data entry field (Sprint D4: interactive)
+    // I/O FIELD
     // ─────────────────────────────────────────────────────
     ioField: [
       { key: 'ioTargetTag', label: 'Target Tag', type: 'tag',
@@ -159,7 +161,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // NUMERIC DISPLAY — read-only value display
+    // NUMERIC DISPLAY
     // ─────────────────────────────────────────────────────
     numericDisplay: [
       { key: 'numFormat', label: 'Format', type: 'select',
@@ -180,7 +182,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // BUTTON — button behavior
+    // BUTTON
     // ─────────────────────────────────────────────────────
     button: [
       { key: 'buttonType', label: 'Button Type', type: 'select',
@@ -201,7 +203,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // CHECKBOX — Interactive toggle (Sprint D4)
+    // CHECKBOX
     // ─────────────────────────────────────────────────────
     checkBox: [
       { key: 'checkBoxTargetTag', label: 'Target Tag', type: 'tag',
@@ -220,7 +222,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // RADIO BUTTON — Interactive selector (Sprint D4)
+    // RADIO BUTTON
     // ─────────────────────────────────────────────────────
     radioButton: [
       { key: 'radioTargetTag', label: 'Target Tag', type: 'tag',
@@ -238,7 +240,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // COMBO BOX — Dropdown selector (Sprint D4)
+    // COMBO BOX
     // ─────────────────────────────────────────────────────
     comboBox: [
       { key: 'comboTargetTag', label: 'Target Tag', type: 'tag',
@@ -253,7 +255,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // LIST BOX — List of clickable options (Sprint D4)
+    // LIST BOX
     // ─────────────────────────────────────────────────────
     listBox: [
       { key: 'listTargetTag', label: 'Target Tag', type: 'tag',
@@ -268,8 +270,7 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     ],
 
     // ─────────────────────────────────────────────────────
-    // SVG SYMBOL — Component Library elements (Sprint F)
-    // Bindable properties: tint color, tint strength, brightness
+    // SVG SYMBOL
     // ─────────────────────────────────────────────────────
     svgSymbol: [
       { key: 'svgPath', label: 'SVG Source', type: 'text',
@@ -283,6 +284,38 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
       { key: 'preserveAspect', label: 'Keep Aspect Ratio', type: 'select',
         value: element.preserveAspect !== false ? 'Yes' : 'No',
         options: ['Yes', 'No'], dynamic: false },
+    ],
+
+    // ─────────────────────────────────────────────────────
+    // ✅ DIGITAL CLOCK — Live time display widget
+    // ─────────────────────────────────────────────────────
+    digitalClock: [
+      { key: 'clockDisplayMode', label: 'Display Mode', type: 'select',
+        value: element.clockDisplayMode || 'timeAndDate',
+        options: ['timeOnly', 'dateOnly', 'timeAndDate', 'longFormat'],
+        dynamic: false },
+      { key: 'clockTimeFormat', label: 'Time Format', type: 'select',
+        value: element.clockTimeFormat || '24h',
+        options: ['24h', '12h'], dynamic: false },
+      { key: 'clockShowSeconds', label: 'Show Seconds', type: 'select',
+        value: element.clockShowSeconds !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'clockDateFormat', label: 'Date Format', type: 'select',
+        value: element.clockDateFormat || 'DD/MM/YYYY',
+        options: ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD', 'Long', 'Short'],
+        dynamic: false },
+      { key: 'clockShowTimezone', label: 'Show Timezone', type: 'select',
+        value: element.clockShowTimezone ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'clockTimeSource', label: 'Time Source', type: 'select',
+        value: element.clockTimeSource || 'local',
+        options: ['local', 'server'], dynamic: false },
+      { key: 'clockBackgroundColor', label: 'Background Color', type: 'color',
+        value: element.clockBackgroundColor || '#081B43', dynamic: false },
+      { key: 'clockTextColor', label: 'Text Color', type: 'color',
+        value: element.clockTextColor || '#FFFFFF', dynamic: false },
+      { key: 'clockAccentColor', label: 'Accent Color (separator/label)', type: 'color',
+        value: element.clockAccentColor || '#2563EB', dynamic: false },
     ],
   };
 
@@ -298,6 +331,7 @@ export const hasElementSpecificProperties = (type) => {
     'ioField', 'numericDisplay', 'button',
     'checkBox', 'radioButton', 'comboBox', 'listBox',
     'svgSymbol',
+    'digitalClock',  // ✅ NEW
   ].includes(type);
 };
 
@@ -331,6 +365,7 @@ export const getElementLabel = (type) => {
     pipe: 'Pipe',
     conveyor: 'Conveyor',
     svgSymbol: 'SVG Symbol',
+    digitalClock: 'Digital Clock',   // ✅ NEW
   };
   return labels[type] || type;
 };

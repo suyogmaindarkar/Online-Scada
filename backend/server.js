@@ -143,7 +143,8 @@ plcManager.init(io);
 
 const alarmEngine = require('./src/services/alarmEngine');
 alarmEngine.init(io);
-
+const timeService = require('./src/services/timeService');
+timeService.init(io);
 initInflux();
 
 setTimeout(() => {
@@ -217,6 +218,7 @@ process.on('SIGINT', async () => {
   try {
     plcManager.stopAll();
     alarmEngine.stop();
+    timeService.stop();  
     await closeInflux();
   } catch (e) {
     console.error('Shutdown error:', e.message);
