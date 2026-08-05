@@ -110,7 +110,7 @@ app.use('/api/trends', trendRoutes);
 app.use('/api/recipes', require('./src/routes/recipeRoutes'));
 app.use('/api/users', require('./src/routes/userRoutes'));
 app.use('/api/settings', require('./src/routes/settingsRoutes'));
-
+app.use('/api/reports', require('./src/routes/reportRoutes'));  // ✅ Round 6
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════

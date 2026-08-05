@@ -1,17 +1,37 @@
 // ============================================
 // S7 Service - Using nodes7 with auto-register write
+//
+// Task Bundle applied:
+//   ✅ INFLUX  — Batch write to InfluxDB (was per-tag, now single call)
+//   ✅ INFLUX  — Proper BOOL → 0/1 conversion
+//   ✅ INFLUX  — Skip STRING tags in InfluxDB writes
+//   ✅ INFLUX  — Diagnostic logging every 10 batches
 // ============================================
 
 const nodes7 = require('nodes7');
 const Tag = require('../models/Tag');
-const { writeTagValue: writeTagToInflux } = require('./influxService');
+const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
+
+// ─── Helper: Convert tag value to InfluxDB-safe number ───
+const toInfluxValue = (value, dataType) => {
+  if (value === null || value === undefined) return null;
+  if (dataType === 'BOOL' || typeof value === 'boolean') return value ? 1 : 0;
+  if (dataType === 'STRING' || typeof value === 'string') {
+    const n = Number(value);
+    return isNaN(n) ? null : n;
+  }
+  const n = Number(value);
+  return isNaN(n) ? null : n;
+};
 
 class S7Service {
   constructor() {
-    this.connections = new Map();     // plcId -> connection
-    this.intervals = new Map();       // plcId -> intervalId
-    this.tagCache = new Map();        // plcId -> tags array
-    this.registeredTags = new Map();  // plcId -> Set of registered tag names
+    this.connections = new Map();
+    this.intervals = new Map();
+    this.tagCache = new Map();
+    this.registeredTags = new Map();
+    this.influxWriteCounter = new Map();
+    this.INFLUX_LOG_EVERY = 10;
   }
 
   async connect(plc) {
@@ -49,9 +69,7 @@ class S7Service {
     this.stop(plc._id);
 
     const result = await this.connect(plc);
-    if (!result.success) {
-      throw new Error(result.error);
-    }
+    if (!result.success) throw new Error(result.error);
 
     const conn = result.conn;
 
@@ -64,7 +82,6 @@ class S7Service {
 
     if (tags.length === 0) {
       console.warn(`⚠️  No tags configured for ${plc.name}`);
-      // Still setup translation callback so future writes work
       const emptyVars = {};
       conn.setTranslationCB((t) => emptyVars[t]);
       this.tagCache.set(plc._id.toString(), []);
@@ -72,7 +89,6 @@ class S7Service {
       return { success: true, message: 'Connected but no tags' };
     }
 
-    // Build variables for nodes7
     const variables = {};
     const registered = new Set();
     tags.forEach((tag) => {
@@ -88,10 +104,9 @@ class S7Service {
 
     this.tagCache.set(plc._id.toString(), tags);
     this.registeredTags.set(plc._id.toString(), registered);
+    this.influxWriteCounter.set(plc._id.toString(), 0);
 
-    // ✅ Store variables map on connection for later auto-register
     conn._variables = variables;
-
     conn.setTranslationCB((t) => conn._variables[t]);
     conn.addItems(Object.keys(variables));
 
@@ -117,6 +132,7 @@ class S7Service {
         consecutiveFailures = 0;
 
         const updates = [];
+        const influxPoints = []; // ✅ Collect for batch write
 
         for (const tagName in values) {
           try {
@@ -124,7 +140,6 @@ class S7Service {
             if (!tag) continue;
 
             const value = values[tagName];
-
             if (value === 'BAD 255' || value === null || value === undefined) continue;
 
             tag.currentValue = value;
@@ -139,17 +154,19 @@ class S7Service {
               timestamp: tag.lastUpdated,
             });
 
+            // ✅ Collect for batch InfluxDB write
             if (tag.enableLogging) {
-              try {
-                await writeTagToInflux({
-                  tagId: tag._id,
+              const influxValue = toInfluxValue(value, tag.dataType);
+              if (influxValue !== null) {
+                influxPoints.push({
+                  tagId: tag._id.toString(),
                   tagName: tag.tagName,
-                  value: typeof value === 'boolean' ? (value ? 1 : 0) : value,
-                  unit: tag.unit,
-                  plcId: plc._id,
+                  value: influxValue,
+                  unit: tag.unit || '',
+                  plcId: plc._id.toString(),
                   quality: 'GOOD',
                 });
-              } catch (e) {}
+              }
             }
           } catch (err) {
             console.error(`❌ Tag update error: ${err.message}`);
@@ -159,17 +176,29 @@ class S7Service {
         if (io && updates.length > 0) {
           io.emit('tagsUpdate', updates);
         }
+
+        // ✅ Batch write to InfluxDB (1 call for ALL loggable tags)
+        if (influxPoints.length > 0 && isInfluxAvailable()) {
+          try {
+            const success = await writeMultipleTagValues(influxPoints);
+            if (success) {
+              const counter = (this.influxWriteCounter.get(plc._id.toString()) || 0) + 1;
+              this.influxWriteCounter.set(plc._id.toString(), counter);
+              if (counter % this.INFLUX_LOG_EVERY === 0) {
+                console.log(`📈 [${plc.name}] Logged ${influxPoints.length} values to InfluxDB (${counter} batches so far)`);
+              }
+            }
+          } catch (influxErr) {
+            // Silent — influxService handles anti-spam logging
+          }
+        }
       });
     }, pollRate);
 
     this.intervals.set(plc._id.toString(), intervalId);
-
     return { success: true, message: 'S7 polling started' };
   }
 
-  // ─────────────────────────────────────────
-  // Convert Siemens Address to nodes7 Format
-  // ─────────────────────────────────────────
   convertAddress(tag) {
     let addr = tag.plcAddress;
     if (!addr || typeof addr !== 'string') return null;
@@ -177,44 +206,37 @@ class S7Service {
     addr = addr.trim().toUpperCase();
     if (addr === '') return null;
 
-    // Memory areas
     if (addr.match(/^M\d+\.\d+$/)) return addr;
     if (addr.match(/^MB\d+$/))     return addr;
     if (addr.match(/^MW\d+$/))     return addr;
     if (addr.match(/^MD\d+$/))     return addr;
 
-    // Input areas
     if (addr.match(/^I\d+\.\d+$/)) return addr;
     if (addr.match(/^IB\d+$/))     return addr;
     if (addr.match(/^IW\d+$/))     return addr;
     if (addr.match(/^ID\d+$/))     return addr;
 
-    // Output areas
     if (addr.match(/^Q\d+\.\d+$/)) return addr;
     if (addr.match(/^QB\d+$/))     return addr;
     if (addr.match(/^QW\d+$/))     return addr;
     if (addr.match(/^QD\d+$/))     return addr;
 
-    // DB Boolean: DB1.DBX0.0 → DB1,X0.0
     const dbBoolMatch = addr.match(/^DB(\d+)\.DBX(\d+)\.(\d+)$/);
     if (dbBoolMatch) {
       return `DB${dbBoolMatch[1]},X${dbBoolMatch[2]}.${dbBoolMatch[3]}`;
     }
 
-    // DB Byte
     const dbByteMatch = addr.match(/^DB(\d+)\.DBB(\d+)$/);
     if (dbByteMatch) {
       return `DB${dbByteMatch[1]},B${dbByteMatch[2]}`;
     }
 
-    // DB Word
     const dbWordMatch = addr.match(/^DB(\d+)\.DBW(\d+)$/);
     if (dbWordMatch) {
       const type = tag.dataType === 'WORD' ? 'WORD' : 'INT';
       return `DB${dbWordMatch[1]},${type}${dbWordMatch[2]}`;
     }
 
-    // DB DWord
     const dbDwordMatch = addr.match(/^DB(\d+)\.DBD(\d+)$/);
     if (dbDwordMatch) {
       let type = 'DINT';
@@ -227,30 +249,22 @@ class S7Service {
     return null;
   }
 
-  // ─────────────────────────────────────────
-  // ✅ AUTO-REGISTER new tag if not already registered
-  // ─────────────────────────────────────────
   _ensureTagRegistered(plcId, tag) {
     const id = plcId.toString();
     const conn = this.connections.get(id);
     const registered = this.registeredTags.get(id) || new Set();
 
     if (!conn) throw new Error('PLC not connected');
-
-    // Already registered — done
     if (registered.has(tag.tagName)) return true;
 
-    // Not registered — register now
     const nodes7Address = this.convertAddress(tag);
     if (!nodes7Address) {
       throw new Error(`Invalid PLC address: "${tag.plcAddress || '<empty>'}"`);
     }
 
-    // Add to variables map
     if (!conn._variables) conn._variables = {};
     conn._variables[tag.tagName] = nodes7Address;
 
-    // Register with nodes7
     conn.addItems(tag.tagName);
     registered.add(tag.tagName);
     this.registeredTags.set(id, registered);
@@ -259,20 +273,15 @@ class S7Service {
     return true;
   }
 
-  // ─────────────────────────────────────────
-  // Write Value to S7 (with auto-register)
-  // ─────────────────────────────────────────
   async writeTag(plcId, tag, value) {
     return new Promise((resolve, reject) => {
       const conn = this.connections.get(plcId.toString());
       if (!conn) return reject(new Error('PLC not connected'));
 
-      // ✅ Validate address first
       if (!tag.plcAddress || typeof tag.plcAddress !== 'string' || tag.plcAddress.trim() === '') {
         return reject(new Error(`Tag "${tag.tagName}" has no PLC address configured`));
       }
 
-      // ✅ Auto-register if not already registered
       try {
         this._ensureTagRegistered(plcId, tag);
       } catch (err) {
@@ -295,9 +304,7 @@ class S7Service {
     if (result.success) {
       const conn = result.conn;
       setTimeout(() => {
-        try {
-          conn.dropConnection();
-        } catch (e) {}
+        try { conn.dropConnection(); } catch (e) {}
         this.connections.delete(plc._id.toString());
       }, 500);
       return { success: true, message: 'Connection test successful' };
@@ -315,15 +322,14 @@ class S7Service {
 
     if (this.connections.has(id)) {
       const conn = this.connections.get(id);
-      try {
-        conn.dropConnection();
-      } catch (e) {}
+      try { conn.dropConnection(); } catch (e) {}
       this.connections.delete(id);
       console.log(`⏹️  S7 disconnected: ${id}`);
     }
 
     this.tagCache.delete(id);
     this.registeredTags.delete(id);
+    this.influxWriteCounter.delete(id);
   }
 
   isRunning(plcId) {

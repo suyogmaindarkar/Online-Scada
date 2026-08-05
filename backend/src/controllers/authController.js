@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const { logActivity } = require('./reportController');
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -112,6 +112,28 @@ const login = async (req, res) => {
         message: 'Please provide username and password',
       });
     }
+
+// After successful login:
+await logActivity({
+  username: user.username,
+  userRole: user.role,
+  userId: user._id,
+  action: 'LOGIN',
+  description: `User logged in`,
+  ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+  userAgent: req.headers['user-agent'] || '',
+});
+
+// On failed login (before returning 401):
+await logActivity({
+  username: username || 'unknown',
+  action: 'LOGIN_FAILED',
+  description: `Failed login attempt`,
+  ipAddress: req.ip || '',
+  userAgent: req.headers['user-agent'] || '',
+  success: false,
+  errorMessage: 'Invalid credentials',
+});
 
     // Find user (include password field)
     const user = await User.findOne({
