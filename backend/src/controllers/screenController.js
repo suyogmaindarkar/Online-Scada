@@ -1,20 +1,15 @@
 const Graphic = require('../models/Graphic');
 
 // ════════════════════════════════════════════════════════════
-// SANITIZER: Deep clean elements to prevent MongoDB errors
+// SANITIZER
 // ════════════════════════════════════════════════════════════
 function sanitizeValue(val) {
-  // Handle NaN, Infinity, undefined
   if (val === undefined) return undefined;
   if (typeof val === 'number' && (isNaN(val) || !isFinite(val))) return 0;
-
-  // Normalize 3-digit hex colors
   if (typeof val === 'string' && /^#[0-9a-fA-F]{3}$/.test(val.trim())) {
     const t = val.trim();
     return '#' + t[1] + t[1] + t[2] + t[2] + t[3] + t[3];
   }
-
-  // Recurse into objects
   if (val && typeof val === 'object' && !Array.isArray(val)) {
     const cleaned = {};
     Object.keys(val).forEach((k) => {
@@ -23,12 +18,9 @@ function sanitizeValue(val) {
     });
     return cleaned;
   }
-
-  // Recurse into arrays
   if (Array.isArray(val)) {
     return val.map(sanitizeValue).filter((v) => v !== undefined);
   }
-
   return val;
 }
 
@@ -37,24 +29,44 @@ function sanitizeElements(elements) {
   return elements.map((el) => sanitizeValue(el));
 }
 
+// ✅ Convert boolean-ish inputs from body to actual booleans
+function toBool(v) {
+  return v === true || v === 'true' || v === 1 || v === '1';
+}
+
 // ===== CREATE SCREEN =====
 const createScreen = async (req, res) => {
   console.log('\n━━━━━ CREATE SCREEN ━━━━━');
-  console.log('Body keys:', Object.keys(req.body));
   console.log('Screen name:', req.body.screenName);
-  console.log('Elements count:', req.body.elements?.length);
+  console.log('isTemplate:', req.body.isTemplate, '| isPopup:', req.body.isPopup);
 
   try {
-        const data = {
-      screenName: (req.body.screenName || '').trim(),
-      description: req.body.description || '',
-      width: Number(req.body.width) || 1920,
-      height: Number(req.body.height) || 1080,
-      backgroundColor: sanitizeValue(req.body.backgroundColor) || '#ffffff',
-      elements: sanitizeElements(req.body.elements),
+    const isTemplate = toBool(req.body.isTemplate);
+    const isPopup    = toBool(req.body.isPopup);
+
+    // Prevent both flags being true
+    if (isTemplate && isPopup) {
+      return res.status(400).json({
+        success: false,
+        message: 'Screen cannot be both a template and a popup',
+      });
+    }
+
+    const data = {
+      screenName:        (req.body.screenName || '').trim(),
+      description:       req.body.description || '',
+      width:             Number(req.body.width) || 1920,
+      height:            Number(req.body.height) || 1080,
+      backgroundColor:   sanitizeValue(req.body.backgroundColor) || '#ffffff',
+      elements:          sanitizeElements(req.body.elements),
       directConnections: Array.isArray(req.body.directConnections)
-        ? sanitizeElements(req.body.directConnections)
-        : [],
+        ? sanitizeElements(req.body.directConnections) : [],
+      isStartupScreen:   toBool(req.body.isStartupScreen),
+      isTemplate,
+      isPopup,
+      popupModal:          req.body.popupModal          === undefined ? true : toBool(req.body.popupModal),
+      popupCloseable:      req.body.popupCloseable      === undefined ? true : toBool(req.body.popupCloseable),
+      popupCloseOnBackdrop: req.body.popupCloseOnBackdrop === undefined ? true : toBool(req.body.popupCloseOnBackdrop),
     };
 
     if (!data.screenName) {
@@ -69,13 +81,14 @@ const createScreen = async (req, res) => {
       });
     }
 
-    // Log first element with animation for debug
-    const elementsWithAnim = data.elements.filter((e) => e.animation?.enabled);
-    if (elementsWithAnim.length) {
-      console.log('Animations found:', JSON.stringify(elementsWithAnim.map(e => ({
-        type: e.type,
-        animation: e.animation,
-      })), null, 2));
+    // ✅ Only ONE startup screen allowed
+    if (data.isStartupScreen) {
+      await Graphic.updateMany({}, { $set: { isStartupScreen: false } });
+    }
+
+    // ✅ Only ONE template screen allowed — clear existing template
+    if (data.isTemplate) {
+      await Graphic.updateMany({ isTemplate: true }, { $set: { isTemplate: false } });
     }
 
     const screen = await Graphic.create(data);
@@ -87,16 +100,7 @@ const createScreen = async (req, res) => {
       data: screen,
     });
   } catch (error) {
-    console.error('❌ CREATE SCREEN ERROR:');
-    console.error('   Name:', error.name);
-    console.error('   Message:', error.message);
-    if (error.errors) {
-      console.error('   Validation errors:');
-      Object.keys(error.errors).forEach(k => {
-        console.error(`      ${k}: ${error.errors[k].message}`);
-      });
-    }
-    console.error('   Stack:', error.stack);
+    console.error('❌ CREATE SCREEN ERROR:', error.message);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create screen',
@@ -135,35 +139,61 @@ const updateScreen = async (req, res) => {
   console.log('\n━━━━━ UPDATE SCREEN ━━━━━');
   console.log('ID:', req.params.id);
   console.log('Body keys:', Object.keys(req.body));
-  console.log('Elements count:', req.body.elements?.length);
 
   try {
     const updates = {};
 
-    if (req.body.screenName !== undefined) updates.screenName = req.body.screenName.trim();
-    if (req.body.description !== undefined) updates.description = req.body.description;
-    if (req.body.width !== undefined) updates.width = Number(req.body.width) || 1920;
-    if (req.body.height !== undefined) updates.height = Number(req.body.height) || 1080;
+    if (req.body.screenName      !== undefined) updates.screenName      = req.body.screenName.trim();
+    if (req.body.description     !== undefined) updates.description     = req.body.description;
+    if (req.body.width           !== undefined) updates.width           = Number(req.body.width) || 1920;
+    if (req.body.height          !== undefined) updates.height          = Number(req.body.height) || 1080;
     if (req.body.backgroundColor !== undefined) {
       updates.backgroundColor = sanitizeValue(req.body.backgroundColor) || '#ffffff';
     }
-        if (Array.isArray(req.body.elements)) {
+    if (Array.isArray(req.body.elements)) {
       updates.elements = sanitizeElements(req.body.elements);
     }
     if (Array.isArray(req.body.directConnections)) {
       updates.directConnections = sanitizeElements(req.body.directConnections);
     }
 
-    // Log animations for debug
-    if (updates.elements) {
-      const elementsWithAnim = updates.elements.filter((e) => e.animation?.enabled);
-      if (elementsWithAnim.length) {
-        console.log('Animations found:', JSON.stringify(elementsWithAnim.map(e => ({
-          type: e.type,
-          animation: e.animation,
-        })), null, 2));
-      }
+    // ─── Startup screen ───
+    if (req.body.isStartupScreen === true || req.body.isStartupScreen === 'true') {
+      await Graphic.updateMany(
+        { _id: { $ne: req.params.id } },
+        { $set: { isStartupScreen: false } }
+      );
+      updates.isStartupScreen = true;
+    } else if (req.body.isStartupScreen === false || req.body.isStartupScreen === 'false') {
+      updates.isStartupScreen = false;
     }
+
+    // ─── Template flag ───
+    if (req.body.isTemplate === true || req.body.isTemplate === 'true') {
+      // Clear existing template + ensure this screen isn't also popup
+      await Graphic.updateMany(
+        { _id: { $ne: req.params.id }, isTemplate: true },
+        { $set: { isTemplate: false } }
+      );
+      updates.isTemplate = true;
+      updates.isPopup = false;
+    } else if (req.body.isTemplate === false || req.body.isTemplate === 'false') {
+      updates.isTemplate = false;
+    }
+
+    // ─── Popup flag ───
+    if (req.body.isPopup === true || req.body.isPopup === 'true') {
+      updates.isPopup = true;
+      updates.isTemplate = false; // popup can't be template
+      updates.isStartupScreen = false; // popup can't be startup
+    } else if (req.body.isPopup === false || req.body.isPopup === 'false') {
+      updates.isPopup = false;
+    }
+
+    // ─── Popup settings ───
+    if (req.body.popupModal !== undefined) updates.popupModal = toBool(req.body.popupModal);
+    if (req.body.popupCloseable !== undefined) updates.popupCloseable = toBool(req.body.popupCloseable);
+    if (req.body.popupCloseOnBackdrop !== undefined) updates.popupCloseOnBackdrop = toBool(req.body.popupCloseOnBackdrop);
 
     const screen = await Graphic.findByIdAndUpdate(
       req.params.id,
@@ -175,23 +205,18 @@ const updateScreen = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Screen not found' });
     }
 
-    console.log('✅ Screen updated:', screen._id);
+    console.log('✅ Screen updated:', screen._id,
+      '| isStartup:', screen.isStartupScreen,
+      '| isTemplate:', screen.isTemplate,
+      '| isPopup:', screen.isPopup);
+
     res.json({
       success: true,
       message: 'Screen updated successfully',
       data: screen,
     });
   } catch (error) {
-    console.error('❌ UPDATE SCREEN ERROR:');
-    console.error('   Name:', error.name);
-    console.error('   Message:', error.message);
-    if (error.errors) {
-      console.error('   Validation errors:');
-      Object.keys(error.errors).forEach(k => {
-        console.error(`      ${k}: ${error.errors[k].message}`);
-      });
-    }
-    console.error('   Stack:', error.stack);
+    console.error('❌ UPDATE SCREEN ERROR:', error.message);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to update screen',

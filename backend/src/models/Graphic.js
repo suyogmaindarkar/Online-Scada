@@ -24,26 +24,47 @@ const graphicSchema = new mongoose.Schema(
       type: String,
       default: '#ffffff',
     },
-    // ═══════════════════════════════════════════════════════════
-    // Elements — FLEXIBLE schema (no strict enum)
-    // ═══════════════════════════════════════════════════════════
     elements: {
       type: [mongoose.Schema.Types.Mixed],
       default: [],
     },
-    // ═══════════════════════════════════════════════════════════
-    // Direct Connections — Sprint D2
-    // Auto-copy value from source to target on trigger
-    // ═══════════════════════════════════════════════════════════
     directConnections: {
       type: [mongoose.Schema.Types.Mixed],
       default: [],
     },
-    // Screen settings
+
+    // ─── Screen type flags ───
     isStartupScreen: {
       type: Boolean,
       default: false,
+      index: true,
     },
+    // ✅ NEW: Template screen — elements auto-appear on all regular screens
+    isTemplate: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    // ✅ NEW: Popup screen — rendered as modal overlay in runtime
+    isPopup: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    // ✅ NEW: Popup-specific settings
+    popupModal: {
+      type: Boolean,
+      default: true, // true = blocks interaction with underlying screen
+    },
+    popupCloseable: {
+      type: Boolean,
+      default: true, // true = show close button in top-right
+    },
+    popupCloseOnBackdrop: {
+      type: Boolean,
+      default: true, // true = clicking backdrop closes popup
+    },
+
     accessLevel: {
       type: String,
       enum: ['admin', 'engineer', 'operator', 'viewer'],

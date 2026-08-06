@@ -427,3 +427,8 @@ button, a, input, select, textarea {
 .text-6xl, .text-4xl {
   opacity: 0.5;
 }
+
+/* Runtime fullscreen — prevent body scroll */
+body:has([data-runtime="true"]) {
+  overflow: hidden;
+}

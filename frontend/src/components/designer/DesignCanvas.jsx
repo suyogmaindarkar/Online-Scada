@@ -1,27 +1,28 @@
 // ═══════════════════════════════════════════════════════════
-// DesignCanvas — Round 7 Enhancements
-//
-// Task Bundle applied:
-//   ✅ T035  — Multi-select: selectedIds array, Shift+Click, multi-drag
-//   ✅ T036  — Group visualization: dashed purple rect around groups
-//   ✅ T038  — Z-order supported via elements array ordering
+// DesignCanvas — Fixed:
+//   ✅ #3  Shift+Scroll zooms the canvas (wheel event on wrapper)
+//          Zoom range: 25% – 300%, step: 10% per scroll tick
 // ═══════════════════════════════════════════════════════════
 
 import { Stage, Layer, Rect, Circle, Line, Text, Group, RegularPolygon, Ellipse, Arc, Path, Transformer } from 'react-konva';
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Konva from 'konva';
 import { tagAPI } from '../../services/api';
 import { resolveElementBindings } from '../../utils/bindingUtils';
 import { snap, snapPoint, snapSize, isBypassSnapKey } from '../../utils/snapUtils';
 import { Image as KonvaImage } from 'react-konva';
 import useImage from '../../hooks/useImage';
+import { ProcessPictureWidget, isProcessPicture } from '../widgets/ProcessPictureWidgets';
+const MIN_ZOOM = 25;
+const MAX_ZOOM = 300;
+const ZOOM_STEP = 10;
 
 const DesignCanvas = ({
   elements,
-  selectedIds = [],       // ✅ CHANGED: array instead of single ID
+  selectedIds = [],
   onSelect,
   onUpdate,
-  onUpdateMultiple,       // ✅ NEW: for coordinated multi-element updates
+  onUpdateMultiple,
   width,
   height,
   backgroundColor,
@@ -34,117 +35,102 @@ const DesignCanvas = ({
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const elementRefs = useRef({});
+  const wrapperRef = useRef(null);        // ✅ #3: ref on the scrollable wrapper div
   const [flashState, setFlashState] = useState(false);
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T036: Compute group bounding boxes for visualization
-  // Only shows the dashed purple rect when a group member is selected
-  // ═══════════════════════════════════════════════════════════
+  // ✅ #3: Internal zoom state (separate from toolbar zoom so Shift+Scroll works independently)
+  const [canvasZoom, setCanvasZoom] = useState(100);
+
+  // Group bounds for visualization
   const groupBounds = useMemo(() => {
     const groups = new Map();
     elements.forEach(el => {
       if (!el.groupId) return;
       if (!groups.has(el.groupId)) {
-        groups.set(el.groupId, {
-          minX: Infinity,
-          minY: Infinity,
-          maxX: -Infinity,
-          maxY: -Infinity,
-          elIds: [],
-        });
+        groups.set(el.groupId, { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity, elIds: [] });
       }
       const g = groups.get(el.groupId);
-      const elX = el.x || 0;
-      const elY = el.y || 0;
-      const elW = el.width || 0;
-      const elH = el.height || 0;
-      g.minX = Math.min(g.minX, elX);
-      g.minY = Math.min(g.minY, elY);
-      g.maxX = Math.max(g.maxX, elX + elW);
-      g.maxY = Math.max(g.maxY, elY + elH);
+      const elX = el.x || 0; const elY = el.y || 0;
+      const elW = el.width || 0; const elH = el.height || 0;
+      g.minX = Math.min(g.minX, elX); g.minY = Math.min(g.minY, elY);
+      g.maxX = Math.max(g.maxX, elX + elW); g.maxY = Math.max(g.maxY, elY + elH);
       g.elIds.push(el.id);
     });
     return groups;
   }, [elements]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFlashState((prev) => !prev);
-    }, 500);
+    const interval = setInterval(() => setFlashState((prev) => !prev), 500);
     return () => clearInterval(interval);
   }, []);
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T035: Attach Transformer to ALL selected nodes
-  // ═══════════════════════════════════════════════════════════
+  // Attach transformer to selected nodes
   useEffect(() => {
     if (!transformerRef.current) return;
-
-    const nodes = selectedIds
-      .map(id => elementRefs.current[id])
-      .filter(Boolean);
-
+    const nodes = selectedIds.map(id => elementRefs.current[id]).filter(Boolean);
     transformerRef.current.nodes(nodes);
     transformerRef.current.getLayer()?.batchDraw();
   }, [selectedIds, elements]);
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T035: Stage click handler — deselect only if no shift key
-  // ═══════════════════════════════════════════════════════════
+  // ✅ #3: Shift+Scroll zoom handler
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const handleWheel = (e) => {
+      // Only zoom when Shift key is held
+      if (!e.shiftKey) return;
+
+      e.preventDefault(); // prevent page scroll
+      e.stopPropagation();
+
+      setCanvasZoom(prev => {
+        // deltaY > 0 = scroll down = zoom out
+        const direction = e.deltaY > 0 ? -1 : 1;
+        const next = prev + direction * ZOOM_STEP;
+        return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next));
+      });
+    };
+
+    // Use passive: false so we can call preventDefault()
+    wrapper.addEventListener('wheel', handleWheel, { passive: false });
+    return () => wrapper.removeEventListener('wheel', handleWheel);
+  }, []);
+
   const handleStageClick = (e) => {
     if (e.target === e.target.getStage()) {
-      if (!e.evt.shiftKey) {
-        onSelect(null);
-      }
+      if (!e.evt.shiftKey) onSelect(null);
     }
   };
 
   const handleMouseMove = (e) => {
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
-    if (pos && onMouseMove) {
-      onMouseMove({ x: pos.x, y: pos.y });
-    }
+    if (pos && onMouseMove) onMouseMove({ x: pos.x, y: pos.y });
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T035: Multi-drag — if dragged element is part of selection with 2+,
-  //         move ALL selected elements by the same delta
-  // ═══════════════════════════════════════════════════════════
   const handleDragEnd = (e, id) => {
     const bypass = isBypassSnapKey(e.evt);
     const shouldSnap = snapEnabled && !bypass;
-
     let newX = e.target.x();
     let newY = e.target.y();
 
     if (shouldSnap) {
       const snapped = snapPoint(newX, newY, gridSize);
-      newX = snapped.x;
-      newY = snapped.y;
-      e.target.x(newX);
-      e.target.y(newY);
+      newX = snapped.x; newY = snapped.y;
+      e.target.x(newX); e.target.y(newY);
     }
 
-    // If dragging one of multiple-selected → move all together
     if (selectedIds.includes(id) && selectedIds.length > 1) {
       const draggedEl = elements.find(el => el.id === id);
       if (draggedEl) {
         const deltaX = newX - draggedEl.x;
         const deltaY = newY - draggedEl.y;
-
-        // Update each selected element individually with its own delta-adjusted position
         selectedIds.forEach(sid => {
-          if (sid === id) {
-            onUpdate(sid, { x: newX, y: newY });
-          } else {
+          if (sid === id) { onUpdate(sid, { x: newX, y: newY }); }
+          else {
             const otherEl = elements.find(e => e.id === sid);
-            if (otherEl) {
-              onUpdate(sid, {
-                x: (otherEl.x || 0) + deltaX,
-                y: (otherEl.y || 0) + deltaY,
-              });
-            }
+            if (otherEl) onUpdate(sid, { x: (otherEl.x || 0) + deltaX, y: (otherEl.y || 0) + deltaY });
           }
         });
         return;
@@ -158,14 +144,11 @@ const DesignCanvas = ({
     const node = e.target;
     const scaleX = node.scaleX();
     const scaleY = node.scaleY();
-
-    node.scaleX(1);
-    node.scaleY(1);
+    node.scaleX(1); node.scaleY(1);
 
     let newWidth = Math.max(5, (el.width || 100) * scaleX);
     let newHeight = Math.max(5, (el.height || 100) * scaleY);
-    let newX = node.x();
-    let newY = node.y();
+    let newX = node.x(); let newY = node.y();
     const newRotation = node.rotation();
 
     const bypass = isBypassSnapKey(e.evt);
@@ -174,17 +157,13 @@ const DesignCanvas = ({
     if (shouldSnap) {
       const snappedPos = snapPoint(newX, newY, gridSize);
       const snappedSz = snapSize(newWidth, newHeight, gridSize, 5);
-      newX = snappedPos.x;
-      newY = snappedPos.y;
-      newWidth = snappedSz.width;
-      newHeight = snappedSz.height;
-      node.x(newX);
-      node.y(newY);
+      newX = snappedPos.x; newY = snappedPos.y;
+      newWidth = snappedSz.width; newHeight = snappedSz.height;
+      node.x(newX); node.y(newY);
     }
 
     onUpdate(el.id, {
-      x: newX,
-      y: newY,
+      x: newX, y: newY,
       width: Math.round(newWidth),
       height: Math.round(newHeight),
       rotation: Math.round(newRotation * 100) / 100,
@@ -192,106 +171,60 @@ const DesignCanvas = ({
   };
 
   const handleTransform = (e) => {
-    if (onRotate) {
-      onRotate(Math.round(e.target.rotation() * 100) / 100);
-    }
+    if (onRotate) onRotate(Math.round(e.target.rotation() * 100) / 100);
   };
 
   const renderElement = (originalEl) => {
     const el = originalEl;
-    const isSelected = selectedIds.includes(el.id); // ✅ Multi-select aware
+    const isSelected = selectedIds.includes(el.id);
     const liveValue = null;
-
     let fillColor = normalizeColor(el.fill);
     let isVisible = true;
 
     if (el.boundTag && liveValue !== null && liveValue !== undefined) {
       if (el.animation?.enabled && el.animation?.type === 'color') {
         if (typeof liveValue === 'boolean') {
-          fillColor = liveValue
-            ? normalizeColor(el.animation.maxColor) || '#10b981'
-            : normalizeColor(el.animation.minColor) || '#ef4444';
+          fillColor = liveValue ? normalizeColor(el.animation.maxColor)||'#10b981' : normalizeColor(el.animation.minColor)||'#ef4444';
         } else if (typeof liveValue === 'number') {
-          const min = parseFloat(el.animation.minValue) || 0;
-          const max = parseFloat(el.animation.maxValue) || 100;
-          if (liveValue >= max) {
-            fillColor = normalizeColor(el.animation.maxColor) || '#10b981';
-          } else if (liveValue <= min) {
-            fillColor = normalizeColor(el.animation.minColor) || '#ef4444';
-          } else {
-            const ratio = (liveValue - min) / (max - min);
-            fillColor = interpolateColor(
-              normalizeColor(el.animation.minColor) || '#ef4444',
-              normalizeColor(el.animation.maxColor) || '#10b981',
-              ratio
-            );
-          }
+          const min = parseFloat(el.animation.minValue)||0; const max = parseFloat(el.animation.maxValue)||100;
+          if (liveValue >= max) fillColor = normalizeColor(el.animation.maxColor)||'#10b981';
+          else if (liveValue <= min) fillColor = normalizeColor(el.animation.minColor)||'#ef4444';
+          else fillColor = interpolateColor(normalizeColor(el.animation.minColor)||'#ef4444', normalizeColor(el.animation.maxColor)||'#10b981', (liveValue-min)/(max-min));
         }
       }
-
       if (el.animation?.enabled && el.animation?.type === 'flash') {
-        let shouldFlash = false;
-        if (typeof liveValue === 'boolean') {
-          shouldFlash = liveValue === true;
-        } else if (typeof liveValue === 'number') {
-          const threshold = parseFloat(el.animation.flashThreshold) || 80;
-          shouldFlash = liveValue >= threshold;
-        }
-        if (shouldFlash) {
-          fillColor = flashState
-            ? normalizeColor(el.animation.flashColor1) || '#ef4444'
-            : normalizeColor(el.animation.flashColor2) || '#fbbf24';
-        }
+        const shouldFlash = typeof liveValue==='boolean' ? liveValue===true : liveValue>=(parseFloat(el.animation.flashThreshold)||80);
+        if (shouldFlash) fillColor = flashState ? normalizeColor(el.animation.flashColor1)||'#ef4444' : normalizeColor(el.animation.flashColor2)||'#fbbf24';
       }
-
       if (el.animation?.enabled && el.animation?.type === 'visibility') {
-        if (typeof liveValue === 'boolean') {
-          isVisible = liveValue;
-        } else if (typeof liveValue === 'number') {
-          const min = parseFloat(el.animation.minValue) || 0;
-          isVisible = liveValue >= min;
-        }
+        if (typeof liveValue==='boolean') isVisible=liveValue;
+        else if (typeof liveValue==='number') isVisible=liveValue>=(parseFloat(el.animation.minValue)||0);
       }
     }
 
     if (!isVisible) return null;
 
-    // ✅ T035: Pass shiftKey to onSelect for multi-select support
     const handleElementClick = async (e) => {
       e.cancelBubble = true;
       const shiftKey = e.evt?.shiftKey || false;
       onSelect(el.id, shiftKey);
-
-      // Button action (existing logic preserved)
       if (el.type === 'button' && el.action?.targetTag) {
         try {
           let value = el.action.targetValue;
-          if (value === undefined || value === '') {
-            value = !liveValue;
-          }
+          if (value === undefined || value === '') value = !liveValue;
           await tagAPI.writeValue(el.action.targetTag, value);
-          console.log(`✓ Button clicked: ${el.action.targetTag} = ${value}`);
-        } catch (err) {
-          console.error('Button action failed:', err);
-        }
+        } catch (err) { console.error('Button action failed:', err); }
       }
     };
 
     const refCallback = (node) => {
-      if (node) {
-        elementRefs.current[el.id] = node;
-      } else {
-        delete elementRefs.current[el.id];
-      }
+      if (node) elementRefs.current[el.id] = node;
+      else delete elementRefs.current[el.id];
     };
 
     const commonProps = {
-      ref: refCallback,
-      x: el.x,
-      y: el.y,
-      draggable: true,
-      onClick: handleElementClick,
-      onTap: handleElementClick,
+      ref: refCallback, x: el.x, y: el.y, draggable: true,
+      onClick: handleElementClick, onTap: handleElementClick,
       onDragEnd: (e) => handleDragEnd(e, el.id),
       onTransformEnd: (e) => handleTransformEnd(e, el),
       onTransform: handleTransform,
@@ -303,78 +236,33 @@ const DesignCanvas = ({
 
     switch (el.type) {
       case 'rectangle':
-        return (
-          <Rect key={el.id} {...commonProps}
-            width={el.width} height={el.height}
-            fill={fillColor} cornerRadius={4} />
-        );
+        return <Rect key={el.id} {...commonProps} width={el.width} height={el.height} fill={fillColor} cornerRadius={4} />;
 
       case 'circle':
-        return (
-          <Circle key={el.id} {...commonProps}
-            radius={el.width / 2} fill={fillColor} />
-        );
+        return <Circle key={el.id} {...commonProps} radius={el.width/2} fill={fillColor} />;
 
       case 'line':
-        return (
-          <Line key={el.id} {...commonProps}
-            points={[0, 0, el.width, 0]}
-            stroke={fillColor || normalizeColor(el.stroke)}
-            strokeWidth={el.strokeWidth || 2} />
-        );
+        return <Line key={el.id} {...commonProps} points={[0,0,el.width,0]} stroke={fillColor||normalizeColor(el.stroke)} strokeWidth={el.strokeWidth||2} />;
 
       case 'text':
-        return (
-          <Text key={el.id} {...commonProps}
-            text={el.text || 'Text'}
-            fontSize={el.fontSize || 16}
-            fill={normalizeColor(el.fontColor) || '#000000'}
-            fontFamily="Arial" />
-        );
+        return <Text key={el.id} {...commonProps} text={el.text||'Text'} fontSize={el.fontSize||16} fill={normalizeColor(el.fontColor)||'#000000'} fontFamily="Arial" />;
 
       case 'tank': {
-        const minLevel = el.tankMinLevel ?? 0;
-        const maxLevel = el.tankMaxLevel ?? 100;
-        const warningHigh = el.tankWarningHigh ?? 90;
-        const warningLow = el.tankWarningLow ?? 10;
-        const currentLevel = liveValue !== null && liveValue !== undefined
-          ? Math.min(Math.max(Number(liveValue), minLevel), maxLevel) : 0;
-        const fillRatio = maxLevel !== minLevel
-          ? (currentLevel - minLevel) / (maxLevel - minLevel) : 0;
-
-        let liquidColor = normalizeColor(el.tankLiquidColor) || '#06b6d4';
-        if (currentLevel >= warningHigh) liquidColor = '#f59e0b';
-        if (currentLevel >= warningHigh * 1.05) liquidColor = '#ef4444';
-        if (currentLevel <= warningLow) liquidColor = '#fbbf24';
-
-        const unit = el.tankUnit || '%';
-        const showValue = el.tankShowPercentage !== false;
-
+        const minLevel=el.tankMinLevel??0; const maxLevel=el.tankMaxLevel??100;
+        const warningHigh=el.tankWarningHigh??90; const warningLow=el.tankWarningLow??10;
+        const currentLevel=liveValue!==null&&liveValue!==undefined?Math.min(Math.max(Number(liveValue),minLevel),maxLevel):0;
+        const fillRatio=maxLevel!==minLevel?(currentLevel-minLevel)/(maxLevel-minLevel):0;
+        let liquidColor=normalizeColor(el.tankLiquidColor)||'#06b6d4';
+        if(currentLevel>=warningHigh) liquidColor='#f59e0b';
+        if(currentLevel>=warningHigh*1.05) liquidColor='#ef4444';
+        if(currentLevel<=warningLow) liquidColor='#fbbf24';
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height} fill="#1e293b"
-              stroke="#475569" strokeWidth={3} cornerRadius={[10, 10, 0, 0]} />
-            {liveValue !== null && liveValue !== undefined && (
-              <Rect x={3} y={el.height * (1 - fillRatio)}
-                width={el.width - 6} height={el.height * fillRatio}
-                fill={liquidColor} />
-            )}
-            {el.tankShowScale && (
-              <Line points={[0, el.height * (1 - (warningHigh - minLevel) / (maxLevel - minLevel)),
-                el.width, el.height * (1 - (warningHigh - minLevel) / (maxLevel - minLevel))]}
-                stroke="#f59e0b" strokeWidth={1} dash={[4, 2]} />
-            )}
-            {el.tankShowScale && (
-              <Line points={[0, el.height * (1 - (warningLow - minLevel) / (maxLevel - minLevel)),
-                el.width, el.height * (1 - (warningLow - minLevel) / (maxLevel - minLevel))]}
-                stroke="#fbbf24" strokeWidth={1} dash={[4, 2]} />
-            )}
-            {showValue && (
-              <Text x={0} y={el.height + 5} width={el.width}
-                text={liveValue !== null && liveValue !== undefined
-                  ? `${Number(liveValue).toFixed(1)} ${unit}` : `TANK`}
-                fontSize={12} fill="#081B43" align="center" fontStyle="bold" />
-            )}
+            <Rect width={el.width} height={el.height} fill="#1e293b" stroke="#475569" strokeWidth={3} cornerRadius={[10,10,0,0]} />
+            {liveValue!==null&&liveValue!==undefined&&(<Rect x={3} y={el.height*(1-fillRatio)} width={el.width-6} height={el.height*fillRatio} fill={liquidColor} />)}
+            {el.tankShowScale&&(<Line points={[0,el.height*(1-(warningHigh-minLevel)/(maxLevel-minLevel)),el.width,el.height*(1-(warningHigh-minLevel)/(maxLevel-minLevel))]} stroke="#f59e0b" strokeWidth={1} dash={[4,2]} />)}
+            {el.tankShowScale&&(<Line points={[0,el.height*(1-(warningLow-minLevel)/(maxLevel-minLevel)),el.width,el.height*(1-(warningLow-minLevel)/(maxLevel-minLevel))]} stroke="#fbbf24" strokeWidth={1} dash={[4,2]} />)}
+            {el.tankShowPercentage!==false&&(<Text x={0} y={el.height+5} width={el.width} text={liveValue!==null&&liveValue!==undefined?`${Number(liveValue).toFixed(1)} ${el.tankUnit||'%'}`:'TANK'} fontSize={12} fill="#081B43" align="center" fontStyle="bold" />)}
           </Group>
         );
       }
@@ -382,73 +270,42 @@ const DesignCanvas = ({
       case 'pump':
         return (
           <Group key={el.id} {...commonProps}>
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2}
-              fill={el.boundTag && liveValue !== null && liveValue !== undefined
-                ? liveValue ? '#10b981' : '#ef4444' : fillColor}
-              stroke="#1e293b" strokeWidth={3} />
-            <Text x={0} y={el.height / 2 - 8} width={el.width} text="P"
-              fontSize={24} fontStyle="bold" fill="#ffffff" align="center" />
-            <Text x={0} y={el.height + 5} width={el.width} text="PUMP"
-              fontSize={12} fill="#000000" align="center" />
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/2} fill={el.boundTag&&liveValue!==null&&liveValue!==undefined?liveValue?'#10b981':'#ef4444':fillColor} stroke="#1e293b" strokeWidth={3} />
+            <Text x={0} y={el.height/2-8} width={el.width} text="P" fontSize={24} fontStyle="bold" fill="#ffffff" align="center" />
+            <Text x={0} y={el.height+5} width={el.width} text="PUMP" fontSize={12} fill="#000000" align="center" />
           </Group>
         );
 
       case 'motor': {
-        const isRunning = el.boundTag && liveValue;
-        const motorColor = isRunning
-          ? normalizeColor(el.motorRunningColor) || '#10b981'
-          : normalizeColor(el.motorStoppedColor) || '#ef4444';
-        const showLabel = el.motorShowLabel !== false;
-        const labelText = el.motorLabelText || 'MOTOR';
-
+        const isRunning=el.boundTag&&liveValue;
+        const motorColor=isRunning?normalizeColor(el.motorRunningColor)||'#10b981':normalizeColor(el.motorStoppedColor)||'#ef4444';
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={el.boundTag ? motorColor : fillColor}
-              cornerRadius={8} shadowBlur={isRunning ? 12 : 0}
-              shadowColor={motorColor} />
-            <Text x={0} y={el.height / 2 - 14} width={el.width} text="M"
-              fontSize={28} fontStyle="bold" fill="#ffffff" align="center" />
-            {isRunning && el.motorRPM && (
-              <Text x={0} y={el.height / 2 + 6} width={el.width}
-                text={`${el.motorRPM} RPM`} fontSize={9} fill="#ffffff"
-                align="center" fontFamily="monospace" />
-            )}
-            {showLabel && (
-              <Text x={0} y={el.height + 5} width={el.width} text={labelText}
-                fontSize={11} fill="#081B43" align="center" fontStyle="bold" />
-            )}
+            <Rect width={el.width} height={el.height} fill={el.boundTag?motorColor:fillColor} cornerRadius={8} shadowBlur={isRunning?12:0} shadowColor={motorColor} />
+            <Text x={0} y={el.height/2-14} width={el.width} text="M" fontSize={28} fontStyle="bold" fill="#ffffff" align="center" />
+            {isRunning&&el.motorRPM&&(<Text x={0} y={el.height/2+6} width={el.width} text={`${el.motorRPM} RPM`} fontSize={9} fill="#ffffff" align="center" fontFamily="monospace" />)}
+            {el.motorShowLabel!==false&&(<Text x={0} y={el.height+5} width={el.width} text={el.motorLabelText||'MOTOR'} fontSize={11} fill="#081B43" align="center" fontStyle="bold" />)}
           </Group>
         );
       }
 
       case 'valve': {
-        const valveColor = el.boundTag && liveValue !== null && liveValue !== undefined
-          ? liveValue ? '#10b981' : '#ef4444' : fillColor;
+        const valveColor=el.boundTag&&liveValue!==null&&liveValue!==undefined?liveValue?'#10b981':'#ef4444':fillColor;
         return (
           <Group key={el.id} {...commonProps}>
-            <RegularPolygon x={el.width / 2} y={el.height / 2}
-              sides={3} radius={el.width / 2} fill={valveColor} rotation={90} />
-            <RegularPolygon x={el.width / 2} y={el.height / 2}
-              sides={3} radius={el.width / 2} fill={valveColor} rotation={270} />
-            <Text x={0} y={el.height + 5} width={el.width} text="VALVE"
-              fontSize={12} fill="#000000" align="center" />
+            <RegularPolygon x={el.width/2} y={el.height/2} sides={3} radius={el.width/2} fill={valveColor} rotation={90} />
+            <RegularPolygon x={el.width/2} y={el.height/2} sides={3} radius={el.width/2} fill={valveColor} rotation={270} />
+            <Text x={0} y={el.height+5} width={el.width} text="VALVE" fontSize={12} fill="#000000" align="center" />
           </Group>
         );
       }
 
       case 'indicator': {
-        const indicatorActive = el.boundTag && liveValue !== null && liveValue !== undefined
-          ? !!liveValue : false;
+        const indicatorActive=el.boundTag&&liveValue!==null&&liveValue!==undefined?!!liveValue:false;
         return (
           <Group key={el.id} {...commonProps}>
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2}
-              fill={indicatorActive ? '#10b981' : '#374151'}
-              stroke="#1e293b" strokeWidth={2}
-              shadowBlur={indicatorActive ? 15 : 0}
-              shadowColor={indicatorActive ? '#10b981' : 'transparent'} />
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 3}
-              fill={indicatorActive ? '#34d399' : '#475569'} />
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/2} fill={indicatorActive?'#10b981':'#374151'} stroke="#1e293b" strokeWidth={2} shadowBlur={indicatorActive?15:0} shadowColor={indicatorActive?'#10b981':'transparent'} />
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/3} fill={indicatorActive?'#34d399':'#475569'} />
           </Group>
         );
       }
@@ -456,42 +313,27 @@ const DesignCanvas = ({
       case 'gauge':
         return (
           <Group key={el.id} {...commonProps}>
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2}
-              fill="#1e293b" stroke="#475569" strokeWidth={3} />
-            <Text x={0} y={el.height / 2 - 12} width={el.width}
-              text={liveValue !== null && liveValue !== undefined
-                ? Math.round(liveValue).toString() : '0'}
-              fontSize={20} fontStyle="bold" fill="#2563EB" align="center" />
-            <Text x={0} y={el.height / 2 + 8} width={el.width} text="GAUGE"
-              fontSize={10} fill="#94a3b8" align="center" />
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/2} fill="#1e293b" stroke="#475569" strokeWidth={3} />
+            <Text x={0} y={el.height/2-12} width={el.width} text={liveValue!==null&&liveValue!==undefined?Math.round(liveValue).toString():'0'} fontSize={20} fontStyle="bold" fill="#2563EB" align="center" />
+            <Text x={0} y={el.height/2+8} width={el.width} text="GAUGE" fontSize={10} fill="#94a3b8" align="center" />
           </Group>
         );
 
       case 'numericDisplay': {
-        let displayText = '0';
-        if (liveValue !== null && liveValue !== undefined) {
-          const num = Number(liveValue);
-          const decimals = el.numDecimals ?? 2;
-          if (el.numFormat === 'Integer') displayText = Math.round(num).toString();
-          else if (el.numFormat === 'Scientific') displayText = num.toExponential(decimals);
-          else if (el.numFormat === 'Percentage') displayText = (num * 100).toFixed(decimals) + '%';
-          else displayText = num.toFixed(decimals);
-          if (el.numThousandSep && el.numFormat !== 'Scientific') {
-            const parts = displayText.split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            displayText = parts.join('.');
-          }
+        let displayText='0';
+        if(liveValue!==null&&liveValue!==undefined){
+          const num=Number(liveValue); const decimals=el.numDecimals??2;
+          if(el.numFormat==='Integer') displayText=Math.round(num).toString();
+          else if(el.numFormat==='Scientific') displayText=num.toExponential(decimals);
+          else if(el.numFormat==='Percentage') displayText=(num*100).toFixed(decimals)+'%';
+          else displayText=num.toFixed(decimals);
+          if(el.numThousandSep&&el.numFormat!=='Scientific'){const parts=displayText.split('.');parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');displayText=parts.join('.');}
         }
-        const fullText = `${el.numPrefix || ''}${displayText}${el.numSuffix || ''}`;
+        const fullText=`${el.numPrefix||''}${displayText}${el.numSuffix||''}`;
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#0f172a'} stroke="#2563EB"
-              strokeWidth={2} cornerRadius={4} />
-            <Text x={0} y={el.height / 2 - 12} width={el.width} text={fullText}
-              fontSize={20} fontStyle="bold"
-              fill={normalizeColor(el.fontColor) || '#2563EB'}
-              align={el.numTextAlign || 'center'} fontFamily="monospace" />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#0f172a'} stroke="#2563EB" strokeWidth={2} cornerRadius={4} />
+            <Text x={0} y={el.height/2-12} width={el.width} text={fullText} fontSize={20} fontStyle="bold" fill={normalizeColor(el.fontColor)||'#2563EB'} align={el.numTextAlign||'center'} fontFamily="monospace" />
           </Group>
         );
       }
@@ -499,172 +341,84 @@ const DesignCanvas = ({
       case 'textDisplay':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height} fill="#0f172a"
-              stroke="#475569" strokeWidth={1} cornerRadius={4} />
-            <Text x={5} y={el.height / 2 - 8} width={el.width - 10}
-              text={liveValue !== null && liveValue !== undefined
-                ? String(liveValue) : el.text || 'Text'}
-              fontSize={14} fill="#ffffff" align="left" />
+            <Rect width={el.width} height={el.height} fill="#0f172a" stroke="#475569" strokeWidth={1} cornerRadius={4} />
+            <Text x={5} y={el.height/2-8} width={el.width-10} text={liveValue!==null&&liveValue!==undefined?String(liveValue):el.text||'Text'} fontSize={14} fill="#ffffff" align="left" />
           </Group>
         );
 
       case 'button': {
-        const buttonIcon = el.buttonIcon || 'None';
-        const iconPaths = {
-          Play:   'M8 5v14l11-7z',
-          Stop:   'M6 6h12v12H6z',
-          Reset:  'M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z',
-          Save:   'M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z',
-          Delete: 'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z',
-          Edit:   'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
-          Power:  'M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z',
-          Alert:  'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+        const buttonIcon=el.buttonIcon||'None';
+        const iconPaths={
+          Play:'M8 5v14l11-7z',Stop:'M6 6h12v12H6z',
+          Reset:'M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z',
+          Save:'M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z',
+          Delete:'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z',
+          Edit:'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
+          Power:'M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z',
+          Alert:'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
         };
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height} fill={fillColor || '#2563EB'}
-              cornerRadius={6} shadowColor="black" shadowBlur={5}
-              shadowOpacity={0.3} shadowOffsetY={2} />
-            {buttonIcon !== 'None' && iconPaths[buttonIcon] && (
-              <Path x={el.text ? el.width / 2 - 40 : el.width / 2 - 10}
-                y={el.height / 2 - 10} data={iconPaths[buttonIcon]}
-                fill={normalizeColor(el.fontColor) || '#ffffff'}
-                scale={{ x: 0.83, y: 0.83 }} />
-            )}
-            <Text x={buttonIcon !== 'None' && iconPaths[buttonIcon] ? 20 : 0}
-              y={el.height / 2 - 8}
-              width={buttonIcon !== 'None' && iconPaths[buttonIcon] ? el.width - 20 : el.width}
-              text={el.text || 'BUTTON'} fontSize={el.fontSize || 14}
-              fontStyle="bold" fill={normalizeColor(el.fontColor) || '#ffffff'}
-              align="center" />
-            {el.buttonType && el.buttonType !== 'Momentary' && (
-              <Text x={el.width - 30} y={4}
-                text={el.buttonType === 'Toggle' ? '⇄' : el.buttonType === 'SetOnce' ? '1' : 'R'}
-                fontSize={9} fill={normalizeColor(el.fontColor) || '#ffffff'}
-                opacity={0.7} />
-            )}
+            <Rect width={el.width} height={el.height} fill={fillColor||'#2563EB'} cornerRadius={6} shadowColor="black" shadowBlur={5} shadowOpacity={0.3} shadowOffsetY={2} />
+            {buttonIcon!=='None'&&iconPaths[buttonIcon]&&(<Path x={el.text?el.width/2-40:el.width/2-10} y={el.height/2-10} data={iconPaths[buttonIcon]} fill={normalizeColor(el.fontColor)||'#ffffff'} scale={{x:0.83,y:0.83}} />)}
+            <Text x={buttonIcon!=='None'&&iconPaths[buttonIcon]?20:0} y={el.height/2-8} width={buttonIcon!=='None'&&iconPaths[buttonIcon]?el.width-20:el.width} text={el.text||'BUTTON'} fontSize={el.fontSize||14} fontStyle="bold" fill={normalizeColor(el.fontColor)||'#ffffff'} align="center" />
+            {el.buttonType&&el.buttonType!=='Momentary'&&(<Text x={el.width-30} y={4} text={el.buttonType==='Toggle'?'⇄':el.buttonType==='SetOnce'?'1':'R'} fontSize={9} fill={normalizeColor(el.fontColor)||'#ffffff'} opacity={0.7} />)}
           </Group>
         );
       }
 
       case 'ellipse':
-        return (
-          <Ellipse key={el.id} {...commonProps}
-            radiusX={el.width / 2} radiusY={el.height / 2}
-            offsetX={-el.width / 2} offsetY={-el.height / 2}
-            fill={fillColor} />
-        );
+        return <Ellipse key={el.id} {...commonProps} radiusX={el.width/2} radiusY={el.height/2} offsetX={-el.width/2} offsetY={-el.height/2} fill={fillColor} />;
 
       case 'polygon':
-        return (
-          <RegularPolygon key={el.id} {...commonProps}
-            sides={el.sides || 5} radius={el.width / 2}
-            offsetX={-el.width / 2} offsetY={-el.height / 2}
-            fill={fillColor} />
-        );
+        return <RegularPolygon key={el.id} {...commonProps} sides={el.sides||5} radius={el.width/2} offsetX={-el.width/2} offsetY={-el.height/2} fill={fillColor} />;
 
       case 'polyline':
-        return (
-          <Line key={el.id} {...commonProps}
-            points={[0, 0, el.width / 2, el.height, el.width, 0]}
-            stroke={fillColor || normalizeColor(el.stroke)}
-            strokeWidth={el.strokeWidth || 2} closed={false} />
-        );
+        return <Line key={el.id} {...commonProps} points={[0,0,el.width/2,el.height,el.width,0]} stroke={fillColor||normalizeColor(el.stroke)} strokeWidth={el.strokeWidth||2} closed={false} />;
 
-      case 'ellipseArc':
-      case 'circularArc':
-        return (
-          <Arc key={el.id} {...commonProps}
-            innerRadius={0} outerRadius={el.width / 2} angle={270}
-            offsetX={-el.width / 2} offsetY={-el.height / 2}
-            fill={fillColor} />
-        );
+      case 'ellipseArc': case 'circularArc':
+        return <Arc key={el.id} {...commonProps} innerRadius={0} outerRadius={el.width/2} angle={270} offsetX={-el.width/2} offsetY={-el.height/2} fill={fillColor} />;
 
       case 'roundedRectangle':
-        return (
-          <Rect key={el.id} {...commonProps}
-            width={el.width} height={el.height} fill={fillColor}
-            cornerRadius={el.cornerRadius || 16} />
-        );
+        return <Rect key={el.id} {...commonProps} width={el.width} height={el.height} fill={fillColor} cornerRadius={el.cornerRadius||16} />;
 
       case 'connector':
-        return (
-          <Line key={el.id} {...commonProps}
-            points={[0, 0, el.width, 0]}
-            stroke={normalizeColor(el.stroke) || '#5F6B7A'}
-            strokeWidth={el.strokeWidth || 2} dash={[4, 4]} />
-        );
+        return <Line key={el.id} {...commonProps} points={[0,0,el.width,0]} stroke={normalizeColor(el.stroke)||'#5F6B7A'} strokeWidth={el.strokeWidth||2} dash={[4,4]} />;
 
       case 'ioField': {
-        let displayText = '0';
-        if (liveValue !== null && liveValue !== undefined) {
-          const num = Number(liveValue);
-          const decimals = el.ioDecimals ?? 2;
-          if (el.ioFormat === 'Integer') displayText = Math.round(num).toString();
-          else if (el.ioFormat === 'Hex') displayText = '0x' + Math.round(num).toString(16).toUpperCase();
-          else if (el.ioFormat === 'Binary') displayText = Math.round(num).toString(2);
-          else if (el.ioFormat === 'Boolean') displayText = liveValue ? 'TRUE' : 'FALSE';
-          else if (el.ioFormat === 'String') displayText = String(liveValue);
-          else displayText = num.toFixed(decimals);
+        let displayText='0';
+        if(liveValue!==null&&liveValue!==undefined){
+          const num=Number(liveValue); const decimals=el.ioDecimals??2;
+          if(el.ioFormat==='Integer') displayText=Math.round(num).toString();
+          else if(el.ioFormat==='Hex') displayText='0x'+Math.round(num).toString(16).toUpperCase();
+          else if(el.ioFormat==='Binary') displayText=Math.round(num).toString(2);
+          else if(el.ioFormat==='Boolean') displayText=liveValue?'TRUE':'FALSE';
+          else if(el.ioFormat==='String') displayText=String(liveValue);
+          else displayText=num.toFixed(decimals);
         }
-        const fullText = `${el.ioPrefix || ''}${displayText}${el.ioSuffix || ''}`;
-        const align = el.ioTextAlign || 'right';
+        const fullText=`${el.ioPrefix||''}${displayText}${el.ioSuffix||''}`;
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#F8FAFC'}
-              stroke={normalizeColor(el.stroke) || '#2563EB'}
-              strokeWidth={el.ioReadOnly ? 1 : 2} cornerRadius={2} />
-            <Text x={4} y={el.height / 2 - 6} width={el.width - 8} text={fullText}
-              fontSize={el.fontSize || 14}
-              fill={normalizeColor(el.fontColor) || '#081B43'}
-              fontFamily="monospace" align={align}
-              fontStyle={el.ioReadOnly ? 'normal' : 'bold'} />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#F8FAFC'} stroke={normalizeColor(el.stroke)||'#2563EB'} strokeWidth={el.ioReadOnly?1:2} cornerRadius={2} />
+            <Text x={4} y={el.height/2-6} width={el.width-8} text={fullText} fontSize={el.fontSize||14} fill={normalizeColor(el.fontColor)||'#081B43'} fontFamily="monospace" align={el.ioTextAlign||'right'} fontStyle={el.ioReadOnly?'normal':'bold'} />
           </Group>
         );
       }
 
       case 'bar': {
-        const min = el.barMin ?? 0;
-        const max = el.barMax ?? 100;
-        const warningHigh = el.barWarningHigh ?? 80;
-        const warningLow = el.barWarningLow ?? 20;
-        const current = liveValue !== null && liveValue !== undefined
-          ? Math.min(Math.max(Number(liveValue), min), max)
-          : (min + max) / 2;
-        const ratio = max !== min ? (current - min) / (max - min) : 0.5;
-
-        let barColor = normalizeColor(el.barNormalColor) || '#10b981';
-        if (current >= warningHigh || current <= warningLow) {
-          barColor = normalizeColor(el.barWarningColor) || '#f59e0b';
-        }
-        if (current >= max * 0.95 || current <= min * 1.05) {
-          barColor = normalizeColor(el.barCriticalColor) || '#ef4444';
-        }
-
-        const orientation = el.barOrientation || 'Vertical';
-        const isVertical = orientation === 'Vertical';
-        const showValue = el.barShowValue !== false;
-
+        const min=el.barMin??0; const max=el.barMax??100;
+        const warningHigh=el.barWarningHigh??80; const warningLow=el.barWarningLow??20;
+        const current=liveValue!==null&&liveValue!==undefined?Math.min(Math.max(Number(liveValue),min),max):(min+max)/2;
+        const ratio=max!==min?(current-min)/(max-min):0.5;
+        let barColor=normalizeColor(el.barNormalColor)||'#10b981';
+        if(current>=warningHigh||current<=warningLow) barColor=normalizeColor(el.barWarningColor)||'#f59e0b';
+        if(current>=max*0.95||current<=min*1.05) barColor=normalizeColor(el.barCriticalColor)||'#ef4444';
+        const isVertical=(el.barOrientation||'Vertical')==='Vertical';
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill="#F8FAFC" stroke="#2563EB" strokeWidth={1} cornerRadius={2} />
-            {isVertical ? (
-              <Rect x={2} y={el.height - (el.height - 4) * ratio}
-                width={el.width - 4} height={(el.height - 4) * ratio}
-                fill={barColor} />
-            ) : (
-              <Rect x={2} y={2} width={(el.width - 4) * ratio}
-                height={el.height - 4} fill={barColor} />
-            )}
-            {showValue && (
-              <Text x={0} y={el.height + 5} width={el.width}
-                text={liveValue !== null && liveValue !== undefined
-                  ? `${Number(liveValue).toFixed(1)}`
-                  : `${((min + max) / 2).toFixed(1)}`}
-                fontSize={11} fill="#081B43" align="center" fontStyle="bold" />
-            )}
+            <Rect width={el.width} height={el.height} fill="#F8FAFC" stroke="#2563EB" strokeWidth={1} cornerRadius={2} />
+            {isVertical?(<Rect x={2} y={el.height-(el.height-4)*ratio} width={el.width-4} height={(el.height-4)*ratio} fill={barColor} />):(<Rect x={2} y={2} width={(el.width-4)*ratio} height={el.height-4} fill={barColor} />)}
+            {el.barShowValue!==false&&(<Text x={0} y={el.height+5} width={el.width} text={liveValue!==null&&liveValue!==undefined?`${Number(liveValue).toFixed(1)}`:`${((min+max)/2).toFixed(1)}`} fontSize={11} fill="#081B43" align="center" fontStyle="bold" />)}
           </Group>
         );
       }
@@ -672,210 +426,175 @@ const DesignCanvas = ({
       case 'graphicObject':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#EEF6FF'} stroke="#2563EB"
-              strokeWidth={1} dash={[6, 4]} />
-            <Text x={0} y={el.height / 2 - 6} width={el.width}
-              text="Graphic" fontSize={11} fill="#5F6B7A" align="center" />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#EEF6FF'} stroke="#2563EB" strokeWidth={1} dash={[6,4]} />
+            <Text x={0} y={el.height/2-6} width={el.width} text="Graphic" fontSize={11} fill="#5F6B7A" align="center" />
           </Group>
         );
 
       case 'statusDisplay':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#0f172a'} stroke="#2563EB"
-              strokeWidth={1} cornerRadius={2} />
-            <Circle x={12} y={el.height / 2} radius={5}
-              fill={liveValue ? '#10b981' : '#ef4444'} shadowBlur={8}
-              shadowColor={liveValue ? '#10b981' : '#ef4444'} />
-            <Text x={24} y={el.height / 2 - 6} width={el.width - 30}
-              text={liveValue !== null && liveValue !== undefined
-                ? liveValue ? 'ONLINE' : 'OFFLINE'
-                : el.text || 'STATUS'}
-              fontSize={12} fill={normalizeColor(el.fontColor) || '#10b981'}
-              fontStyle="bold" fontFamily="monospace" />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#0f172a'} stroke="#2563EB" strokeWidth={1} cornerRadius={2} />
+            <Circle x={12} y={el.height/2} radius={5} fill={liveValue?'#10b981':'#ef4444'} shadowBlur={8} shadowColor={liveValue?'#10b981':'#ef4444'} />
+            <Text x={24} y={el.height/2-6} width={el.width-30} text={liveValue!==null&&liveValue!==undefined?liveValue?'ONLINE':'OFFLINE':el.text||'STATUS'} fontSize={12} fill={normalizeColor(el.fontColor)||'#10b981'} fontStyle="bold" fontFamily="monospace" />
           </Group>
         );
 
       case 'textList':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#ffffff'} stroke="#2563EB"
-              strokeWidth={1} cornerRadius={2} />
-            {['Item 1', 'Item 2', 'Item 3'].map((item, i) => (
-              <Text key={i} x={6} y={6 + i * 18} width={el.width - 12}
-                text={item} fontSize={11} fill="#081B43" />
-            ))}
+            <Rect width={el.width} height={el.height} fill={fillColor||'#ffffff'} stroke="#2563EB" strokeWidth={1} cornerRadius={2} />
+            {['Item 1','Item 2','Item 3'].map((item,i)=>(<Text key={i} x={6} y={6+i*18} width={el.width-12} text={item} fontSize={11} fill="#081B43" />))}
           </Group>
         );
 
       case 'comboBox':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#ffffff'}
-              stroke={normalizeColor(el.stroke) || '#2563EB'}
-              strokeWidth={1} cornerRadius={2} />
-            <Text x={6} y={el.height / 2 - 6} width={el.width - 24}
-              text={el.text || 'Select...'} fontSize={11} fill="#081B43" />
-            <Line points={[
-              el.width - 14, el.height / 2 - 3,
-              el.width - 10, el.height / 2 + 3,
-              el.width - 6, el.height / 2 - 3,
-            ]} stroke="#5F6B7A" strokeWidth={1.5} />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#ffffff'} stroke={normalizeColor(el.stroke)||'#2563EB'} strokeWidth={1} cornerRadius={2} />
+            <Text x={6} y={el.height/2-6} width={el.width-24} text={el.text||'Select...'} fontSize={11} fill="#081B43" />
+            <Line points={[el.width-14,el.height/2-3,el.width-10,el.height/2+3,el.width-6,el.height/2-3]} stroke="#5F6B7A" strokeWidth={1.5} />
           </Group>
         );
 
       case 'listBox':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#ffffff'}
-              stroke={normalizeColor(el.stroke) || '#2563EB'}
-              strokeWidth={1} cornerRadius={2} />
-            {['Option A', 'Option B', 'Option C', 'Option D'].map((opt, i) => (
-              <Text key={i} x={6} y={6 + i * 20} width={el.width - 12}
-                text={opt} fontSize={11} fill="#081B43" />
-            ))}
+            <Rect width={el.width} height={el.height} fill={fillColor||'#ffffff'} stroke={normalizeColor(el.stroke)||'#2563EB'} strokeWidth={1} cornerRadius={2} />
+            {['Option A','Option B','Option C','Option D'].map((opt,i)=>(<Text key={i} x={6} y={6+i*20} width={el.width-12} text={opt} fontSize={11} fill="#081B43" />))}
           </Group>
         );
 
       case 'checkBox':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height} fill="#ffffff"
-              stroke={normalizeColor(el.stroke) || '#2563EB'}
-              strokeWidth={2} cornerRadius={2} />
-            {liveValue && (
-              <Line points={[
-                el.width * 0.2, el.height * 0.5,
-                el.width * 0.45, el.height * 0.75,
-                el.width * 0.8, el.height * 0.25,
-              ]} stroke="#10b981" strokeWidth={3} lineCap="round" />
-            )}
+            <Rect width={el.width} height={el.height} fill="#ffffff" stroke={normalizeColor(el.stroke)||'#2563EB'} strokeWidth={2} cornerRadius={2} />
+            {liveValue&&(<Line points={[el.width*0.2,el.height*0.5,el.width*0.45,el.height*0.75,el.width*0.8,el.height*0.25]} stroke="#10b981" strokeWidth={3} lineCap="round" />)}
           </Group>
         );
 
       case 'radioButton':
         return (
           <Group key={el.id} {...commonProps}>
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2}
-              fill="#ffffff"
-              stroke={normalizeColor(el.stroke) || '#2563EB'} strokeWidth={2} />
-            {liveValue && (
-              <Circle x={el.width / 2} y={el.height / 2}
-                radius={el.width / 4} fill="#2563EB" />
-            )}
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/2} fill="#ffffff" stroke={normalizeColor(el.stroke)||'#2563EB'} strokeWidth={2} />
+            {liveValue&&(<Circle x={el.width/2} y={el.height/2} radius={el.width/4} fill="#2563EB" />)}
           </Group>
         );
 
       case 'roundButton':
         return (
           <Group key={el.id} {...commonProps}>
-            <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2}
-              fill={fillColor || '#2563EB'} shadowColor="black"
-              shadowBlur={6} shadowOpacity={0.3} />
-            <Text x={0} y={el.height / 2 - 6} width={el.width}
-              text={el.text || 'BTN'} fontSize={el.fontSize || 12}
-              fontStyle="bold"
-              fill={normalizeColor(el.fontColor) || '#ffffff'} align="center" />
+            <Circle x={el.width/2} y={el.height/2} radius={el.width/2} fill={fillColor||'#2563EB'} shadowColor="black" shadowBlur={6} shadowOpacity={0.3} />
+            <Text x={0} y={el.height/2-6} width={el.width} text={el.text||'BTN'} fontSize={el.fontSize||12} fontStyle="bold" fill={normalizeColor(el.fontColor)||'#ffffff'} align="center" />
           </Group>
         );
 
       case 'pipe':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#94a3b8'}
-              stroke={normalizeColor(el.stroke) || '#475569'}
-              strokeWidth={el.strokeWidth || 2} />
-            <Line points={[0, el.height / 2, el.width, el.height / 2]}
-              stroke="#475569" strokeWidth={1} dash={[8, 4]} />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#94a3b8'} stroke={normalizeColor(el.stroke)||'#475569'} strokeWidth={el.strokeWidth||2} />
+            <Line points={[0,el.height/2,el.width,el.height/2]} stroke="#475569" strokeWidth={1} dash={[8,4]} />
           </Group>
         );
 
       case 'conveyor':
         return (
           <Group key={el.id} {...commonProps}>
-            <Rect width={el.width} height={el.height}
-              fill={fillColor || '#475569'} stroke="#1e293b"
-              strokeWidth={2} cornerRadius={4} />
-            {[0.25, 0.5, 0.75].map((pos, i) => (
-              <Line key={i}
-                points={[el.width * pos, 4, el.width * pos, el.height - 4]}
-                stroke="#94a3b8" strokeWidth={1} />
-            ))}
-            <Text x={0} y={el.height + 5} width={el.width} text="CONVEYOR"
-              fontSize={10} fill="#081B43" align="center" />
+            <Rect width={el.width} height={el.height} fill={fillColor||'#475569'} stroke="#1e293b" strokeWidth={2} cornerRadius={4} />
+            {[0.25,0.5,0.75].map((pos,i)=>(<Line key={i} points={[el.width*pos,4,el.width*pos,el.height-4]} stroke="#94a3b8" strokeWidth={1} />))}
+            <Text x={0} y={el.height+5} width={el.width} text="CONVEYOR" fontSize={10} fill="#081B43" align="center" />
           </Group>
         );
+case 'trendControl':
+case 'alarmControl':
+case 'alarmHistoryControl':
+case 'tableControl':
+case 'barChartControl':
+case 'webFrameControl':
+  // Konva placeholder rect (invisible, but transformer attaches to it)
+  return (
+    <Rect
+      key={el.id}
+      {...commonProps}
+      width={el.width}
+      height={el.height}
+      fill="rgba(37,99,235,0.02)"
+      stroke="rgba(37,99,235,0.3)"
+      strokeWidth={1}
+      dash={[4, 4]}
+    />
+  );
+      case 'svgSymbol':
+        return <SvgSymbolElement key={el.id} el={el} commonProps={commonProps} />;
 
-      case 'svgSymbol': {
+      case 'digitalClock': {
+        const now = new Date();
+        const previewText = formatClockText(now, el);
         return (
-          <SvgSymbolElement
-            key={el.id}
-            el={el}
-            commonProps={commonProps}
-          />
+          <Group key={el.id} {...commonProps}>
+            <Rect width={el.width} height={el.height} fill={normalizeColor(el.clockBackgroundColor)||'#081B43'} cornerRadius={8} stroke={normalizeColor(el.clockAccentColor)||'#2563EB'} strokeWidth={1} />
+            <Text x={0} y={el.height/2-10} width={el.width} text={previewText} fontSize={el.fontSize||18} fontStyle="bold" fill={normalizeColor(el.clockTextColor)||'#FFFFFF'} align="center" fontFamily="monospace" />
+          </Group>
         );
       }
-
-// ✅ Digital Clock (design-time preview — shows current time)
-case 'digitalClock': {
-  const now = new Date();
-  const previewText = formatClockText(now, el);
-  return (
-    <Group key={el.id} {...commonProps}>
-      <Rect
-        width={el.width}
-        height={el.height}
-        fill={normalizeColor(el.clockBackgroundColor) || '#081B43'}
-        cornerRadius={8}
-        stroke={normalizeColor(el.clockAccentColor) || '#2563EB'}
-        strokeWidth={1}
-      />
-      <Text
-        x={0}
-        y={el.height / 2 - 10}
-        width={el.width}
-        text={previewText}
-        fontSize={el.fontSize || 18}
-        fontStyle="bold"
-        fill={normalizeColor(el.clockTextColor) || '#FFFFFF'}
-        align="center"
-        fontFamily="monospace"
-      />
-    </Group>
-  );
-}
-
 
       default:
         return null;
     }
   };
 
+  // ✅ #3: Zoom scale factor
+  const zoomScale = canvasZoom / 100;
+  const scaledWidth = Math.round(width * zoomScale);
+  const scaledHeight = Math.round(height * zoomScale);
+
   return (
+    // ✅ #3: Add ref + tabIndex so wheel events fire even without a click first
     <div
+      ref={wrapperRef}
+      tabIndex={-1}
       style={{
-        width: '100%',
-        height: '100%',
-        overflow: 'auto',
-        padding: '16px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
+        width: '100%', height: '100%', overflow: 'auto',
+        padding: '16px', display: 'flex',
+        alignItems: 'flex-start', justifyContent: 'flex-start',
         backgroundColor: '#F1F5F9',
+        outline: 'none', // remove focus ring from tabIndex
       }}
     >
+      {/* ✅ #3: Zoom indicator badge */}
+      {canvasZoom !== 100 && (
+        <div style={{
+          position: 'sticky', top: 0, left: 0,
+          zIndex: 10, pointerEvents: 'none',
+          display: 'inline-flex', alignItems: 'center', gap: '4px',
+          padding: '2px 8px', borderRadius: '4px', marginBottom: '4px',
+          background: 'rgba(37,99,235,0.85)', color: '#FFF',
+          fontSize: '11px', fontWeight: 700, fontFamily: 'monospace',
+          backdropFilter: 'blur(2px)',
+        }}>
+          🔍 {canvasZoom}%
+          <button
+            style={{ marginLeft: '4px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#FFF', fontSize: '11px', pointerEvents: 'all' }}
+            onPointerDown={(e) => { e.stopPropagation(); setCanvasZoom(100); }}
+            title="Reset zoom to 100%"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div
         style={{
+          // ✅ #3: Apply zoom via CSS transform (keeps Konva coords correct)
+          transform: `scale(${zoomScale})`,
+          transformOrigin: 'top left',
           width: width,
           height: height,
           minWidth: width,
           minHeight: height,
+          // Adjust outer container to match scaled size
+          marginBottom: scaledHeight - height,
+          marginRight: scaledWidth - width,
           backgroundColor: normalizeColor(backgroundColor) || '#ffffff',
           backgroundImage: `
             linear-gradient(to right, rgba(15, 61, 145, 0.05) 1px, transparent 1px),
@@ -899,52 +618,28 @@ case 'digitalClock': {
           style={{ background: 'transparent' }}
         >
           <Layer>
-            {/* ═══════════════════════════════════════════════════════════
-                ✅ T036: GROUP VISUALIZATION — dashed purple rects
-                Rendered FIRST (below all elements) so they appear behind.
-                Only visible when any member of the group is selected.
-                Non-interactive (listening={false}) so they don't block clicks.
-                ═══════════════════════════════════════════════════════════ */}
+            {/* Group visualization */}
             {Array.from(groupBounds.entries()).map(([groupId, bounds]) => {
               const anySelected = bounds.elIds.some(id => selectedIds.includes(id));
-              if (!anySelected) return null;
-              if (!isFinite(bounds.minX) || !isFinite(bounds.minY)) return null;
-
+              if (!anySelected || !isFinite(bounds.minX)) return null;
               return (
-                <Rect
-                  key={`group-${groupId}`}
-                  x={bounds.minX - 6}
-                  y={bounds.minY - 6}
-                  width={(bounds.maxX - bounds.minX) + 12}
-                  height={(bounds.maxY - bounds.minY) + 12}
-                  stroke="#9333EA"
-                  strokeWidth={1.5}
-                  dash={[6, 4]}
-                  fill="rgba(147, 51, 234, 0.04)"
-                  cornerRadius={4}
-                  listening={false}
-                />
+                <Rect key={`group-${groupId}`}
+                  x={bounds.minX-6} y={bounds.minY-6}
+                  width={(bounds.maxX-bounds.minX)+12} height={(bounds.maxY-bounds.minY)+12}
+                  stroke="#9333EA" strokeWidth={1.5} dash={[6,4]}
+                  fill="rgba(147,51,234,0.04)" cornerRadius={4} listening={false} />
               );
             })}
 
-            {/* All elements */}
             {elements.map((el) => renderElement(el))}
 
-            {/* Transformer — attaches to all selected via useEffect */}
             <Transformer
               ref={transformerRef}
-              borderStroke="#2563EB"
-              borderStrokeWidth={1}
-              borderDash={[4, 3]}
-              anchorFill="#ffffff"
-              anchorStroke="#2563EB"
-              anchorStrokeWidth={1.5}
-              anchorSize={8}
-              anchorCornerRadius={1}
-              rotateEnabled={selectedIds.length === 1}  // ✅ Only rotate when single selected
-              rotationSnaps={[]}
-              rotateAnchorOffset={30}
-              keepRatio={false}
+              borderStroke="#2563EB" borderStrokeWidth={1} borderDash={[4,3]}
+              anchorFill="#ffffff" anchorStroke="#2563EB" anchorStrokeWidth={1.5}
+              anchorSize={8} anchorCornerRadius={1}
+              rotateEnabled={selectedIds.length === 1}
+              rotationSnaps={[]} rotateAnchorOffset={30} keepRatio={false}
               boundBoxFunc={(oldBox, newBox) => {
                 if (newBox.width < 5 || newBox.height < 5) return oldBox;
                 return newBox;
@@ -952,145 +647,98 @@ case 'digitalClock': {
             />
           </Layer>
         </Stage>
+        {/* ═══ PROCESS PICTURE OVERLAYS (HTML on top of Konva) ═══ */}
+{elements.filter(el => isProcessPicture(el.type)).map(el => {
+  const isSelected = selectedIds.includes(el.id);
+  return (
+    <div
+      key={`overlay-${el.id}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(el.id, e.shiftKey);
+      }}
+      style={{
+        position: 'absolute',
+        left: el.x,
+        top: el.y,
+        width: el.width,
+        height: el.height,
+        transform: `rotate(${el.rotation || 0}deg)`,
+        transformOrigin: 'top left',
+        opacity: el.opacity ?? 1,
+        pointerEvents: isSelected ? 'none' : 'auto', // let Transformer take over when selected
+        outline: isSelected ? '2px dashed #2563EB' : '1px solid rgba(37,99,235,0.3)',
+        outlineOffset: '2px',
+        overflow: 'hidden',
+        borderRadius: '4px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+      }}
+    >
+      <ProcessPictureWidget element={el} liveValues={liveValues} tags={[]} isDesignMode={true} />
+    </div>
+  );
+})}
       </div>
     </div>
   );
 };
 
-// ════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════
+// ── Helpers ──────────────────────────────────────────────
 
 function normalizeColor(color) {
   if (!color || typeof color !== 'string') return color;
   const trimmed = color.trim();
-  if (/^#[0-9a-fA-F]{3}$/.test(trimmed)) {
-    return '#' + trimmed[1] + trimmed[1] + trimmed[2] + trimmed[2] + trimmed[3] + trimmed[3];
-  }
+  if (/^#[0-9a-fA-F]{3}$/.test(trimmed)) return '#'+trimmed[1]+trimmed[1]+trimmed[2]+trimmed[2]+trimmed[3]+trimmed[3];
   return trimmed;
 }
 
 function interpolateColor(color1, color2, ratio) {
-  const c1 = normalizeColor(color1);
-  const c2 = normalizeColor(color2);
-  if (!c1 || !c2 || !c1.startsWith('#') || !c2.startsWith('#')) return c1;
-  const hex = (c) => parseInt(c.slice(1), 16);
-  const v1 = hex(c1);
-  const v2 = hex(c2);
-  const r1 = (v1 >> 16) & 0xff;
-  const g1 = (v1 >> 8) & 0xff;
-  const b1 = v1 & 0xff;
-  const r2 = (v2 >> 16) & 0xff;
-  const g2 = (v2 >> 8) & 0xff;
-  const b2 = v2 & 0xff;
-  const r = Math.round(r1 + (r2 - r1) * ratio);
-  const g = Math.round(g1 + (g2 - g1) * ratio);
-  const b = Math.round(b1 + (b2 - b1) * ratio);
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  const c1=normalizeColor(color1); const c2=normalizeColor(color2);
+  if(!c1||!c2||!c1.startsWith('#')||!c2.startsWith('#')) return c1;
+  const hex=(c)=>parseInt(c.slice(1),16);
+  const v1=hex(c1); const v2=hex(c2);
+  const r=Math.round(((v1>>16)&0xff)+(((v2>>16)&0xff)-((v1>>16)&0xff))*ratio);
+  const g=Math.round(((v1>>8)&0xff)+(((v2>>8)&0xff)-((v1>>8)&0xff))*ratio);
+  const b=Math.round((v1&0xff)+((v2&0xff)-(v1&0xff))*ratio);
+  return `#${((r<<16)|(g<<8)|b).toString(16).padStart(6,'0')}`;
 }
 
-// ═══════════════════════════════════════════════════════════
-// Clock formatting helper (shared with RuntimeCanvas)
-// ═══════════════════════════════════════════════════════════
 function formatClockText(date, el) {
-  const showSeconds = el.clockShowSeconds !== false;
-  const is12h = el.clockTimeFormat === '12h';
-  const displayMode = el.clockDisplayMode || 'timeAndDate';
-  const dateFormat = el.clockDateFormat || 'DD/MM/YYYY';
-
-  // ─── Time formatting ───
-  let hours = date.getHours();
-  const mins = String(date.getMinutes()).padStart(2, '0');
-  const secs = String(date.getSeconds()).padStart(2, '0');
-  let ampm = '';
-  if (is12h) {
-    ampm = hours >= 12 ? ' PM' : ' AM';
-    hours = hours % 12;
-    if (hours === 0) hours = 12;
+  const showSeconds=el.clockShowSeconds!==false; const is12h=el.clockTimeFormat==='12h';
+  const displayMode=el.clockDisplayMode||'timeAndDate'; const dateFormat=el.clockDateFormat||'DD/MM/YYYY';
+  let hours=date.getHours(); const mins=String(date.getMinutes()).padStart(2,'0'); const secs=String(date.getSeconds()).padStart(2,'0');
+  let ampm='';
+  if(is12h){ampm=hours>=12?' PM':' AM';hours=hours%12;if(hours===0)hours=12;}
+  const hh=String(hours).padStart(2,'0');
+  const timeStr=showSeconds?`${hh}:${mins}:${secs}${ampm}`:`${hh}:${mins}${ampm}`;
+  const day=String(date.getDate()).padStart(2,'0'); const month=String(date.getMonth()+1).padStart(2,'0'); const year=date.getFullYear();
+  const monthNamesLong=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthNamesShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const weekdayLong=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
+  let dateStr='';
+  switch(dateFormat){
+    case 'DD/MM/YYYY':dateStr=`${day}/${month}/${year}`;break;
+    case 'MM/DD/YYYY':dateStr=`${month}/${day}/${year}`;break;
+    case 'YYYY-MM-DD':dateStr=`${year}-${month}-${day}`;break;
+    case 'Long':dateStr=`${monthNamesLong[date.getMonth()]} ${day}, ${year}`;break;
+    case 'Short':dateStr=`${monthNamesShort[date.getMonth()]} ${day}, ${year}`;break;
+    default:dateStr=`${day}/${month}/${year}`;
   }
-  const hh = String(hours).padStart(2, '0');
-  const timeStr = showSeconds
-    ? `${hh}:${mins}:${secs}${ampm}`
-    : `${hh}:${mins}${ampm}`;
-
-  // ─── Date formatting ───
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
-  const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const weekdayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
-    'Thursday', 'Friday', 'Saturday'][date.getDay()];
-
-  let dateStr = '';
-  switch (dateFormat) {
-    case 'DD/MM/YYYY': dateStr = `${day}/${month}/${year}`; break;
-    case 'MM/DD/YYYY': dateStr = `${month}/${day}/${year}`; break;
-    case 'YYYY-MM-DD': dateStr = `${year}-${month}-${day}`; break;
-    case 'Long':      dateStr = `${monthNamesLong[date.getMonth()]} ${day}, ${year}`; break;
-    case 'Short':     dateStr = `${monthNamesShort[date.getMonth()]} ${day}, ${year}`; break;
-    default:          dateStr = `${day}/${month}/${year}`;
-  }
-
-  // ─── Timezone (short) ───
-  let tzStr = '';
-  if (el.clockShowTimezone) {
-    try {
-      const tzMatch = date.toString().match(/\(([^)]+)\)/);
-      tzStr = tzMatch ? ` ${tzMatch[1].split(' ').map(w => w[0]).join('')}` : '';
-    } catch {}
-  }
-
-  // ─── Assemble by display mode ───
-  switch (displayMode) {
-    case 'timeOnly':    return timeStr + tzStr;
-    case 'dateOnly':    return dateStr;
-    case 'longFormat':  return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`;
-    case 'timeAndDate':
-    default:            return `${timeStr}${tzStr}  ·  ${dateStr}`;
+  let tzStr='';
+  if(el.clockShowTimezone){try{const m=date.toString().match(/\(([^)]+)\)/);tzStr=m?` ${m[1].split(' ').map(w=>w[0]).join('')}`:'';} catch{}}
+  switch(displayMode){
+    case 'timeOnly':return timeStr+tzStr;
+    case 'dateOnly':return dateStr;
+    case 'longFormat':return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`;
+    default:return `${timeStr}${tzStr}  ·  ${dateStr}`;
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// SvgSymbolElement — Designer (no tint filters)
-// ═══════════════════════════════════════════════════════════
 const SvgSymbolElement = ({ el, commonProps }) => {
   const [image, status] = useImage(el.svgPath);
-
-  if (status === 'loading') {
-    return (
-      <Group {...commonProps}>
-        <Rect width={el.width} height={el.height}
-          fill="#EEF6FF" stroke="#2563EB"
-          strokeWidth={1} dash={[4, 4]} />
-        <Text x={0} y={el.height / 2 - 6} width={el.width}
-          text="Loading..." fontSize={11} fill="#5F6B7A" align="center" />
-      </Group>
-    );
-  }
-
-  if (status === 'error' || !image) {
-    return (
-      <Group {...commonProps}>
-        <Rect width={el.width} height={el.height}
-          fill="#FEE2E2" stroke="#DC2626"
-          strokeWidth={1} dash={[4, 4]} />
-        <Text x={0} y={el.height / 2 - 6} width={el.width}
-          text="SVG not found" fontSize={10} fill="#DC2626" align="center" />
-      </Group>
-    );
-  }
-
-  return (
-    <KonvaImage
-      {...commonProps}
-      image={image}
-      width={el.width}
-      height={el.height}
-    />
-  );
+  if(status==='loading') return (<Group {...commonProps}><Rect width={el.width} height={el.height} fill="#EEF6FF" stroke="#2563EB" strokeWidth={1} dash={[4,4]} /><Text x={0} y={el.height/2-6} width={el.width} text="Loading..." fontSize={11} fill="#5F6B7A" align="center" /></Group>);
+  if(status==='error'||!image) return (<Group {...commonProps}><Rect width={el.width} height={el.height} fill="#FEE2E2" stroke="#DC2626" strokeWidth={1} dash={[4,4]} /><Text x={0} y={el.height/2-6} width={el.width} text="SVG not found" fontSize={10} fill="#DC2626" align="center" /></Group>);
+  return <KonvaImage {...commonProps} image={image} width={el.width} height={el.height} />;
 };
 
 export default DesignCanvas;

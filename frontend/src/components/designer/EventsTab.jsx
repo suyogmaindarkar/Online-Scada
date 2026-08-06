@@ -1,11 +1,18 @@
+// ═══════════════════════════════════════════════════════════
+// EventsTab — Updated with Popup screen support:
+//   ✅ changeScreen dropdown now shows 3 groups: Screens/Popups/Template
+//   ✅ New openPopup action with popup-specific dropdown
+//   ✅ closePopup action (no params needed)
+// ═══════════════════════════════════════════════════════════
+
 import { useState } from 'react';
 import {
   Zap, Trash2, ChevronRight, ChevronDown, Plus,
-  ArrowUp, ArrowDown, Settings2, AlertTriangle,
+  ArrowUp, ArrowDown, Settings2, AlertTriangle, Monitor, Layout,
 } from 'lucide-react';
 import { normalizeActions } from '../../utils/eventUtils';
 
-const EventsTab = ({ element, tags, onUpdate }) => {
+const EventsTab = ({ element, tags, screens = [], onUpdate }) => {
   const [expandedCategories, setExpandedCategories] = useState({
     mouse: true, keyboard: false, focus: false, misc: true,
   });
@@ -14,7 +21,7 @@ const EventsTab = ({ element, tags, onUpdate }) => {
 
   if (!element) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF', overflow: 'hidden' }}>
         <p style={{ fontSize: '11px', color: '#94A3B8' }}>Select an element to configure events</p>
       </div>
     );
@@ -37,27 +44,15 @@ const EventsTab = ({ element, tags, onUpdate }) => {
         { id: 'onMouseLeave', label: 'Mouse Leave', supported: true },
       ],
     },
-    {
-      id: 'keyboard', label: 'Keyboard',
-      events: [
-        { id: 'onKeyDown', label: 'Press Key', supported: false },
-        { id: 'onKeyUp', label: 'Release Key', supported: false },
-      ],
-    },
-    {
-      id: 'focus', label: 'Focus',
-      events: [
-        { id: 'onFocus', label: 'Got Focus', supported: false },
-        { id: 'onBlur', label: 'Lost Focus', supported: false },
-      ],
-    },
-    {
-      id: 'misc', label: 'Miscellaneous',
-      events: [
-        { id: 'onValueChange', label: 'Value Change', supported: true },
-        { id: 'onLoad', label: 'On Load', supported: false },
-      ],
-    },
+    { id: 'keyboard', label: 'Keyboard', events: [
+      { id: 'onKeyDown', label: 'Press Key', supported: false },
+      { id: 'onKeyUp', label: 'Release Key', supported: false }] },
+    { id: 'focus', label: 'Focus', events: [
+      { id: 'onFocus', label: 'Got Focus', supported: false },
+      { id: 'onBlur', label: 'Lost Focus', supported: false }] },
+    { id: 'misc', label: 'Miscellaneous', events: [
+      { id: 'onValueChange', label: 'Value Change', supported: true },
+      { id: 'onLoad', label: 'On Load', supported: false }] },
   ];
 
   const toggleCategory = (id) => setExpandedCategories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -95,71 +90,43 @@ const EventsTab = ({ element, tags, onUpdate }) => {
   };
 
   const toggleAdvanced = (actionId) => setExpandedActions((prev) => ({ ...prev, [actionId]: !prev[actionId] }));
-
   const currentEventLabel = eventCategories.flatMap((c) => c.events).find((e) => e.id === selectedEvent)?.label || selectedEvent;
 
   return (
-    <div style={{ flex: 1, display: 'flex', background: '#FFFFFF', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', background: '#FFFFFF', height: '100%', overflow: 'hidden' }}>
       {/* LEFT: Event Tree */}
-      <div style={{ width: '192px', borderRight: '1px solid #E5E7EB', background: '#F8FAFC', overflowY: 'auto' }}>
-        <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F1F5F9' }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Event Types
-          </p>
+      <div style={{ width: '192px', borderRight: '1px solid #E5E7EB', background: '#F8FAFC', overflowY: 'auto', flexShrink: 0 }}>
+        <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F1F5F9', position: 'sticky', top: 0, zIndex: 1 }}>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Event Types</p>
         </div>
-
         {eventCategories.map((cat) => (
           <div key={cat.id}>
-            <button
-              onClick={() => toggleCategory(cat.id)}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: '4px',
-                padding: '6px 8px', fontSize: '11px', fontWeight: 600, color: '#081B43',
-                background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.15s ease',
-              }}
+            <button onClick={() => toggleCategory(cat.id)}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', fontSize: '11px', fontWeight: 600, color: '#081B43', background: 'transparent', border: 'none', cursor: 'pointer' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-            >
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
               {expandedCategories[cat.id] ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
               <span>{cat.label}</span>
             </button>
-
             {expandedCategories[cat.id] && (
               <div style={{ paddingLeft: '8px' }}>
                 {cat.events.map((event) => {
                   const configured = normalizeActions(events[event.id]).length > 0;
                   const isSelected = selectedEvent === event.id;
                   return (
-                    <button
-                      key={event.id}
-                      onClick={() => setSelectedEvent(event.id)}
-                      disabled={!event.supported}
+                    <button key={event.id} onClick={() => setSelectedEvent(event.id)} disabled={!event.supported}
                       style={{
                         width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
                         padding: '4px 8px 4px 24px', fontSize: '11px', textAlign: 'left',
                         background: isSelected ? '#2563EB' : 'transparent',
                         color: isSelected ? '#FFFFFF' : event.supported ? '#334155' : '#CBD5E1',
                         border: 'none', cursor: event.supported ? 'pointer' : 'not-allowed',
-                        transition: 'all 0.15s ease',
                       }}
-                      onMouseEnter={(e) => {
-                        if (event.supported && !isSelected) e.currentTarget.style.background = '#EEF6FF';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (event.supported && !isSelected) e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      {configured && (
-                        <Zap size={9} style={{ color: isSelected ? '#FEF3C7' : '#F59E0B' }} />
-                      )}
-                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {event.label}
-                      </span>
-                      {configured && (
-                        <span style={{ fontSize: '9px', fontFamily: 'monospace', color: isSelected ? '#FEF3C7' : '#F59E0B' }}>
-                          {normalizeActions(events[event.id]).length}
-                        </span>
-                      )}
+                      onMouseEnter={(e) => { if (event.supported && !isSelected) e.currentTarget.style.background = '#EEF6FF'; }}
+                      onMouseLeave={(e) => { if (event.supported && !isSelected) e.currentTarget.style.background = 'transparent'; }}>
+                      {configured && <Zap size={9} style={{ color: isSelected ? '#FEF3C7' : '#F59E0B' }} />}
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.label}</span>
+                      {configured && (<span style={{ fontSize: '9px', fontFamily: 'monospace', color: isSelected ? '#FEF3C7' : '#F59E0B' }}>{normalizeActions(events[event.id]).length}</span>)}
                       {!event.supported && <span style={{ fontSize: '8px', fontStyle: 'italic' }}>soon</span>}
                     </button>
                   );
@@ -170,10 +137,10 @@ const EventsTab = ({ element, tags, onUpdate }) => {
         ))}
       </div>
 
-      {/* RIGHT: Actions Configuration */}
+      {/* RIGHT: Actions */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
             Configure: <span style={{ color: '#2563EB' }}>{currentEventLabel}</span>
             {currentActions.length > 0 && (
               <span style={{ marginLeft: '8px', color: '#5F6B7A', textTransform: 'none', fontWeight: 400 }}>
@@ -182,15 +149,11 @@ const EventsTab = ({ element, tags, onUpdate }) => {
             )}
           </p>
           {currentActions.length > 0 && (
-            <button
-              onClick={() => saveActions([])}
+            <button onClick={() => saveActions([])}
               style={{ padding: '2px 8px', fontSize: '10px', color: '#DC2626', background: 'transparent', border: 'none', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#FEE2E2'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-              title="Remove all actions"
-            >
-              <Trash2 size={10} />
-              Clear All
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+              <Trash2 size={10} /> Clear All
             </button>
           )}
         </div>
@@ -201,25 +164,18 @@ const EventsTab = ({ element, tags, onUpdate }) => {
               <div style={{ display: 'inline-flex', padding: '12px', background: '#EEF6FF', borderRadius: '9999px', marginBottom: '12px' }}>
                 <Zap size={20} style={{ color: '#2563EB' }} />
               </div>
-              <p style={{ fontSize: '11px', color: '#5F6B7A', fontStyle: 'italic', marginBottom: '12px' }}>
-                No actions configured for this event
-              </p>
-              <button
-                onClick={addAction}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: '#2563EB', color: '#FFFFFF', fontSize: '11px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#1D4ED8'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#2563EB'; }}
-              >
-                <Plus size={12} />
-                Add First Action
+              <p style={{ fontSize: '11px', color: '#5F6B7A', fontStyle: 'italic', marginBottom: '12px' }}>No actions configured</p>
+              <button onClick={addAction}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: '#2563EB', color: '#FFFFFF', fontSize: '11px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                <Plus size={12} /> Add First Action
               </button>
             </div>
           )}
-
           {currentActions.map((action, index) => (
             <ActionCard
               key={action._id || index}
-              action={action} index={index} total={currentActions.length} tags={tags}
+              action={action} index={index} total={currentActions.length}
+              tags={tags} screens={screens}
               isAdvancedOpen={expandedActions[action._id]}
               onUpdate={(updates) => updateAction(index, updates)}
               onDelete={() => deleteAction(index)}
@@ -228,31 +184,14 @@ const EventsTab = ({ element, tags, onUpdate }) => {
               onToggleAdvanced={() => toggleAdvanced(action._id)}
             />
           ))}
-
           {currentActions.length > 0 && (
-            <button
-              onClick={addAction}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                padding: '8px 12px', background: '#F8FAFC', border: '1px dashed #2563EB',
-                color: '#2563EB', fontSize: '11px', fontWeight: 500, borderRadius: '4px', cursor: 'pointer',
-                transition: 'background 0.15s ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#F8FAFC'; }}
-            >
-              <Plus size={12} />
-              Add Another Action
+            <button onClick={addAction}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '8px 12px', background: '#F8FAFC', border: '1px dashed #2563EB', color: '#2563EB', fontSize: '11px', fontWeight: 500, borderRadius: '4px', cursor: 'pointer' }}>
+              <Plus size={12} /> Add Another Action
             </button>
           )}
-
           <div style={{ marginTop: '24px', padding: '8px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '4px', fontSize: '10px', color: '#5F6B7A' }}>
             <strong>💡 Tip:</strong> Actions execute in order. Use ↑↓ to reorder.
-            {selectedEvent === 'onValueChange' && (
-              <div style={{ marginTop: '4px', color: '#2563EB' }}>
-                <strong>⚡ Value Change:</strong> Triggers when the element's bound tag value changes.
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -260,45 +199,25 @@ const EventsTab = ({ element, tags, onUpdate }) => {
   );
 };
 
-const ActionCard = ({ action, index, total, tags, isAdvancedOpen, onUpdate, onDelete, onMoveUp, onMoveDown, onToggleAdvanced }) => {
+const ActionCard = ({ action, index, total, tags, screens, isAdvancedOpen, onUpdate, onDelete, onMoveUp, onMoveDown, onToggleAdvanced }) => {
   const actionInfo = actionTypeConfig[action.type] || actionTypeConfig.writeTag;
-
   return (
     <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', background: '#FFFFFF', overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
         <span style={{ fontSize: '10px', fontWeight: 700, color: '#334155', width: '24px' }}>#{index + 1}</span>
-        <span style={{ fontSize: '10px', fontWeight: 600, color: actionInfo.color }}>
-          {actionInfo.icon} {actionInfo.label}
-        </span>
+        <span style={{ fontSize: '10px', fontWeight: 600, color: actionInfo.color }}>{actionInfo.icon} {actionInfo.label}</span>
         <div style={{ flex: 1 }} />
-
-        <button onClick={onMoveUp} disabled={index === 0}
-          style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
-          title="Move up">
-          <ArrowUp size={11} />
-        </button>
-        <button onClick={onMoveDown} disabled={index === total - 1}
-          style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index === total - 1 ? 'not-allowed' : 'pointer', opacity: index === total - 1 ? 0.3 : 1 }}
-          title="Move down">
-          <ArrowDown size={11} />
-        </button>
-        <button onClick={onDelete}
-          style={{ padding: '2px', color: '#DC2626', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+        <button onClick={onMoveUp} disabled={index === 0} style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index===0?'not-allowed':'pointer', opacity: index===0?0.3:1 }} title="Move up"><ArrowUp size={11} /></button>
+        <button onClick={onMoveDown} disabled={index===total-1} style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index===total-1?'not-allowed':'pointer', opacity: index===total-1?0.3:1 }} title="Move down"><ArrowDown size={11} /></button>
+        <button onClick={onDelete} style={{ padding: '2px', color: '#DC2626', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
           onMouseEnter={(e) => { e.currentTarget.style.background = '#FEE2E2'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-          title="Delete action">
-          <Trash2 size={11} />
-        </button>
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }} title="Delete"><Trash2 size={11} /></button>
       </div>
 
       <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div>
           <label style={fieldLabelStyle}>Action Type</label>
-          <select
-            value={action.type}
-            onChange={(e) => onUpdate({ type: e.target.value })}
-            style={fieldSelectStyle}
-          >
+          <select value={action.type} onChange={(e) => onUpdate({ type: e.target.value })} style={fieldSelectStyle}>
             <optgroup label="Tag Actions">
               <option value="writeTag">Write Value to Tag</option>
               <option value="toggleTag">Toggle Tag (BOOL)</option>
@@ -308,32 +227,20 @@ const ActionCard = ({ action, index, total, tags, isAdvancedOpen, onUpdate, onDe
             </optgroup>
             <optgroup label="Screen Actions">
               <option value="changeScreen">Change Screen</option>
-              <option value="showPopup">Show Popup (stub)</option>
-              <option value="closePopup">Close Popup (stub)</option>
+              <option value="openPopup">Open Popup</option>
+              <option value="closePopup">Close Popup</option>
             </optgroup>
             <optgroup label="UI Actions">
               <option value="showMessage">Show Message (Toast)</option>
               <option value="alert">Alert Box</option>
             </optgroup>
-            <optgroup label="Advanced (Coming Later)">
-              <option value="runScript" disabled>Custom Script</option>
-              <option value="playSound" disabled>Play Sound</option>
-            </optgroup>
           </select>
         </div>
 
-        <ActionFields action={action} tags={tags} onUpdate={onUpdate} />
+        <ActionFields action={action} tags={tags} screens={screens} onUpdate={onUpdate} />
 
-        <button
-          onClick={onToggleAdvanced}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: '4px',
-            padding: '4px 8px', fontSize: '10px', color: '#5F6B7A',
-            background: 'transparent', border: '1px solid #E5E7EB', borderRadius: '4px', cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; e.currentTarget.style.color = '#2563EB'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#5F6B7A'; }}
-        >
+        <button onClick={onToggleAdvanced}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '10px', color: '#5F6B7A', background: 'transparent', border: '1px solid #E5E7EB', borderRadius: '4px', cursor: 'pointer' }}>
           <Settings2 size={10} />
           {isAdvancedOpen ? 'Hide Advanced' : 'Show Advanced'}
           {(action.confirmMessage || action.delay || action.condition) && (
@@ -347,11 +254,18 @@ const ActionCard = ({ action, index, total, tags, isAdvancedOpen, onUpdate, onDe
   );
 };
 
-const ActionFields = ({ action, tags, onUpdate }) => {
+// ✅ ActionFields — updated: changeScreen shows regular screens only,
+//   openPopup shows popup screens only (cleaner UX)
+const ActionFields = ({ action, tags, screens = [], onUpdate }) => {
+  // Split screens by type
+  const regularScreens = screens.filter(s => !s.isTemplate && !s.isPopup);
+  const popupScreens   = screens.filter(s => s.isPopup === true);
+
   if (['writeTag', 'toggleTag', 'incrementTag', 'decrementTag'].includes(action.type)) {
     return (
       <>
-        <FieldSelect label="Target Tag" value={action.targetTag || ''} onChange={(v) => onUpdate({ targetTag: v })}
+        <FieldSelect label="Target Tag" value={action.targetTag || ''}
+          onChange={(v) => onUpdate({ targetTag: v })}
           options={[{ value: '', label: '— Select tag —' }, ...tags.map((t) => ({ value: t.tagName, label: `${t.tagName} (${t.dataType})` }))]} />
         {action.type === 'writeTag' && (
           <FieldInput label="Value to Write" value={action.value ?? ''} onChange={(v) => onUpdate({ value: v })} placeholder="e.g. 100 or true" />
@@ -362,6 +276,7 @@ const ActionFields = ({ action, tags, onUpdate }) => {
       </>
     );
   }
+
   if (action.type === 'copyTag') {
     return (
       <>
@@ -372,9 +287,78 @@ const ActionFields = ({ action, tags, onUpdate }) => {
       </>
     );
   }
+
+  // ✅ changeScreen — only regular screens (replaces current view)
   if (action.type === 'changeScreen') {
-    return <FieldInput label="Target Screen Name" value={action.screenName || ''} onChange={(v) => onUpdate({ screenName: v })} placeholder="e.g. Dashboard" />;
+    return (
+      <div>
+        <label style={fieldLabelStyle}>
+          <Monitor size={10} style={{ display: 'inline', marginRight: '4px' }} />
+          Target Screen (replaces current view)
+        </label>
+        {regularScreens.length === 0 ? (
+          <div style={{ padding: '6px 8px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: '4px', fontSize: '10px', color: '#78350F' }}>
+            ⚠️ No regular screens found. Create screens in "My Screens" first.
+          </div>
+        ) : (
+          <select value={action.screenName || ''} onChange={(e) => onUpdate({ screenName: e.target.value })} style={fieldSelectStyle}>
+            <option value="">— Select target screen —</option>
+            {regularScreens.map((s) => (
+              <option key={s._id} value={s.screenName}>
+                {s.screenName} {s.isStartupScreen ? '⭐' : ''}
+              </option>
+            ))}
+          </select>
+        )}
+        {action.screenName && (
+          <p style={{ fontSize: '10px', color: '#16A34A', marginTop: '4px' }}>
+            ✓ Will navigate to: <strong>{action.screenName}</strong>
+          </p>
+        )}
+      </div>
+    );
   }
+
+  // ✅ openPopup — only popup screens (overlay on top)
+  if (action.type === 'openPopup') {
+    return (
+      <div>
+        <label style={fieldLabelStyle}>
+          <Layout size={10} style={{ display: 'inline', marginRight: '4px' }} />
+          Popup Screen (opens as overlay)
+        </label>
+        {popupScreens.length === 0 ? (
+          <div style={{ padding: '6px 8px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: '4px', fontSize: '10px', color: '#78350F' }}>
+            ⚠️ No popup screens found. Create popup screens in the Explorer panel.
+          </div>
+        ) : (
+          <select value={action.popupName || ''} onChange={(e) => onUpdate({ popupName: e.target.value })} style={fieldSelectStyle}>
+            <option value="">— Select popup screen —</option>
+            {popupScreens.map((s) => (
+              <option key={s._id} value={s.screenName}>
+                🪟 {s.screenName}
+              </option>
+            ))}
+          </select>
+        )}
+        {action.popupName && (
+          <p style={{ fontSize: '10px', color: '#16A34A', marginTop: '4px' }}>
+            ✓ Will open popup: <strong>{action.popupName}</strong>
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // ✅ closePopup — no config, closes topmost popup
+  if (action.type === 'closePopup') {
+    return (
+      <div style={{ padding: '8px', background: '#EEF6FF', border: '1px solid #2563EB40', borderRadius: '4px', fontSize: '10px', color: '#1E40AF' }}>
+        ℹ Closes the topmost open popup. No configuration needed.
+      </div>
+    );
+  }
+
   if (['showMessage', 'alert'].includes(action.type)) {
     return (
       <>
@@ -391,30 +375,22 @@ const ActionFields = ({ action, tags, onUpdate }) => {
       </>
     );
   }
-  return <p style={{ fontSize: '10px', color: '#94A3B8', fontStyle: 'italic' }}>No configuration needed for this action.</p>;
+
+  return <p style={{ fontSize: '10px', color: '#94A3B8', fontStyle: 'italic' }}>No configuration needed.</p>;
 };
 
 const AdvancedFields = ({ action, tags, onUpdate }) => (
   <div style={{ padding: '8px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    <FieldInput label="Confirmation Message" value={action.confirmMessage || ''} onChange={(v) => onUpdate({ confirmMessage: v || undefined })}
-      placeholder="e.g. Are you sure?" />
-    <FieldInput label="Delay (ms)" type="number" value={action.delay ?? ''} onChange={(v) => onUpdate({ delay: v ? parseInt(v) : undefined })}
-      placeholder="e.g. 500" />
+    <FieldInput label="Confirmation Message" value={action.confirmMessage || ''} onChange={(v) => onUpdate({ confirmMessage: v || undefined })} placeholder="e.g. Are you sure?" />
+    <FieldInput label="Delay (ms)" type="number" value={action.delay ?? ''} onChange={(v) => onUpdate({ delay: v ? parseInt(v) : undefined })} placeholder="e.g. 500" />
     <div>
       <label style={{ ...fieldLabelStyle, display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <AlertTriangle size={10} />
-        Execute Only If (Condition)
+        <AlertTriangle size={10} /> Execute Only If (Condition)
       </label>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
-        <select
-          value={action.condition?.tag || ''}
-          onChange={(e) => {
-            const tag = e.target.value;
-            if (!tag) onUpdate({ condition: undefined });
-            else onUpdate({ condition: { ...(action.condition || {}), tag, operator: '==', value: '' } });
-          }}
-          style={{ height: '24px', padding: '0 4px', fontSize: '10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', color: '#081B43' }}
-        >
+        <select value={action.condition?.tag || ''}
+          onChange={(e) => { const tag = e.target.value; if (!tag) onUpdate({ condition: undefined }); else onUpdate({ condition: { ...(action.condition||{}), tag, operator:'==', value:'' } }); }}
+          style={{ height: '24px', padding: '0 4px', fontSize: '10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', color: '#081B43' }}>
           <option value="">— No condition —</option>
           {tags.map((t) => <option key={t._id} value={t.tagName}>{t.tagName}</option>)}
         </select>
@@ -422,15 +398,11 @@ const AdvancedFields = ({ action, tags, onUpdate }) => (
           <>
             <select value={action.condition?.operator || '=='} onChange={(e) => onUpdate({ condition: { ...action.condition, operator: e.target.value } })}
               style={{ height: '24px', padding: '0 4px', fontSize: '10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', color: '#081B43' }}>
-              <option value="==">==</option>
-              <option value="!=">!=</option>
-              <option value=">">&gt;</option>
-              <option value="<">&lt;</option>
-              <option value=">=">&gt;=</option>
-              <option value="<=">&lt;=</option>
+              <option value="==">==</option><option value="!=">!=</option>
+              <option value=">">&gt;</option><option value="<">&lt;</option>
+              <option value=">=">&gt;=</option><option value="<=">&lt;=</option>
             </select>
-            <input type="text" value={action.condition?.value ?? ''} onChange={(e) => onUpdate({ condition: { ...action.condition, value: e.target.value } })}
-              placeholder="value"
+            <input type="text" value={action.condition?.value ?? ''} onChange={(e) => onUpdate({ condition: { ...action.condition, value: e.target.value } })} placeholder="value"
               style={{ height: '24px', padding: '0 4px', fontSize: '10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', color: '#081B43' }} />
           </>
         )}
@@ -439,74 +411,37 @@ const AdvancedFields = ({ action, tags, onUpdate }) => (
   </div>
 );
 
-const fieldLabelStyle = {
-  display: 'block',
-  fontSize: '10px',
-  fontWeight: 600,
-  color: '#5F6B7A',
-  marginBottom: '4px',
-  textTransform: 'uppercase',
-};
-
-const fieldInputStyle = {
-  width: '100%',
-  height: '28px',
-  padding: '0 8px',
-  fontSize: '11px',
-  background: '#FFFFFF',
-  border: '1px solid #E5E7EB',
-  borderRadius: '4px',
-  outline: 'none',
-  color: '#081B43',
-};
-
+const fieldLabelStyle = { display: 'block', fontSize: '10px', fontWeight: 600, color: '#5F6B7A', marginBottom: '4px', textTransform: 'uppercase' };
+const fieldInputStyle = { width: '100%', height: '28px', padding: '0 8px', fontSize: '11px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', outline: 'none', color: '#081B43' };
 const fieldSelectStyle = { ...fieldInputStyle };
 
 const FieldInput = ({ label, value, onChange, type = 'text', placeholder }) => (
   <div>
     <label style={fieldLabelStyle}>{label}</label>
-    <input
-      type={type}
-      value={value ?? ''}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      style={fieldInputStyle}
-      onFocus={(e) => { e.target.style.borderColor = '#2563EB'; }}
-      onBlur={(e) => { e.target.style.borderColor = '#E5E7EB'; }}
-    />
+    <input type={type} value={value ?? ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={fieldInputStyle} />
   </div>
 );
 
 const FieldSelect = ({ label, value, onChange, options }) => (
   <div>
     <label style={fieldLabelStyle}>{label}</label>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={fieldSelectStyle}
-      onFocus={(e) => { e.target.style.borderColor = '#2563EB'; }}
-      onBlur={(e) => { e.target.style.borderColor = '#E5E7EB'; }}
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
+    <select value={value} onChange={(e) => onChange(e.target.value)} style={fieldSelectStyle}>
+      {options.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
     </select>
   </div>
 );
 
 const actionTypeConfig = {
-  writeTag: { icon: '✏️', label: 'Write Tag', color: '#2563EB' },
-  toggleTag: { icon: '🔄', label: 'Toggle Tag', color: '#9333EA' },
-  incrementTag: { icon: '⬆', label: 'Increment', color: '#16A34A' },
-  decrementTag: { icon: '⬇', label: 'Decrement', color: '#EA580C' },
-  copyTag: { icon: '📋', label: 'Copy Tag', color: '#0891B2' },
-  changeScreen: { icon: '🖥', label: 'Change Screen', color: '#4F46E5' },
-  showMessage: { icon: '💬', label: 'Show Message', color: '#0D9488' },
-  alert: { icon: '⚠️', label: 'Alert Box', color: '#DC2626' },
-  showPopup: { icon: '🪟', label: 'Show Popup', color: '#64748B' },
-  closePopup: { icon: '✖', label: 'Close Popup', color: '#64748B' },
-  runScript: { icon: '⚙', label: 'Run Script', color: '#94A3B8' },
-  playSound: { icon: '🔊', label: 'Play Sound', color: '#94A3B8' },
+  writeTag:     { icon: '✏️', label: 'Write Tag',      color: '#2563EB' },
+  toggleTag:    { icon: '🔄', label: 'Toggle Tag',     color: '#9333EA' },
+  incrementTag: { icon: '⬆',  label: 'Increment',      color: '#16A34A' },
+  decrementTag: { icon: '⬇',  label: 'Decrement',      color: '#EA580C' },
+  copyTag:      { icon: '📋', label: 'Copy Tag',       color: '#0891B2' },
+  changeScreen: { icon: '🖥', label: 'Change Screen',  color: '#4F46E5' },
+  openPopup:    { icon: '🪟', label: 'Open Popup',     color: '#F59E0B' },
+  closePopup:   { icon: '✖',  label: 'Close Popup',    color: '#64748B' },
+  showMessage:  { icon: '💬', label: 'Show Message',   color: '#0D9488' },
+  alert:        { icon: '⚠️', label: 'Alert Box',      color: '#DC2626' },
 };
 
 export default EventsTab;

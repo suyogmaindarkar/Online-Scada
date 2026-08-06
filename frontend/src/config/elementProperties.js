@@ -286,6 +286,8 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
         options: ['Yes', 'No'], dynamic: false },
     ],
 
+
+    
     // ─────────────────────────────────────────────────────
     // ✅ DIGITAL CLOCK — Live time display widget
     // ─────────────────────────────────────────────────────
@@ -317,6 +319,145 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
       { key: 'clockAccentColor', label: 'Accent Color (separator/label)', type: 'color',
         value: element.clockAccentColor || '#2563EB', dynamic: false },
     ],
+ // ─── TREND CHART ───
+    trendControl: [
+      { key: 'trendTitle', label: 'Title', type: 'text',
+        value: element.trendTitle || 'Trend Chart', dynamic: false },
+      { key: 'trendTags', label: 'Tags (comma-sep)', type: 'text',
+        value: Array.isArray(element.trendTags) ? element.trendTags.join(',') : (element.trendTags || ''),
+        dynamic: false, placeholder: 'Tag1,Tag2,Tag3' },
+      { key: 'trendTimeRange', label: 'Time Range', type: 'select',
+        value: element.trendTimeRange || '5m',
+        options: ['1m', '5m', '15m', '1h', '6h', '24h'], dynamic: false },
+      { key: 'trendUpdateInterval', label: 'Refresh (ms)', type: 'number',
+        value: element.trendUpdateInterval ?? 2000, min: 500, max: 60000, dynamic: false },
+      { key: 'trendYMin', label: 'Y-Axis Min (auto=blank)', type: 'number',
+        value: element.trendYMin ?? '', dynamic: false },
+      { key: 'trendYMax', label: 'Y-Axis Max (auto=blank)', type: 'number',
+        value: element.trendYMax ?? '', dynamic: false },
+      { key: 'trendShowLegend', label: 'Show Legend', type: 'select',
+        value: element.trendShowLegend !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'trendShowGrid', label: 'Show Grid', type: 'select',
+        value: element.trendShowGrid !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'trendShowAxis', label: 'Show Axis', type: 'select',
+        value: element.trendShowAxis !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'trendBackgroundColor', label: 'Background', type: 'color',
+        value: element.trendBackgroundColor || '#FFFFFF', dynamic: false },
+      { key: 'trendTextColor', label: 'Text Color', type: 'color',
+        value: element.trendTextColor || '#334155', dynamic: false },
+    ],
+
+    // ─── ALARM LIVE LIST ───
+    alarmControl: [
+      { key: 'alarmTitle', label: 'Title', type: 'text',
+        value: element.alarmTitle || 'Active Alarms', dynamic: false },
+      { key: 'alarmMaxRows', label: 'Max Rows', type: 'number',
+        value: element.alarmMaxRows ?? 50, min: 5, max: 500, dynamic: false },
+      { key: 'alarmFilterPriority', label: 'Filter Priority', type: 'select',
+        value: element.alarmFilterPriority || 'all',
+        options: ['all', 'critical', 'high', 'medium', 'low'], dynamic: false },
+      { key: 'alarmColorScheme', label: 'Color Scheme', type: 'select',
+        value: element.alarmColorScheme || 'severity',
+        options: ['severity', 'alternate', 'plain'], dynamic: false },
+      { key: 'alarmRefreshInterval', label: 'Refresh (ms)', type: 'number',
+        value: element.alarmRefreshInterval ?? 2000, min: 500, max: 30000, dynamic: false },
+      { key: 'alarmBackgroundColor', label: 'Background', type: 'color',
+        value: element.alarmBackgroundColor || '#FFFFFF', dynamic: false },
+      { key: 'alarmHeaderColor', label: 'Header Color', type: 'color',
+        value: element.alarmHeaderColor || '#081B43', dynamic: false },
+      { key: 'alarmTextColor', label: 'Text Color', type: 'color',
+        value: element.alarmTextColor || '#334155', dynamic: false },
+    ],
+
+    // ─── ALARM HISTORY ───
+    alarmHistoryControl: [
+      { key: 'alarmHistTitle', label: 'Title', type: 'text',
+        value: element.alarmHistTitle || 'Alarm History', dynamic: false },
+      { key: 'alarmHistMaxRows', label: 'Max Rows', type: 'number',
+        value: element.alarmHistMaxRows ?? 100, min: 10, max: 1000, dynamic: false },
+      { key: 'alarmHistTimeRange', label: 'Time Range', type: 'select',
+        value: element.alarmHistTimeRange || '24h',
+        options: ['1h', '6h', '24h', '7d', '30d'], dynamic: false },
+      { key: 'alarmHistFilterPriority', label: 'Filter Priority', type: 'select',
+        value: element.alarmHistFilterPriority || 'all',
+        options: ['all', 'critical', 'high', 'medium', 'low'], dynamic: false },
+      { key: 'alarmHistBackgroundColor', label: 'Background', type: 'color',
+        value: element.alarmHistBackgroundColor || '#FFFFFF', dynamic: false },
+      { key: 'alarmHistHeaderColor', label: 'Header Color', type: 'color',
+        value: element.alarmHistHeaderColor || '#081B43', dynamic: false },
+      { key: 'alarmHistTextColor', label: 'Text Color', type: 'color',
+        value: element.alarmHistTextColor || '#334155', dynamic: false },
+    ],
+
+    // ─── DATA TABLE ───
+    tableControl: [
+      { key: 'tableTitle', label: 'Title', type: 'text',
+        value: element.tableTitle || 'Data Table', dynamic: false },
+      { key: 'tableTags', label: 'Tags (comma-sep)', type: 'text',
+        value: Array.isArray(element.tableTags) ? element.tableTags.join(',') : (element.tableTags || ''),
+        dynamic: false, placeholder: 'Tag1,Tag2,Tag3' },
+      { key: 'tableRefreshInterval', label: 'Refresh (ms)', type: 'number',
+        value: element.tableRefreshInterval ?? 1000, min: 250, max: 10000, dynamic: false },
+      { key: 'tableShowHeader', label: 'Show Header', type: 'select',
+        value: element.tableShowHeader !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'tableAlternateRows', label: 'Alternate Rows', type: 'select',
+        value: element.tableAlternateRows !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'tableBackgroundColor', label: 'Background', type: 'color',
+        value: element.tableBackgroundColor || '#FFFFFF', dynamic: false },
+      { key: 'tableHeaderColor', label: 'Header BG', type: 'color',
+        value: element.tableHeaderColor || '#081B43', dynamic: false },
+      { key: 'tableTextColor', label: 'Text Color', type: 'color',
+        value: element.tableTextColor || '#334155', dynamic: false },
+      { key: 'tableBorderColor', label: 'Border Color', type: 'color',
+        value: element.tableBorderColor || '#E5E7EB', dynamic: false },
+    ],
+
+    // ─── BAR CHART ───
+    barChartControl: [
+      { key: 'barChartTitle', label: 'Title', type: 'text',
+        value: element.barChartTitle || 'Bar Chart', dynamic: false },
+      { key: 'barChartTags', label: 'Tags (comma-sep)', type: 'text',
+        value: Array.isArray(element.barChartTags) ? element.barChartTags.join(',') : (element.barChartTags || ''),
+        dynamic: false, placeholder: 'Tag1,Tag2,Tag3' },
+      { key: 'barChartOrientation', label: 'Orientation', type: 'select',
+        value: element.barChartOrientation || 'vertical',
+        options: ['vertical', 'horizontal'], dynamic: false },
+      { key: 'barChartYMin', label: 'Y-Axis Min', type: 'number',
+        value: element.barChartYMin ?? 0, dynamic: false },
+      { key: 'barChartYMax', label: 'Y-Axis Max', type: 'number',
+        value: element.barChartYMax ?? 100, dynamic: false },
+      { key: 'barChartShowValues', label: 'Show Values', type: 'select',
+        value: element.barChartShowValues !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'barChartShowLegend', label: 'Show Legend', type: 'select',
+        value: element.barChartShowLegend ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'barChartRefreshInterval', label: 'Refresh (ms)', type: 'number',
+        value: element.barChartRefreshInterval ?? 1000, min: 250, max: 10000, dynamic: false },
+      { key: 'barChartBackgroundColor', label: 'Background', type: 'color',
+        value: element.barChartBackgroundColor || '#FFFFFF', dynamic: false },
+      { key: 'barChartTextColor', label: 'Text Color', type: 'color',
+        value: element.barChartTextColor || '#334155', dynamic: false },
+    ],
+
+    // ─── WEB FRAME ───
+    webFrameControl: [
+      { key: 'webTitle', label: 'Title', type: 'text',
+        value: element.webTitle || 'Web Frame', dynamic: false },
+      { key: 'webUrl', label: 'URL', type: 'text',
+        value: element.webUrl || 'https://www.example.com',
+        dynamic: false, placeholder: 'https://...' },
+      { key: 'webShowBorder', label: 'Show Border', type: 'select',
+        value: element.webShowBorder !== false ? 'Yes' : 'No',
+        options: ['Yes', 'No'], dynamic: false },
+      { key: 'webBorderColor', label: 'Border Color', type: 'color',
+        value: element.webBorderColor || '#E5E7EB', dynamic: false },
+    ],
   };
 
   return configs[elementType] || [];
@@ -331,7 +472,9 @@ export const hasElementSpecificProperties = (type) => {
     'ioField', 'numericDisplay', 'button',
     'checkBox', 'radioButton', 'comboBox', 'listBox',
     'svgSymbol',
-    'digitalClock',  // ✅ NEW
+    'digitalClock',  
+    'trendControl', 'alarmControl', 'alarmHistoryControl',
+    'tableControl', 'barChartControl', 'webFrameControl',
   ].includes(type);
 };
 
@@ -365,7 +508,13 @@ export const getElementLabel = (type) => {
     pipe: 'Pipe',
     conveyor: 'Conveyor',
     svgSymbol: 'SVG Symbol',
-    digitalClock: 'Digital Clock',   // ✅ NEW
+    digitalClock: 'Digital Clock',   
+     trendControl: 'Trend Chart',
+    alarmControl: 'Alarm List',
+    alarmHistoryControl: 'Alarm History',
+    tableControl: 'Data Table',
+    barChartControl: 'Bar Chart',
+    webFrameControl: 'Web Frame',
   };
   return labels[type] || type;
 };

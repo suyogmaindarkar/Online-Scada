@@ -48,6 +48,40 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+// ═══════════════════════════════════════════════════════════
+// SCREEN TYPE UTILITIES
+// ═══════════════════════════════════════════════════════════
+
+/** Get the template screen (or null if none exists) */
+export const getTemplateScreen = (screens) => {
+  return screens?.find(s => s.isTemplate === true) || null;
+};
+
+/** Get regular user screens (not template, not popup) */
+export const getRegularScreens = (screens) => {
+  return screens?.filter(s => !s.isTemplate && !s.isPopup) || [];
+};
+
+/** Get popup screens */
+export const getPopupScreens = (screens) => {
+  return screens?.filter(s => s.isPopup === true) || [];
+};
+
+/** Merge template elements INTO a regular screen's elements
+ *  Template elements get: templateElement:true flag + go FIRST (rendered underneath).
+ *  Returns new array, doesn't mutate.
+ */
+export const mergeTemplateElements = (screenElements, templateScreen) => {
+  if (!templateScreen || !Array.isArray(templateScreen.elements)) {
+    return screenElements || [];
+  }
+  const templateEls = templateScreen.elements.map(el => ({
+    ...el,
+    _isTemplateElement: true, // marker so UI can style/lock them
+  }));
+  return [...templateEls, ...(screenElements || [])];
+};
+
 
 // ===== AUTH APIs =====
 export const authAPI = {
