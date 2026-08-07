@@ -1520,4 +1520,4 @@ function formatClockText(date, el) {
   }
 }
 
-export default RuntimeCanvas;
+export default RuntimeCanvas; 
