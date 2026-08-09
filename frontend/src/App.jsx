@@ -2,9 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { AlarmNotificationProvider } from './context/AlarmNotificationContext';
-import { ServerTimeProvider } from './context/ServerTimeContext';   // ✅ NEW
+import { ServerTimeProvider } from './context/ServerTimeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
+import ChatBot from './components/chatbot/ChatBot';   // ✅ NEW
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PLCManagement from './pages/PLCManagement';
@@ -23,7 +24,6 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <AlarmNotificationProvider>
-          {/* ✅ NEW: Global server time broadcast — digital clocks + future features */}
           <ServerTimeProvider>
             <BrowserRouter>
               <div
@@ -48,6 +48,9 @@ function App() {
                   <Route path="/"  element={<Navigate to="/dashboard" replace />} />
                   <Route path="*"  element={<Navigate to="/dashboard" replace />} />
                 </Routes>
+
+                {/* ✅ Floating SCADA Assistant chatbot — appears on all pages except Login and Runtime */}
+                <ChatBot />
               </div>
             </BrowserRouter>
           </ServerTimeProvider>

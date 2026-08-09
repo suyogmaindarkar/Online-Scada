@@ -105,6 +105,8 @@ const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log('🔐 Login attempt:', { username, password: '***' });
+
     // Validation
     if (!username || !password) {
       return res.status(400).json({
@@ -113,34 +115,24 @@ const login = async (req, res) => {
       });
     }
 
-// After successful login:
-await logActivity({
-  username: user.username,
-  userRole: user.role,
-  userId: user._id,
-  action: 'LOGIN',
-  description: `User logged in`,
-  ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
-  userAgent: req.headers['user-agent'] || '',
-});
-
-// On failed login (before returning 401):
-await logActivity({
-  username: username || 'unknown',
-  action: 'LOGIN_FAILED',
-  description: `Failed login attempt`,
-  ipAddress: req.ip || '',
-  userAgent: req.headers['user-agent'] || '',
-  success: false,
-  errorMessage: 'Invalid credentials',
-});
-
     // Find user (include password field)
     const user = await User.findOne({
       $or: [{ username }, { email: username }],
     }).select('+password');
 
+    console.log('👤 User lookup result:', user ? { username: user.username, email: user.email, hasPassword: !!user.password } : 'User not found');
+
     if (!user) {
+      // Log failed login attempt
+      await logActivity({
+        username: username || 'unknown',
+        action: 'LOGIN_FAILED',
+        description: `Failed login attempt - user not found`,
+        ipAddress: req.ip || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Invalid credentials',
+      });
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
@@ -149,6 +141,16 @@ await logActivity({
 
     // Check if user is active
     if (!user.isActive) {
+      // Log failed login attempt
+      await logActivity({
+        username: username || 'unknown',
+        action: 'LOGIN_FAILED',
+        description: `Failed login attempt - account deactivated`,
+        ipAddress: req.ip || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Account is deactivated',
+      });
       return res.status(401).json({
         success: false,
         message: 'Account is deactivated. Contact administrator.',
@@ -159,6 +161,16 @@ await logActivity({
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
+      // Log failed login attempt
+      await logActivity({
+        username: username || 'unknown',
+        action: 'LOGIN_FAILED',
+        description: `Failed login attempt - invalid password`,
+        ipAddress: req.ip || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Invalid credentials',
+      });
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
@@ -168,6 +180,17 @@ await logActivity({
     // Update last login
     user.lastLogin = Date.now();
     await user.save();
+
+    // Log successful login
+    await logActivity({
+      username: user.username,
+      userRole: user.role,
+      userId: user._id,
+      action: 'LOGIN',
+      description: `User logged in`,
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+      userAgent: req.headers['user-agent'] || '',
+    });
 
     res.json({
       success: true,
