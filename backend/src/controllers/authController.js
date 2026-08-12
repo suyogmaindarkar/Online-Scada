@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { logActivity } = require('./reportController');
+
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -13,7 +14,6 @@ const register = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    // Validation
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -21,7 +21,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Check if user exists
     const userExists = await User.findOne({
       $or: [{ email }, { username }],
     });
@@ -33,7 +32,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Set permissions based on role
     let permissions = {
       canDesign: false,
       canManageTags: false,
@@ -68,7 +66,6 @@ const register = async (req, res) => {
       };
     }
 
-    // Create user
     const user = await User.create({
       username,
       email,
@@ -113,61 +110,87 @@ const login = async (req, res) => {
       });
     }
 
-// After successful login:
-await logActivity({
-  username: user.username,
-  userRole: user.role,
-  userId: user._id,
-  action: 'LOGIN',
-  description: `User logged in`,
-  ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
-  userAgent: req.headers['user-agent'] || '',
-});
-
-// On failed login (before returning 401):
-await logActivity({
-  username: username || 'unknown',
-  action: 'LOGIN_FAILED',
-  description: `Failed login attempt`,
-  ipAddress: req.ip || '',
-  userAgent: req.headers['user-agent'] || '',
-  success: false,
-  errorMessage: 'Invalid credentials',
-});
-
-    // Find user (include password field)
+    // ✅ STEP 1 — Find user FIRST (user variable must exist before logActivity)
     const user = await User.findOne({
       $or: [{ username }, { email: username }],
     }).select('+password');
 
+    // ✅ STEP 2 — User not found → log failed attempt → return 401
     if (!user) {
+      // Fire-and-forget — don't await so it doesn't block response
+      logActivity({
+        username: username || 'unknown',
+        action: 'LOGIN_FAILED',
+        description: 'Failed login attempt - user not found',
+        ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Invalid credentials',
+      }).catch(err => console.warn('logActivity failed:', err.message));
+
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
       });
     }
 
-    // Check if user is active
+    // ✅ STEP 3 — Check if account is active
     if (!user.isActive) {
+      logActivity({
+        username: user.username,
+        userRole: user.role,
+        userId: user._id,
+        action: 'LOGIN_FAILED',
+        description: 'Failed login attempt - account deactivated',
+        ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Account deactivated',
+      }).catch(err => console.warn('logActivity failed:', err.message));
+
       return res.status(401).json({
         success: false,
         message: 'Account is deactivated. Contact administrator.',
       });
     }
 
-    // Check password
+    // ✅ STEP 4 — Check password
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
+      logActivity({
+        username: user.username,
+        userRole: user.role,
+        userId: user._id,
+        action: 'LOGIN_FAILED',
+        description: 'Failed login attempt - wrong password',
+        ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+        userAgent: req.headers['user-agent'] || '',
+        success: false,
+        errorMessage: 'Invalid credentials',
+      }).catch(err => console.warn('logActivity failed:', err.message));
+
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
       });
     }
 
-    // Update last login
+    // ✅ STEP 5 — Successful login → update lastLogin → log → respond
     user.lastLogin = Date.now();
     await user.save();
+
+    // Fire-and-forget activity log
+    logActivity({
+      username: user.username,
+      userRole: user.role,
+      userId: user._id,
+      action: 'LOGIN',
+      description: 'User logged in successfully',
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
+      userAgent: req.headers['user-agent'] || '',
+      success: true,
+    }).catch(err => console.warn('logActivity failed:', err.message));
 
     res.json({
       success: true,
@@ -183,6 +206,7 @@ await logActivity({
       },
     });
   } catch (error) {
+    console.error('❌ Login error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Server Error',

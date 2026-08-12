@@ -1,9 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// ScreenExplorer — 4 groups now:
-//   ✅ Process Pictures — widget templates (click to add)
-//   ✅ Template — single master screen (elements auto-inherited)
-//   ✅ Popup Screens — modal overlays
-//   ✅ My Screens — regular user screens
+// ScreenExplorer — FIXED:
+//   ✅ No nested <button> inside <button> (GroupHeader uses div)
+//   ✅ All 4 groups: Process Pictures / Template / Popups / My Screens
 // ═══════════════════════════════════════════════════════════
 
 import { useState } from 'react';
@@ -14,9 +12,6 @@ import {
   Search, Package, Layout, Layers, Plus,
 } from 'lucide-react';
 
-// ═══════════════════════════════════════════════════════════
-// PROCESS PICTURE TEMPLATES
-// ═══════════════════════════════════════════════════════════
 const PROCESS_PICTURES = [
   {
     type: 'trendControl', icon: LineChart, label: 'Trend Chart',
@@ -88,9 +83,6 @@ const PROCESS_PICTURES = [
   },
 ];
 
-// ═══════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════
 const ScreenExplorer = ({
   screens,
   onLoadScreen,
@@ -99,25 +91,19 @@ const ScreenExplorer = ({
   onDeleteScreen,
   onSetStartupScreen,
   onAddElement,
-  onCreatePopup,             // ✅ NEW: called when user clicks + on Popup Screens group
-  onCreateTemplate,          // ✅ NEW: called when user clicks + on Template group (only if no template exists)
+  onCreatePopup,
+  onCreateTemplate,
 }) => {
-  const [expanded, setExpanded] = useState({
-    pictures: true,
-    template: true,
-    popups: true,
-    screens: true,
-  });
+  const [expanded, setExpanded] = useState({ pictures: true, template: true, popups: true, screens: true });
   const [filter, setFilter] = useState('');
   const [contextMenu, setContextMenu] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const toggle = (key) => setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  // ✅ Split screens by type
-  const templateScreen  = screens.find(s => s.isTemplate === true);
-  const popupScreens    = screens.filter(s => s.isPopup === true);
-  const regularScreens  = screens.filter(s => !s.isTemplate && !s.isPopup);
+  const templateScreen = screens.find(s => s.isTemplate === true);
+  const popupScreens   = screens.filter(s => s.isPopup === true);
+  const regularScreens = screens.filter(s => !s.isTemplate && !s.isPopup);
 
   const filteredRegular  = regularScreens.filter(s => s.screenName.toLowerCase().includes(filter.toLowerCase()));
   const filteredPopups   = popupScreens.filter(s => s.screenName.toLowerCase().includes(filter.toLowerCase()));
@@ -143,17 +129,12 @@ const ScreenExplorer = ({
   return (
     <>
       <div
-        style={{
-          width: '224px', height: '100%', display: 'flex', flexDirection: 'column',
-          userSelect: 'none', background: '#FFFFFF', borderLeft: '1px solid #E5E7EB',
-        }}
+        style={{ width: '224px', height: '100%', display: 'flex', flexDirection: 'column', userSelect: 'none', background: '#FFFFFF', borderLeft: '1px solid #E5E7EB' }}
         onClick={closeContextMenu}
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#081B43', fontFamily: "'Montserrat', sans-serif" }}>
-            Explorer
-          </span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#081B43', fontFamily: "'Montserrat', sans-serif" }}>Explorer</span>
           <button onClick={onRefresh}
             style={{ padding: '4px', borderRadius: '4px', background: 'transparent', color: '#5F6B7A', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; e.currentTarget.style.color = '#2563EB'; }}
@@ -186,13 +167,11 @@ const ScreenExplorer = ({
           />
           {expanded.pictures && (
             <div style={{ paddingTop: '2px', paddingBottom: '4px' }}>
-              {filteredPictures.length === 0 ? (
-                <EmptyRow text="No matches" />
-              ) : (
-                filteredPictures.map((p) => (
+              {filteredPictures.length === 0
+                ? <EmptyRow text="No matches" />
+                : filteredPictures.map((p) => (
                   <ProcessPictureItem key={p.type} picture={p} onClick={() => handleAddPicture(p)} />
-                ))
-              )}
+                ))}
             </div>
           )}
 
@@ -203,24 +182,16 @@ const ScreenExplorer = ({
             icon={<Layers size={11} style={{ color: '#9333EA' }} />}
             label="Template"
             count={templateScreen ? 1 : 0}
-            action={!templateScreen && onCreateTemplate ? (
-              <button
-                onClick={(e) => { e.stopPropagation(); onCreateTemplate(); }}
-                title="Create template screen"
-                style={{ padding: '2px', borderRadius: '3px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9333EA', display: 'flex', alignItems: 'center' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(147,51,234,0.15)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-              >
-                <Plus size={11} />
-              </button>
-            ) : null}
+            onAction={!templateScreen && onCreateTemplate ? () => onCreateTemplate() : null}
+            actionTitle="Create template screen"
+            actionColor="#9333EA"
           />
           {expanded.template && (
             <div style={{ paddingTop: '2px', paddingBottom: '4px' }}>
               {!templateScreen ? (
                 <div style={{ padding: '6px 12px' }}>
                   <p style={{ fontSize: '10px', color: '#94A3B8', fontStyle: 'italic', margin: 0, lineHeight: 1.4 }}>
-                    No template yet. Elements added to the template screen will appear on all My Screens automatically.
+                    No template yet. Elements added here appear on all screens automatically.
                   </p>
                 </div>
               ) : (
@@ -242,24 +213,15 @@ const ScreenExplorer = ({
             icon={<Layout size={11} style={{ color: '#F59E0B' }} />}
             label="Popup Screens"
             count={filteredPopups.length}
-            action={onCreatePopup ? (
-              <button
-                onClick={(e) => { e.stopPropagation(); onCreatePopup(); }}
-                title="Create new popup screen"
-                style={{ padding: '2px', borderRadius: '3px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#F59E0B', display: 'flex', alignItems: 'center' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(245,158,11,0.15)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-              >
-                <Plus size={11} />
-              </button>
-            ) : null}
+            onAction={onCreatePopup ? () => onCreatePopup() : null}
+            actionTitle="Create new popup screen"
+            actionColor="#F59E0B"
           />
           {expanded.popups && (
             <div style={{ paddingTop: '2px', paddingBottom: '4px' }}>
-              {filteredPopups.length === 0 ? (
-                <EmptyRow text={filter ? 'No match' : 'No popups yet · click + to create'} />
-              ) : (
-                filteredPopups.map((p) => (
+              {filteredPopups.length === 0
+                ? <EmptyRow text={filter ? 'No match' : 'No popups yet · click + to create'} />
+                : filteredPopups.map((p) => (
                   <ScreenRow
                     key={p._id}
                     screen={p}
@@ -268,8 +230,7 @@ const ScreenExplorer = ({
                     onLoad={onLoadScreen}
                     onContextMenu={handleContextMenu}
                   />
-                ))
-              )}
+                ))}
             </div>
           )}
 
@@ -283,10 +244,9 @@ const ScreenExplorer = ({
           />
           {expanded.screens && (
             <div style={{ paddingTop: '2px', paddingBottom: '4px' }}>
-              {filteredRegular.length === 0 ? (
-                <EmptyRow text={filter ? 'No match' : 'No screens yet'} />
-              ) : (
-                filteredRegular.map((s) => (
+              {filteredRegular.length === 0
+                ? <EmptyRow text={filter ? 'No match' : 'No screens yet'} />
+                : filteredRegular.map((s) => (
                   <ScreenRow
                     key={s._id}
                     screen={s}
@@ -295,8 +255,7 @@ const ScreenExplorer = ({
                     onLoad={onLoadScreen}
                     onContextMenu={handleContextMenu}
                   />
-                ))
-              )}
+                ))}
             </div>
           )}
         </div>
@@ -313,25 +272,13 @@ const ScreenExplorer = ({
       {contextMenu && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onClick={closeContextMenu} />
-          <div style={{
-            position: 'fixed', left: contextMenu.x, top: contextMenu.y,
-            zIndex: 9999, background: '#FFFFFF', border: '1px solid #E5E7EB',
-            borderRadius: '8px', boxShadow: '0px 8px 24px rgba(8,27,67,0.15)',
-            minWidth: '180px', overflow: 'hidden',
-          }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 9999, background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', boxShadow: '0px 8px 24px rgba(8,27,67,0.15)', minWidth: '180px', overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F8FAFC' }}>
-              <p style={{ fontSize: '11px', fontWeight: 700, color: '#081B43', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {contextMenu.screen.screenName}
-              </p>
-              {contextMenu.screen.isTemplate && (
-                <span style={{ fontSize: '9px', color: '#9333EA', fontWeight: 700 }}>⚙ TEMPLATE</span>
-              )}
-              {contextMenu.screen.isPopup && (
-                <span style={{ fontSize: '9px', color: '#F59E0B', fontWeight: 700 }}>🪟 POPUP</span>
-              )}
+              <p style={{ fontSize: '11px', fontWeight: 700, color: '#081B43', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{contextMenu.screen.screenName}</p>
+              {contextMenu.screen.isTemplate && (<span style={{ fontSize: '9px', color: '#9333EA', fontWeight: 700 }}>⚙ TEMPLATE</span>)}
+              {contextMenu.screen.isPopup && (<span style={{ fontSize: '9px', color: '#F59E0B', fontWeight: 700 }}>🪟 POPUP</span>)}
             </div>
-            <ContextMenuItem icon={<FileText size={12} />} label="Open Screen"
-              onClick={() => { onLoadScreen(contextMenu.screen); closeContextMenu(); }} color="#334155" />
+            <ContextMenuItem icon={<FileText size={12} />} label="Open Screen" onClick={() => { onLoadScreen(contextMenu.screen); closeContextMenu(); }} color="#334155" />
             {!contextMenu.screen.isTemplate && !contextMenu.screen.isPopup && (
               <ContextMenuItem icon={<Home size={12} />}
                 label={contextMenu.screen.isStartupScreen ? 'Startup Screen ✓' : 'Set as Startup Screen'}
@@ -340,8 +287,7 @@ const ScreenExplorer = ({
                 disabled={contextMenu.screen.isStartupScreen} />
             )}
             <div style={{ height: '1px', background: '#E5E7EB', margin: '2px 0' }} />
-            <ContextMenuItem icon={<Trash2 size={12} />} label="Delete Screen"
-              onClick={() => handleDeleteConfirm(contextMenu.screen)} color="#DC2626" danger />
+            <ContextMenuItem icon={<Trash2 size={12} />} label="Delete Screen" onClick={() => handleDeleteConfirm(contextMenu.screen)} color="#DC2626" danger />
           </div>
         </>
       )}
@@ -350,25 +296,17 @@ const ScreenExplorer = ({
       {confirmDeleteId && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.4)' }} />
-          <div style={{
-            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            zIndex: 10000, background: '#FFFFFF', borderRadius: '12px',
-            padding: '24px', width: '320px', boxShadow: '0px 20px 60px rgba(8,27,67,0.25)',
-          }}>
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 10000, background: '#FFFFFF', borderRadius: '12px', padding: '24px', width: '320px', boxShadow: '0px 20px 60px rgba(8,27,67,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Trash2 size={18} style={{ color: '#DC2626' }} />
               </div>
               <div>
                 <p style={{ fontSize: '15px', fontWeight: 700, color: '#081B43', margin: 0 }}>Delete Screen?</p>
-                <p style={{ fontSize: '12px', color: '#5F6B7A', margin: '2px 0 0' }}>
-                  "{screens.find(s => s._id === confirmDeleteId)?.screenName}"
-                </p>
+                <p style={{ fontSize: '12px', color: '#5F6B7A', margin: '2px 0 0' }}>"{screens.find(s => s._id === confirmDeleteId)?.screenName}"</p>
               </div>
             </div>
-            <p style={{ fontSize: '12px', color: '#5F6B7A', marginBottom: '20px', lineHeight: 1.5 }}>
-              This will permanently delete the screen and all its elements.
-            </p>
+            <p style={{ fontSize: '12px', color: '#5F6B7A', marginBottom: '20px', lineHeight: 1.5 }}>This will permanently delete the screen and all its elements.</p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => setConfirmDeleteId(null)}
                 style={{ flex: 1, padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F8FAFC', color: '#334155', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
@@ -392,33 +330,79 @@ const ScreenExplorer = ({
 // SUB-COMPONENTS
 // ═══════════════════════════════════════════════════════════
 
-const GroupHeader = ({ expanded, onToggle, icon, label, count, action }) => (
-  <button onClick={onToggle}
+// ✅ FIXED: GroupHeader uses <div> instead of <button> to avoid
+// nested <button> inside <button> HTML violation.
+// The action (+ button) is rendered as a sibling, not a child.
+const GroupHeader = ({ expanded, onToggle, icon, label, count, onAction, actionTitle, actionColor }) => (
+  <div
     style={{
-      display: 'flex', alignItems: 'center', gap: '4px',
-      width: '100%', padding: '6px 8px', background: '#F8FAFC',
-      border: 'none', borderBottom: '1px solid #E5E7EB', borderTop: '1px solid #E5E7EB',
-      color: '#081B43', fontWeight: 700, cursor: 'pointer',
-      fontFamily: "'Montserrat', sans-serif",
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px',
+      width: '100%',
+      background: '#F8FAFC',
+      border: 'none',
+      borderBottom: '1px solid #E5E7EB',
+      borderTop: '1px solid #E5E7EB',
     }}
-    onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; }}
-    onMouseLeave={(e) => { e.currentTarget.style.background = '#F8FAFC'; }}>
-    {expanded ? <ChevronDown size={11} style={{ color: '#2563EB' }} /> : <ChevronRight size={11} style={{ color: '#5F6B7A' }} />}
-    {icon}
-    <span style={{ flex: 1, textAlign: 'left', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-      {label}
-    </span>
-    <span style={{ fontSize: '9px', fontFamily: 'monospace', color: '#5F6B7A', fontWeight: 400 }}>
-      {count}
-    </span>
-    {action}
-  </button>
+  >
+    {/* Main clickable toggle area */}
+    <div
+      onClick={onToggle}
+      style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '6px 8px',
+        cursor: 'pointer',
+        color: '#081B43',
+        fontFamily: "'Montserrat', sans-serif",
+        minWidth: 0,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+    >
+      {expanded
+        ? <ChevronDown size={11} style={{ color: '#2563EB', flexShrink: 0 }} />
+        : <ChevronRight size={11} style={{ color: '#5F6B7A', flexShrink: 0 }} />}
+      {icon}
+      <span style={{ flex: 1, textAlign: 'left', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#081B43', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+      <span style={{ fontSize: '9px', fontFamily: 'monospace', color: '#5F6B7A', fontWeight: 400, flexShrink: 0 }}>
+        {count}
+      </span>
+    </div>
+
+    {/* ✅ Action button is a SIBLING of the toggle div, not inside a button */}
+    {onAction && (
+      <button
+        onClick={(e) => { e.stopPropagation(); onAction(); }}
+        title={actionTitle}
+        style={{
+          padding: '4px 6px',
+          borderRadius: '3px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          color: actionColor || '#2563EB',
+          display: 'flex',
+          alignItems: 'center',
+          flexShrink: 0,
+          marginRight: '4px',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = `${actionColor}22` || '#EEF6FF'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+      >
+        <Plus size={11} />
+      </button>
+    )}
+  </div>
 );
 
 const EmptyRow = ({ text }) => (
-  <p style={{ padding: '8px 16px', fontSize: '10px', color: '#94A3B8', fontStyle: 'italic', margin: 0 }}>
-    {text}
-  </p>
+  <p style={{ padding: '8px 16px', fontSize: '10px', color: '#94A3B8', fontStyle: 'italic', margin: 0 }}>{text}</p>
 );
 
 const ScreenRow = ({ screen, isActive, color, onLoad, onContextMenu }) => {
@@ -440,12 +424,8 @@ const ScreenRow = ({ screen, isActive, color, onLoad, onContextMenu }) => {
         onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#334155'; } }}
         title={`${screen.screenName} — right-click for options`}>
         {badge ? <span style={{ fontSize: '10px', flexShrink: 0 }}>{badge}</span> : <FileText size={11} style={{ flexShrink: 0 }} />}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-          {screen.screenName}
-        </span>
-        {screen.isStartupScreen && (
-          <Star size={9} style={{ flexShrink: 0, color: isActive ? '#FEF3C7' : '#F59E0B' }} fill="currentColor" />
-        )}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{screen.screenName}</span>
+        {screen.isStartupScreen && (<Star size={9} style={{ flexShrink: 0, color: isActive ? '#FEF3C7' : '#F59E0B' }} fill="currentColor" />)}
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onContextMenu(e, screen); }}
@@ -463,30 +443,16 @@ const ProcessPictureItem = ({ picture, onClick }) => {
   const Icon = picture.icon;
   return (
     <button onClick={onClick}
-      style={{
-        width: 'calc(100% - 8px)', marginLeft: '4px', marginRight: '4px',
-        display: 'flex', alignItems: 'center', gap: '8px',
-        padding: '6px 8px', borderRadius: '4px',
-        background: 'transparent', border: 'none', cursor: 'pointer',
-        textAlign: 'left',
-      }}
+      style={{ width: 'calc(100% - 8px)', marginLeft: '4px', marginRight: '4px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '4px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
       onMouseEnter={(e) => { e.currentTarget.style.background = '#EEF6FF'; }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
       title={`${picture.label} — ${picture.description}`}>
-      <div style={{
-        width: '20px', height: '20px', borderRadius: '4px',
-        background: `${picture.color}15`, border: `1px solid ${picture.color}40`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-      }}>
+      <div style={{ width: '20px', height: '20px', borderRadius: '4px', background: `${picture.color}15`, border: `1px solid ${picture.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon size={11} style={{ color: picture.color }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '11px', fontWeight: 600, color: '#081B43', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {picture.label}
-        </p>
-        <p style={{ fontSize: '9px', color: '#94A3B8', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {picture.description}
-        </p>
+        <p style={{ fontSize: '11px', fontWeight: 600, color: '#081B43', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{picture.label}</p>
+        <p style={{ fontSize: '9px', color: '#94A3B8', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{picture.description}</p>
       </div>
     </button>
   );
@@ -494,13 +460,7 @@ const ProcessPictureItem = ({ picture, onClick }) => {
 
 const ContextMenuItem = ({ icon, label, onClick, color, danger, disabled }) => (
   <button onClick={disabled ? undefined : onClick} disabled={disabled}
-    style={{
-      width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-      padding: '8px 12px', background: 'transparent', border: 'none',
-      color: disabled ? '#CBD5E1' : color || '#334155',
-      fontSize: '12px', fontWeight: 500, cursor: disabled ? 'default' : 'pointer',
-      textAlign: 'left',
-    }}
+    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: disabled ? '#CBD5E1' : color || '#334155', fontSize: '12px', fontWeight: 500, cursor: disabled ? 'default' : 'pointer', textAlign: 'left' }}
     onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = danger ? '#FEE2E2' : '#F8FAFC'; }}
     onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = 'transparent'; }}>
     {icon}

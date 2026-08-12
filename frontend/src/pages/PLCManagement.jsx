@@ -1,12 +1,10 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Management — Blue theme + CSV + Discovery Phase 2
-// Phase 2 additions:
-//   ✅ Deep probe toggle (fast/thorough mode)
-//   ✅ "Verified ✅" badge on deep-probed devices
-//   ✅ Model, firmware, order number, PLC name in discovery cards
-//   ✅ "Re-probe" button for individual card deep identification
-//   ✅ Probe method shown (S7 / OPC UA / Modbus FC43)
-//   ✅ Phase indicator in scan progress (pinging→probing→deep_probing→done)
+// PLC Management — Blue theme + CSV + Discovery Phase 3
+// Phase 3 upgrades:
+//   ✅ Shows OPC UA SoftwareVersion (= firmware for S7-1500)
+//   ✅ PC own-IP exclusion notice in UI
+//   ✅ Protocol recommendation shows slot/rack in card
+//   ✅ Removed dedicated PLCSIM probe section
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -33,17 +31,15 @@ const C = {
   btnHover:   '#123E8A', success:   '#16A34A', warning:    '#F59E0B',
   danger:     '#DC2626', purple:    '#9333EA', purpleDark: '#6B21A8',
   teal:       '#0891B2', tealDark:  '#0E7490',
-  verified:   '#059669', // emerald for verified badge
+  verified:   '#059669',
 };
 
-// ── Confidence config ──
 const CONF_MAP = {
-  high:   { color: C.success,  bg: '#DCFCE7', icon: SignalHigh, label: 'High Confidence'   },
-  medium: { color: C.warning,  bg: '#FEF3C7', icon: Signal,     label: 'Medium Confidence' },
-  low:    { color: C.subtle,   bg: '#F1F5F9', icon: SignalLow,  label: 'Low Confidence'    },
+  high:   { color: C.success, bg: '#DCFCE7', icon: SignalHigh, label: 'High Confidence'   },
+  medium: { color: C.warning, bg: '#FEF3C7', icon: Signal,     label: 'Medium Confidence' },
+  low:    { color: C.subtle,  bg: '#F1F5F9', icon: SignalLow,  label: 'Low Confidence'    },
 };
 
-// ── Phase labels for progress indicator ──
 const PHASE_LABELS = {
   idle:         'Idle',
   pinging:      'Phase 1: Pinging hosts…',
@@ -65,7 +61,6 @@ const PLCManagement = () => {
   const [creatingSim, setCreatingSim] = useState(false);
   const [formData,    setFormData]    = useState(initialFormData());
 
-  // Import/Export state
   const [showImportModal, setShowImportModal] = useState(false);
   const [importCsvText,   setImportCsvText]   = useState('');
   const [importMode,      setImportMode]      = useState('create');
@@ -74,7 +69,6 @@ const PLCManagement = () => {
   const [exporting,       setExporting]       = useState(false);
   const fileInputRef = useRef(null);
 
-  // Discovery state
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [scanning,           setScanning]           = useState(false);
   const [scanPhase,          setScanPhase]          = useState('idle');
@@ -83,15 +77,15 @@ const PLCManagement = () => {
   const [selectedNetwork,    setSelectedNetwork]    = useState(0);
   const [customRange,        setCustomRange]        = useState({ startIP: '', endIP: '' });
   const [useCustomRange,     setUseCustomRange]     = useState(false);
-  const [useDeepProbe,       setUseDeepProbe]       = useState(true);   // NEW Phase 2
-  const [probingIP,          setProbingIP]          = useState(null);   // single re-probe
-  const [expandedDevices,    setExpandedDevices]    = useState({});     // expanded detail cards
+  const [useDeepProbe,       setUseDeepProbe]       = useState(true);
+  const [probingIP,          setProbingIP]          = useState(null);
+  const [expandedDevices,    setExpandedDevices]    = useState({});
 
   function initialFormData() {
     return {
       name: '', description: '', protocol: 'SIMULATION',
       ipAddress: '192.168.1.100', port: 502, rack: 0,
-      slot: 1, brand: 'OTHER', model: '', pollingRate: 1000,
+      slot: 0, brand: 'OTHER', model: '', pollingRate: 1000,
     };
   }
 
@@ -106,7 +100,6 @@ const PLCManagement = () => {
     return () => socketService.off('plcStatus', handlePlcStatus);
   }, []);
 
-  // Poll scan progress while scanning
   useEffect(() => {
     if (!scanning) return;
     const interval = setInterval(async () => {
@@ -136,13 +129,11 @@ const PLCManagement = () => {
       setCreatingSim(true);
       const res = await plcAPI.quickSimulation();
       const created = res.data?.data;
-      showToast(`✨ ${created?.name || 'Simulation PLC'} created with 5 demo tags — check Tag Management!`, 'success', 5000);
+      showToast(`✨ ${created?.name || 'Simulation PLC'} created with 5 demo tags!`, 'success', 5000);
       await loadPLCs();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to create simulation PLC', 'error');
-    } finally {
-      setCreatingSim(false);
-    }
+    } finally { setCreatingSim(false); }
   };
 
   const handleOpenAdd  = () => { setEditingPLC(null); setFormData(initialFormData()); setShowModal(true); };
@@ -204,7 +195,6 @@ const PLCManagement = () => {
     setFormData({ ...formData, [name]: type === 'number' ? parseInt(value) : value });
   };
 
-  // ── CSV handlers ──
   const handleExportCSV = async () => {
     try {
       setExporting(true);
@@ -239,10 +229,10 @@ const PLCManagement = () => {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.csv')) { showToast('Please select a .csv file', 'warning'); return; }
     const reader = new FileReader();
-    reader.onload    = (evt) => { setImportCsvText(evt.target.result); showToast(`Loaded ${file.name}`, 'success'); };
-    reader.onerror   = () => showToast('Failed to read file', 'error');
+    reader.onload  = (evt) => { setImportCsvText(evt.target.result); showToast(`Loaded ${file.name}`, 'success'); };
+    reader.onerror = () => showToast('Failed to read file', 'error');
     reader.readAsText(file);
-    e.target.value   = '';
+    e.target.value = '';
   };
 
   const handleOpenImport  = () => { setImportCsvText(''); setImportResults(null); setImportMode('create'); setShowImportModal(true); };
@@ -261,7 +251,6 @@ const PLCManagement = () => {
     } finally { setImporting(false); }
   };
 
-  // ── Discovery handlers ──
   const handleOpenDiscovery = async () => {
     setShowDiscoveryModal(true);
     setScanResults(null);
@@ -291,16 +280,13 @@ const PLCManagement = () => {
     } catch (err) {
       showToast(err.response?.data?.message || 'Scan failed', 'error');
       setScanPhase('idle');
-    } finally {
-      setScanning(false);
-    }
+    } finally { setScanning(false); }
   };
 
-  // NEW Phase 2: Re-probe a single device
   const handleReprobe = async (device) => {
     try {
       setProbingIP(device.ip);
-      const res = await discoveryAPI.probeDevice(device.ip, device.ports);
+      const res     = await discoveryAPI.probeDevice(device.ip, device.ports);
       const updated = res.data?.device;
       if (updated) {
         setScanResults(prev => ({
@@ -313,11 +299,8 @@ const PLCManagement = () => {
           showToast(`Re-probe complete for ${device.ip} — no additional info found`, 'info');
         }
       }
-    } catch (err) {
-      showToast(`Re-probe failed for ${device.ip}`, 'error');
-    } finally {
-      setProbingIP(null);
-    }
+    } catch { showToast(`Re-probe failed for ${device.ip}`, 'error'); }
+    finally   { setProbingIP(null); }
   };
 
   const handleAddDiscovered = (device) => {
@@ -344,13 +327,10 @@ const PLCManagement = () => {
     setExpandedDevices(prev => ({ ...prev, [ip]: !prev[ip] }));
   };
 
-  const deletingPLC  = plcs.find(p => p._id === deleteId);
+  const deletingPLC   = plcs.find(p => p._id === deleteId);
   const deletingIsSim = deletingPLC?.isSimulation;
-  const csvLineCount = importCsvText.split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).length - 1;
+  const csvLineCount  = importCsvText.split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).length - 1;
 
-  // ═══════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
 
@@ -370,19 +350,14 @@ const PLCManagement = () => {
               <p className="text-sm mt-0.5" style={{ color: C.muted }}>Configure & manage PLC connections</p>
             </div>
           </div>
-
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Discover */}
             <button onClick={handleOpenDiscovery}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all"
               style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealDark} 100%)`, boxShadow: '0px 4px 12px rgba(8,145,178,0.30)', fontFamily: "'Montserrat', sans-serif" }}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-              title="Scan your network for PLCs — now with deep identification!">
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
               <Radar className="w-5 h-5" /> Discover PLCs
             </button>
-
-            {/* Quick Sim */}
             <button onClick={handleQuickSimulation} disabled={creatingSim}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
               style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.purpleDark} 100%)`, boxShadow: '0px 4px 12px rgba(147,51,234,0.30)', fontFamily: "'Montserrat', sans-serif" }}
@@ -390,8 +365,6 @@ const PLCManagement = () => {
               onMouseLeave={e => { if (!creatingSim) e.currentTarget.style.transform = 'translateY(0)'; }}>
               {creatingSim ? <><Loader2 className="w-5 h-5 animate-spin" />Creating…</> : <><Sparkles className="w-5 h-5" />Quick Simulation PLC</>}
             </button>
-
-            {/* Import */}
             <button onClick={handleOpenImport}
               className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold"
               style={{ background: C.warning, color: '#FFF', fontFamily: "'Montserrat', sans-serif" }}
@@ -399,16 +372,12 @@ const PLCManagement = () => {
               onMouseLeave={e => e.currentTarget.style.background = C.warning}>
               <Upload className="w-4 h-4" /> Import CSV
             </button>
-
-            {/* Export */}
             <button onClick={handleExportCSV}
               disabled={exporting || plcs.filter(p => !p.isSimulation).length === 0}
               className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
               style={{ background: C.success, color: '#FFF', fontFamily: "'Montserrat', sans-serif" }}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Export CSV
             </button>
-
-            {/* Add */}
             <button onClick={handleOpenAdd}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all"
               style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
@@ -427,9 +396,7 @@ const PLCManagement = () => {
           <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: C.purple }} />
           <div className="flex-1 text-sm">
             <p className="font-semibold" style={{ color: C.purpleDark }}>Try the Quick Simulation PLC!</p>
-            <p className="mt-0.5" style={{ color: C.text }}>
-              Click <strong>"Quick Simulation PLC"</strong> above to instantly create a virtual PLC with 5 realistic demo tags.
-            </p>
+            <p className="mt-0.5" style={{ color: C.text }}>Click <strong>"Quick Simulation PLC"</strong> to instantly create a virtual PLC with 5 demo tags.</p>
           </div>
         </div>
       )}
@@ -447,9 +414,7 @@ const PLCManagement = () => {
               <Cpu className="w-10 h-10" style={{ color: C.brand }} />
             </div>
             <h3 className="text-xl font-bold mb-2" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>No PLCs Configured</h3>
-            <p className="text-sm max-w-md mx-auto mb-6" style={{ color: C.muted }}>
-              Discover PLCs on your network, add a real PLC, or try a Simulation PLC.
-            </p>
+            <p className="text-sm max-w-md mx-auto mb-6" style={{ color: C.muted }}>Discover PLCs on your network, add a real PLC, or try a Simulation PLC.</p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               <button onClick={handleOpenDiscovery}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold"
@@ -489,8 +454,7 @@ const PLCManagement = () => {
                     <td className="px-4 py-3">
                       {plc.isConnected
                         ? <div className="flex items-center gap-1.5"><Wifi className="w-4 h-4" style={{ color: C.success }} /><span className="text-xs font-bold" style={{ color: C.success }}>ONLINE</span></div>
-                        : <div className="flex items-center gap-1.5"><WifiOff className="w-4 h-4" style={{ color: C.subtle }} /><span className="text-xs font-bold" style={{ color: C.subtle }}>OFFLINE</span></div>
-                      }
+                        : <div className="flex items-center gap-1.5"><WifiOff className="w-4 h-4" style={{ color: C.subtle }} /><span className="text-xs font-bold" style={{ color: C.subtle }}>OFFLINE</span></div>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -532,7 +496,7 @@ const PLCManagement = () => {
                           <Edit2 className="w-3.5 h-3.5" />
                         </IconButton>
                         <IconButton onClick={() => setDeleteId(plc._id)} bg={C.danger}
-                          title={`Delete ${plc.name}${plc.isSimulation ? ' (will also delete demo tags)' : ''}`}>
+                          title={`Delete ${plc.name}`}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </IconButton>
                       </div>
@@ -609,7 +573,7 @@ const PLCManagement = () => {
       <ConfirmDialog
         isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete}
         title={deletingIsSim ? 'Delete Simulation PLC?' : 'Delete PLC?'}
-        message={deletingIsSim ? `Delete "${deletingPLC?.name}" and its demo tags?` : `Are you sure you want to delete "${deletingPLC?.name}"?`}
+        message={deletingIsSim ? `Delete "${deletingPLC?.name}" and its demo tags?` : `Delete "${deletingPLC?.name}"?`}
         confirmText={deletingIsSim ? 'Delete Sim PLC & Tags' : 'Delete PLC'}
         confirmColor="red" icon="warning"
       />
@@ -651,9 +615,9 @@ const PLCManagement = () => {
               <label className="block text-sm font-semibold mb-2" style={{ color: C.heading }}>Import Mode</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { value: 'create', label: 'Create Only', hint: 'Skip existing' },
-                  { value: 'update', label: 'Update Only', hint: 'Skip new'     },
-                  { value: 'upsert', label: 'Create + Update', hint: 'Both'    },
+                  { value: 'create', label: 'Create Only',     hint: 'Skip existing' },
+                  { value: 'update', label: 'Update Only',     hint: 'Skip new'      },
+                  { value: 'upsert', label: 'Create + Update', hint: 'Both'          },
                 ].map(m => (
                   <button key={m.value} onClick={() => setImportMode(m.value)}
                     className="p-3 rounded-lg text-left transition-all"
@@ -684,7 +648,7 @@ const PLCManagement = () => {
       </Modal>
 
       {/* ═══════════════════════════════════════════════════════
-          PLC DISCOVERY MODAL — Phase 1 + Phase 2
+          PLC DISCOVERY MODAL — Phase 3
           ═══════════════════════════════════════════════════════ */}
       <Modal
         isOpen={showDiscoveryModal}
@@ -701,6 +665,9 @@ const PLCManagement = () => {
                 <Signal className="w-4 h-4" style={{ color: C.brand }} />
                 <span className="text-sm font-bold" style={{ color: C.heading }}>
                   Detected Network{networks.length > 1 ? 's' : ''}
+                </span>
+                <span className="text-xs ml-auto" style={{ color: C.subtle }}>
+                  🔒 Your PC IP is automatically excluded from results
                 </span>
               </div>
               <div className="space-y-1">
@@ -724,46 +691,43 @@ const PLCManagement = () => {
                 style={{ accentColor: C.brand, width: 16, height: 16 }} />
               <span className="text-sm font-semibold" style={{ color: C.heading }}>Custom IP Range</span>
             </label>
-
-            {/* ── Deep Probe Toggle (Phase 2) ── */}
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={useDeepProbe}
                 onChange={e => setUseDeepProbe(e.target.checked)}
                 style={{ accentColor: C.teal, width: 16, height: 16 }} />
-              <span className="text-sm font-semibold" style={{ color: C.heading }}>
-                Deep Identification
-              </span>
+              <span className="text-sm font-semibold" style={{ color: C.heading }}>Deep Identification</span>
               <span className="px-2 py-0.5 text-[10px] font-bold rounded"
                 style={{ background: useDeepProbe ? `${C.teal}20` : C.cardSubtle,
-                  color: useDeepProbe ? C.teal : C.muted, border: `1px solid ${useDeepProbe ? C.teal + '60' : C.border}` }}>
+                  color: useDeepProbe ? C.teal : C.muted,
+                  border: `1px solid ${useDeepProbe ? C.teal + '60' : C.border}` }}>
                 {useDeepProbe ? 'ON — thorough' : 'OFF — fast'}
               </span>
             </label>
           </div>
 
-          {/* Deep probe info banner */}
+          {/* Deep probe info */}
           {useDeepProbe && (
             <div className="p-3 rounded-lg flex items-start gap-3"
               style={{ background: `${C.teal}10`, border: `1px solid ${C.teal}40` }}>
               <Microscope className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: C.teal }} />
               <div className="text-xs" style={{ color: C.text }}>
-                <p className="font-semibold mb-0.5" style={{ color: C.tealDark }}>
-                  Deep Identification enabled — Phase 2 probes will run:
+                <p className="font-semibold mb-1" style={{ color: C.tealDark }}>
+                  Phase 3 Deep Identification — all probes run in parallel:
                 </p>
-                <div className="grid grid-cols-3 gap-1 mt-1">
+                <div className="grid grid-cols-3 gap-1">
                   {[
-                    { icon: '🔷', label: 'S7 Protocol',    desc: 'Order#, model, firmware, PLC name (Siemens port 102)' },
-                    { icon: '🔶', label: 'OPC UA',          desc: 'App name, manufacturer, server state (port 4840)'    },
-                    { icon: '🔸', label: 'Modbus FC43',     desc: 'Vendor, product, firmware revision (port 502)'       },
+                    { icon: '🔶', label: 'OPC UA (PRIMARY)',  desc: 'ProductName, SoftwareVersion (=firmware), Manufacturer — best for S7-1500' },
+                    { icon: '🔷', label: 'S7 Protocol',       desc: 'Order#, model variant, PLC name — tries 5 TSAP combinations automatically' },
+                    { icon: '🔸', label: 'Modbus FC43',       desc: 'Vendor, product, firmware — fallback for Modbus-only devices' },
                   ].map(p => (
                     <div key={p.label} className="p-2 rounded" style={{ background: C.card, border: `1px solid ${C.border}` }}>
-                      <p className="font-semibold" style={{ color: C.tealDark }}>{p.icon} {p.label}</p>
-                      <p style={{ color: C.muted }}>{p.desc}</p>
+                      <p className="font-semibold text-[11px]" style={{ color: C.tealDark }}>{p.icon} {p.label}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: C.muted }}>{p.desc}</p>
                     </div>
                   ))}
                 </div>
                 <p className="mt-1.5" style={{ color: C.muted }}>
-                  ⏱ Takes 15–60 seconds depending on network size. Each probe has graceful fallback.
+                  ⏱ 15–60 seconds depending on network size. PC own-IP always excluded.
                 </p>
               </div>
             </div>
@@ -795,7 +759,7 @@ const PLCManagement = () => {
             </div>
           )}
 
-          {/* Scan button + progress */}
+          {/* Scan button */}
           {!scanResults && (
             <div className="space-y-2">
               <button onClick={handleStartScan} disabled={scanning}
@@ -810,7 +774,6 @@ const PLCManagement = () => {
                   : <><Radar className="w-5 h-5" />Start Network Scan</>}
               </button>
 
-              {/* Phase progress indicator */}
               {scanning && (
                 <div className="p-3 rounded-lg flex items-center gap-3"
                   style={{ background: `${C.teal}10`, border: `1px solid ${C.teal}40` }}>
@@ -819,13 +782,12 @@ const PLCManagement = () => {
                     <p className="text-sm font-semibold" style={{ color: C.tealDark }}>
                       {PHASE_LABELS[scanPhase] || 'Scanning…'}
                     </p>
-                    {/* Phase steps */}
                     <div className="flex items-center gap-2 mt-1.5">
                       {[
-                        { key: 'pinging',      label: 'Ping'   },
-                        { key: 'probing',      label: 'Ports'  },
-                        { key: 'deep_probing', label: 'Deep'   },
-                        { key: 'done',         label: 'Done'   },
+                        { key: 'pinging',      label: 'Ping'  },
+                        { key: 'probing',      label: 'Ports' },
+                        { key: 'deep_probing', label: 'Deep'  },
+                        { key: 'done',         label: 'Done'  },
                       ].map((step, i) => {
                         const phases    = ['pinging', 'probing', 'deep_probing', 'done'];
                         const current   = phases.indexOf(scanPhase);
@@ -835,10 +797,7 @@ const PLCManagement = () => {
                         return (
                           <div key={step.key} className="flex items-center gap-1">
                             <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-                              style={{
-                                background: isDone ? C.success : isActive ? C.teal : C.border,
-                                color: (isDone || isActive) ? '#FFF' : C.muted,
-                              }}>
+                              style={{ background: isDone ? C.success : isActive ? C.teal : C.border, color: (isDone || isActive) ? '#FFF' : C.muted }}>
                               {isDone ? '✓' : i + 1}
                             </div>
                             <span className="text-[10px] font-semibold"
@@ -859,12 +818,11 @@ const PLCManagement = () => {
           {/* ═══ SCAN RESULTS ═══ */}
           {scanResults && (
             <div className="space-y-3">
-              {/* Summary stats */}
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { label: 'IPs Scanned',  value: scanResults.scannedIPs  || 0, color: C.heading },
-                  { label: 'Hosts Alive',  value: scanResults.aliveHosts  || 0, color: C.brand   },
-                  { label: 'PLCs Found',   value: scanResults.devices?.length || 0, color: C.success },
+                  { label: 'IPs Scanned', value: scanResults.scannedIPs  || 0, color: C.heading  },
+                  { label: 'Hosts Alive', value: scanResults.aliveHosts  || 0, color: C.brand    },
+                  { label: 'PLCs Found',  value: scanResults.devices?.length || 0, color: C.success  },
                   { label: 'Verified',
                     value: scanResults.devices?.filter(d => d.verified).length || 0,
                     color: C.verified },
@@ -877,15 +835,15 @@ const PLCManagement = () => {
                 ))}
               </div>
 
-              {/* Deep probe used badge */}
               {scanResults.deepProbeUsed && (
                 <div className="flex items-center gap-2 text-xs" style={{ color: C.teal }}>
                   <Microscope className="w-3.5 h-3.5" />
-                  <span className="font-semibold">Deep identification was used (S7 + OPC UA + Modbus FC43)</span>
+                  <span className="font-semibold">
+                    Phase 3 deep identification used (OPC UA + S7 multi-TSAP + Modbus FC43)
+                  </span>
                 </div>
               )}
 
-              {/* No devices */}
               {(!scanResults.devices || scanResults.devices.length === 0) ? (
                 <div className="text-center py-8">
                   <Search className="w-12 h-12 mx-auto mb-3" style={{ color: C.subtle }} />
@@ -897,15 +855,15 @@ const PLCManagement = () => {
               ) : (
                 <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
                   {scanResults.devices.map((device, idx) => {
-                    const conf         = CONF_MAP[device.confidence] || CONF_MAP.low;
-                    const ConfIcon     = conf.icon;
-                    const isAdded      = plcs.some(p => p.ipAddress === device.ip);
-                    const isExpanded   = expandedDevices[device.ip];
-                    const isReprobing  = probingIP === device.ip;
-                    const hasDeepInfo  = device.deepInfo && (
+                    const conf        = CONF_MAP[device.confidence] || CONF_MAP.low;
+                    const ConfIcon    = conf.icon;
+                    const isAdded     = plcs.some(p => p.ipAddress === device.ip);
+                    const isExpanded  = expandedDevices[device.ip];
+                    const isReprobing = probingIP === device.ip;
+                    const hasDeepInfo = device.deepInfo && (
                       device.deepInfo.model || device.deepInfo.firmware ||
                       device.deepInfo.orderNumber || device.deepInfo.plcName ||
-                      device.deepInfo.manufacturer
+                      device.deepInfo.manufacturer || device.deepInfo.softwareVersion
                     );
 
                     return (
@@ -915,33 +873,27 @@ const PLCManagement = () => {
                           border: `1px solid ${device.verified ? C.verified + '60' : isAdded ? C.success + '60' : C.border}`,
                           boxShadow: device.verified ? `0px 2px 12px ${C.verified}20` : '0px 2px 8px rgba(8,27,67,0.04)',
                         }}>
-                        {/* ── Card Header ── */}
                         <div className="p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              {/* Badges row */}
+                              {/* Badges */}
                               <div className="flex items-center gap-2 flex-wrap mb-2">
-                                {/* Verified badge */}
                                 {device.verified && (
                                   <span className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full"
                                     style={{ background: `${C.verified}15`, color: C.verified, border: `1px solid ${C.verified}60` }}>
-                                    <ShieldCheck className="w-3.5 h-3.5" />
-                                    Verified ✅
+                                    <ShieldCheck className="w-3.5 h-3.5" /> Verified ✅
                                   </span>
                                 )}
-                                {/* Confidence */}
                                 <span className="px-2 py-0.5 text-xs font-bold rounded"
                                   style={{ background: conf.bg, color: conf.color }}>
                                   <ConfIcon className="w-3 h-3 inline mr-1" />{conf.label}
                                 </span>
-                                {/* Probe method */}
                                 {device.deepInfo?.probeMethod && (
                                   <span className="px-2 py-0.5 text-[10px] font-semibold rounded"
                                     style={{ background: `${C.teal}15`, color: C.teal, border: `1px solid ${C.teal}40` }}>
                                     🔬 {device.deepInfo.probeMethod}
                                   </span>
                                 )}
-                                {/* Already added */}
                                 {isAdded && (
                                   <span className="px-2 py-0.5 text-[10px] font-bold rounded"
                                     style={{ background: '#DCFCE7', color: C.success }}>
@@ -950,10 +902,15 @@ const PLCManagement = () => {
                                 )}
                               </div>
 
-                              {/* IP + vendor + MAC */}
+                              {/* IP + vendor + hostname + MAC */}
                               <div className="flex items-center gap-3 flex-wrap">
                                 <span className="font-mono font-bold text-sm" style={{ color: C.brand }}>📍 {device.ip}</span>
                                 <span className="font-semibold text-sm" style={{ color: C.heading }}>{device.vendorName}</span>
+                                {device.hostname && (
+                                  <span className="text-xs font-mono" style={{ color: C.teal }}>
+                                    🌐 {device.hostname}
+                                  </span>
+                                )}
                                 {device.mac !== 'Unknown' && (
                                   <span className="text-xs font-mono" style={{ color: C.muted }}>
                                     MAC: {device.mac}
@@ -961,14 +918,16 @@ const PLCManagement = () => {
                                 )}
                               </div>
 
-                              {/* Key deep info — always visible */}
+                              {/* Deep info rows */}
                               {hasDeepInfo && (
                                 <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
                                   {device.deepInfo.model && (
                                     <DeepInfoRow icon={<Cpu className="w-3 h-3" />} label="Model" value={device.deepInfo.model} />
                                   )}
-                                  {device.deepInfo.firmware && (
-                                    <DeepInfoRow icon={<Zap className="w-3 h-3" />} label="Firmware" value={device.deepInfo.firmware} />
+                                  {(device.deepInfo.softwareVersion || device.deepInfo.firmware) && (
+                                    <DeepInfoRow icon={<Zap className="w-3 h-3" />} label="Firmware"
+                                      value={device.deepInfo.softwareVersion || device.deepInfo.firmware}
+                                      valueColor={C.success} />
                                   )}
                                   {device.deepInfo.orderNumber && (
                                     <DeepInfoRow icon={<Hash className="w-3 h-3" />} label="Order#" value={device.deepInfo.orderNumber} />
@@ -980,13 +939,17 @@ const PLCManagement = () => {
                                     <DeepInfoRow icon={<Server className="w-3 h-3" />} label="OPC UA App" value={device.deepInfo.opcuaAppName} />
                                   )}
                                   {device.deepInfo.opcuaServerState && (
-                                    <DeepInfoRow icon={<Settings2 className="w-3 h-3" />} label="Server State" value={device.deepInfo.opcuaServerState}
+                                    <DeepInfoRow icon={<Settings2 className="w-3 h-3" />} label="Server State"
+                                      value={device.deepInfo.opcuaServerState}
                                       valueColor={device.deepInfo.opcuaServerState === 'Running' ? C.success : C.warning} />
+                                  )}
+                                  {device.deepInfo.manufacturer && (
+                                    <DeepInfoRow icon={<Package className="w-3 h-3" />} label="Manufacturer" value={device.deepInfo.manufacturer} />
                                   )}
                                 </div>
                               )}
 
-                              {/* Protocols */}
+                              {/* Protocols + recommended */}
                               <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                                 <span className="text-[10px] font-semibold uppercase" style={{ color: C.muted }}>Protocols:</span>
                                 {device.protocols.map(p => (
@@ -1001,93 +964,77 @@ const PLCManagement = () => {
                                 ))}
                               </div>
 
-                              {/* Recommendation reason */}
-                              <p className="text-[11px] mt-1.5 italic" style={{ color: C.muted }}>
-                                💡 {device.recommended.reasonForRecommendation}
-                              </p>
+                              {/* Recommended settings preview */}
+                              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                                <p className="text-[11px] italic" style={{ color: C.muted }}>
+                                  💡 {device.recommended.reasonForRecommendation}
+                                </p>
+                                <span className="text-[10px] font-mono" style={{ color: C.subtle }}>
+                                  Rack:{device.recommended.rack} Slot:{device.recommended.slot}
+                                </span>
+                              </div>
                             </div>
 
-                            {/* Action buttons column */}
+                            {/* Action buttons */}
                             <div className="flex flex-col gap-2 flex-shrink-0">
-                              {/* Add button */}
                               <button onClick={() => handleAddDiscovered(device)} disabled={isAdded}
                                 className="px-4 py-2 rounded-lg font-semibold text-white text-sm transition-all whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
-                                style={{
-                                  background: isAdded ? C.subtle : C.btnPrimary,
-                                  fontFamily: "'Montserrat', sans-serif",
-                                  boxShadow: isAdded ? 'none' : '0px 2px 6px rgba(8,27,67,0.25)',
-                                }}
+                                style={{ background: isAdded ? C.subtle : C.btnPrimary, fontFamily: "'Montserrat', sans-serif", boxShadow: isAdded ? 'none' : '0px 2px 6px rgba(8,27,67,0.25)' }}
                                 onMouseEnter={e => { if (!isAdded) e.currentTarget.style.background = C.btnHover; }}
                                 onMouseLeave={e => { if (!isAdded) e.currentTarget.style.background = C.btnPrimary; }}>
                                 {isAdded ? '✓ Added' : '+ Add PLC'}
                               </button>
-
-                              {/* Re-probe button */}
                               <button onClick={() => handleReprobe(device)} disabled={!!probingIP}
                                 className="px-3 py-1.5 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5 disabled:opacity-40"
                                 style={{ background: `${C.teal}15`, color: C.teal, border: `1px solid ${C.teal}50`, fontFamily: "'Montserrat', sans-serif" }}
-                                title="Run deep identification on this device"
                                 onMouseEnter={e => { if (!probingIP) e.currentTarget.style.background = `${C.teal}25`; }}
                                 onMouseLeave={e => { if (!probingIP) e.currentTarget.style.background = `${C.teal}15`; }}>
                                 {isReprobing
                                   ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Probing…</>
                                   : <><Microscope className="w-3.5 h-3.5" />Re-probe</>}
                               </button>
-
-                              {/* Expand toggle */}
                               {device.probeResults && (
                                 <button onClick={() => toggleExpanded(device.ip)}
                                   className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
                                   style={{ background: C.cardSubtle, color: C.muted, border: `1px solid ${C.border}` }}>
-                                  {isExpanded ? <><ChevronUp className="w-3 h-3" />Less</> : <><ChevronDown className="w-3 h-3" />Details</>}
+                                  {isExpanded
+                                    ? <><ChevronUp className="w-3 h-3" />Less</>
+                                    : <><ChevronDown className="w-3 h-3" />Details</>}
                                 </button>
                               )}
                             </div>
                           </div>
                         </div>
 
-                        {/* ── Expanded Raw Probe Results ── */}
+                        {/* Expanded raw probe results */}
                         {isExpanded && device.probeResults && (
                           <div className="px-4 pb-4">
                             <div className="pt-3" style={{ borderTop: `1px solid ${C.border}` }}>
                               <p className="text-xs font-bold mb-2 uppercase" style={{ color: C.muted }}>Raw Probe Results</p>
                               <div className="grid grid-cols-3 gap-2">
-                                {/* S7 */}
-                                <ProbeResultCard
-                                  title="S7 Protocol"
-                                  icon="🔷"
-                                  data={device.probeResults.s7}
+                                <ProbeResultCard title="OPC UA (Primary)" icon="🔶" data={device.probeResults.opcua}
                                   fields={[
-                                    { key: 'orderNumber', label: 'Order #' },
-                                    { key: 'model',       label: 'Model'   },
-                                    { key: 'firmware',    label: 'Firmware'},
-                                    { key: 'plcName',     label: 'PLC Name'},
-                                  ]}
-                                />
-                                {/* OPC UA */}
-                                <ProbeResultCard
-                                  title="OPC UA"
-                                  icon="🔶"
-                                  data={device.probeResults.opcua}
+                                    { key: 'productName',    label: 'Product'      },
+                                    { key: 'softwareVersion',label: 'SW Version'   },
+                                    { key: 'manufacturer',   label: 'Manufacturer' },
+                                    { key: 'serverState',    label: 'State'        },
+                                    { key: 'buildNumber',    label: 'Build'        },
+                                  ]} />
+                                <ProbeResultCard title="S7 Protocol" icon="🔷" data={device.probeResults.s7}
                                   fields={[
-                                    { key: 'appName',      label: 'App Name'    },
-                                    { key: 'manufacturer', label: 'Manufacturer'},
-                                    { key: 'serverState',  label: 'State'       },
-                                    { key: 'productUri',   label: 'Product URI' },
-                                  ]}
-                                />
-                                {/* Modbus */}
-                                <ProbeResultCard
-                                  title="Modbus FC43"
-                                  icon="🔸"
-                                  data={device.probeResults.modbus}
+                                    { key: 'orderNumber', label: 'Order #'  },
+                                    { key: 'model',       label: 'Model'    },
+                                    { key: 'firmware',    label: 'Firmware' },
+                                    { key: 'plcName',     label: 'PLC Name' },
+                                    { key: 'tsapUsed',    label: 'TSAP'     },
+                                  ]} />
+                                <ProbeResultCard title="Modbus FC43" icon="🔸" data={device.probeResults.modbus}
                                   fields={[
-                                    { key: 'vendorName',  label: 'Vendor'  },
-                                    { key: 'productCode', label: 'Product' },
-                                    { key: 'firmware',    label: 'Firmware'},
-                                    { key: 'modelName',   label: 'Model'   },
-                                  ]}
-                                />
+                                    { key: 'vendorName',  label: 'Vendor'   },
+                                    { key: 'productCode', label: 'Product'  },
+                                    { key: 'firmware',    label: 'Firmware' },
+                                    { key: 'modelName',   label: 'Model'    },
+                                  ]} />
                               </div>
                             </div>
                           </div>
@@ -1098,7 +1045,6 @@ const PLCManagement = () => {
                 </div>
               )}
 
-              {/* Rescan / Close */}
               <div className="flex gap-3 pt-3" style={{ borderTop: `1px solid ${C.border}` }}>
                 <button onClick={() => { setScanResults(null); setScanPhase('idle'); }}
                   className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
@@ -1118,10 +1064,6 @@ const PLCManagement = () => {
     </div>
   );
 };
-
-// ═══════════════════════════════════════════════════════════
-// SUB-COMPONENTS
-// ═══════════════════════════════════════════════════════════
 
 const IconButton = ({ children, onClick, bg, title }) => (
   <button onClick={onClick} title={title}
@@ -1143,16 +1085,14 @@ const FormField = ({ label, name, type = 'text', value, onChange, required }) =>
   </div>
 );
 
-// Single deep-info row (icon + label + value)
 const DeepInfoRow = ({ icon, label, value, valueColor }) => (
   <div className="flex items-center gap-1.5 text-xs">
     <span style={{ color: '#94A3B8' }}>{icon}</span>
-    <span className="font-semibold" style={{ color: '#5F6B7A', minWidth: '56px' }}>{label}:</span>
+    <span className="font-semibold" style={{ color: '#5F6B7A', minWidth: '72px' }}>{label}:</span>
     <span className="font-mono font-semibold truncate" style={{ color: valueColor || '#081B43' }}>{value}</span>
   </div>
 );
 
-// Raw probe result card (shown in expanded view)
 const ProbeResultCard = ({ title, icon, data, fields }) => {
   const success = data?.success;
   return (
@@ -1168,7 +1108,7 @@ const ProbeResultCard = ({ title, icon, data, fields }) => {
       </div>
       {success && fields.map(f => data[f.key] ? (
         <div key={f.key} className="flex items-start gap-1 text-[11px] mb-0.5">
-          <span className="font-semibold flex-shrink-0" style={{ color: '#5F6B7A', minWidth: '52px' }}>{f.label}:</span>
+          <span className="font-semibold flex-shrink-0" style={{ color: '#5F6B7A', minWidth: '60px' }}>{f.label}:</span>
           <span className="font-mono break-all" style={{ color: '#081B43' }}>{data[f.key]}</span>
         </div>
       ) : null)}

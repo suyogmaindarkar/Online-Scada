@@ -1,7 +1,9 @@
 // ═══════════════════════════════════════════════════════════
-// DesignCanvas — Fixed:
-//   ✅ #3  Shift+Scroll zooms the canvas (wheel event on wrapper)
-//          Zoom range: 25% – 300%, step: 10% per scroll tick
+// DesignCanvas — FIXED:
+//   ✅ SVG resize works (merged ref for Transformer + filter cache)
+//   ✅ SVG tint preview in design mode (auto strength=1)
+//   ✅ Shift+Scroll zoom
+//   ✅ Process picture overlays
 // ═══════════════════════════════════════════════════════════
 
 import { Stage, Layer, Rect, Circle, Line, Text, Group, RegularPolygon, Ellipse, Arc, Path, Transformer } from 'react-konva';
@@ -13,6 +15,7 @@ import { snap, snapPoint, snapSize, isBypassSnapKey } from '../../utils/snapUtil
 import { Image as KonvaImage } from 'react-konva';
 import useImage from '../../hooks/useImage';
 import { ProcessPictureWidget, isProcessPicture } from '../widgets/ProcessPictureWidgets';
+
 const MIN_ZOOM = 25;
 const MAX_ZOOM = 300;
 const ZOOM_STEP = 10;
@@ -35,13 +38,10 @@ const DesignCanvas = ({
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const elementRefs = useRef({});
-  const wrapperRef = useRef(null);        // ✅ #3: ref on the scrollable wrapper div
+  const wrapperRef = useRef(null);
   const [flashState, setFlashState] = useState(false);
-
-  // ✅ #3: Internal zoom state (separate from toolbar zoom so Shift+Scroll works independently)
   const [canvasZoom, setCanvasZoom] = useState(100);
 
-  // Group bounds for visualization
   const groupBounds = useMemo(() => {
     const groups = new Map();
     elements.forEach(el => {
@@ -64,7 +64,6 @@ const DesignCanvas = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Attach transformer to selected nodes
   useEffect(() => {
     if (!transformerRef.current) return;
     const nodes = selectedIds.map(id => elementRefs.current[id]).filter(Boolean);
@@ -72,27 +71,19 @@ const DesignCanvas = ({
     transformerRef.current.getLayer()?.batchDraw();
   }, [selectedIds, elements]);
 
-  // ✅ #3: Shift+Scroll zoom handler
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
-
     const handleWheel = (e) => {
-      // Only zoom when Shift key is held
       if (!e.shiftKey) return;
-
-      e.preventDefault(); // prevent page scroll
+      e.preventDefault();
       e.stopPropagation();
-
       setCanvasZoom(prev => {
-        // deltaY > 0 = scroll down = zoom out
         const direction = e.deltaY > 0 ? -1 : 1;
         const next = prev + direction * ZOOM_STEP;
         return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next));
       });
     };
-
-    // Use passive: false so we can call preventDefault()
     wrapper.addEventListener('wheel', handleWheel, { passive: false });
     return () => wrapper.removeEventListener('wheel', handleWheel);
   }, []);
@@ -505,27 +496,35 @@ const DesignCanvas = ({
             <Text x={0} y={el.height+5} width={el.width} text="CONVEYOR" fontSize={10} fill="#081B43" align="center" />
           </Group>
         );
-case 'trendControl':
-case 'alarmControl':
-case 'alarmHistoryControl':
-case 'tableControl':
-case 'barChartControl':
-case 'webFrameControl':
-  // Konva placeholder rect (invisible, but transformer attaches to it)
-  return (
-    <Rect
-      key={el.id}
-      {...commonProps}
-      width={el.width}
-      height={el.height}
-      fill="rgba(37,99,235,0.02)"
-      stroke="rgba(37,99,235,0.3)"
-      strokeWidth={1}
-      dash={[4, 4]}
-    />
-  );
+
+      case 'trendControl':
+      case 'alarmControl':
+      case 'alarmHistoryControl':
+      case 'tableControl':
+      case 'barChartControl':
+      case 'webFrameControl':
+        return (
+          <Rect
+            key={el.id}
+            {...commonProps}
+            width={el.width}
+            height={el.height}
+            fill="rgba(37,99,235,0.02)"
+            stroke="rgba(37,99,235,0.3)"
+            strokeWidth={1}
+            dash={[4, 4]}
+          />
+        );
+
       case 'svgSymbol':
-        return <SvgSymbolElement key={el.id} el={el} commonProps={commonProps} />;
+        return (
+          <SvgSymbolElement
+            key={el.id}
+            el={el}
+            commonProps={commonProps}
+            elementRefs={elementRefs}
+          />
+        );
 
       case 'digitalClock': {
         const now = new Date();
@@ -543,13 +542,11 @@ case 'webFrameControl':
     }
   };
 
-  // ✅ #3: Zoom scale factor
   const zoomScale = canvasZoom / 100;
   const scaledWidth = Math.round(width * zoomScale);
   const scaledHeight = Math.round(height * zoomScale);
 
   return (
-    // ✅ #3: Add ref + tabIndex so wheel events fire even without a click first
     <div
       ref={wrapperRef}
       tabIndex={-1}
@@ -558,10 +555,9 @@ case 'webFrameControl':
         padding: '16px', display: 'flex',
         alignItems: 'flex-start', justifyContent: 'flex-start',
         backgroundColor: '#F1F5F9',
-        outline: 'none', // remove focus ring from tabIndex
+        outline: 'none',
       }}
     >
-      {/* ✅ #3: Zoom indicator badge */}
       {canvasZoom !== 100 && (
         <div style={{
           position: 'sticky', top: 0, left: 0,
@@ -585,14 +581,12 @@ case 'webFrameControl':
 
       <div
         style={{
-          // ✅ #3: Apply zoom via CSS transform (keeps Konva coords correct)
           transform: `scale(${zoomScale})`,
           transformOrigin: 'top left',
           width: width,
           height: height,
           minWidth: width,
           minHeight: height,
-          // Adjust outer container to match scaled size
           marginBottom: scaledHeight - height,
           marginRight: scaledWidth - width,
           backgroundColor: normalizeColor(backgroundColor) || '#ffffff',
@@ -606,6 +600,7 @@ case 'webFrameControl':
           border: '1px solid #CBD5E1',
           borderRadius: '4px',
           boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.08)',
+          position: 'relative',
         }}
       >
         <Stage
@@ -618,7 +613,6 @@ case 'webFrameControl':
           style={{ background: 'transparent' }}
         >
           <Layer>
-            {/* Group visualization */}
             {Array.from(groupBounds.entries()).map(([groupId, bounds]) => {
               const anySelected = bounds.elIds.some(id => selectedIds.includes(id));
               if (!anySelected || !isFinite(bounds.minX)) return null;
@@ -647,41 +641,125 @@ case 'webFrameControl':
             />
           </Layer>
         </Stage>
-        {/* ═══ PROCESS PICTURE OVERLAYS (HTML on top of Konva) ═══ */}
-{elements.filter(el => isProcessPicture(el.type)).map(el => {
-  const isSelected = selectedIds.includes(el.id);
-  return (
-    <div
-      key={`overlay-${el.id}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(el.id, e.shiftKey);
-      }}
-      style={{
-        position: 'absolute',
-        left: el.x,
-        top: el.y,
-        width: el.width,
-        height: el.height,
-        transform: `rotate(${el.rotation || 0}deg)`,
-        transformOrigin: 'top left',
-        opacity: el.opacity ?? 1,
-        pointerEvents: isSelected ? 'none' : 'auto', // let Transformer take over when selected
-        outline: isSelected ? '2px dashed #2563EB' : '1px solid rgba(37,99,235,0.3)',
-        outlineOffset: '2px',
-        overflow: 'hidden',
-        borderRadius: '4px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-      }}
-    >
-      <ProcessPictureWidget element={el} liveValues={liveValues} tags={[]} isDesignMode={true} />
-    </div>
-  );
-})}
+
+        {elements.filter(el => isProcessPicture(el.type)).map(el => {
+          const isSelected = selectedIds.includes(el.id);
+          return (
+            <div
+              key={`overlay-${el.id}`}
+              onClick={(e) => { e.stopPropagation(); onSelect(el.id, e.shiftKey); }}
+              style={{
+                position: 'absolute',
+                left: el.x, top: el.y,
+                width: el.width, height: el.height,
+                transform: `rotate(${el.rotation || 0}deg)`,
+                transformOrigin: 'top left',
+                opacity: el.opacity ?? 1,
+                pointerEvents: isSelected ? 'none' : 'auto',
+                outline: isSelected ? '2px dashed #2563EB' : '1px solid rgba(37,99,235,0.3)',
+                outlineOffset: '2px',
+                overflow: 'hidden',
+                borderRadius: '4px',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+              }}
+            >
+              <ProcessPictureWidget element={el} liveValues={liveValues} tags={[]} isDesignMode={true} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
+
+// ═══════════════════════════════════════════════════════════
+// SVG SYMBOL — ✅ FIXED: uses merged ref (Transformer + filter cache)
+// ═══════════════════════════════════════════════════════════
+const SvgSymbolElement = ({ el, commonProps, elementRefs }) => {
+  const [image, status] = useImage(el.svgPath);
+  const imageRef = useRef(null);
+
+  // ✅ Merged ref callback: registers node for BOTH Transformer AND filter cache
+  const mergedRef = useCallback((node) => {
+    imageRef.current = node;
+    // Also register in elementRefs so Transformer can find this node
+    if (elementRefs && elementRefs.current) {
+      if (node) elementRefs.current[el.id] = node;
+      else delete elementRefs.current[el.id];
+    }
+  }, [el.id, elementRefs]);
+
+  // Static tint preview for design mode
+  let tintColor = null;
+  if (typeof el.symbolTint === 'string' && el.symbolTint.startsWith('#')) tintColor = el.symbolTint;
+  else if (el.symbolTint === true)  tintColor = '#10b981';
+  else if (el.symbolTint === false) tintColor = '#ef4444';
+
+  let tintStrength;
+  if (el.symbolTintStrength !== undefined && el.symbolTintStrength !== null && el.symbolTintStrength !== '') {
+    tintStrength = Math.max(0, Math.min(1, Number(el.symbolTintStrength) || 0));
+  } else {
+    tintStrength = tintColor ? 1 : 0;
+  }
+  const brightness = el.symbolBrightness ?? 1;
+  const safeTint   = tintColor || '#3b82f6';
+
+  useEffect(() => {
+    if (!imageRef.current || !image) return;
+    const node = imageRef.current;
+    try { node.clearCache(); } catch {}
+    node.cache();
+    const filters = [];
+    if (tintStrength > 0) filters.push(Konva.Filters.RGB);
+    if (brightness !== 1) filters.push(Konva.Filters.Brighten);
+    node.filters(filters);
+    if (tintStrength > 0) {
+      const { r, g, b } = designHexToRgb(safeTint);
+      node.red(Math.round(255 * (r * tintStrength + (1 - tintStrength))));
+      node.green(Math.round(255 * (g * tintStrength + (1 - tintStrength))));
+      node.blue(Math.round(255 * (b * tintStrength + (1 - tintStrength))));
+    } else { node.red(255); node.green(255); node.blue(255); }
+    if (brightness !== 1) node.brightness(brightness - 1);
+    else node.brightness(0);
+    node.getLayer()?.batchDraw();
+  }, [image, tintStrength, brightness, safeTint, el.width, el.height]);
+
+  // Remove the ref from commonProps — we use mergedRef instead
+  const { ref: _origRef, ...restProps } = commonProps;
+
+  if (status === 'loading') return (
+    <Group {...commonProps}>
+      <Rect width={el.width} height={el.height} fill="#EEF6FF" stroke="#2563EB" strokeWidth={1} dash={[4,4]} />
+      <Text x={0} y={el.height/2-6} width={el.width} text="Loading..." fontSize={11} fill="#5F6B7A" align="center" />
+    </Group>
+  );
+  if (status === 'error' || !image) return (
+    <Group {...commonProps}>
+      <Rect width={el.width} height={el.height} fill="#FEE2E2" stroke="#DC2626" strokeWidth={1} dash={[4,4]} />
+      <Text x={0} y={el.height/2-6} width={el.width} text="SVG not found" fontSize={10} fill="#DC2626" align="center" />
+    </Group>
+  );
+
+  return (
+    <KonvaImage
+      {...restProps}
+      ref={mergedRef}
+      image={image}
+      width={el.width}
+      height={el.height}
+    />
+  );
+};
+
+function designHexToRgb(hex) {
+  const n = normalizeColor(hex);
+  if (!n || !n.startsWith('#') || n.length !== 7) return { r: 1, g: 1, b: 1 };
+  return {
+    r: parseInt(n.slice(1, 3), 16) / 255,
+    g: parseInt(n.slice(3, 5), 16) / 255,
+    b: parseInt(n.slice(5, 7), 16) / 255,
+  };
+}
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -733,12 +811,5 @@ function formatClockText(date, el) {
     default:return `${timeStr}${tzStr}  ·  ${dateStr}`;
   }
 }
-
-const SvgSymbolElement = ({ el, commonProps }) => {
-  const [image, status] = useImage(el.svgPath);
-  if(status==='loading') return (<Group {...commonProps}><Rect width={el.width} height={el.height} fill="#EEF6FF" stroke="#2563EB" strokeWidth={1} dash={[4,4]} /><Text x={0} y={el.height/2-6} width={el.width} text="Loading..." fontSize={11} fill="#5F6B7A" align="center" /></Group>);
-  if(status==='error'||!image) return (<Group {...commonProps}><Rect width={el.width} height={el.height} fill="#FEE2E2" stroke="#DC2626" strokeWidth={1} dash={[4,4]} /><Text x={0} y={el.height/2-6} width={el.width} text="SVG not found" fontSize={10} fill="#DC2626" align="center" /></Group>);
-  return <KonvaImage {...commonProps} image={image} width={el.width} height={el.height} />;
-};
 
 export default DesignCanvas;

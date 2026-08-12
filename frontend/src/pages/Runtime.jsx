@@ -1,9 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// Runtime — FIXED popup rendering
-//   ✅ Popups never inherit template elements
-//   ✅ Popup border matches designed popup size exactly
-//   ✅ No element-bbox auto-fitting (that was the border mismatch bug)
-//   ✅ noWrapper container uses explicit px dimensions
+// Runtime — FIXED
+//   ✅ #1 Popups are draggable by their title bar
+//   ✅ #2 Template elements NOT merged into startup screen
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -14,7 +12,7 @@ import {
   getRegularScreens, getPopupScreens,
 } from '../services/api';
 import socketService from '../services/socket';
-import { Monitor, Loader2, Play, X } from 'lucide-react';
+import { Monitor, Loader2, Play, X, Move } from 'lucide-react';
 import {
   executeOnLoadConnections,
   executeOnChangeConnections,
@@ -33,7 +31,6 @@ const Runtime = () => {
   const [showStartupSelector, setShowStartupSelector] = useState(false);
   const [selectedStartupId,   setSelectedStartupId]   = useState('');
 
-  // Popup stack — array of popup screen objects currently open
   const [openPopups, setOpenPopups] = useState([]);
 
   const [viewportSize, setViewportSize] = useState({
@@ -46,7 +43,6 @@ const Runtime = () => {
   const onLoadFiredRef    = useRef(new Set());
   const runtimeDivRef     = useRef(null);
 
-  // ── Viewport resize ──────────────────────────────────────
   useEffect(() => {
     const handleResize = () =>
       setViewportSize({ w: window.innerWidth, h: window.innerHeight });
@@ -58,7 +54,6 @@ const Runtime = () => {
     };
   }, []);
 
-  // ── Auto-fullscreen ──────────────────────────────────────
   useEffect(() => {
     const enterFullscreen = async () => {
       try {
@@ -76,7 +71,6 @@ const Runtime = () => {
     };
   }, []);
 
-  // ── Ctrl+Q exit + ESC to close popup ────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'q') {
@@ -102,7 +96,6 @@ const Runtime = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [navigate]);
 
-  // ── Load screens ──────────────────────────────────────────
   const loadScreens = async () => {
     try {
       setLoading(true);
@@ -133,14 +126,12 @@ const Runtime = () => {
     setShowStartupSelector(false);
   };
 
-  // ── Tags ──────────────────────────────────────────────────
   useEffect(() => {
     tagAPI.getAll()
       .then(res => setTags(res.data?.data || []))
       .catch(() => setTags([]));
   }, []);
 
-  // ── Socket setup ──────────────────────────────────────────
   useEffect(() => {
     loadScreens();
     socketService.connect();
@@ -181,7 +172,6 @@ const Runtime = () => {
     };
   }, []);
 
-  // ── Navigation callbacks ──────────────────────────────────
   const goToScreenByName = useCallback((screenName) => {
     setScreens(prevScreens => {
       const target = prevScreens.find(s =>
@@ -198,7 +188,6 @@ const Runtime = () => {
     });
   }, []);
 
-  // Open popup — push onto stack
   const openPopupByName = useCallback((popupName) => {
     setScreens(prevScreens => {
       const popup = prevScreens.find(s =>
@@ -207,7 +196,6 @@ const Runtime = () => {
       );
       if (popup) {
         setOpenPopups(prev => {
-          // Avoid duplicate popups
           if (prev.some(p => p._id === popup._id)) return prev;
           return [...prev, popup];
         });
@@ -218,17 +206,14 @@ const Runtime = () => {
     });
   }, []);
 
-  // Close topmost popup
   const closeTopPopup = useCallback(() => {
     setOpenPopups(prev => prev.slice(0, -1));
   }, []);
 
-  // Close specific popup by ID
   const closePopupById = useCallback((id) => {
     setOpenPopups(prev => prev.filter(p => p._id !== id));
   }, []);
 
-  // ── Direct connections ────────────────────────────────────
   useEffect(() => {
     if (!currentScreen) return;
     const connections = currentScreen.directConnections || [];
@@ -253,7 +238,6 @@ const Runtime = () => {
     prevLiveValuesRef.current = { ...liveValues };
   }, [liveValues, currentScreen]);
 
-  // ── Canvas scale ─────────────────────────────────────────
   const getCanvasScale = () => {
     if (!currentScreen) return 1;
     const cw = currentScreen.width  || 1920;
@@ -261,18 +245,22 @@ const Runtime = () => {
     return Math.min(viewportSize.w / cw, viewportSize.h / ch);
   };
 
-  // Merge template elements INTO current screen only (never into popups)
   const templateScreen = useMemo(() => getTemplateScreen(screens), [screens]);
+
+  // ✅ #2 FIX: Template elements are NOT applied to:
+  //   - popups, templates themselves, AND the startup screen.
   const mergedElements = useMemo(() => {
     if (!currentScreen) return [];
-    // Popups and template screens never inherit template elements
-    if (currentScreen.isPopup || currentScreen.isTemplate) {
+    if (
+      currentScreen.isPopup ||
+      currentScreen.isTemplate ||
+      currentScreen.isStartupScreen   // ← startup screen excluded from template
+    ) {
       return currentScreen.elements || [];
     }
     return mergeTemplateElements(currentScreen.elements || [], templateScreen);
   }, [currentScreen, templateScreen]);
 
-  // ── Loading / Empty states ───────────────────────────────
   if (loading) {
     return (
       <div style={{
@@ -347,7 +335,6 @@ const Runtime = () => {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
-      {/* Main screen — template elements merged in */}
       {currentScreen && (
         <div style={{
           width: cw, height: ch,
@@ -371,7 +358,6 @@ const Runtime = () => {
         </div>
       )}
 
-      {/* Popup overlays — stacked */}
       {openPopups.map((popup, idx) => (
         <PopupOverlay
           key={popup._id}
@@ -403,15 +389,7 @@ const Runtime = () => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// POPUP OVERLAY COMPONENT
-// ═══════════════════════════════════════════════════════════
-//
-// FIX SUMMARY:
-//   ✅ NO template merge — popups are standalone screens
-//   ✅ Canvas size = exact popup.width × popup.height (no bbox fitting)
-//   ✅ Border = canvas size + titlebar + border widths (matches exactly)
-//   ✅ noWrapper container uses explicit px, not 100%
-//   ✅ Scale to fit viewport only if popup > viewport (never scale UP)
+// POPUP OVERLAY — ✅ #1 Draggable by title bar
 // ═══════════════════════════════════════════════════════════
 const PopupOverlay = ({
   popup,
@@ -429,31 +407,90 @@ const PopupOverlay = ({
   const isCloseable = popup.popupCloseable !== false;
   const closeOnBg   = popup.popupCloseOnBackdrop !== false;
 
-  // ✅ FIX: Use the designed popup size directly.
-  // Do NOT merge template elements — popups are fully standalone.
-  // Do NOT try to auto-fit based on element bounding box —
-  // that was the root cause of the border mismatch.
   const canvasW = popup.width  || 400;
   const canvasH = popup.height || 300;
 
-  // Chrome dimensions added around the canvas
-  const TITLEBAR_H  = 32;
-  const BORDER_W    = 2;
+  const TITLEBAR_H = 32;
+  const BORDER_W   = 2;
 
-  // Total outer dimensions of the popup window
   const totalW = canvasW + BORDER_W * 2;
   const totalH = canvasH + TITLEBAR_H + BORDER_W * 2;
 
-  // Scale DOWN to fit viewport (80px margin). Never scale UP (max scale = 1).
-  const availW  = viewportSize.w - 80;
-  const availH  = viewportSize.h - 80;
-  const scaleX  = availW / totalW;
-  const scaleY  = availH / totalH;
-  const scale   = Math.min(1, scaleX, scaleY);
+  const availW = viewportSize.w - 80;
+  const availH = viewportSize.h - 80;
+  const scale  = Math.min(1, availW / totalW, availH / totalH);
+
+  // Scaled outer dimensions (actual screen footprint)
+  const scaledW = totalW * scale;
+  const scaledH = totalH * scale;
+
+  // ✅ Drag state — position is TOP-LEFT in screen px
+  const [pos, setPos] = useState(() => ({
+    x: (viewportSize.w - scaledW) / 2,
+    y: (viewportSize.h - scaledH) / 2,
+  }));
+
+  const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+
+  // Re-center if viewport changes AND popup hasn't been manually moved
+  const movedRef = useRef(false);
+  useEffect(() => {
+    if (movedRef.current) return;
+    setPos({
+      x: (viewportSize.w - scaledW) / 2,
+      y: (viewportSize.h - scaledH) / 2,
+    });
+  }, [viewportSize.w, viewportSize.h, scaledW, scaledH]);
+
+  const handleDragStart = (e) => {
+    // Only left mouse button
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    movedRef.current = true;
+    dragRef.current = {
+      dragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: pos.x,
+      origY: pos.y,
+    };
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+  };
+
+  const handleDragMove = (e) => {
+    if (!dragRef.current.dragging) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    let nx = dragRef.current.origX + dx;
+    let ny = dragRef.current.origY + dy;
+
+    // Keep within viewport bounds (allow small overhang)
+    const minX = -scaledW + 80;
+    const minY = 0;
+    const maxX = viewportSize.w - 80;
+    const maxY = viewportSize.h - TITLEBAR_H * scale;
+    nx = Math.max(minX, Math.min(maxX, nx));
+    ny = Math.max(minY, Math.min(maxY, ny));
+
+    setPos({ x: nx, y: ny });
+  };
+
+  const handleDragEnd = () => {
+    dragRef.current.dragging = false;
+    window.removeEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mouseup', handleDragEnd);
+  };
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, []);
 
   return (
     <>
-      {/* Backdrop — click-outside to close (transparent, no blur) */}
       {isModal && closeOnBg && (
         <div
           onClick={onClose}
@@ -467,16 +504,14 @@ const PopupOverlay = ({
         />
       )}
 
-      {/* Popup window */}
+      {/* Popup window — positioned via left/top, scaled from top-left */}
       <div
         style={{
           position: 'fixed',
-          top: '50%',
-          left: '50%',
-          // scale() applied AFTER translate so centering is correct
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: 'center center',
-          // Exact outer dimensions — border matches canvas size
+          left: `${pos.x}px`,
+          top:  `${pos.y}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
           width:  `${totalW}px`,
           height: `${totalH}px`,
           zIndex: zIndex + 1,
@@ -489,8 +524,9 @@ const PopupOverlay = ({
           background: popup.backgroundColor || '#FFFFFF',
         }}
       >
-        {/* Title bar */}
+        {/* Title bar — DRAG HANDLE */}
         <div
+          onMouseDown={handleDragStart}
           style={{
             height: `${TITLEBAR_H}px`,
             flexShrink: 0,
@@ -504,18 +540,17 @@ const PopupOverlay = ({
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 700,
             gap: '8px',
-            flexShrink: 0,
             borderBottom: '1px solid rgba(255,255,255,0.1)',
             userSelect: 'none',
+            cursor: 'move',
           }}
         >
-          {/* Icon + name */}
           <span style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             flex: 1,
           }}>
-            <span style={{ fontSize: '13px', flexShrink: 0 }}>🪟</span>
+            <Move size={12} style={{ flexShrink: 0, opacity: 0.7 }} />
             <span style={{
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
@@ -529,10 +564,10 @@ const PopupOverlay = ({
             </span>
           </span>
 
-          {/* Close button */}
           {isCloseable && (
             <button
               onClick={onClose}
+              onMouseDown={(e) => e.stopPropagation()} // don't start drag on X
               title="Close (Esc)"
               style={{
                 background: 'transparent',
@@ -560,7 +595,7 @@ const PopupOverlay = ({
           )}
         </div>
 
-        {/* ✅ Canvas area — exact designed dimensions, no overflow */}
+        {/* Canvas area — exact designed dimensions */}
         <div
           style={{
             width:    `${canvasW}px`,
@@ -572,7 +607,6 @@ const PopupOverlay = ({
           }}
         >
           <RuntimeCanvas
-            // ✅ FIX: popup.elements directly — NO template merge
             elements={popup.elements || []}
             width={canvasW}
             height={canvasH}
@@ -583,7 +617,6 @@ const PopupOverlay = ({
             onChangeScreen={onChangeScreen}
             onOpenPopup={onOpenPopup}
             onClosePopup={onClosePopup}
-            // ✅ pass exact pixel dimensions for noWrapper mode
             noWrapperWidth={canvasW}
             noWrapperHeight={canvasH}
             noWrapper={true}
@@ -594,46 +627,30 @@ const PopupOverlay = ({
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// CTRL+Q HINT
-// ═══════════════════════════════════════════════════════════
 const CtrlQHint = () => {
   const [visible, setVisible] = useState(true);
   const [opacity, setOpacity] = useState(1);
-
   useEffect(() => {
     const fadeTimer = setTimeout(() => setOpacity(0), 3000);
     const hideTimer = setTimeout(() => setVisible(false), 5000);
     return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
   }, []);
-
   if (!visible) return null;
   return (
     <div style={{
       position: 'absolute', bottom: '16px', right: '16px',
-      padding: '6px 12px',
-      background: 'rgba(0,0,0,0.6)',
-      backdropFilter: 'blur(8px)',
-      borderRadius: '6px',
+      padding: '6px 12px', background: 'rgba(0,0,0,0.6)',
+      backdropFilter: 'blur(8px)', borderRadius: '6px',
       border: '1px solid rgba(255,255,255,0.1)',
-      color: 'rgba(255,255,255,0.5)',
-      fontSize: '11px',
-      fontFamily: 'monospace',
-      pointerEvents: 'none',
-      transition: 'opacity 2s ease',
-      opacity,
-      zIndex: 999999,
+      color: 'rgba(255,255,255,0.5)', fontSize: '11px',
+      fontFamily: 'monospace', pointerEvents: 'none',
+      transition: 'opacity 2s ease', opacity, zIndex: 999999,
     }}>
-      Press{' '}
-      <strong style={{ color: 'rgba(255,255,255,0.8)' }}>Ctrl+Q</strong>
-      {' '}to exit runtime
+      Press <strong style={{ color: 'rgba(255,255,255,0.8)' }}>Ctrl+Q</strong> to exit runtime
     </div>
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// STARTUP SELECTOR
-// ═══════════════════════════════════════════════════════════
 const StartupSelector = ({ screens, selectedId, onSelect, onConfirm }) => (
   <>
     <div style={{
