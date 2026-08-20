@@ -1,20 +1,17 @@
 // ═══════════════════════════════════════════════════════════
-// Tag Controller
+// Tag Controller — Multi-Tenant Update
 //
-// Task Bundle applied:
-//   ✅ T060  — Bulk import from CSV with validation & summary
-//   ✅ T061  — Bulk export to CSV (all fields)
-//   ✅ BONUS — CSV template download
+// ✅ All queries scoped by req.companyId
+// ✅ All creates include companyId
+// ✅ Plan limit enforcement (maxTags)
 // ═══════════════════════════════════════════════════════════
 
 const Tag = require('../models/Tag');
 const PLCConnection = require('../models/PLCConnection');
 
 // ─────────────────────────────────────────────────────────
-// CSV UTILITIES (lightweight, forgiving parser)
+// CSV UTILITIES (unchanged)
 // ─────────────────────────────────────────────────────────
-
-/** Escape a value for CSV (handles commas, quotes, newlines) */
 const csvEscape = (v) => {
   const s = v === null || v === undefined ? '' : String(v);
   if (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')) {
@@ -23,90 +20,43 @@ const csvEscape = (v) => {
   return s;
 };
 
-/**
- * Parse a single CSV line respecting quoted fields.
- * Handles: unquoted, "quoted", "with, commas", "with ""escaped"" quotes"
- */
 const parseCSVLine = (line) => {
   const result = [];
   let current = '';
   let inQuotes = false;
   let i = 0;
-
   while (i < line.length) {
     const ch = line[i];
-
     if (inQuotes) {
-      if (ch === '"' && line[i + 1] === '"') {
-        current += '"';
-        i += 2;
-      } else if (ch === '"') {
-        inQuotes = false;
-        i++;
-      } else {
-        current += ch;
-        i++;
-      }
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i += 2; }
+      else if (ch === '"') { inQuotes = false; i++; }
+      else { current += ch; i++; }
     } else {
-      if (ch === '"' && current === '') {
-        inQuotes = true;
-        i++;
-      } else if (ch === ',') {
-        result.push(current);
-        current = '';
-        i++;
-      } else {
-        current += ch;
-        i++;
-      }
+      if (ch === '"' && current === '') { inQuotes = true; i++; }
+      else if (ch === ',') { result.push(current); current = ''; i++; }
+      else { current += ch; i++; }
     }
   }
   result.push(current);
   return result.map(s => s.trim());
 };
 
-/**
- * Parse full CSV text into { headers, rows }
- * HARDENED VERSION:
- *   • Strips UTF-8 BOM (multiple formats)
- *   • Skips empty/whitespace-only lines
- *   • Skips comment lines starting with # (even with leading whitespace)
- *   • Case-INSENSITIVE header matching (tagName, TagName, TAGNAME all match)
- *   • Trims header names
- */
 const parseCSV = (csvText) => {
-  if (!csvText || typeof csvText !== 'string') {
-    return { headers: [], rows: [], rawHeaders: [] };
-  }
-
-  // Strip ALL BOM variants (UTF-8, UTF-16 LE/BE, UTF-32)
+  if (!csvText || typeof csvText !== 'string') return { headers: [], rows: [], rawHeaders: [] };
   let cleaned = csvText
-    .replace(/^\uFEFF/, '')      // UTF-8 BOM
-    .replace(/^\uFFFE/, '')      // UTF-16 BE BOM (rare)
-    .replace(/^\u00EF\u00BB\u00BF/, ''); // UTF-8 BOM as bytes (Excel weirdness)
-
-  // Normalize line endings
+    .replace(/^\uFEFF/, '')
+    .replace(/^\uFFFE/, '')
+    .replace(/^\u00EF\u00BB\u00BF/, '');
   cleaned = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  // Split into lines, filter out empty and comment lines
   const lines = cleaned.split('\n').filter((line) => {
     const trimmed = line.trim();
-    if (trimmed.length === 0) return false;         // Skip blank lines
-    if (trimmed.startsWith('#')) return false;      // Skip comment lines
+    if (trimmed.length === 0) return false;
+    if (trimmed.startsWith('#')) return false;
     return true;
   });
-
-  if (lines.length === 0) {
-    return { headers: [], rows: [], rawHeaders: [] };
-  }
-
-  // Parse header row
+  if (lines.length === 0) return { headers: [], rows: [], rawHeaders: [] };
   const rawHeaders = parseCSVLine(lines[0]);
-
-  // Normalize headers: trim + preserve original for error messages
   const headers = rawHeaders.map((h) => h.trim());
-
-  // Parse data rows
   const rows = lines.slice(1).map((line) => {
     const cells = parseCSVLine(line);
     const row = {};
@@ -115,14 +65,27 @@ const parseCSV = (csvText) => {
     });
     return row;
   });
-
   return { headers, rows, rawHeaders };
 };
 
-/** Case-insensitive header lookup helper */
 const findHeader = (headers, target) => {
   const lower = target.toLowerCase();
   return headers.find(h => h.toLowerCase() === lower);
+};
+
+// ─── Helper: Check plan limits ───
+const checkTagLimit = async (req) => {
+  const currentCount = await Tag.countDocuments({ companyId: req.companyId });
+  const maxTags = req.company?.limits?.maxTags || 999999;
+  if (currentCount >= maxTags) {
+    return {
+      exceeded: true,
+      current: currentCount,
+      max: maxTags,
+      message: `Plan limit reached: ${currentCount}/${maxTags} tags. Upgrade your plan to add more.`,
+    };
+  }
+  return { exceeded: false };
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -138,27 +101,26 @@ const createTag = async (req, res) => {
     } = req.body;
 
     if (!tagName || !dataType) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tag name and data type are required',
-      });
+      return res.status(400).json({ success: false, message: 'Tag name and data type are required' });
     }
 
-    const exists = await Tag.findOne({ tagName: tagName.toUpperCase() });
+    // ✅ Plan limit check
+    const limitCheck = await checkTagLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({ success: false, message: limitCheck.message, code: 'PLAN_LIMIT_EXCEEDED' });
+    }
+
+    // ✅ Uniqueness check SCOPED to company
+    const exists = await Tag.findOne({ companyId: req.companyId, tagName: tagName.toUpperCase() });
     if (exists) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tag with this name already exists',
-      });
+      return res.status(400).json({ success: false, message: 'Tag with this name already exists in this workspace' });
     }
 
+    // ✅ PLC ownership check (can't reference another company's PLC)
     if (plcConnection) {
-      const plcExists = await PLCConnection.findById(plcConnection);
+      const plcExists = await PLCConnection.findOne({ _id: plcConnection, companyId: req.companyId });
       if (!plcExists) {
-        return res.status(404).json({
-          success: false,
-          message: 'PLC not found',
-        });
+        return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
       }
     }
 
@@ -167,6 +129,7 @@ const createTag = async (req, res) => {
     if (dataType === 'STRING') defaultValue = '';
 
     const tag = await Tag.create({
+      companyId: req.companyId, // ✅ MULTI-TENANT
       tagName: tagName.toUpperCase(),
       description: description || '',
       group: group || 'Default',
@@ -199,13 +162,13 @@ const createTag = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// GET ALL TAGS
+// GET ALL TAGS (scoped)
 // ═══════════════════════════════════════════════════════════
 const getAllTags = async (req, res) => {
   try {
     const { group, dataType, search, plcId } = req.query;
 
-    const filter = {};
+    const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
     if (group) filter.group = group;
     if (dataType) filter.dataType = dataType;
     if (plcId) filter.plcConnection = plcId;
@@ -220,25 +183,20 @@ const getAllTags = async (req, res) => {
       .populate('plcConnection', 'name protocol')
       .sort({ tagName: 1 });
 
-    res.json({
-      success: true,
-      count: tags.length,
-      data: tags,
-    });
+    res.json({ success: true, count: tags.length, data: tags });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// GET SINGLE TAG
+// GET SINGLE TAG (scoped)
 // ═══════════════════════════════════════════════════════════
 const getTag = async (req, res) => {
   try {
-    const tag = await Tag.findById(req.params.id).populate('plcConnection', 'name protocol ipAddress');
-    if (!tag) {
-      return res.status(404).json({ success: false, message: 'Tag not found' });
-    }
+    const tag = await Tag.findOne({ _id: req.params.id, companyId: req.companyId })
+      .populate('plcConnection', 'name protocol ipAddress');
+    if (!tag) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
     res.json({ success: true, data: tag });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -246,40 +204,34 @@ const getTag = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// UPDATE TAG
+// UPDATE TAG (scoped)
 // ═══════════════════════════════════════════════════════════
 const updateTag = async (req, res) => {
   try {
+    delete req.body.companyId; // Prevent tenant escape
     if (req.body.tagName) req.body.tagName = req.body.tagName.toUpperCase();
 
-    const tag = await Tag.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const tag = await Tag.findOneAndUpdate(
+      { _id: req.params.id, companyId: req.companyId },
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-    if (!tag) {
-      return res.status(404).json({ success: false, message: 'Tag not found' });
-    }
+    if (!tag) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
 
-    res.json({
-      success: true,
-      message: 'Tag updated successfully',
-      data: tag,
-    });
+    res.json({ success: true, message: 'Tag updated successfully', data: tag });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// DELETE TAG
+// DELETE TAG (scoped)
 // ═══════════════════════════════════════════════════════════
 const deleteTag = async (req, res) => {
   try {
-    const tag = await Tag.findByIdAndDelete(req.params.id);
-    if (!tag) {
-      return res.status(404).json({ success: false, message: 'Tag not found' });
-    }
+    const tag = await Tag.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
+    if (!tag) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
     res.json({ success: true, message: 'Tag deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -287,7 +239,7 @@ const deleteTag = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// WRITE VALUE TO TAG
+// WRITE VALUE TO TAG (scoped)
 // ═══════════════════════════════════════════════════════════
 const writeTagValue = async (req, res) => {
   try {
@@ -297,21 +249,26 @@ const writeTagValue = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Tag name and value are required' });
     }
 
-    const tag = await Tag.findOne({ tagName: tagName.toUpperCase() }).populate('plcConnection');
+    // ✅ Scoped lookup
+    const tag = await Tag.findOne({ companyId: req.companyId, tagName: tagName.toUpperCase() })
+      .populate('plcConnection');
     if (!tag) {
-      return res.status(404).json({ success: false, message: `Tag "${tagName}" not found` });
+      return res.status(404).json({ success: false, message: `Tag "${tagName}" not found in this workspace` });
     }
 
     if (tag.accessType === 'READ') {
       return res.status(403).json({ success: false, message: 'Tag is read-only' });
     }
 
-    // Normalize value based on data type
+    // ✅ Role check — operators/viewers can write to tags
+    // But viewers can only read — block them
+    if (req.user.role === 'viewer') {
+      return res.status(403).json({ success: false, message: 'Viewers cannot write to tags' });
+    }
+
     let normalizedValue = value;
     if (tag.dataType === 'BOOL') {
-      normalizedValue = typeof value === 'string'
-        ? value === 'true' || value === '1'
-        : Boolean(value);
+      normalizedValue = typeof value === 'string' ? value === 'true' || value === '1' : Boolean(value);
     } else if (['INT', 'DINT', 'REAL', 'WORD', 'DWORD', 'BYTE'].includes(tag.dataType)) {
       normalizedValue = Number(value);
       if (isNaN(normalizedValue)) {
@@ -322,22 +279,15 @@ const writeTagValue = async (req, res) => {
       }
     }
 
-    console.log(`📝 Write request: ${tag.tagName} = ${normalizedValue} (${tag.dataType})`);
+    console.log(`📝 Write [${req.companySlug}] ${req.user.username}: ${tag.tagName} = ${normalizedValue}`);
 
     if (tag.plcConnection && tag.plcAddress) {
       try {
         const plcManager = require('../services/plcManager');
         await plcManager.writeTag(tag, normalizedValue);
-        console.log(`✅ PLC write success: ${tag.tagName} = ${normalizedValue}`);
       } catch (plcErr) {
-        console.error(`❌ PLC write failed for ${tag.tagName}: ${plcErr.message}`);
-        return res.status(500).json({
-          success: false,
-          message: `PLC write failed: ${plcErr.message}`,
-        });
+        return res.status(500).json({ success: false, message: `PLC write failed: ${plcErr.message}` });
       }
-    } else {
-      console.log(`ℹ️  ${tag.tagName} is HMI-only (no PLC), updating MongoDB only`);
     }
 
     tag.currentValue = normalizedValue;
@@ -351,17 +301,14 @@ const writeTagValue = async (req, res) => {
         value: tag.currentValue,
         quality: tag.quality,
         timestamp: tag.lastUpdated,
+        companyId: tag.companyId, // ✅ Include so runtime can filter (future)
       }]);
     }
 
     res.json({
       success: true,
       message: 'Tag value written successfully',
-      data: {
-        tagName: tag.tagName,
-        value: tag.currentValue,
-        timestamp: tag.lastUpdated,
-      },
+      data: { tagName: tag.tagName, value: tag.currentValue, timestamp: tag.lastUpdated },
     });
   } catch (error) {
     console.error('❌ writeTagValue error:', error.message);
@@ -370,31 +317,27 @@ const writeTagValue = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// GET TAG GROUPS
+// GET TAG GROUPS (scoped)
 // ═══════════════════════════════════════════════════════════
 const getTagGroups = async (req, res) => {
   try {
-    const groups = await Tag.distinct('group');
+    const groups = await Tag.distinct('group', { companyId: req.companyId });
 
     const groupsWithCount = await Promise.all(
       groups.map(async (group) => {
-        const count = await Tag.countDocuments({ group });
+        const count = await Tag.countDocuments({ companyId: req.companyId, group });
         return { name: group, count };
       })
     );
 
-    res.json({
-      success: true,
-      count: groups.length,
-      data: groupsWithCount,
-    });
+    res.json({ success: true, count: groups.length, data: groupsWithCount });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// BULK CREATE TAGS (JSON array)
+// BULK CREATE TAGS (scoped)
 // ═══════════════════════════════════════════════════════════
 const bulkCreateTags = async (req, res) => {
   try {
@@ -404,18 +347,28 @@ const bulkCreateTags = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Provide array of tags' });
     }
 
+    // ✅ Plan limit check
+    const currentCount = await Tag.countDocuments({ companyId: req.companyId });
+    const maxTags = req.company?.limits?.maxTags || 999999;
+    const slotsRemaining = Math.max(0, maxTags - currentCount);
+
+    if (tags.length > slotsRemaining) {
+      return res.status(403).json({
+        success: false,
+        message: `Cannot create ${tags.length} tags. Only ${slotsRemaining} slots remaining (limit: ${maxTags}).`,
+        code: 'PLAN_LIMIT_EXCEEDED',
+      });
+    }
+
     const results = { created: [], failed: [] };
 
     for (const tagData of tags) {
       try {
         if (tagData.tagName) tagData.tagName = tagData.tagName.toUpperCase();
-        const tag = await Tag.create(tagData);
+        const tag = await Tag.create({ ...tagData, companyId: req.companyId });
         results.created.push(tag.tagName);
       } catch (error) {
-        results.failed.push({
-          tagName: tagData.tagName,
-          error: error.message,
-        });
+        results.failed.push({ tagName: tagData.tagName, error: error.message });
       }
     }
 
@@ -430,50 +383,29 @@ const bulkCreateTags = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T061: EXPORT ALL TAGS AS CSV
-// GET /api/tags/export/csv?group=Motors&plcId=xxx
+// EXPORT TAGS AS CSV (scoped)
 // ═══════════════════════════════════════════════════════════
 const exportTagsCSV = async (req, res) => {
   try {
     const { group, dataType, plcId } = req.query;
 
-    const filter = {};
+    const filter = { companyId: req.companyId, isSimulationTag: { $ne: true } };
     if (group) filter.group = group;
     if (dataType) filter.dataType = dataType;
     if (plcId) filter.plcConnection = plcId;
 
-    // Exclude simulation tags from export (they auto-regenerate)
-    filter.isSimulationTag = { $ne: true };
+    const tags = await Tag.find(filter).populate('plcConnection', 'name').sort({ tagName: 1 });
 
-    const tags = await Tag.find(filter)
-      .populate('plcConnection', 'name')
-      .sort({ tagName: 1 });
-
-    // ─── CSV Header (matches import template exactly) ───
     const headers = [
-      'tagName',
-      'description',
-      'group',
-      'dataType',
-      'plcName',        // Reference PLC by name (not ID) so imports work across systems
-      'plcAddress',
-      'accessType',
-      'unit',
-      'minValue',
-      'maxValue',
-      'enableScaling',
-      'rawMin',
-      'rawMax',
-      'scaledMin',
-      'scaledMax',
-      'enableLogging',
-      'loggingInterval',
-      'enableAlarm',
+      'tagName', 'description', 'group', 'dataType', 'plcName', 'plcAddress',
+      'accessType', 'unit', 'minValue', 'maxValue',
+      'enableScaling', 'rawMin', 'rawMax', 'scaledMin', 'scaledMax',
+      'enableLogging', 'loggingInterval', 'enableAlarm',
     ];
 
-    // ─── Metadata header (as comments) ───
     let csv = '';
     csv += `# OnlineSCADA Tag Export\n`;
+    csv += `# Workspace: ${req.company?.slug || 'unknown'}\n`;
     csv += `# Generated: ${new Date().toISOString()}\n`;
     csv += `# Total Tags: ${tags.length}\n`;
     if (group) csv += `# Group Filter: ${group}\n`;
@@ -481,11 +413,8 @@ const exportTagsCSV = async (req, res) => {
     if (plcId) csv += `# PLC Filter: ${plcId}\n`;
     csv += `# Note: Lines starting with # are ignored during import.\n`;
     csv += `#\n\n`;
-
-    // ─── Header row ───
     csv += headers.join(',') + '\n';
 
-    // ─── Data rows ───
     tags.forEach(tag => {
       const row = [
         csvEscape(tag.tagName),
@@ -521,8 +450,7 @@ const exportTagsCSV = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ BONUS: DOWNLOAD CSV TEMPLATE (blank with example rows)
-// GET /api/tags/template/csv
+// DOWNLOAD CSV TEMPLATE (unchanged — template is static)
 // ═══════════════════════════════════════════════════════════
 const downloadTagTemplate = async (req, res) => {
   const headers = [
@@ -539,10 +467,10 @@ const downloadTagTemplate = async (req, res) => {
 #   2. Required fields: tagName, dataType
 #   3. Valid dataType values: BOOL, INT, DINT, REAL, STRING, WORD, DWORD, BYTE
 #   4. Valid accessType values: READ, WRITE, READ_WRITE
-#   5. plcName should match an existing PLC name (or leave blank for HMI-only tag)
+#   5. plcName should match an existing PLC name in YOUR workspace
 #   6. Boolean fields (enableScaling, enableLogging, enableAlarm): use true/false
-#   7. Delete these comment lines (starting with #) before uploading (optional)
-#   8. Delete the example rows below and add your own data
+#   7. Delete comment lines (starting with #) before uploading (optional)
+#   8. Delete example rows below and add your own data
 #
 # EXAMPLE ROWS (delete before importing your data):
 
@@ -560,148 +488,88 @@ COUNTER_PROD,Production counter,Counters,DINT,Demo PLC,40005,READ,pcs,0,999999,f
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T060: IMPORT TAGS FROM CSV
-// POST /api/tags/import/csv   Body: { csvText, mode: 'create' | 'update' | 'upsert' }
-// ═══════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════
-// ✅ T060: IMPORT TAGS FROM CSV (hardened)
-// POST /api/tags/import/csv   Body: { csvText, mode: 'create' | 'update' | 'upsert' }
+// IMPORT TAGS FROM CSV (scoped + plan limit)
 // ═══════════════════════════════════════════════════════════
 const importTagsCSV = async (req, res) => {
   try {
     const { csvText, mode = 'create' } = req.body;
 
     if (!csvText || typeof csvText !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'csvText is required',
-      });
+      return res.status(400).json({ success: false, message: 'csvText is required' });
     }
 
-    // Parse CSV
-    const { headers, rows, rawHeaders } = parseCSV(csvText);
+    const { headers, rows } = parseCSV(csvText);
 
-    // ─── DEBUG: log what we detected ───
-    console.log(`📥 Tag import: detected ${headers.length} headers, ${rows.length} data rows`);
-    console.log(`   Headers: [${headers.join(', ')}]`);
+    console.log(`📥 Tag import [${req.companySlug}]: ${headers.length} headers, ${rows.length} rows`);
 
-    if (headers.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'CSV appears to be empty or contains only comment lines. Please add data rows.',
-      });
-    }
+    if (headers.length === 0) return res.status(400).json({ success: false, message: 'CSV appears to be empty' });
+    if (rows.length === 0) return res.status(400).json({ success: false, message: 'CSV has no data rows' });
 
-    if (rows.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'CSV has headers but no data rows. Please add at least one tag row.',
-      });
-    }
-
-    // ─── Case-insensitive header validation ───
     const requiredHeaders = ['tagName', 'dataType'];
-    const missingHeaders = [];
-
-    for (const required of requiredHeaders) {
-      if (!findHeader(headers, required)) {
-        missingHeaders.push(required);
-      }
-    }
+    const missingHeaders = requiredHeaders.filter(h => !findHeader(headers, h));
 
     if (missingHeaders.length > 0) {
       return res.status(400).json({
         success: false,
-        message:
-          `CSV is missing required headers: ${missingHeaders.join(', ')}.\n\n` +
-          `Detected headers: [${headers.join(', ')}].\n\n` +
-          `Tip: The first non-comment line of your CSV must contain column names. ` +
-          `Download a fresh template if unsure.`,
+        message: `CSV is missing required headers: ${missingHeaders.join(', ')}. Detected: [${headers.join(', ')}]`,
       });
     }
 
-    // ─── Build case-insensitive row accessor ───
-    // Since headers might be TagName vs tagName, we normalize row keys to lowercase
+    // ✅ Plan limit check
+    const currentCount = await Tag.countDocuments({ companyId: req.companyId });
+    const maxTags = req.company?.limits?.maxTags || 999999;
+    const slotsRemaining = Math.max(0, maxTags - currentCount);
+
     const normalizeRow = (row) => {
       const normalized = {};
-      Object.keys(row).forEach((key) => {
-        normalized[key.toLowerCase().trim()] = row[key];
-      });
+      Object.keys(row).forEach((key) => { normalized[key.toLowerCase().trim()] = row[key]; });
       return normalized;
     };
 
-    // ─── Build PLC name → id lookup (case-insensitive) ───
-    const allPLCs = await PLCConnection.find().select('_id name');
+    // ✅ Build PLC name → id lookup SCOPED to company
+    const allPLCs = await PLCConnection.find({ companyId: req.companyId }).select('_id name');
     const plcMap = new Map(allPLCs.map(p => [p.name.toLowerCase().trim(), p._id]));
 
-    const results = {
-      total: rows.length,
-      created: [],
-      updated: [],
-      skipped: [],
-      failed: [],
-    };
+    const results = { total: rows.length, created: [], updated: [], skipped: [], failed: [] };
+    let createdCount = 0;
 
-    // Process each row
     for (let i = 0; i < rows.length; i++) {
       const rowRaw = rows[i];
-      const row = normalizeRow(rowRaw); // lowercase keys for lookup
+      const row = normalizeRow(rowRaw);
       const rowNum = i + 2;
 
       try {
-        // ─── Get values with case-insensitive lookup ───
         const tagName = (row.tagname || '').trim();
         const dataType = (row.datatype || '').trim();
 
-        // Validate required fields
-        if (!tagName) {
-          results.failed.push({ row: rowNum, error: 'Missing tagName' });
-          continue;
-        }
-        if (!dataType) {
-          results.failed.push({ row: rowNum, tagName, error: 'Missing dataType' });
-          continue;
-        }
+        if (!tagName) { results.failed.push({ row: rowNum, error: 'Missing tagName' }); continue; }
+        if (!dataType) { results.failed.push({ row: rowNum, tagName, error: 'Missing dataType' }); continue; }
 
         const validDataTypes = ['BOOL', 'INT', 'DINT', 'REAL', 'STRING', 'WORD', 'DWORD', 'BYTE'];
         const upperDataType = dataType.toUpperCase();
         if (!validDataTypes.includes(upperDataType)) {
-          results.failed.push({
-            row: rowNum,
-            tagName,
-            error: `Invalid dataType '${dataType}'. Valid: ${validDataTypes.join(', ')}`,
-          });
+          results.failed.push({ row: rowNum, tagName, error: `Invalid dataType '${dataType}'` });
           continue;
         }
 
         const validAccessTypes = ['READ', 'WRITE', 'READ_WRITE'];
         const accessType = ((row.accesstype || 'READ_WRITE').trim() || 'READ_WRITE').toUpperCase();
         if (!validAccessTypes.includes(accessType)) {
-          results.failed.push({
-            row: rowNum,
-            tagName,
-            error: `Invalid accessType '${row.accesstype}'. Valid: ${validAccessTypes.join(', ')}`,
-          });
+          results.failed.push({ row: rowNum, tagName, error: `Invalid accessType '${row.accesstype}'` });
           continue;
         }
 
-        // Resolve PLC name to ID (if provided)
         let plcConnection = null;
         const plcName = (row.plcname || '').trim();
         if (plcName) {
           const plcId = plcMap.get(plcName.toLowerCase());
           if (!plcId) {
-            results.failed.push({
-              row: rowNum,
-              tagName,
-              error: `PLC "${plcName}" not found. Create the PLC first or leave plcName blank.`,
-            });
+            results.failed.push({ row: rowNum, tagName, error: `PLC "${plcName}" not found in this workspace` });
             continue;
           }
           plcConnection = plcId;
         }
 
-        // Parse boolean fields
         const parseBool = (v) => {
           if (v === true || v === false) return v;
           if (typeof v !== 'string') return false;
@@ -709,7 +577,6 @@ const importTagsCSV = async (req, res) => {
           return lower === 'true' || lower === '1' || lower === 'yes';
         };
 
-        // Parse number safely
         const parseNum = (v, fallback = 0) => {
           if (v === '' || v === null || v === undefined) return fallback;
           const n = Number(String(v).trim());
@@ -717,6 +584,7 @@ const importTagsCSV = async (req, res) => {
         };
 
         const tagData = {
+          companyId: req.companyId, // ✅ MULTI-TENANT
           tagName: tagName.toUpperCase(),
           description: (row.description || '').trim(),
           group: (row.group || 'Default').trim() || 'Default',
@@ -737,37 +605,39 @@ const importTagsCSV = async (req, res) => {
           enableAlarm: parseBool(row.enablealarm),
         };
 
-        // Set default current value
         if (upperDataType === 'BOOL') tagData.currentValue = false;
         else if (upperDataType === 'STRING') tagData.currentValue = '';
         else tagData.currentValue = 0;
 
-        // Check if tag exists
-        const existing = await Tag.findOne({ tagName: tagData.tagName });
+        // ✅ Scoped uniqueness check
+        const existing = await Tag.findOne({ companyId: req.companyId, tagName: tagData.tagName });
 
         if (existing) {
           if (mode === 'create') {
-            results.skipped.push({
-              row: rowNum,
-              tagName: tagData.tagName,
-              reason: 'Already exists (mode=create)',
-            });
+            results.skipped.push({ row: rowNum, tagName: tagData.tagName, reason: 'Already exists' });
             continue;
           }
+          delete tagData.companyId;
           Object.assign(existing, tagData);
           await existing.save();
           results.updated.push(tagData.tagName);
         } else {
           if (mode === 'update') {
-            results.skipped.push({
+            results.skipped.push({ row: rowNum, tagName: tagData.tagName, reason: 'Does not exist' });
+            continue;
+          }
+          // ✅ Plan limit check
+          if (createdCount >= slotsRemaining) {
+            results.failed.push({
               row: rowNum,
               tagName: tagData.tagName,
-              reason: 'Does not exist (mode=update)',
+              error: `Plan limit reached (${maxTags} tags)`,
             });
             continue;
           }
           await Tag.create(tagData);
           results.created.push(tagData.tagName);
+          createdCount++;
         }
       } catch (err) {
         results.failed.push({
@@ -778,7 +648,7 @@ const importTagsCSV = async (req, res) => {
       }
     }
 
-    console.log(`✅ Tag import complete: ${results.created.length}c/${results.updated.length}u/${results.skipped.length}s/${results.failed.length}f`);
+    console.log(`✅ Tag import complete [${req.companySlug}]: ${results.created.length}c/${results.updated.length}u/${results.skipped.length}s/${results.failed.length}f`);
 
     res.json({
       success: true,
@@ -787,17 +657,10 @@ const importTagsCSV = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Import Tags CSV Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to import tags: ' + error.message,
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to import tags: ' + error.message, error: error.message });
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// EXPORTS
-// ═══════════════════════════════════════════════════════════
 module.exports = {
   createTag,
   getAllTags,
@@ -807,8 +670,7 @@ module.exports = {
   writeTagValue,
   getTagGroups,
   bulkCreateTags,
-  // ✅ Round 5
-  exportTagsCSV,       // T061
-  importTagsCSV,       // T060
-  downloadTagTemplate, // Bonus
+  exportTagsCSV,
+  importTagsCSV,
+  downloadTagTemplate,
 };

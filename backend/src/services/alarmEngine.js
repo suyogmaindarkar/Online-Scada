@@ -1,14 +1,14 @@
 // ═══════════════════════════════════════════════════════════
-// Alarm Engine
+// Alarm Engine — Multi-Tenant Update
 //
-// Task Bundle applied:
-//   ✅ T019  — Auto-send email on trigger (respects throttle)
-//   ✅ T018  — Broadcasts include soundEnabled flag
+// ✅ FIXED: checkAlarm looks up tag by BOTH tagName AND companyId
+// ✅ FIXED: alarmTriggered/alarmCleared broadcast to company room only
+// ✅ FIXED: AlarmHistory includes companyId
 // ═══════════════════════════════════════════════════════════
 
-const Alarm = require('../models/Alarm');
+const Alarm        = require('../models/Alarm');
 const AlarmHistory = require('../models/AlarmHistory');
-const Tag = require('../models/Tag');
+const Tag          = require('../models/Tag');
 const { sendAlarmEmail } = require('./emailService');
 
 class AlarmEngine {
@@ -21,7 +21,7 @@ class AlarmEngine {
   init(io) {
     this.io = io;
     this.start();
-    console.log('🚨 Alarm Engine initialized');
+    console.log('🚨 Alarm Engine initialized (multi-tenant)');
   }
 
   start() {
@@ -40,6 +40,7 @@ class AlarmEngine {
 
   async checkAllAlarms() {
     try {
+      // Get all enabled alarms across ALL companies
       const alarms = await Alarm.find({ isEnabled: true });
       for (const alarm of alarms) {
         await this.checkAlarm(alarm);
@@ -51,7 +52,12 @@ class AlarmEngine {
 
   async checkAlarm(alarm) {
     try {
-      const tag = await Tag.findOne({ tagName: alarm.tag });
+      // ✅ FIXED: Lookup tag SCOPED to alarm's company
+      // Prevents cross-company match when tag names collide
+      const tag = await Tag.findOne({
+        companyId: alarm.companyId,
+        tagName:   alarm.tag,
+      });
       if (!tag) return;
 
       const currentValue = tag.currentValue;
@@ -59,40 +65,41 @@ class AlarmEngine {
 
       // ─── ALARM JUST TRIGGERED ───
       if (shouldTrigger && !alarm.isActive) {
-        alarm.isActive = true;
+        alarm.isActive       = true;
         alarm.isAcknowledged = false;
-        alarm.triggeredAt = new Date();
-        alarm.clearedAt = null;
+        alarm.triggeredAt    = new Date();
+        alarm.clearedAt      = null;
         await alarm.save();
 
-        // Save to history
+        // ✅ History with companyId
         await AlarmHistory.create({
-          alarmName: alarm.alarmName,
-          tag: alarm.tag,
+          companyId:    alarm.companyId,
+          alarmName:    alarm.alarmName,
+          tag:          alarm.tag,
           triggerValue: currentValue,
-          priority: alarm.priority,
-          message: alarm.message || `${alarm.tag} ${alarm.alarmType} alarm triggered`,
-          event: 'TRIGGERED',
+          priority:     alarm.priority,
+          message:      alarm.message || `${alarm.tag} ${alarm.alarmType} alarm triggered`,
+          event:        'TRIGGERED',
         });
 
-        // ─── Broadcast to all clients ───
+        // ✅ Broadcast ONLY to this company's socket room
         if (this.io) {
-          this.io.emit('alarmTriggered', {
-            _id: alarm._id,
-            alarmName: alarm.alarmName,
-            tag: alarm.tag,
-            priority: alarm.priority,
-            message: alarm.message,
-            value: currentValue,
-            triggeredAt: alarm.triggeredAt,
-            // ✅ T018: Let frontend know if this alarm wants sound
+          this.io.to(`company:${alarm.companyId}`).emit('alarmTriggered', {
+            _id:          alarm._id,
+            companyId:    alarm.companyId,
+            alarmName:    alarm.alarmName,
+            tag:          alarm.tag,
+            priority:     alarm.priority,
+            message:      alarm.message,
+            value:        currentValue,
+            triggeredAt:  alarm.triggeredAt,
             soundEnabled: alarm.soundEnabled !== false,
           });
         }
 
-        console.log(`🚨 ALARM TRIGGERED: ${alarm.alarmName} (${currentValue})`);
+        console.log(`🚨 ALARM TRIGGERED [${alarm.companyId}]: ${alarm.alarmName} (${currentValue})`);
 
-        // ─── T019: Send email notification (async, non-blocking) ───
+        // Email notification (async)
         if (alarm.enableEmail && alarm.emailRecipients?.length > 0) {
           this.sendEmailAsync(alarm, currentValue);
         }
@@ -100,41 +107,42 @@ class AlarmEngine {
 
       // ─── ALARM CLEARED ───
       else if (!shouldTrigger && alarm.isActive) {
-        alarm.isActive = false;
+        alarm.isActive  = false;
         alarm.clearedAt = new Date();
         await alarm.save();
 
         await AlarmHistory.create({
-          alarmName: alarm.alarmName,
-          tag: alarm.tag,
+          companyId:    alarm.companyId,
+          alarmName:    alarm.alarmName,
+          tag:          alarm.tag,
           triggerValue: currentValue,
-          priority: alarm.priority,
-          message: `${alarm.alarmName} cleared`,
-          event: 'CLEARED',
+          priority:     alarm.priority,
+          message:      `${alarm.alarmName} cleared`,
+          event:        'CLEARED',
         });
 
+        // ✅ Broadcast ONLY to this company's socket room
         if (this.io) {
-          this.io.emit('alarmCleared', {
-            _id: alarm._id,
+          this.io.to(`company:${alarm.companyId}`).emit('alarmCleared', {
+            _id:       alarm._id,
+            companyId: alarm.companyId,
             alarmName: alarm.alarmName,
-            priority: alarm.priority,
+            priority:  alarm.priority,
             clearedAt: alarm.clearedAt,
           });
         }
 
-        console.log(`✅ ALARM CLEARED: ${alarm.alarmName}`);
+        console.log(`✅ ALARM CLEARED [${alarm.companyId}]: ${alarm.alarmName}`);
       }
     } catch (error) {
       console.error(`Error checking alarm ${alarm.alarmName}:`, error.message);
     }
   }
 
-  // ─── T019: Async email sender (fire-and-forget) ───
   async sendEmailAsync(alarm, currentValue) {
     try {
       const result = await sendAlarmEmail(alarm, currentValue);
       if (result.sent) {
-        // Update lastEmailSentAt so throttle works
         await Alarm.findByIdAndUpdate(alarm._id, {
           lastEmailSentAt: new Date(),
         });
@@ -164,20 +172,12 @@ class AlarmEngine {
         if (alarm.isActive) return numValue < (setpoint + deadband);
         return numValue < setpoint;
 
-      case 'EQUAL':
-        return numValue === setpoint;
+      case 'EQUAL':     return numValue === setpoint;
+      case 'NOT_EQUAL': return numValue !== setpoint;
+      case 'DIGITAL':   return value === true || value === 1 || value === 'true';
+      case 'DEVIATION': return Math.abs(numValue - setpoint) > deadband;
 
-      case 'NOT_EQUAL':
-        return numValue !== setpoint;
-
-      case 'DIGITAL':
-        return value === true || value === 1 || value === 'true';
-
-      case 'DEVIATION':
-        return Math.abs(numValue - setpoint) > deadband;
-
-      default:
-        return false;
+      default: return false;
     }
   }
 }

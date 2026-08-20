@@ -4,6 +4,8 @@
 //   ✅ Thumbs up/down feedback per response
 //   ✅ Analytics tracking (all queries + feedback)
 //   ✅ Analytics dashboard modal
+//   ✅ FIXED: isHidden reference bug (uses inline path check now)
+//   ✅ FIXED: Hidden on super-admin pages
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -23,6 +25,8 @@ import AnalyticsPanel from './AnalyticsPanel';
 const ChatBot = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // ✅ ALL hooks FIRST — before any conditional returns
   const [isOpen, setIsOpen]           = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages]       = useState([]);
@@ -31,14 +35,19 @@ const ChatBot = () => {
   const [lightboxImages, setLightboxImages]   = useState(null);
   const [lightboxCaption, setLightboxCaption] = useState('');
   const [showAnalytics, setShowAnalytics]     = useState(false);
-  const [feedbackGiven, setFeedbackGiven]     = useState({}); // messageIdx: 'up'|'down'
+  const [feedbackGiven, setFeedbackGiven]     = useState({});
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
 
-  const hiddenPaths = ['/login', '/runtime'];
-  if (hiddenPaths.includes(location.pathname)) return null;
+  // ✅ Compute isHidden as a derived value (called on every render)
+  // This makes it available inside useEffects and the render body
+  const hiddenPaths = ['/login', '/runtime', '/select-user'];
+  const isHidden =
+    hiddenPaths.includes(location.pathname) ||
+    location.pathname.startsWith('/super-admin');
 
   useEffect(() => {
+    if (isHidden) return;
     if (messages.length === 0 && isOpen) {
       const suggestions = getSuggestionsForPage(location.pathname);
       const pageCategory = PAGE_CONTEXT[location.pathname];
@@ -55,17 +64,22 @@ I can help with tags, PLCs, alarms, screens, and troubleshooting.${contextName ?
           : QUICK_ACTIONS,
       }]);
     }
-  }, [isOpen, location.pathname]);
+  }, [isOpen, location.pathname, isHidden]);
 
   useEffect(() => {
+    if (isHidden) return;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+  }, [messages, isTyping, isHidden]);
 
   useEffect(() => {
+    if (isHidden) return;
     if (isOpen && !isMinimized) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen, isMinimized]);
+  }, [isOpen, isMinimized, isHidden]);
+
+  // ✅ NOW safe to early-return — all hooks have been called above
+  if (isHidden) return null;
 
   const handleSend = (queryOverride = null) => {
     const query = (queryOverride || input).trim();
@@ -77,8 +91,6 @@ I can help with tags, PLCs, alarms, screens, and troubleshooting.${contextName ?
 
     setTimeout(() => {
       const response = generateResponse(query, location.pathname);
-
-      // Track query analytics
       const matchedId = response.type === 'answer' ? response.entry?.id : null;
       trackQuery(query, matchedId, response.type);
 
@@ -102,7 +114,7 @@ I can help with tags, PLCs, alarms, screens, and troubleshooting.${contextName ?
   };
 
   const handleFeedback = (msgIdx, isPositive, entryId) => {
-    if (feedbackGiven[msgIdx]) return; // already gave feedback
+    if (feedbackGiven[msgIdx]) return;
     setFeedbackGiven(prev => ({ ...prev, [msgIdx]: isPositive ? 'up' : 'down' }));
     trackFeedback(entryId, isPositive);
   };
@@ -393,7 +405,7 @@ I can help with tags, PLCs, alarms, screens, and troubleshooting.${contextName ?
 };
 
 // ═══════════════════════════════════════════════════════════
-// SUB-COMPONENTS
+// SUB-COMPONENTS (unchanged)
 // ═══════════════════════════════════════════════════════════
 
 const HeaderButton = ({ children, onClick, title, isDanger = false }) => (
@@ -426,7 +438,6 @@ const MessageBubble = ({
       display: 'flex', gap: '8px', alignItems: 'flex-end',
       flexDirection: isUser ? 'row-reverse' : 'row',
     }}>
-      {/* Avatar */}
       <div style={{
         width: '30px', height: '30px', borderRadius: '50%',
         background: isUser
@@ -441,7 +452,6 @@ const MessageBubble = ({
         }
       </div>
 
-      {/* Bubble */}
       <div style={{
         maxWidth: '85%', padding: '10px 14px',
         background: isUser ? '#2563EB' : '#FFFFFF',
@@ -451,12 +461,10 @@ const MessageBubble = ({
         fontSize: '13px', lineHeight: 1.55,
         wordWrap: 'break-word',
       }}>
-        {/* Welcome/Text content */}
         {message.text && (
           <div dangerouslySetInnerHTML={{ __html: formatMarkdown(message.text) }} />
         )}
 
-        {/* Direct answer */}
         {message.type === 'answer' && entry && (
           <div>
             <p style={{ margin: 0, fontWeight: 700, fontSize: '13.5px', color: '#0F3D91' }}>
@@ -467,7 +475,6 @@ const MessageBubble = ({
               color: '#334155', lineHeight: 1.6,
             }} dangerouslySetInnerHTML={{ __html: formatMarkdown(entry.answer) }} />
 
-            {/* Image (if present) */}
             {(entry.image || entry.imageSequence) && (
               <button
                 onClick={() => onOpenLightbox(
@@ -494,7 +501,6 @@ const MessageBubble = ({
               </button>
             )}
 
-            {/* Related topics */}
             {entry.relatedTopics?.length > 0 && (
               <div style={{
                 marginTop: '10px', paddingTop: '8px',
@@ -540,7 +546,6 @@ const MessageBubble = ({
               </div>
             )}
 
-            {/* ✅ FEEDBACK BUTTONS */}
             <div style={{
               marginTop: '10px', paddingTop: '8px',
               borderTop: '1px dashed #E5E7EB',
@@ -587,7 +592,6 @@ const MessageBubble = ({
           </div>
         )}
 
-        {/* Ambiguous */}
         {message.type === 'ambiguous' && (
           <div>
             <p style={{ margin: '0 0 8px' }}>{message.message}</p>
@@ -611,7 +615,6 @@ const MessageBubble = ({
           </div>
         )}
 
-        {/* No match */}
         {message.type === 'no-match' && (
           <div>
             <p style={{ margin: '0 0 8px' }}>{message.message}</p>
@@ -634,7 +637,6 @@ const MessageBubble = ({
           </div>
         )}
 
-        {/* Welcome suggestions */}
         {message.type === 'welcome' && message.suggestions && (
           <div style={{ marginTop: '10px' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>

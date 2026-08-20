@@ -1,10 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Routes
-//
-// Task Bundle applied:
-//   ✅ SIM   — /quick-simulation
-//   ✅ T062  — /import/csv
-//   ✅ BONUS — /export/csv + /template/csv
+// PLC Routes — Multi-Tenant Update
+// Uses userProtect (validates userToken + scopes to company)
 // ═══════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -20,18 +16,19 @@ const {
   startPLC,
   stopPLC,
   getPLCStatus,
-  exportPLCsCSV,       // ✅ BONUS
-  importPLCsCSV,       // ✅ T062
-  downloadPLCTemplate, // ✅ BONUS
+  exportPLCsCSV,
+  importPLCsCSV,
+  downloadPLCTemplate,
 } = require('../controllers/plcController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-router.use(protect);
+// ✅ All routes require valid user token (which injects req.companyId)
+router.use(userProtect);
 
 // ─── Specific routes FIRST (before /:id catches everything) ───
 router.post('/quick-simulation', authorize('admin', 'engineer'), createQuickSimulationPLC);
 
-// ─── Round 5: CSV Import/Export ───
+// ─── CSV Import/Export ───
 router.get('/export/csv', exportPLCsCSV);
 router.get('/template/csv', downloadPLCTemplate);
 router.post('/import/csv', authorize('admin', 'engineer'), importPLCsCSV);

@@ -1,20 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // AlarmNotificationContext — GLOBAL alarm notification handler
-//
-// Purpose:
-//   Play alarm sounds & show notifications from ANY page in the app.
-//   Not just when the user is on the Alarms page.
-//
-// Features:
-//   ✅ Global socket listener for 'alarmTriggered' + 'alarmCleared'
-//   ✅ Real audio file playback with WebAudio fallback
-//   ✅ Volume + enabled state persisted in localStorage
-//   ✅ Loads defaults from Settings API on mount
-//   ✅ Different urgency per priority (CRITICAL = triple beep, others = single)
-//   ✅ Dedupes rapid duplicate alarms (same alarm within 3s)
-//   ✅ Browser notification (works even when tab is background)
-//   ✅ Global toast notification with priority-colored style
-//   ✅ Respects per-alarm soundEnabled flag from backend
+// ✅ FIXED: Skip API calls + socket listeners when no userToken
+//          or on super-admin pages
 // ═══════════════════════════════════════════════════════════
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
@@ -24,17 +11,22 @@ import { useToast } from './ToastContext';
 
 const AlarmNotificationContext = createContext(null);
 
-// ─── LocalStorage keys (persist across navigation) ───
 const LS_ENABLED = 'onlinescada.alarmSoundEnabled';
-const LS_VOLUME = 'onlinescada.alarmSoundVolume';
-
-// ─── Dedup window: same alarm within this window → sound plays only once ───
+const LS_VOLUME  = 'onlinescada.alarmSoundVolume';
 const DEDUP_WINDOW_MS = 3000;
+
+// ─── Helper: Is this a workspace user context? ─────────────
+// Returns false if: on super-admin route, or no userToken exists
+const isWorkspaceUserContext = () => {
+  if (typeof window === 'undefined') return false;
+  if (window.location.pathname.startsWith('/super-admin')) return false;
+  if (!localStorage.getItem('userToken')) return false;
+  return true;
+};
 
 export const AlarmNotificationProvider = ({ children }) => {
   const { showToast } = useToast();
 
-  // Sound state — initialize from localStorage
   const [soundEnabled, setSoundEnabledState] = useState(() => {
     const stored = localStorage.getItem(LS_ENABLED);
     return stored === null ? true : stored === 'true';
@@ -46,17 +38,14 @@ export const AlarmNotificationProvider = ({ children }) => {
     return isNaN(parsed) ? 70 : Math.max(0, Math.min(100, parsed));
   });
 
-  // Refs to avoid re-subscribing socket on every state change
   const soundEnabledRef = useRef(soundEnabled);
-  const soundVolumeRef = useRef(soundVolume);
-  const audioRef = useRef(null);
-  const recentAlarmsRef = useRef(new Map()); // alarmName → timestamp (for dedup)
+  const soundVolumeRef  = useRef(soundVolume);
+  const audioRef        = useRef(null);
+  const recentAlarmsRef = useRef(new Map());
 
-  // Keep refs in sync with state
   useEffect(() => { soundEnabledRef.current = soundEnabled; }, [soundEnabled]);
-  useEffect(() => { soundVolumeRef.current = soundVolume; }, [soundVolume]);
+  useEffect(() => { soundVolumeRef.current  = soundVolume;  }, [soundVolume]);
 
-  // ─── Persist to localStorage whenever changed ───
   const setSoundEnabled = useCallback((val) => {
     setSoundEnabledState(val);
     localStorage.setItem(LS_ENABLED, String(val));
@@ -69,15 +58,18 @@ export const AlarmNotificationProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════
-  // Load Settings defaults on mount (only if localStorage empty)
+  // Load Settings defaults on mount
+  // ✅ FIXED: Only if user is logged in (skip on super-admin/login pages)
   // ═══════════════════════════════════════════════════════════
   useEffect(() => {
+    // ✅ Guard: don't call API if we're not a workspace user
+    if (!isWorkspaceUserContext()) return;
+
     const loadFromSettings = async () => {
       try {
         const res = await settingsAPI.getAll();
         const n = res.data?.data?.notifications || {};
 
-        // Only apply from Settings if user hasn't explicitly set values via localStorage
         if (localStorage.getItem(LS_ENABLED) === null && typeof n.enableSoundAlerts === 'boolean') {
           setSoundEnabled(n.enableSoundAlerts);
         }
@@ -85,27 +77,26 @@ export const AlarmNotificationProvider = ({ children }) => {
           setSoundVolume(n.alarmSoundVolume);
         }
       } catch {
-        // Silent fallback — use defaults
+        // Silent fallback
       }
     };
     loadFromSettings();
 
-    // Request browser notification permission (once)
+    // Request browser notification permission (only for workspace users)
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, []);
 
   // ═══════════════════════════════════════════════════════════
-  // Play audio file with fallback to WebAudio beep
+  // Play audio file with WebAudio fallback
   // ═══════════════════════════════════════════════════════════
   const playAlarmSound = useCallback((priority = 'MEDIUM') => {
     const enabled = soundEnabledRef.current;
-    const volume = soundVolumeRef.current;
+    const volume  = soundVolumeRef.current;
     if (!enabled) return;
 
     try {
-      // Try real audio file first
       if (!audioRef.current) {
         audioRef.current = new Audio('/sounds/alarm.mp3');
         audioRef.current.preload = 'auto';
@@ -115,44 +106,31 @@ export const AlarmNotificationProvider = ({ children }) => {
 
       const playPromise = audioRef.current.play();
       if (playPromise && playPromise.catch) {
-        playPromise.catch(() => {
-          // File missing OR autoplay blocked → fallback
-          playFallbackBeep(priority, volume);
-        });
+        playPromise.catch(() => playFallbackBeep(priority, volume));
       }
     } catch {
       playFallbackBeep(priority, volume);
     }
   }, []);
 
-  // ─── WebAudio fallback — different pattern per priority ───
   const playFallbackBeep = (priority, volume) => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const gainVal = (volume / 100) * 0.3; // Cap at 0.3 to avoid harshness
+      const gainVal = (volume / 100) * 0.3;
 
-      // Different beep patterns per priority
       const patterns = {
         CRITICAL: [
           { delay: 0,   freq: 1000, duration: 0.15 },
           { delay: 180, freq: 1000, duration: 0.15 },
           { delay: 360, freq: 1000, duration: 0.15 },
-          { delay: 540, freq: 1000, duration: 0.25 }, // Longer final beep
+          { delay: 540, freq: 1000, duration: 0.25 },
         ],
-        HIGH: [
-          { delay: 0,   freq: 880, duration: 0.15 },
-          { delay: 220, freq: 880, duration: 0.15 },
-        ],
-        MEDIUM: [
-          { delay: 0, freq: 660, duration: 0.20 },
-        ],
-        LOW: [
-          { delay: 0, freq: 440, duration: 0.15 },
-        ],
+        HIGH:   [{ delay: 0, freq: 880, duration: 0.15 }, { delay: 220, freq: 880, duration: 0.15 }],
+        MEDIUM: [{ delay: 0, freq: 660, duration: 0.20 }],
+        LOW:    [{ delay: 0, freq: 440, duration: 0.15 }],
       };
 
       const pattern = patterns[priority] || patterns.MEDIUM;
-
       pattern.forEach(({ delay, freq, duration }) => {
         setTimeout(() => {
           const osc = ctx.createOscillator();
@@ -172,78 +150,56 @@ export const AlarmNotificationProvider = ({ children }) => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Show browser notification (works even when tab unfocused)
-  // ═══════════════════════════════════════════════════════════
   const showBrowserNotification = useCallback((alarm) => {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
     try {
       const notif = new Notification(`🚨 ${alarm.priority || 'ALARM'}: ${alarm.alarmName}`, {
         body: alarm.message || `Tag ${alarm.tag} triggered`,
         icon: '/favicon.ico',
-        tag: `alarm-${alarm.alarmName}`, // Dedup by tag (browser handles)
-        requireInteraction: alarm.priority === 'CRITICAL', // Critical stays visible
-        silent: soundEnabledRef.current, // We play our own sound
+        tag: `alarm-${alarm.alarmName}`,
+        requireInteraction: alarm.priority === 'CRITICAL',
+        silent: soundEnabledRef.current,
       });
-
-      // Click notification → focus the tab
-      notif.onclick = () => {
-        window.focus();
-        notif.close();
-      };
-
-      // Auto-close non-critical after 8s
-      if (alarm.priority !== 'CRITICAL') {
-        setTimeout(() => notif.close(), 8000);
-      }
+      notif.onclick = () => { window.focus(); notif.close(); };
+      if (alarm.priority !== 'CRITICAL') setTimeout(() => notif.close(), 8000);
     } catch (err) {
       console.warn('Browser notification failed:', err.message);
     }
   }, []);
 
-  // ═══════════════════════════════════════════════════════════
-  // Test sound (called from Alarms page or Settings)
-  // ═══════════════════════════════════════════════════════════
   const testSound = useCallback((priority = 'MEDIUM') => {
     playAlarmSound(priority);
   }, [playAlarmSound]);
 
   // ═══════════════════════════════════════════════════════════
   // GLOBAL SOCKET LISTENERS
+  // ✅ FIXED: Only register listeners if workspace user is active
   // ═══════════════════════════════════════════════════════════
   useEffect(() => {
+    // ✅ Guard: no listeners on super-admin or logged-out pages
+    if (!isWorkspaceUserContext()) return;
+
     const handleAlarmTriggered = (alarm) => {
       if (!alarm || !alarm.alarmName) return;
 
-      // ─── Dedup: skip if same alarm fired within DEDUP_WINDOW_MS ───
       const now = Date.now();
       const recentTime = recentAlarmsRef.current.get(alarm.alarmName);
-      if (recentTime && (now - recentTime) < DEDUP_WINDOW_MS) {
-        return; // Skip — recent duplicate
-      }
+      if (recentTime && (now - recentTime) < DEDUP_WINDOW_MS) return;
       recentAlarmsRef.current.set(alarm.alarmName, now);
 
-      // Cleanup old dedup entries (older than 60s)
       for (const [key, ts] of recentAlarmsRef.current.entries()) {
         if (now - ts > 60000) recentAlarmsRef.current.delete(key);
       }
 
-      // ─── Play sound (respects global enabled + per-alarm soundEnabled) ───
       const alarmSoundOk = alarm.soundEnabled !== false;
-      if (alarmSoundOk) {
-        playAlarmSound(alarm.priority || 'MEDIUM');
-      }
+      if (alarmSoundOk) playAlarmSound(alarm.priority || 'MEDIUM');
 
-      // ─── Browser notification (also for background tabs) ───
       showBrowserNotification(alarm);
 
-      // ─── In-app toast ───
       const toastType =
         alarm.priority === 'CRITICAL' ? 'error' :
-        alarm.priority === 'HIGH' ? 'warning' :
-        alarm.priority === 'MEDIUM' ? 'warning' :
-        'info';
+        alarm.priority === 'HIGH'     ? 'warning' :
+        alarm.priority === 'MEDIUM'   ? 'warning' : 'info';
 
       showToast(
         `🚨 ${alarm.priority || 'ALARM'}: ${alarm.alarmName}${alarm.message ? ` — ${alarm.message}` : ''}`,
@@ -254,9 +210,7 @@ export const AlarmNotificationProvider = ({ children }) => {
 
     const handleAlarmCleared = (alarm) => {
       if (!alarm || !alarm.alarmName) return;
-      // Clear dedup entry so re-trigger sounds again
       recentAlarmsRef.current.delete(alarm.alarmName);
-      // Optional: soft toast for cleared alarms (not urgent)
       showToast(`✅ Cleared: ${alarm.alarmName}`, 'success', 2500);
     };
 
@@ -269,9 +223,6 @@ export const AlarmNotificationProvider = ({ children }) => {
     };
   }, [playAlarmSound, showBrowserNotification, showToast]);
 
-  // ═══════════════════════════════════════════════════════════
-  // Context value
-  // ═══════════════════════════════════════════════════════════
   const value = {
     soundEnabled,
     setSoundEnabled,
@@ -288,13 +239,9 @@ export const AlarmNotificationProvider = ({ children }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// Hook to use in any component
-// ═══════════════════════════════════════════════════════════
 export const useAlarmNotification = () => {
   const ctx = useContext(AlarmNotificationContext);
   if (!ctx) {
-    // Fallback for components rendered outside provider (safety)
     console.warn('useAlarmNotification called outside AlarmNotificationProvider');
     return {
       soundEnabled: true,

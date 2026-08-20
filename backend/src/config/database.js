@@ -2,8 +2,15 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    
+    // ✅ Support BOTH names for backward compat
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+    if (!uri) {
+      throw new Error('MONGODB_URI (or MONGO_URI) not defined in .env file');
+    }
+
+    const conn = await mongoose.connect(uri);
+
     console.log('========================================');
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📦 Database Name: ${conn.connection.name}`);

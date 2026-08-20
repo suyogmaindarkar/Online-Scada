@@ -6,12 +6,12 @@ import UserList from '../components/users/UserList';
 import UserForm from '../components/users/UserForm';
 import ResetPasswordModal from '../components/users/ResetPasswordModal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
-
+import { useAuth } from '../context/AuthContext';
 const Users = () => {
   const { showToast } = useToast();
 
   // Get current user from localStorage
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const { userData: currentUser } = useAuth();
 
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);

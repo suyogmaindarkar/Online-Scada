@@ -1,36 +1,35 @@
 // ═══════════════════════════════════════════════════════════
-// UserActivityLog Model
-//
-// Task Bundle applied:
-//   ✅ T059  — Track user actions for audit log & reports
+// UserActivityLog Model — Multi-Tenant Update
+// Each activity log entry belongs to a company
 // ═══════════════════════════════════════════════════════════
 
 const mongoose = require('mongoose');
 
 const userActivityLogSchema = new mongoose.Schema(
   {
-    // Who did it
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
+      required: true,
+      index: true,
+    },
     username: {
       type: String,
       required: true,
       index: true,
     },
-    userRole: {
-      type: String,
-      default: 'unknown',
-    },
+    userRole: { type: String, default: 'unknown' },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: false,
     },
-
-    // What they did
     action: {
       type: String,
       required: true,
       enum: [
         'LOGIN', 'LOGOUT', 'LOGIN_FAILED',
+        'WORKSPACE_LOGIN', 'WORKSPACE_LOGIN_FAILED', 'WORKSPACE_LOGOUT',
         'TAG_CREATED', 'TAG_UPDATED', 'TAG_DELETED', 'TAG_WRITE',
         'PLC_CREATED', 'PLC_UPDATED', 'PLC_DELETED', 'PLC_STARTED', 'PLC_STOPPED',
         'ALARM_CREATED', 'ALARM_UPDATED', 'ALARM_DELETED', 'ALARM_ACKNOWLEDGED',
@@ -42,57 +41,19 @@ const userActivityLogSchema = new mongoose.Schema(
       ],
       index: true,
     },
-
-    // Target of the action (e.g., name of the tag/alarm/recipe affected)
-    target: {
-      type: String,
-      default: '',
-    },
-
-    // Human-readable description
-    description: {
-      type: String,
-      default: '',
-    },
-
-    // Additional context (JSON blob for flexibility)
-    metadata: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
-    },
-
-    // Client info
-    ipAddress: {
-      type: String,
-      default: '',
-    },
-    userAgent: {
-      type: String,
-      default: '',
-    },
-
-    // Success/Failure
-    success: {
-      type: Boolean,
-      default: true,
-    },
-    errorMessage: {
-      type: String,
-      default: '',
-    },
+    target:       { type: String, default: '' },
+    description:  { type: String, default: '' },
+    metadata:     { type: mongoose.Schema.Types.Mixed, default: {} },
+    ipAddress:    { type: String, default: '' },
+    userAgent:    { type: String, default: '' },
+    success:      { type: Boolean, default: true },
+    errorMessage: { type: String, default: '' },
   },
-  {
-    timestamps: true, // Adds createdAt + updatedAt
-  }
+  { timestamps: true }
 );
 
-// Indexes for efficient querying
-userActivityLogSchema.index({ createdAt: -1 });
-userActivityLogSchema.index({ username: 1, createdAt: -1 });
-userActivityLogSchema.index({ action: 1, createdAt: -1 });
-
-// TTL index — auto-delete logs older than 90 days (adjust as needed)
-// Uncomment to enable auto-cleanup:
-// userActivityLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+userActivityLogSchema.index({ companyId: 1, createdAt: -1 });
+userActivityLogSchema.index({ companyId: 1, username: 1, createdAt: -1 });
+userActivityLogSchema.index({ companyId: 1, action:   1, createdAt: -1 });
 
 module.exports = mongoose.model('UserActivityLog', userActivityLogSchema);

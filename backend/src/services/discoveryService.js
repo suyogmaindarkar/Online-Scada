@@ -232,8 +232,59 @@ class DiscoveryService {
       } catch { resolve(null); }
       setTimeout(() => resolve(null), 2000);
     });
-  }
 
+    
+  }
+  // ═══════════════════════════════════════════════════════════
+  // ✅ NEW: Detect if an IP is likely a PC (not a PLC)
+  // Checks for common PC-only services:
+  //   - HTTP (80, 443) — web browsers, IIS, Apache
+  //   - RDP (3389) — Windows Remote Desktop
+  //   - SMB (445) — Windows file sharing
+  //   - SSH (22) — Linux/Mac
+  //   - DNS (53) — usually routers/servers, not PLCs
+  //
+  // If device has 2+ PC services open → likely a PC → exclude
+  // ═══════════════════════════════════════════════════════════
+  async isLikelyPC(ip, timeout = 800) {
+    const pcPorts = [
+      { port: 80,   name: 'HTTP' },
+      { port: 443,  name: 'HTTPS' },
+      { port: 3389, name: 'RDP' },
+      { port: 445,  name: 'SMB' },
+      { port: 22,   name: 'SSH' },
+      { port: 135,  name: 'MSRPC' },
+      { port: 139,  name: 'NetBIOS' },
+      { port: 8080, name: 'HTTP-Alt' },
+    ];
+
+    const results = await Promise.all(
+      pcPorts.map(p => this.probePort(ip, p.port, timeout))
+    );
+
+    const openPcPorts = results
+      .filter(r => r.open)
+      .map((r, i) => pcPorts[i]);
+
+    // If 2+ PC-specific ports are open → very likely a PC
+    const pcScore = openPcPorts.length;
+
+    // RDP or SMB alone is a strong PC indicator
+    const hasRDP = openPcPorts.some(p => p.port === 3389);
+    const hasSMB = openPcPorts.some(p => p.port === 445);
+
+    const isPC = pcScore >= 2 || hasRDP || hasSMB;
+
+    if (isPC) {
+      console.log(`   🖥️  ${ip} identified as PC (open: ${openPcPorts.map(p => p.name).join(', ')})`);
+    }
+
+    return {
+      isPC,
+      pcScore,
+      openPcPorts: openPcPorts.map(p => p.name),
+    };
+  }
   lookupVendor(mac) {
     if (!mac) return null;
     const oui = mac.split(':').slice(0, 3).join(':').toUpperCase();
@@ -837,9 +888,17 @@ class DiscoveryService {
         this.scanProgress.scanned = 0;
         this.scanProgress.total   = deviceMap.size;
 
-        for (const [ip, ports] of deviceMap) {
+               for (const [ip, ports] of deviceMap) {
           console.log(`   🔬 Deep probing ${ip} (ports: ${ports.join(', ')})`);
           try {
+            // ✅ NEW: Check if this IP is likely a PC (not a PLC)
+            const pcCheck = await this.isLikelyPC(ip, 800);
+            if (pcCheck.isPC) {
+              console.log(`   🖥️  Skipping ${ip} — identified as PC (${pcCheck.openPcPorts.join(', ')})`);
+              this.scanProgress.scanned += 1;
+              continue; // Skip this device entirely
+            }
+
             const deviceInfo = await this.probeDevice(ip, ports);
             if (deviceInfo && !ownIPs.has(ip)) {
               devices.push(deviceInfo);
@@ -855,9 +914,16 @@ class DiscoveryService {
           this.scanProgress.scanned += 1;
           this.scanProgress.found = devices.filter(d => d.verified).length;
         }
-      } else {
+            } else {
         for (const [ip, ports] of deviceMap) {
           if (ownIPs.has(ip)) continue;
+
+          // ✅ Quick PC check even in fast mode
+          const pcCheck = await this.isLikelyPC(ip, 500);
+          if (pcCheck.isPC) {
+            console.log(`   🖥️  Skipping ${ip} — identified as PC`);
+            continue;
+          }
           const mac  = await this.getMacAddress(ip);
           const vendor = this.lookupVendor(mac);
           const prots  = this.identifyProtocols(ports);
@@ -926,11 +992,13 @@ class DiscoveryService {
     return score >= 5 ? 'high' : score >= 2 ? 'medium' : 'low';
   }
 
+    // ✅ FIXED: Default slot=0 for all Siemens PLCs
+  // Only use slot=2 if we POSITIVELY identify S7-300/400
   getRecommendedSettings(ip, ports, vendor, protocols, deepInfo = {}) {
     let bestProtocol = 'MODBUS_TCP';
     let bestPort     = 502;
     let rack         = 0;
-    let slot         = 0;
+    let slot         = 0; // ✅ Default slot=0 for everything
 
     if (ports.includes(4840)) {
       bestProtocol = 'OPC_UA';
@@ -939,8 +1007,30 @@ class DiscoveryService {
     } else if (ports.includes(102)) {
       bestProtocol = 'S7';
       bestPort     = 102;
-      const model = deepInfo?.model || '';
-      slot = (model.includes('1500') || model.includes('1200')) ? 0 : 2;
+
+      // ✅ FIXED: Only use slot=2 if we POSITIVELY identify S7-300 or S7-400
+      // Default is slot=0 (works for S7-1500, S7-1200, and most modern PLCs)
+      const model = (deepInfo?.model || '').toLowerCase();
+      const orderNum = (deepInfo?.orderNumber || '').toLowerCase();
+
+      const isS7_300 = model.includes('300') ||
+                        orderNum.startsWith('6es731') ||
+                        orderNum.startsWith('6es7 31');
+      const isS7_400 = model.includes('400') ||
+                        orderNum.startsWith('6es741') ||
+                        orderNum.startsWith('6es7 41');
+
+      if (isS7_300 || isS7_400) {
+        slot = 2; // Old S7-300/400 uses slot 2
+        console.log(`   📌 Detected S7-300/400 — using slot 2`);
+      } else {
+        slot = 0; // S7-1500, S7-1200, unknown → slot 0 (safest default)
+        if (model || orderNum) {
+          console.log(`   📌 Detected ${model || orderNum} — using slot 0`);
+        } else {
+          console.log(`   📌 Model unknown — defaulting to slot 0 (S7-1500/1200 standard)`);
+        }
+      }
     } else if (ports.includes(44818)) {
       bestProtocol = 'ETHERNET_IP';
       bestPort     = 44818;

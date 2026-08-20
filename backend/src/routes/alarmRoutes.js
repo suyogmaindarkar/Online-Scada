@@ -1,8 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Alarm Routes
-//
-// Task Bundle applied:
-//   ✅ T021  — GET /alarms/export for CSV download
+// Alarm Routes — Multi-Tenant Update
 // ═══════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -19,34 +16,32 @@ const {
   getAlarm,
   exportAlarmsCSV,
 } = require('../controllers/alarmController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-// All routes need login
-router.use(protect);
+// ✅ All routes require valid user token (injects req.companyId)
+router.use(userProtect);
 
 // Create alarm (admin/engineer only)
 router.post('/', authorize('admin', 'engineer'), createAlarm);
 
-// Get all alarms
+// Get all alarms (any role can view)
 router.get('/', getAllAlarms);
 
-// Get active alarms only
+// Get active alarms only (any role)
 router.get('/active', getActiveAlarms);
 
-// Get alarm history
+// Get alarm history (any role)
 router.get('/history', getAlarmHistory);
 
-// ✅ T021: Export alarms as CSV
-router.get('/export', exportAlarmsCSV);
+// Export alarms as CSV (admin/engineer)
+router.get('/export', authorize('admin', 'engineer'), exportAlarmsCSV);
 
-// Acknowledge ALL alarms at once
-router.post('/acknowledge-all', acknowledgeAllAlarms);
+// ✅ Acknowledge — operators CAN acknowledge, viewers CANNOT
+router.post('/acknowledge-all', authorize('admin', 'engineer', 'operator'), acknowledgeAllAlarms);
+router.post('/:id/acknowledge', authorize('admin', 'engineer', 'operator'), acknowledgeAlarm);
 
 // Get single alarm by ID
 router.get('/:id', getAlarm);
-
-// Acknowledge single alarm
-router.post('/:id/acknowledge', acknowledgeAlarm);
 
 // Update alarm (admin/engineer only)
 router.put('/:id', authorize('admin', 'engineer'), updateAlarm);

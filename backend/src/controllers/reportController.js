@@ -1,31 +1,25 @@
 // ═══════════════════════════════════════════════════════════
-// Report Controller — Generate & serve reports data
+// Report Controller — Multi-Tenant Update
 //
-// Task Bundle applied:
-//   ✅ T055  — Production report (tag aggregation)
-//   ✅ T056  — Alarm summary report
-//   ✅ T058  — Custom date range support
-//   ✅ T059  — User activity report
+// ✅ All queries scoped by req.companyId
+// ✅ logActivity helper includes companyId
 // ═══════════════════════════════════════════════════════════
 
 const Alarm = require('../models/Alarm');
 const AlarmHistory = require('../models/AlarmHistory');
 const Tag = require('../models/Tag');
 const UserActivityLog = require('../models/UserActivityLog');
-const { queryMultipleTagsHistory, getTagStatistics, isInfluxAvailable } = require('../services/influxService');
+const { queryCustomTimeRange, getTagStatistics, isInfluxAvailable } = require('../services/influxService');
 
-// ─── Helper: Parse date safely, fallback to defaults ─────────
 const parseDate = (str, fallback) => {
   if (!str) return fallback;
   const d = new Date(str);
   return isNaN(d.getTime()) ? fallback : d;
 };
 
-// ─── Helper: Get date range from preset or custom ────────────
 const resolveDateRange = (preset, startDate, endDate) => {
   const now = new Date();
   let start, end;
-
   switch (preset) {
     case 'today':
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
@@ -36,17 +30,11 @@ const resolveDateRange = (preset, startDate, endDate) => {
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
       break;
     case 'last7days':
-      start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      end = now;
-      break;
+      start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); end = now; break;
     case 'last30days':
-      start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      end = now;
-      break;
+      start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); end = now; break;
     case 'thisMonth':
-      start = new Date(now.getFullYear(), now.getMonth(), 1);
-      end = now;
-      break;
+      start = new Date(now.getFullYear(), now.getMonth(), 1); end = now; break;
     case 'lastMonth':
       start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
@@ -57,53 +45,38 @@ const resolveDateRange = (preset, startDate, endDate) => {
       end = parseDate(endDate, now);
       break;
   }
-
   return { start, end };
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T055: PRODUCTION REPORT
-// POST /api/reports/production
-// Body: { tagIds: [], preset: 'today'|'yesterday'|..., startDate, endDate, aggregation }
+// PRODUCTION REPORT (scoped)
 // ═══════════════════════════════════════════════════════════
 const getProductionReport = async (req, res) => {
   try {
-    const {
-      tagIds = [],
-      preset = 'today',
-      startDate,
-      endDate,
-      aggregation = '1h',
-    } = req.body;
+    const { tagIds = [], preset = 'today', startDate, endDate, aggregation = '1h' } = req.body;
 
     if (!Array.isArray(tagIds) || tagIds.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please select at least one tag',
-      });
+      return res.status(400).json({ success: false, message: 'Select at least one tag' });
     }
 
     const { start, end } = resolveDateRange(preset, startDate, endDate);
 
-    // ─── Fetch tag metadata ───
-    const tags = await Tag.find({ _id: { $in: tagIds } }).select('_id tagName unit dataType description');
-    const tagMap = new Map(tags.map(t => [t._id.toString(), t]));
+    // ✅ Only allow tags from THIS company
+    const tags = await Tag.find({
+      _id: { $in: tagIds },
+      companyId: req.companyId,
+    }).select('_id tagName unit dataType description');
 
-    // ─── Fetch time-series data from InfluxDB ───
+    const tagMap = new Map(tags.map(t => [t._id.toString(), t]));
     let timeSeries = [];
     let statistics = [];
 
     if (isInfluxAvailable()) {
       try {
-        // Convert custom range to InfluxDB-friendly format
         const startISO = start.toISOString();
         const endISO = end.toISOString();
-
-        // Fetch history using custom range query
-        const { queryCustomTimeRange } = require('../services/influxService');
         const rawData = await queryCustomTimeRange(tagIds, startISO, endISO, aggregation);
 
-        // Group by tagId
         const grouped = {};
         rawData.forEach((point) => {
           if (!grouped[point.tagId]) {
@@ -118,7 +91,6 @@ const getProductionReport = async (req, res) => {
         });
         timeSeries = Object.values(grouped);
 
-        // Compute statistics using timeRange helpers or manually from timeSeries
         for (const tagId of tagIds) {
           const series = grouped[tagId]?.data || [];
           if (series.length > 0) {
@@ -129,54 +101,38 @@ const getProductionReport = async (req, res) => {
               const sum = values.reduce((a, b) => a + b, 0);
               const mean = sum / values.length;
               const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
-              const stddev = Math.sqrt(variance);
               const first = series[0].value;
               const last = series[series.length - 1].value;
-              const delta = last - first;
-
               statistics.push({
-                tagId,
-                tagName: tagMap.get(tagId)?.tagName || 'Unknown',
+                tagId, tagName: tagMap.get(tagId)?.tagName || 'Unknown',
                 unit: tagMap.get(tagId)?.unit || '',
                 count: values.length,
-                min: parseFloat(min.toFixed(3)),
-                max: parseFloat(max.toFixed(3)),
-                mean: parseFloat(mean.toFixed(3)),
-                stddev: parseFloat(stddev.toFixed(3)),
-                range: parseFloat((max - min).toFixed(3)),
-                first: parseFloat(first?.toFixed?.(3) || first),
-                last: parseFloat(last?.toFixed?.(3) || last),
-                delta: parseFloat(delta.toFixed(3)),
+                min: +min.toFixed(3), max: +max.toFixed(3), mean: +mean.toFixed(3),
+                stddev: +Math.sqrt(variance).toFixed(3),
+                range: +(max - min).toFixed(3),
+                first: +first?.toFixed?.(3), last: +last?.toFixed?.(3),
+                delta: +(last - first).toFixed(3),
               });
             }
           } else {
             const tag = tagMap.get(tagId);
             statistics.push({
-              tagId,
-              tagName: tag?.tagName || 'Unknown',
-              unit: tag?.unit || '',
-              count: 0,
-              min: 0, max: 0, mean: 0, stddev: 0, range: 0,
-              first: null, last: null, delta: 0,
-              noData: true,
+              tagId, tagName: tag?.tagName || 'Unknown', unit: tag?.unit || '',
+              count: 0, min: 0, max: 0, mean: 0, stddev: 0, range: 0,
+              first: null, last: null, delta: 0, noData: true,
             });
           }
         }
       } catch (err) {
-        console.warn('InfluxDB query failed for production report:', err.message);
+        console.warn('InfluxDB query failed:', err.message);
       }
     } else {
-      // InfluxDB not available — return current values only
       tags.forEach(tag => {
         statistics.push({
-          tagId: tag._id.toString(),
-          tagName: tag.tagName,
-          unit: tag.unit || '',
-          count: 0,
-          min: 0, max: 0, mean: 0, stddev: 0, range: 0,
-          first: null, last: null, delta: 0,
-          noData: true,
-          reason: 'InfluxDB not configured — historical data unavailable',
+          tagId: tag._id.toString(), tagName: tag.tagName, unit: tag.unit || '',
+          count: 0, min: 0, max: 0, mean: 0, stddev: 0, range: 0,
+          first: null, last: null, delta: 0, noData: true,
+          reason: 'InfluxDB not configured',
         });
       });
     }
@@ -184,60 +140,36 @@ const getProductionReport = async (req, res) => {
     res.json({
       success: true,
       report: {
-        type: 'production',
-        title: 'Production Report',
-        generatedAt: new Date(),
-        dateRange: { start, end, preset },
+        type: 'production', title: 'Production Report',
+        generatedAt: new Date(), dateRange: { start, end, preset },
         aggregation,
-        tags: tags.map(t => ({
-          _id: t._id,
-          tagName: t.tagName,
-          unit: t.unit,
-          description: t.description,
-        })),
-        statistics,
-        timeSeries,
+        tags: tags.map(t => ({ _id: t._id, tagName: t.tagName, unit: t.unit, description: t.description })),
+        statistics, timeSeries,
         influxAvailable: isInfluxAvailable(),
       },
     });
   } catch (error) {
     console.error('Production Report Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate production report',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T056: ALARM SUMMARY REPORT
-// POST /api/reports/alarms
-// Body: { preset, startDate, endDate, priority }
+// ALARM SUMMARY REPORT (scoped)
 // ═══════════════════════════════════════════════════════════
 const getAlarmReport = async (req, res) => {
   try {
-    const {
-      preset = 'last7days',
-      startDate,
-      endDate,
-      priority = null,
-    } = req.body;
-
+    const { preset = 'last7days', startDate, endDate, priority = null } = req.body;
     const { start, end } = resolveDateRange(preset, startDate, endDate);
 
-    // ─── Build filter ───
     const filter = {
+      companyId: req.companyId, // ✅ MULTI-TENANT
       timestamp: { $gte: start, $lte: end },
     };
     if (priority) filter.priority = priority.toUpperCase();
 
-    // ─── Fetch alarm history ───
-    const history = await AlarmHistory.find(filter)
-      .sort({ timestamp: -1 })
-      .limit(5000); // Cap at 5000 for performance
+    const history = await AlarmHistory.find(filter).sort({ timestamp: -1 }).limit(5000);
 
-    // ─── Compute summary stats ───
     const triggeredEvents = history.filter(h => h.event === 'TRIGGERED');
     const clearedEvents = history.filter(h => h.event === 'CLEARED');
     const ackedEvents = history.filter(h => h.event === 'ACKNOWLEDGED');
@@ -249,45 +181,37 @@ const getAlarmReport = async (req, res) => {
       LOW: triggeredEvents.filter(h => h.priority === 'LOW').length,
     };
 
-    // ─── Top 10 most frequent alarms ───
     const alarmCounts = {};
-    triggeredEvents.forEach(h => {
-      alarmCounts[h.alarmName] = (alarmCounts[h.alarmName] || 0) + 1;
-    });
+    triggeredEvents.forEach(h => { alarmCounts[h.alarmName] = (alarmCounts[h.alarmName] || 0) + 1; });
     const topAlarms = Object.entries(alarmCounts)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // ─── Timeline (hourly buckets) ───
     const hoursDiff = Math.ceil((end - start) / (60 * 60 * 1000));
-    const bucketSize = hoursDiff <= 24 ? 60 * 60 * 1000 :        // 1h buckets if <= 24h
-                       hoursDiff <= 168 ? 6 * 60 * 60 * 1000 :    // 6h buckets if <= 7d
-                       24 * 60 * 60 * 1000;                        // daily buckets otherwise
+    const bucketSize = hoursDiff <= 24 ? 3600000 : hoursDiff <= 168 ? 21600000 : 86400000;
 
     const buckets = new Map();
     triggeredEvents.forEach(h => {
-      const bucketTime = Math.floor(new Date(h.timestamp).getTime() / bucketSize) * bucketSize;
-      const key = new Date(bucketTime).toISOString();
-      if (!buckets.has(key)) {
-        buckets.set(key, { time: key, CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, total: 0 });
-      }
+      const key = new Date(Math.floor(new Date(h.timestamp).getTime() / bucketSize) * bucketSize).toISOString();
+      if (!buckets.has(key)) buckets.set(key, { time: key, CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, total: 0 });
       const bucket = buckets.get(key);
       bucket[h.priority] = (bucket[h.priority] || 0) + 1;
       bucket.total += 1;
     });
     const timeline = Array.from(buckets.values()).sort((a, b) => new Date(a.time) - new Date(b.time));
 
-    // ─── Currently active alarms ───
-    const activeAlarms = await Alarm.find({ isActive: true }).sort({ triggeredAt: -1 });
+    // ✅ Active alarms scoped
+    const activeAlarms = await Alarm.find({
+      companyId: req.companyId,
+      isActive: true,
+    }).sort({ triggeredAt: -1 });
 
     res.json({
       success: true,
       report: {
-        type: 'alarms',
-        title: 'Alarm Summary Report',
-        generatedAt: new Date(),
-        dateRange: { start, end, preset },
+        type: 'alarms', title: 'Alarm Summary Report',
+        generatedAt: new Date(), dateRange: { start, end, preset },
         summary: {
           totalTriggered: triggeredEvents.length,
           totalCleared: clearedEvents.length,
@@ -296,53 +220,35 @@ const getAlarmReport = async (req, res) => {
           currentlyUnacked: activeAlarms.filter(a => !a.isAcknowledged).length,
           byPriority,
         },
-        topAlarms,
-        timeline,
-        history: history.slice(0, 500), // Return top 500 for table display
+        topAlarms, timeline,
+        history: history.slice(0, 500),
         activeAlarms,
         historyTotalCount: history.length,
       },
     });
   } catch (error) {
     console.error('Alarm Report Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate alarm report',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T059: USER ACTIVITY REPORT
-// POST /api/reports/activity
-// Body: { preset, startDate, endDate, username, action }
+// USER ACTIVITY REPORT (scoped)
 // ═══════════════════════════════════════════════════════════
 const getActivityReport = async (req, res) => {
   try {
-    const {
-      preset = 'today',
-      startDate,
-      endDate,
-      username = null,
-      action = null,
-    } = req.body;
-
+    const { preset = 'today', startDate, endDate, username = null, action = null } = req.body;
     const { start, end } = resolveDateRange(preset, startDate, endDate);
 
-    // ─── Build filter ───
     const filter = {
+      companyId: req.companyId, // ✅ MULTI-TENANT
       createdAt: { $gte: start, $lte: end },
     };
     if (username) filter.username = username;
     if (action) filter.action = action;
 
-    // ─── Fetch activity logs ───
-    const logs = await UserActivityLog.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(5000);
+    const logs = await UserActivityLog.find(filter).sort({ createdAt: -1 }).limit(5000);
 
-    // ─── Compute summary stats ───
     const byAction = {};
     const byUser = {};
     const successCount = { success: 0, failed: 0 };
@@ -354,28 +260,21 @@ const getActivityReport = async (req, res) => {
       else successCount.failed += 1;
     });
 
-    // Top users
     const topUsers = Object.entries(byUser)
       .map(([name, count]) => ({ username: name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .sort((a, b) => b.count - a.count).slice(0, 10);
 
-    // Top actions
     const topActions = Object.entries(byAction)
       .map(([name, count]) => ({ action: name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .sort((a, b) => b.count - a.count).slice(0, 10);
 
-    // Login events only
     const loginEvents = logs.filter(l => ['LOGIN', 'LOGIN_FAILED', 'LOGOUT'].includes(l.action));
 
     res.json({
       success: true,
       report: {
-        type: 'activity',
-        title: 'User Activity Report',
-        generatedAt: new Date(),
-        dateRange: { start, end, preset },
+        type: 'activity', title: 'User Activity Report',
+        generatedAt: new Date(), dateRange: { start, end, preset },
         summary: {
           totalEvents: logs.length,
           uniqueUsers: Object.keys(byUser).length,
@@ -384,56 +283,51 @@ const getActivityReport = async (req, res) => {
           loginCount: logs.filter(l => l.action === 'LOGIN').length,
           failedLoginCount: logs.filter(l => l.action === 'LOGIN_FAILED').length,
         },
-        topUsers,
-        topActions,
+        topUsers, topActions,
         loginEvents: loginEvents.slice(0, 200),
-        logs: logs.slice(0, 500), // Top 500 for table
+        logs: logs.slice(0, 500),
         totalCount: logs.length,
       },
     });
   } catch (error) {
     console.error('Activity Report Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate activity report',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ═══════════════════════════════════════════════════════════
-// LOG activity helper (called by other controllers)
-// Internal use only — export for reuse
+// logActivity helper (multi-tenant aware)
 // ═══════════════════════════════════════════════════════════
 const logActivity = async (data) => {
   try {
+    if (!data || !data.companyId || !data.username || !data.action) {
+      console.warn('[logActivity] Missing required fields — skipping');
+      return;
+    }
     await UserActivityLog.create({
-      username: data.username || 'unknown',
-      userRole: data.userRole || 'unknown',
-      userId: data.userId || null,
-      action: data.action,
-      target: data.target || '',
-      description: data.description || '',
-      metadata: data.metadata || {},
-      ipAddress: data.ipAddress || '',
-      userAgent: data.userAgent || '',
-      success: data.success !== false,
+      companyId:    data.companyId,
+      username:     data.username,
+      userRole:     data.userRole    || 'unknown',
+      userId:       data.userId      || null,
+      action:       data.action,
+      target:       data.target      || '',
+      description:  data.description || '',
+      metadata:     data.metadata    || {},
+      ipAddress:    data.ipAddress   || '',
+      userAgent:    data.userAgent   || '',
+      success:      data.success !== false,
       errorMessage: data.errorMessage || '',
     });
   } catch (err) {
-    console.warn('Failed to log activity:', err.message);
-    // Silent — don't break the main flow if logging fails
+    console.warn('[logActivity] Failed:', err.message);
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// GET RECENT ACTIVITY (used elsewhere too)
-// GET /api/reports/activity/recent?limit=50
-// ═══════════════════════════════════════════════════════════
+// ─── Recent Activity (scoped) ───
 const getRecentActivity = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
-    const logs = await UserActivityLog.find()
+    const logs = await UserActivityLog.find({ companyId: req.companyId })
       .sort({ createdAt: -1 })
       .limit(limit);
     res.json({ success: true, count: logs.length, logs });

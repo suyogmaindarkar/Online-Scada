@@ -1,10 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // PLC Management — Blue theme + CSV + Discovery Phase 3
-// Phase 3 upgrades:
-//   ✅ Shows OPC UA SoftwareVersion (= firmware for S7-1500)
-//   ✅ PC own-IP exclusion notice in UI
-//   ✅ Protocol recommendation shows slot/rack in card
-//   ✅ Removed dedicated PLCSIM probe section
+// FIXED: Button styling — uniform size, visible text, clean hierarchy
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -27,11 +23,116 @@ const C = {
   bg:         '#F8FAFC', card:      '#FFFFFF', cardSubtle: '#F8FAFC',
   cardHover:  '#EEF6FF', border:    '#E5E7EB', heading:    '#081B43',
   text:       '#334155', muted:     '#5F6B7A', subtle:     '#94A3B8',
-  brand:      '#2563EB', brandDark: '#0F3D91', btnPrimary: '#081B43',
-  btnHover:   '#123E8A', success:   '#16A34A', warning:    '#F59E0B',
+  brand:      '#2563EB', brandDark: '#0F3D91', btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8', success:   '#16A34A', warning:    '#F59E0B',
   danger:     '#DC2626', purple:    '#9333EA', purpleDark: '#6B21A8',
   teal:       '#0891B2', tealDark:  '#0E7490',
   verified:   '#059669',
+};
+
+// ═══════════════════════════════════════════════════════════
+// ✅ REUSABLE BUTTON COMPONENT — uniform styling for all pages
+// Copy this to your other 4 pages (TagManagement, Recipes, Users, Reports)
+// ═══════════════════════════════════════════════════════════
+const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disabled, loading, title }) => {
+  const variants = {
+    // Primary — solid blue, white text (the MAIN action)
+    primary: {
+      bg: '#2563EB',
+      bgHover: '#1D4ED8',
+      color: '#FFFFFF',
+      border: 'transparent',
+      shadow: '0px 2px 8px rgba(37,99,235,0.25)',
+    },
+    // Secondary — outlined blue (secondary actions)
+    secondary: {
+      bg: '#FFFFFF',
+      bgHover: '#EEF6FF',
+      color: '#2563EB',
+      border: '#2563EB',
+      shadow: 'none',
+    },
+    // Purple — outlined (Quick Simulation type)
+    purple: {
+      bg: '#FFFFFF',
+      bgHover: '#F5F3FF',
+      color: '#7C3AED',
+      border: '#9333EA',
+      shadow: 'none',
+    },
+    // Amber — outlined (Import type)
+    amber: {
+      bg: '#FFFFFF',
+      bgHover: '#FEF3C7',
+      color: '#D97706',
+      border: '#F59E0B',
+      shadow: 'none',
+    },
+    // Green — outlined (Export type)
+    green: {
+      bg: '#FFFFFF',
+      bgHover: '#DCFCE7',
+      color: '#16A34A',
+      border: '#16A34A',
+      shadow: 'none',
+    },
+    // Teal — outlined (Discover PLC type)
+    teal: {
+      bg: '#FFFFFF',
+      bgHover: '#CFFAFE',
+      color: '#0E7490',
+      border: '#0891B2',
+      shadow: 'none',
+    },
+  };
+
+  const v = variants[variant] || variants.primary;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || loading}
+      title={title}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        height: '40px',
+        padding: '0 16px',
+        borderRadius: '8px',
+        background: v.bg,
+        color: v.color,
+        border: `1.5px solid ${v.border}`,
+        fontSize: '13px',
+        fontWeight: 600,
+        fontFamily: "'Montserrat', sans-serif",
+        cursor: (disabled || loading) ? 'not-allowed' : 'pointer',
+        opacity: (disabled || loading) ? 0.5 : 1,
+        boxShadow: v.shadow,
+        transition: 'all 0.15s ease',
+        whiteSpace: 'nowrap',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled && !loading) {
+          e.currentTarget.style.background = v.bgHover;
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled && !loading) {
+          e.currentTarget.style.background = v.bg;
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
+    >
+      {loading
+        ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+        : Icon && <Icon size={16} strokeWidth={2.2} />
+      }
+      {children}
+    </button>
+  );
 };
 
 const CONF_MAP = {
@@ -350,41 +451,28 @@ const PLCManagement = () => {
               <p className="text-sm mt-0.5" style={{ color: C.muted }}>Configure & manage PLC connections</p>
             </div>
           </div>
+
+          {/* ✅ CLEAN BUTTON BAR — uniform styling, clear hierarchy */}
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={handleOpenDiscovery}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all"
-              style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealDark} 100%)`, boxShadow: '0px 4px 12px rgba(8,145,178,0.30)', fontFamily: "'Montserrat', sans-serif" }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-              <Radar className="w-5 h-5" /> Discover PLCs
-            </button>
-            <button onClick={handleQuickSimulation} disabled={creatingSim}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
-              style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.purpleDark} 100%)`, boxShadow: '0px 4px 12px rgba(147,51,234,0.30)', fontFamily: "'Montserrat', sans-serif" }}
-              onMouseEnter={e => { if (!creatingSim) e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { if (!creatingSim) e.currentTarget.style.transform = 'translateY(0)'; }}>
-              {creatingSim ? <><Loader2 className="w-5 h-5 animate-spin" />Creating…</> : <><Sparkles className="w-5 h-5" />Quick Simulation PLC</>}
-            </button>
-            <button onClick={handleOpenImport}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold"
-              style={{ background: C.warning, color: '#FFF', fontFamily: "'Montserrat', sans-serif" }}
-              onMouseEnter={e => e.currentTarget.style.background = '#D97706'}
-              onMouseLeave={e => e.currentTarget.style.background = C.warning}>
-              <Upload className="w-4 h-4" /> Import CSV
-            </button>
-            <button onClick={handleExportCSV}
+            <ActionButton variant="teal" icon={Radar} onClick={handleOpenDiscovery} title="Scan network for PLCs">
+              Discover PLCs
+            </ActionButton>
+            <ActionButton variant="purple" icon={Sparkles} onClick={handleQuickSimulation}
+              disabled={creatingSim} loading={creatingSim}
+              title="Create simulation PLC with demo tags">
+              {creatingSim ? 'Creating…' : 'Quick Simulation'}
+            </ActionButton>
+            <ActionButton variant="amber" icon={Upload} onClick={handleOpenImport} title="Import PLCs from CSV">
+              Import CSV
+            </ActionButton>
+            <ActionButton variant="green" icon={Download} onClick={handleExportCSV}
               disabled={exporting || plcs.filter(p => !p.isSimulation).length === 0}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
-              style={{ background: C.success, color: '#FFF', fontFamily: "'Montserrat', sans-serif" }}>
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Export CSV
-            </button>
-            <button onClick={handleOpenAdd}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-semibold transition-all"
-              style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
-              onMouseEnter={e => e.currentTarget.style.background = C.btnHover}
-              onMouseLeave={e => e.currentTarget.style.background = C.btnPrimary}>
-              <Plus className="w-5 h-5" /> Add PLC
-            </button>
+              loading={exporting} title="Export PLCs to CSV">
+              Export CSV
+            </ActionButton>
+            <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd} title="Add new PLC">
+              Add PLC
+            </ActionButton>
           </div>
         </div>
       </div>
@@ -396,7 +484,7 @@ const PLCManagement = () => {
           <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: C.purple }} />
           <div className="flex-1 text-sm">
             <p className="font-semibold" style={{ color: C.purpleDark }}>Try the Quick Simulation PLC!</p>
-            <p className="mt-0.5" style={{ color: C.text }}>Click <strong>"Quick Simulation PLC"</strong> to instantly create a virtual PLC with 5 demo tags.</p>
+            <p className="mt-0.5" style={{ color: C.text }}>Click <strong>"Quick Simulation"</strong> to instantly create a virtual PLC with 5 demo tags.</p>
           </div>
         </div>
       )}
@@ -416,22 +504,16 @@ const PLCManagement = () => {
             <h3 className="text-xl font-bold mb-2" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>No PLCs Configured</h3>
             <p className="text-sm max-w-md mx-auto mb-6" style={{ color: C.muted }}>Discover PLCs on your network, add a real PLC, or try a Simulation PLC.</p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
-              <button onClick={handleOpenDiscovery}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold"
-                style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealDark} 100%)`, fontFamily: "'Montserrat', sans-serif" }}>
-                <Radar className="w-4 h-4" /> Discover PLCs
-              </button>
-              <button onClick={handleQuickSimulation} disabled={creatingSim}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold disabled:opacity-50"
-                style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.purpleDark} 100%)`, fontFamily: "'Montserrat', sans-serif" }}>
-                {creatingSim ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              <ActionButton variant="teal" icon={Radar} onClick={handleOpenDiscovery}>
+                Discover PLCs
+              </ActionButton>
+              <ActionButton variant="purple" icon={Sparkles} onClick={handleQuickSimulation}
+                disabled={creatingSim} loading={creatingSim}>
                 {creatingSim ? 'Creating…' : 'Try Simulation'}
-              </button>
-              <button onClick={handleOpenAdd}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold"
-                style={{ background: C.card, color: C.heading, border: `1px solid ${C.border}` }}>
-                <Plus className="w-4 h-4" /> Add PLC
-              </button>
+              </ActionButton>
+              <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>
+                Add PLC
+              </ActionButton>
             </div>
           </div>
         ) : (
@@ -557,12 +639,25 @@ const PLCManagement = () => {
           <FormField label="Model" name="model" value={formData.model} onChange={handleInputChange} />
           <div className="flex gap-3 pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
             <button type="button" onClick={() => setShowModal(false)}
-              className="flex-1 px-4 py-2.5 rounded-lg font-semibold"
-              style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}>Cancel</button>
-            <button type="submit" className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white"
-              style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+              className="flex-1"
+              style={{
+                height: '40px', padding: '0 16px',
+                borderRadius: '8px', background: '#FFFFFF',
+                border: `1.5px solid ${C.border}`, color: C.heading,
+                fontSize: '13px', fontWeight: 600,
+                fontFamily: "'Montserrat', sans-serif", cursor: 'pointer',
+              }}>Cancel</button>
+            <button type="submit" className="flex-1"
+              style={{
+                height: '40px', padding: '0 16px',
+                borderRadius: '8px', background: C.brand,
+                color: '#FFFFFF', border: 'none',
+                fontSize: '13px', fontWeight: 600,
+                fontFamily: "'Montserrat', sans-serif", cursor: 'pointer',
+                boxShadow: '0px 2px 8px rgba(37,99,235,0.25)',
+              }}
               onMouseEnter={e => e.currentTarget.style.background = C.btnHover}
-              onMouseLeave={e => e.currentTarget.style.background = C.btnPrimary}>
+              onMouseLeave={e => e.currentTarget.style.background = C.brand}>
               {editingPLC ? 'Update PLC' : 'Create PLC'}
             </button>
           </div>
@@ -589,10 +684,9 @@ const PLCManagement = () => {
                 <p className="font-semibold" style={{ color: C.heading }}>Need a template?</p>
                 <p className="mt-0.5" style={{ color: C.text }}>Download a CSV template with example rows.</p>
               </div>
-              <button onClick={handleDownloadTemplate} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
-                style={{ background: C.brand }}>
-                <Download className="w-3 h-3 inline mr-1" /> Template
-              </button>
+              <ActionButton variant="secondary" icon={Download} onClick={handleDownloadTemplate}>
+                Template
+              </ActionButton>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2" style={{ color: C.heading }}>Select CSV File</label>
@@ -631,11 +725,24 @@ const PLCManagement = () => {
               </div>
             </div>
             <div className="flex gap-3 pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
-              <button onClick={handleCloseImport} className="flex-1 px-4 py-2.5 rounded-lg font-semibold"
-                style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}>Cancel</button>
+              <button onClick={handleCloseImport} className="flex-1"
+                style={{
+                  height: '40px', padding: '0 16px',
+                  borderRadius: '8px', background: '#FFFFFF',
+                  border: `1.5px solid ${C.border}`, color: C.heading,
+                  fontSize: '13px', fontWeight: 600,
+                  fontFamily: "'Montserrat', sans-serif", cursor: 'pointer',
+                }}>Cancel</button>
               <button onClick={handleImportSubmit} disabled={importing || !importCsvText.trim()}
-                className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}>
+                className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
+                style={{
+                  height: '40px', padding: '0 16px',
+                  borderRadius: '8px', background: C.brand,
+                  color: '#FFFFFF', border: 'none',
+                  fontSize: '13px', fontWeight: 600,
+                  fontFamily: "'Montserrat', sans-serif", cursor: 'pointer',
+                  boxShadow: '0px 2px 8px rgba(37,99,235,0.25)',
+                }}>
                 {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {importing ? 'Importing…' : 'Import PLCs'}
               </button>
@@ -763,12 +870,21 @@ const PLCManagement = () => {
           {!scanResults && (
             <div className="space-y-2">
               <button onClick={handleStartScan} disabled={scanning}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-semibold transition-all disabled:opacity-70"
+                className="w-full flex items-center justify-center gap-2"
                 style={{
-                  background: scanning ? C.subtle : `linear-gradient(135deg, ${C.teal} 0%, ${C.tealDark} 100%)`,
-                  boxShadow: scanning ? 'none' : '0px 4px 12px rgba(8,145,178,0.30)',
-                  fontFamily: "'Montserrat', sans-serif", fontSize: '15px',
-                }}>
+                  height: '48px', padding: '0 16px',
+                  borderRadius: '8px',
+                  background: scanning ? C.subtle : C.brand,
+                  color: '#FFFFFF', border: 'none',
+                  fontSize: '14px', fontWeight: 700,
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: scanning ? 'not-allowed' : 'pointer',
+                  opacity: scanning ? 0.7 : 1,
+                  boxShadow: scanning ? 'none' : '0px 4px 12px rgba(37,99,235,0.30)',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { if (!scanning) e.currentTarget.style.background = C.btnHover; }}
+                onMouseLeave={e => { if (!scanning) e.currentTarget.style.background = C.brand; }}>
                 {scanning
                   ? <><Loader2 className="w-5 h-5 animate-spin" />Scanning… (may take 15–60 seconds)</>
                   : <><Radar className="w-5 h-5" />Start Network Scan</>}
@@ -876,7 +992,6 @@ const PLCManagement = () => {
                         <div className="p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              {/* Badges */}
                               <div className="flex items-center gap-2 flex-wrap mb-2">
                                 {device.verified && (
                                   <span className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full"
@@ -902,7 +1017,6 @@ const PLCManagement = () => {
                                 )}
                               </div>
 
-                              {/* IP + vendor + hostname + MAC */}
                               <div className="flex items-center gap-3 flex-wrap">
                                 <span className="font-mono font-bold text-sm" style={{ color: C.brand }}>📍 {device.ip}</span>
                                 <span className="font-semibold text-sm" style={{ color: C.heading }}>{device.vendorName}</span>
@@ -918,7 +1032,6 @@ const PLCManagement = () => {
                                 )}
                               </div>
 
-                              {/* Deep info rows */}
                               {hasDeepInfo && (
                                 <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
                                   {device.deepInfo.model && (
@@ -949,7 +1062,6 @@ const PLCManagement = () => {
                                 </div>
                               )}
 
-                              {/* Protocols + recommended */}
                               <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                                 <span className="text-[10px] font-semibold uppercase" style={{ color: C.muted }}>Protocols:</span>
                                 {device.protocols.map(p => (
@@ -964,7 +1076,6 @@ const PLCManagement = () => {
                                 ))}
                               </div>
 
-                              {/* Recommended settings preview */}
                               <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                                 <p className="text-[11px] italic" style={{ color: C.muted }}>
                                   💡 {device.recommended.reasonForRecommendation}
@@ -975,28 +1086,33 @@ const PLCManagement = () => {
                               </div>
                             </div>
 
-                            {/* Action buttons */}
                             <div className="flex flex-col gap-2 flex-shrink-0">
-                              <button onClick={() => handleAddDiscovered(device)} disabled={isAdded}
-                                className="px-4 py-2 rounded-lg font-semibold text-white text-sm transition-all whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
-                                style={{ background: isAdded ? C.subtle : C.btnPrimary, fontFamily: "'Montserrat', sans-serif", boxShadow: isAdded ? 'none' : '0px 2px 6px rgba(8,27,67,0.25)' }}
-                                onMouseEnter={e => { if (!isAdded) e.currentTarget.style.background = C.btnHover; }}
-                                onMouseLeave={e => { if (!isAdded) e.currentTarget.style.background = C.btnPrimary; }}>
-                                {isAdded ? '✓ Added' : '+ Add PLC'}
-                              </button>
-                              <button onClick={() => handleReprobe(device)} disabled={!!probingIP}
-                                className="px-3 py-1.5 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5 disabled:opacity-40"
-                                style={{ background: `${C.teal}15`, color: C.teal, border: `1px solid ${C.teal}50`, fontFamily: "'Montserrat', sans-serif" }}
-                                onMouseEnter={e => { if (!probingIP) e.currentTarget.style.background = `${C.teal}25`; }}
-                                onMouseLeave={e => { if (!probingIP) e.currentTarget.style.background = `${C.teal}15`; }}>
-                                {isReprobing
-                                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Probing…</>
-                                  : <><Microscope className="w-3.5 h-3.5" />Re-probe</>}
-                              </button>
+                              <ActionButton
+                                variant={isAdded ? "secondary" : "primary"}
+                                icon={isAdded ? CheckCircle2 : Plus}
+                                onClick={() => handleAddDiscovered(device)}
+                                disabled={isAdded}
+                              >
+                                {isAdded ? 'Added' : 'Add PLC'}
+                              </ActionButton>
+                              <ActionButton
+                                variant="teal"
+                                icon={isReprobing ? Loader2 : Microscope}
+                                onClick={() => handleReprobe(device)}
+                                disabled={!!probingIP}
+                                loading={isReprobing}
+                              >
+                                {isReprobing ? 'Probing…' : 'Re-probe'}
+                              </ActionButton>
                               {device.probeResults && (
                                 <button onClick={() => toggleExpanded(device.ip)}
-                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
-                                  style={{ background: C.cardSubtle, color: C.muted, border: `1px solid ${C.border}` }}>
+                                  className="text-xs font-semibold flex items-center justify-center gap-1"
+                                  style={{
+                                    height: '32px', padding: '0 12px',
+                                    borderRadius: '6px', background: C.cardSubtle,
+                                    color: C.muted, border: `1px solid ${C.border}`,
+                                    cursor: 'pointer', fontFamily: "'Montserrat', sans-serif",
+                                  }}>
                                   {isExpanded
                                     ? <><ChevronUp className="w-3 h-3" />Less</>
                                     : <><ChevronDown className="w-3 h-3" />Details</>}
@@ -1006,7 +1122,6 @@ const PLCManagement = () => {
                           </div>
                         </div>
 
-                        {/* Expanded raw probe results */}
                         {isExpanded && device.probeResults && (
                           <div className="px-4 pb-4">
                             <div className="pt-3" style={{ borderTop: `1px solid ${C.border}` }}>
@@ -1046,16 +1161,14 @@ const PLCManagement = () => {
               )}
 
               <div className="flex gap-3 pt-3" style={{ borderTop: `1px solid ${C.border}` }}>
-                <button onClick={() => { setScanResults(null); setScanPhase('idle'); }}
-                  className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
-                  style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}>
-                  <RefreshCw className="w-4 h-4" /> Scan Again
-                </button>
-                <button onClick={() => { setShowDiscoveryModal(false); setScanResults(null); }}
-                  className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white text-sm"
-                  style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}>
+                <ActionButton variant="secondary" icon={RefreshCw}
+                  onClick={() => { setScanResults(null); setScanPhase('idle'); }}>
+                  Scan Again
+                </ActionButton>
+                <ActionButton variant="primary"
+                  onClick={() => { setShowDiscoveryModal(false); setScanResults(null); }}>
                   Close
-                </button>
+                </ActionButton>
               </div>
             </div>
           )}

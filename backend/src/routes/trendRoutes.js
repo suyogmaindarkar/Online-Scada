@@ -1,9 +1,10 @@
-// ============================================
-// Trend Routes
-//
-// Task Bundle applied:
-//   ✅ T023  — POST /trends/export CSV endpoint
-// ============================================
+// ═══════════════════════════════════════════════════════════
+// Trend Routes — Multi-Tenant Update
+// Note: trendController.js queries InfluxDB which is not
+// tenant-scoped YET (InfluxDB stores by tagName, not companyId).
+// But the routes now require userProtect for auth.
+// Phase 6+ will add InfluxDB tenant scoping if needed.
+// ═══════════════════════════════════════════════════════════
 
 const express = require('express');
 const router = express.Router();
@@ -15,28 +16,16 @@ const {
   getLatestValue,
   exportTrendCSV,
 } = require('../controllers/trendController');
+const { userProtect } = require('../middleware/auth');
 
-const { protect } = require('../middleware/auth');
+// ✅ All routes require valid user token
+router.use(userProtect);
 
-// All routes are protected
-router.use(protect);
-
-// Single tag history — GET /api/trends/history/:tagId?timeRange=1h&aggregation=10s
 router.get('/history/:tagId', getTagHistory);
-
-// Multiple tags history — POST /api/trends/history/multiple
 router.post('/history/multiple', getMultipleTagsHistory);
-
-// Custom time range — POST /api/trends/history/custom
 router.post('/history/custom', getCustomRangeHistory);
-
-// Statistics — GET /api/trends/stats/:tagId?timeRange=1h
 router.get('/stats/:tagId', getTagStats);
-
-// Latest value — GET /api/trends/latest/:tagId
 router.get('/latest/:tagId', getLatestValue);
-
-// ✅ T023: Server-side CSV export — POST /api/trends/export
 router.post('/export', exportTrendCSV);
 
 module.exports = router;

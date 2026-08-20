@@ -4,96 +4,181 @@ const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// ─── Request interceptor — attach token ───────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// REQUEST INTERCEPTOR — Smart Token Attachment
+// ═══════════════════════════════════════════════════════════
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const url = config.url || '';
+
+    // ─── Determine which token to use based on URL ───
+    let token = null;
+
+    if (url.includes('/super-admin') && !url.includes('/super-admin/login')) {
+      // Super admin endpoints
+      token = localStorage.getItem('superAdminToken');
+    } else if (url.includes('/workspace/verify')) {
+      // Public — no token needed
+      token = null;
+    } else if (url.includes('/workspace/login-user') || url.includes('/workspace/users')) {
+      // Step 2 endpoints — use workspace token
+      token = localStorage.getItem('workspaceToken');
+    } else {
+      // ✅ EVERYTHING ELSE — use userToken
+      token = localStorage.getItem('userToken');
+    }
+ // ✅ ADD THIS DEBUG LINE:
+    console.log(`[INTERCEPTOR] ${config.method?.toUpperCase()} ${url} | token=${token ? 'YES(' + token.substring(0, 10) + '...)' : 'NULL'}`);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ─── Response interceptor — T009: handle token expiry gracefully ──────────
+// ═══════════════════════════════════════════════════════════
+// RESPONSE INTERCEPTOR — Handle 401 gracefully
+// ✅ FIXED: Never redirects super-admin pages to /login
+// ═══════════════════════════════════════════════════════════
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      const code = error.response?.data?.code;
-      const message = error.response?.data?.message || 'Session expired';
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
 
-      // Clear auth data
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+    const code = error.response?.data?.code;
+    const currentPath = window.location.pathname;
 
-      // Only redirect if not already on login page
-      if (window.location.pathname !== '/login') {
-        // ✅ T009: Pass a reason message so Login page can show a toast
-        const reason = code === 'TOKEN_EXPIRED'
-          ? 'Your session has expired. Please log in again.'
-          : message;
+    // ─── Don't redirect if already on auth pages ───
+    const publicPaths = ['/login', '/select-user'];
+    if (publicPaths.includes(currentPath)) {
+      return Promise.reject(error);
+    }
 
-        // Store reason briefly so Login page can read + display it
-        sessionStorage.setItem('authRedirectReason', reason);
+    // ✅ NEW: Super-admin pages use different auth — never redirect to /login
+    if (currentPath.startsWith('/super-admin')) {
+      return Promise.reject(error);
+    }
+
+    // ─── Only redirect on specific critical auth failures ───
+    // NOT on every 401 — some 401s are from background API calls
+    // that shouldn't trigger a full redirect
+    const criticalCodes = [
+      'TOKEN_EXPIRED',
+      'NO_USER_TOKEN',
+      'USER_NOT_FOUND',
+      'USER_INACTIVE',
+      'WORKSPACE_INACCESSIBLE',
+      'TENANT_MISMATCH',
+    ];
+
+    if (criticalCodes.includes(code)) {
+      console.warn(`[API] Critical auth failure: ${code} — redirecting`);
+
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userData');
+
+      const workspaceToken = localStorage.getItem('workspaceToken');
+      if (workspaceToken && code === 'TOKEN_EXPIRED') {
+        sessionStorage.setItem('authRedirectReason', 'Session expired. Please sign in again.');
+        window.location.href = '/select-user';
+      } else {
+        localStorage.removeItem('workspaceToken');
+        localStorage.removeItem('workspaceData');
+        sessionStorage.setItem('authRedirectReason', 'Please log in again.');
         window.location.href = '/login';
       }
+    } else {
+      console.warn(`[API] 401 on ${error.config?.url}: ${error.response?.data?.message || 'Unauthorized'}`);
     }
+
     return Promise.reject(error);
   }
 );
+
 // ═══════════════════════════════════════════════════════════
 // SCREEN TYPE UTILITIES
 // ═══════════════════════════════════════════════════════════
-
-/** Get the template screen (or null if none exists) */
 export const getTemplateScreen = (screens) => {
   return screens?.find(s => s.isTemplate === true) || null;
 };
-
-/** Get regular user screens (not template, not popup) */
 export const getRegularScreens = (screens) => {
   return screens?.filter(s => !s.isTemplate && !s.isPopup) || [];
 };
-
-/** Get popup screens */
 export const getPopupScreens = (screens) => {
   return screens?.filter(s => s.isPopup === true) || [];
 };
-
-/** Merge template elements INTO a regular screen's elements
- *  Template elements get: templateElement:true flag + go FIRST (rendered underneath).
- *  Returns new array, doesn't mutate.
- */
 export const mergeTemplateElements = (screenElements, templateScreen) => {
   if (!templateScreen || !Array.isArray(templateScreen.elements)) {
     return screenElements || [];
   }
   const templateEls = templateScreen.elements.map(el => ({
     ...el,
-    _isTemplateElement: true, // marker so UI can style/lock them
+    _isTemplateElement: true,
   }));
   return [...templateEls, ...(screenElements || [])];
 };
 
+// ═══════════════════════════════════════════════════════════
+// ✅ NEW: WORKSPACE API (Multi-Tenant Auth)
+// ═══════════════════════════════════════════════════════════
+export const workspaceAPI = {
+  // Step 1: Verify workspace + admin credentials
+  verify: (slug, adminEmail, adminPassword) =>
+    api.post('/workspace/verify', { slug, adminEmail, adminPassword }),
 
-// ===== AUTH APIs =====
+  // Refresh user list (uses workspaceToken)
+  getUsers: () => api.get('/workspace/users'),
+
+  // Step 2: Login as specific user
+  loginUser: (userId, password) =>
+    api.post('/workspace/login-user', { userId, password }),
+
+  // Get current user + company info (uses userToken)
+  getMe: () => api.get('/workspace/me'),
+
+  // Logout user only (keep workspace session)
+  logoutUser: () => api.post('/workspace/logout-user'),
+
+  // Full logout (clear both tokens)
+  logoutAll: () => api.post('/workspace/logout-all'),
+};
+
+// ═══════════════════════════════════════════════════════════
+// ✅ NEW: SUPER ADMIN API
+// ═══════════════════════════════════════════════════════════
+export const superAdminAPI = {
+  login: (email, password) =>
+    api.post('/super-admin/login', { email, password }),
+  listCompanies: () => api.get('/super-admin/companies'),
+  createCompany: (data) => api.post('/super-admin/companies', data),
+  updateCompany: (id, data) => api.put(`/super-admin/companies/${id}`, data),
+  deleteCompany: (id) => api.delete(`/super-admin/companies/${id}`, { data: { confirm: 'DELETE' } }),
+  resetCompanyAdminPassword: (id, newPassword) =>
+    api.post(`/super-admin/companies/${id}/reset-admin`, { newPassword }),
+};
+
+// ═══════════════════════════════════════════════════════════
+// LEGACY AUTH APIs — kept for backward compat (return 410 now)
+// ═══════════════════════════════════════════════════════════
 export const authAPI = {
-  login: (data) => api.post('/auth/login', data),
-  register: (data) => api.post('/auth/register', data),
+  login: (data) => api.post('/auth/login', data), // deprecated
+  register: (data) => api.post('/auth/register', data), // deprecated
   getMe: () => api.get('/auth/me'),
   getAllUsers: () => api.get('/auth/users'),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
 };
 
-// ===== USER MANAGEMENT APIs =====
+// ═══════════════════════════════════════════════════════════
+// USER MANAGEMENT APIs (scoped to current company)
+// ═══════════════════════════════════════════════════════════
 export const userAPI = {
   getAll: (filters = {}) => {
     const params = new URLSearchParams(filters);
@@ -111,7 +196,10 @@ export const userAPI = {
   getStats: () => api.get('/users/stats'),
 };
 
-// ===== PLC APIs =====
+// ═══════════════════════════════════════════════════════════
+// PLC / TAG / SCREEN / ALARM / RECIPE / SETTINGS APIs
+// (unchanged — will be scoped by companyId in Phase 5)
+// ═══════════════════════════════════════════════════════════
 export const plcAPI = {
   getAll: () => api.get('/plc'),
   getOne: (id) => api.get(`/plc/${id}`),
@@ -122,14 +210,13 @@ export const plcAPI = {
   stop: (id) => api.post(`/plc/${id}/stop`),
   getStatus: (id) => api.get(`/plc/${id}/status`),
   testConnection: (id) => api.post(`/plc/${id}/test`),
-   quickSimulation: () => api.post('/plc/quick-simulation'),
-exportCSV: () => api.get('/plc/export/csv', { responseType: 'blob' }),
+  quickSimulation: () => api.post('/plc/quick-simulation'),
+  exportCSV: () => api.get('/plc/export/csv', { responseType: 'blob' }),
   downloadTemplate: () => api.get('/plc/template/csv', { responseType: 'blob' }),
   importCSV: (csvText, mode = 'create') =>
     api.post('/plc/import/csv', { csvText, mode }),
 };
 
-// ===== TAG APIs =====
 export const tagAPI = {
   getAll: (filters = {}) => {
     const params = new URLSearchParams(filters);
@@ -142,13 +229,12 @@ export const tagAPI = {
   delete: (id) => api.delete(`/tags/${id}`),
   writeValue: (tagName, value) => api.post('/tags/write', { tagName, value }),
   getGroups: () => api.get('/tags/groups'),
-exportCSV: () => api.get('/tags/export/csv', { responseType: 'blob' }),
+  exportCSV: () => api.get('/tags/export/csv', { responseType: 'blob' }),
   downloadTemplate: () => api.get('/tags/template/csv', { responseType: 'blob' }),
   importCSV: (csvText, mode = 'create') =>
     api.post('/tags/import/csv', { csvText, mode }),
 };
 
-// ===== SCREEN APIs =====
 export const screenAPI = {
   getAll: () => api.get('/screens'),
   getOne: (id) => api.get(`/screens/${id}`),
@@ -156,15 +242,15 @@ export const screenAPI = {
   update: (id, data) => api.put(`/screens/${id}`, data),
   delete: (id) => api.delete(`/screens/${id}`),
 };
-// ===== DISCOVERY APIs =====
+
 export const discoveryAPI = {
   getNetworks: () => api.get('/discovery/networks'),
   startScan: (options = {}) => api.post('/discovery/scan', options),
   getProgress: () => api.get('/discovery/progress'),
   cancelScan: () => api.post('/discovery/cancel'),
-   probeDevice:  (ip, ports) => api.post('/discovery/probe', { ip, ports }),
+  probeDevice: (ip, ports) => api.post('/discovery/probe', { ip, ports }),
 };
-// ===== GRAPHICS APIs =====
+
 export const graphicsAPI = {
   getAllGraphics: () => api.get('/graphics'),
   createGraphic: (data) => api.post('/graphics', data),
@@ -172,7 +258,6 @@ export const graphicsAPI = {
   deleteGraphic: (id) => api.delete(`/graphics/${id}`),
 };
 
-// ===== ALARM APIs =====
 export const alarmAPI = {
   getAll: (filters = {}) => {
     const params = new URLSearchParams(filters);
@@ -189,7 +274,6 @@ export const alarmAPI = {
   delete: (id) => api.delete(`/alarms/${id}`),
   acknowledge: (id) => api.post(`/alarms/${id}/acknowledge`),
   acknowledgeAll: () => api.post('/alarms/acknowledge-all'),
-  // Backward compatibility aliases
   getAllAlarms: () => api.get('/alarms'),
   getActiveAlarms: () => api.get('/alarms/active'),
   createAlarm: (data) => api.post('/alarms', data),
@@ -198,7 +282,6 @@ export const alarmAPI = {
   acknowledgeAlarm: (id) => api.post(`/alarms/${id}/acknowledge`),
 };
 
-// ===== RECIPE APIs (updated) =====
 export const recipeAPI = {
   getAll: (filters = {}) => {
     const params = new URLSearchParams(filters);
@@ -211,23 +294,16 @@ export const recipeAPI = {
   execute: (id, note = '') => api.post(`/recipes/${id}/execute`, { note }),
   snapshot: (data) => api.post('/recipes/snapshot', data),
   getCategories: () => api.get('/recipes/categories'),
-
-  // ✅ T054: Duplicate
   duplicate: (id, newName) => api.post(`/recipes/${id}/duplicate`, { newName }),
-
-  // ✅ T052: Execution logs
   getLogs: (filters = {}) => {
     const params = new URLSearchParams(filters);
     return api.get(`/recipes/logs?${params}`);
   },
   getLog: (logId) => api.get(`/recipes/logs/${logId}`),
-
-  // ✅ T053: Version history
   getVersions: (id) => api.get(`/recipes/${id}/versions`),
   restoreVersion: (id, versionIndex) => api.post(`/recipes/${id}/restore/${versionIndex}`),
 };
 
-// ===== SETTINGS API =====
 export const settingsAPI = {
   getAll: () => api.get('/settings'),
   getSystemInfo: () => api.get('/settings/system-info'),
@@ -238,10 +314,9 @@ export const settingsAPI = {
   reset: (section = null) => api.post('/settings/reset', { section }),
 };
 
-// ===== DEFAULT EXPORT =====
 export default api;
 
-// ─── TREND APIs ────────────────────────────────────────────────────────────
+// ─── TREND APIs ────────────────────────────────────────────
 export const getTagHistory = (tagId, timeRange = '1h', aggregation = '10s') =>
   api.get(`/trends/history/${tagId}`, { params: { timeRange, aggregation } });
 

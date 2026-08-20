@@ -1,6 +1,6 @@
-// ============================================
-// User Routes
-// ============================================
+// ═══════════════════════════════════════════════════════════
+// User Routes — Multi-Tenant Update
+// ═══════════════════════════════════════════════════════════
 
 const express = require('express');
 const router = express.Router();
@@ -15,10 +15,10 @@ const {
   toggleActive,
   getUserStats,
 } = require('../controllers/userController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-// All routes require login
-router.use(protect);
+// ✅ All routes require valid user token (injects req.companyId)
+router.use(userProtect);
 
 // User own password change (any logged-in user)
 router.put('/change-password', changePassword);

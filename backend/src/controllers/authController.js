@@ -1,220 +1,58 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { logActivity } = require('./reportController');
+// ═══════════════════════════════════════════════════════════
+// Legacy Auth Controller — SIMPLIFIED
+//
+// The old /api/auth/login is now DEPRECATED.
+// Use /api/workspace/verify + /api/workspace/login-user instead.
+//
+// This file is kept for backward compat with any code still calling
+// /api/auth/me — it now returns the same as /api/workspace/me
+// ═══════════════════════════════════════════════════════════
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
+const User = require('../models/User');
+
+// ─── DEPRECATED — old single-step login ─────────────────────
+const login = (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'This endpoint is deprecated. Use /api/workspace/verify then /api/workspace/login-user',
+    code: 'ENDPOINT_DEPRECATED',
+    hint: 'Update your frontend to use the two-step workspace login flow.',
   });
 };
 
-// ===== REGISTER USER =====
-const register = async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
-
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide username, email, and password',
-      });
-    }
-
-    const userExists = await User.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User with this email or username already exists',
-      });
-    }
-
-    let permissions = {
-      canDesign: false,
-      canManageTags: false,
-      canControlPLC: false,
-      canViewRuntime: true,
-      canManageUsers: false,
-    };
-
-    if (role === 'admin') {
-      permissions = {
-        canDesign: true,
-        canManageTags: true,
-        canControlPLC: true,
-        canViewRuntime: true,
-        canManageUsers: true,
-      };
-    } else if (role === 'engineer') {
-      permissions = {
-        canDesign: true,
-        canManageTags: true,
-        canControlPLC: true,
-        canViewRuntime: true,
-        canManageUsers: false,
-      };
-    } else if (role === 'operator') {
-      permissions = {
-        canDesign: false,
-        canManageTags: false,
-        canControlPLC: true,
-        canViewRuntime: true,
-        canManageUsers: false,
-      };
-    }
-
-    const user = await User.create({
-      username,
-      email,
-      password,
-      role: role || 'operator',
-      permissions,
-    });
-
-    if (user) {
-      res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        data: {
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          permissions: user.permissions,
-          token: generateToken(user._id),
-        },
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message,
-    });
-  }
+// ─── DEPRECATED — old registration ──────────────────────────
+const register = (req, res) => {
+  res.status(410).json({
+    success: false,
+    message: 'Self-registration disabled. Contact your workspace admin to create user accounts.',
+    code: 'ENDPOINT_DEPRECATED',
+  });
 };
 
-// ===== LOGIN USER =====
-const login = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    console.log('🔐 Login attempt:', { username, password: '***' });
-
-    // Validation
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide username and password',
-      });
-    }
-
-// After successful login:
-await logActivity({
-  username: user.username,
-  userRole: user.role,
-  userId: user._id,
-  action: 'LOGIN',
-  description: `User logged in`,
-  ipAddress: req.ip || req.headers['x-forwarded-for'] || '',
-  userAgent: req.headers['user-agent'] || '',
-});
-
-// On failed login (before returning 401):
-await logActivity({
-  username: username || 'unknown',
-  action: 'LOGIN_FAILED',
-  description: `Failed login attempt`,
-  ipAddress: req.ip || '',
-  userAgent: req.headers['user-agent'] || '',
-  success: false,
-  errorMessage: 'Invalid credentials',
-});
-
-    // Find user (include password field)
-    const user = await User.findOne({
-      $or: [{ username }, { email: username }],
-    }).select('+password');
-
-    console.log('👤 User lookup result:', user ? { username: user.username, email: user.email, hasPassword: !!user.password } : 'User not found');
-
-    // ✅ STEP 2 — User not found → log failed attempt → return 401
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
-    }
-
-    // ✅ STEP 3 — Check if account is active
-    if (!user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: 'Account is deactivated. Contact administrator.',
-      });
-    }
-
-    // ✅ STEP 4 — Check password
-    const isMatch = await user.comparePassword(password);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
-    }
-
-    // ✅ STEP 5 — Successful login → update lastLogin → log → respond
-    user.lastLogin = Date.now();
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        permissions: user.permissions,
-        lastLogin: user.lastLogin,
-        token: generateToken(user._id),
-      },
-    });
-  } catch (error) {
-    console.error('❌ Login error:', error.message);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message,
-    });
-  }
-};
-
-// ===== GET CURRENT USER =====
+// ─── Kept — get current user ────────────────────────────────
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    // req.user is set by userProtect middleware
     res.json({
       success: true,
-      data: user,
+      data: req.user,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
+      message: 'Server error',
       error: error.message,
     });
   }
 };
 
-// ===== GET ALL USERS (Admin only) =====
+// ─── Kept — list users (admin only, scoped to company) ─────
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find({ companyId: req.companyId })
+      .select('-password')
+      .sort({ role: 1, fullName: 1 });
+
     res.json({
       success: true,
       count: users.length,
@@ -223,69 +61,82 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
+      message: 'Server error',
       error: error.message,
     });
   }
 };
 
-// ===== UPDATE USER =====
+// ─── Kept — update user (scoped to company) ────────────────
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // Can only update users in same company
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.id, companyId: req.companyId },
+      req.body,
+      { new: true, runValidators: true }
+    );
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: 'User not found in this workspace',
       });
     }
 
     res.json({
       success: true,
-      message: 'User updated successfully',
+      message: 'User updated',
       data: user,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
+      message: 'Server error',
       error: error.message,
     });
   }
 };
 
-// ===== DELETE USER =====
+// ─── Kept — delete user (scoped to company) ────────────────
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    // Prevent deleting yourself
+    if (String(req.params.id) === String(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account',
+      });
+    }
+
+    const user = await User.findOneAndDelete({
+      _id: req.params.id,
+      companyId: req.companyId,
+    });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: 'User not found in this workspace',
       });
     }
 
     res.json({
       success: true,
-      message: 'User deleted successfully',
+      message: 'User deleted',
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
+      message: 'Server error',
       error: error.message,
     });
   }
 };
 
 module.exports = {
-  register,
-  login,
+  register,       // deprecated
+  login,          // deprecated
   getMe,
   getAllUsers,
   updateUser,

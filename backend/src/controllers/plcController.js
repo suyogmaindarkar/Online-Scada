@@ -1,10 +1,9 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Controller
+// PLC Controller — Multi-Tenant Update
 //
-// Task Bundle applied:
-//   ✅ SIM   — Quick simulation + auto-cleanup (previous round)
-//   ✅ T062  — Bulk PLC import from CSV
-//   ✅ BONUS — PLC CSV export + template download
+// ✅ All queries scoped by req.companyId
+// ✅ All creates include companyId
+// ✅ Plan limit enforcement (maxPLCs)
 // ═══════════════════════════════════════════════════════════
 
 const plcManager = require('../services/plcManager');
@@ -13,7 +12,7 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 
 // ─────────────────────────────────────────────────────────
-// CSV UTILITIES (same as tagController — could be extracted)
+// CSV UTILITIES (unchanged)
 // ─────────────────────────────────────────────────────────
 const csvEscape = (v) => {
   const s = v === null || v === undefined ? '' : String(v);
@@ -63,9 +62,9 @@ const parseCSV = (csvText) => {
   return { headers, rows };
 };
 
-// ─── Helper: Find next available simulation IP (10.0.0.100+) ───
-const getNextSimIP = async () => {
-  const existingSimPLCs = await PLCConnection.find({ isSimulation: true }).select('ipAddress');
+// ─── Helper: Find next available simulation IP (SCOPED TO COMPANY) ───
+const getNextSimIP = async (companyId) => {
+  const existingSimPLCs = await PLCConnection.find({ companyId, isSimulation: true }).select('ipAddress');
   const usedIPs = new Set(existingSimPLCs.map(p => p.ipAddress));
   for (let i = 100; i <= 199; i++) {
     const candidate = `10.0.0.${i}`;
@@ -74,8 +73,8 @@ const getNextSimIP = async () => {
   return `10.0.0.${100 + Math.floor(Math.random() * 100)}`;
 };
 
-const getNextSimPrefix = async () => {
-  const existingPrefixes = await PLCConnection.find({ isSimulation: true }).select('simulationPrefix');
+const getNextSimPrefix = async (companyId) => {
+  const existingPrefixes = await PLCConnection.find({ companyId, isSimulation: true }).select('simulationPrefix');
   const used = new Set(existingPrefixes.map(p => p.simulationPrefix));
   if (!used.has('SIM_')) return 'SIM_';
   for (let i = 2; i <= 20; i++) {
@@ -85,8 +84,8 @@ const getNextSimPrefix = async () => {
   return `SIM${Date.now()}_`;
 };
 
-const getNextSimName = async () => {
-  const existingNames = await PLCConnection.find({ isSimulation: true }).select('name');
+const getNextSimName = async (companyId) => {
+  const existingNames = await PLCConnection.find({ companyId, isSimulation: true }).select('name');
   const used = new Set(existingNames.map(p => p.name));
   if (!used.has('Demo PLC')) return 'Demo PLC';
   for (let i = 2; i <= 20; i++) {
@@ -94,6 +93,21 @@ const getNextSimName = async () => {
     if (!used.has(candidate)) return candidate;
   }
   return `Demo PLC ${Date.now()}`;
+};
+
+// ─── Helper: Check plan limits ───
+const checkPLCLimit = async (req) => {
+  const currentCount = await PLCConnection.countDocuments({ companyId: req.companyId });
+  const maxPLCs = req.company?.limits?.maxPLCs || 999;
+  if (currentCount >= maxPLCs) {
+    return {
+      exceeded: true,
+      current: currentCount,
+      max: maxPLCs,
+      message: `Plan limit reached: ${currentCount}/${maxPLCs} PLCs. Upgrade your plan to add more.`,
+    };
+  }
+  return { exceeded: false };
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -110,9 +124,16 @@ const createPLC = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Name and protocol are required' });
     }
 
-    const exists = await PLCConnection.findOne({ name });
+    // ✅ Plan limit check
+    const limitCheck = await checkPLCLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({ success: false, message: limitCheck.message, code: 'PLAN_LIMIT_EXCEEDED' });
+    }
+
+    // ✅ Uniqueness check SCOPED to company
+    const exists = await PLCConnection.findOne({ companyId: req.companyId, name });
     if (exists) {
-      return res.status(400).json({ success: false, message: 'PLC with this name already exists' });
+      return res.status(400).json({ success: false, message: 'PLC with this name already exists in this workspace' });
     }
 
     let defaultPort = 502;
@@ -121,6 +142,7 @@ const createPLC = async (req, res) => {
     if (protocol === 'ETHERNET_IP') defaultPort = 44818;
 
     const plc = await PLCConnection.create({
+      companyId: req.companyId, // ✅ MULTI-TENANT
       name,
       description: description || '',
       protocol,
@@ -144,15 +166,22 @@ const createPLC = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// QUICK-CREATE Simulation PLC (previous round)
+// QUICK-CREATE Simulation PLC
 // ═══════════════════════════════════════════════════════════
 const createQuickSimulationPLC = async (req, res) => {
   try {
-    const name = await getNextSimName();
-    const ipAddress = await getNextSimIP();
-    const simulationPrefix = await getNextSimPrefix();
+    // ✅ Plan limit check
+    const limitCheck = await checkPLCLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({ success: false, message: limitCheck.message, code: 'PLAN_LIMIT_EXCEEDED' });
+    }
+
+    const name = await getNextSimName(req.companyId);
+    const ipAddress = await getNextSimIP(req.companyId);
+    const simulationPrefix = await getNextSimPrefix(req.companyId);
 
     const plc = await PLCConnection.create({
+      companyId: req.companyId, // ✅ MULTI-TENANT
       name,
       description: `Auto-generated simulation PLC with 5 demo tags`,
       protocol: 'SIMULATION',
@@ -172,8 +201,8 @@ const createQuickSimulationPLC = async (req, res) => {
       console.warn('Auto-start of sim PLC failed:', startErr.message);
     }
 
-    const updated = await PLCConnection.findById(plc._id);
-    const tagCount = await Tag.countDocuments({ plcConnection: plc._id });
+    const updated = await PLCConnection.findOne({ _id: plc._id, companyId: req.companyId });
+    const tagCount = await Tag.countDocuments({ companyId: req.companyId, plcConnection: plc._id });
 
     res.status(201).json({
       success: true,
@@ -187,15 +216,15 @@ const createQuickSimulationPLC = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// GET ALL PLCs
+// GET ALL PLCs (scoped to company)
 // ═══════════════════════════════════════════════════════════
 const getAllPLCs = async (req, res) => {
   try {
-    const plcs = await PLCConnection.find().sort({ createdAt: -1 });
+    const plcs = await PLCConnection.find({ companyId: req.companyId }).sort({ createdAt: -1 });
 
     const plcsWithCount = await Promise.all(
       plcs.map(async (plc) => {
-        const tagCount = await Tag.countDocuments({ plcConnection: plc._id });
+        const tagCount = await Tag.countDocuments({ companyId: req.companyId, plcConnection: plc._id });
         return { ...plc.toObject(), tagCount };
       })
     );
@@ -207,13 +236,13 @@ const getAllPLCs = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// GET SINGLE PLC
+// GET SINGLE PLC (scoped to company)
 // ═══════════════════════════════════════════════════════════
 const getPLC = async (req, res) => {
   try {
-    const plc = await PLCConnection.findById(req.params.id);
-    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
-    const tagCount = await Tag.countDocuments({ plcConnection: plc._id });
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+    const tagCount = await Tag.countDocuments({ companyId: req.companyId, plcConnection: plc._id });
     res.json({ success: true, data: { ...plc.toObject(), tagCount } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -221,14 +250,19 @@ const getPLC = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// UPDATE PLC
+// UPDATE PLC (scoped to company)
 // ═══════════════════════════════════════════════════════════
 const updatePLC = async (req, res) => {
   try {
-    const plc = await PLCConnection.findByIdAndUpdate(
-      req.params.id, req.body, { new: true, runValidators: true }
+    // Prevent companyId from being changed
+    delete req.body.companyId;
+
+    const plc = await PLCConnection.findOneAndUpdate(
+      { _id: req.params.id, companyId: req.companyId },
+      req.body,
+      { new: true, runValidators: true }
     );
-    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
     res.json({ success: true, message: 'PLC updated successfully', data: plc });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -236,20 +270,21 @@ const updatePLC = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// DELETE PLC — Auto-cleanup sim tags
+// DELETE PLC (scoped to company)
 // ═══════════════════════════════════════════════════════════
 const deletePLC = async (req, res) => {
   try {
-    const plc = await PLCConnection.findById(req.params.id);
-    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
 
     try { await plcManager.stop(plc._id); } catch {}
 
     if (plc.isSimulation) {
-      const deletedCount = await simulationService.deleteSimulationTags(plc._id);
-      console.log(`🗑️  Cleaned up ${deletedCount} simulation tags for ${plc.name}`);
+      // Delete sim tags scoped to this company
+      const deletedCount = await Tag.deleteMany({ companyId: req.companyId, plcConnection: plc._id, isSimulationTag: true });
+      console.log(`🗑️  Cleaned up ${deletedCount.deletedCount} simulation tags for ${plc.name}`);
     } else {
-      const tagCount = await Tag.countDocuments({ plcConnection: plc._id });
+      const tagCount = await Tag.countDocuments({ companyId: req.companyId, plcConnection: plc._id });
       if (tagCount > 0) {
         return res.status(400).json({
           success: false,
@@ -258,7 +293,7 @@ const deletePLC = async (req, res) => {
       }
     }
 
-    await PLCConnection.findByIdAndDelete(req.params.id);
+    await PLCConnection.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
 
     res.json({
       success: true,
@@ -272,12 +307,12 @@ const deletePLC = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// TEST PLC CONNECTION
+// TEST PLC CONNECTION (scoped)
 // ═══════════════════════════════════════════════════════════
 const testPLCConnection = async (req, res) => {
   try {
-    const plc = await PLCConnection.findById(req.params.id);
-    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
 
     if (plc.protocol === 'SIMULATION') {
       plc.isConnected = true;
@@ -301,10 +336,14 @@ const testPLCConnection = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// START / STOP / STATUS
+// START / STOP / STATUS (scoped)
 // ═══════════════════════════════════════════════════════════
 const startPLC = async (req, res) => {
   try {
+    // Verify PLC belongs to this company first
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+
     const result = await plcManager.start(req.params.id);
     res.json(result);
   } catch (error) {
@@ -314,6 +353,9 @@ const startPLC = async (req, res) => {
 
 const stopPLC = async (req, res) => {
   try {
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+
     const result = await plcManager.stop(req.params.id);
     res.json(result);
   } catch (error) {
@@ -323,8 +365,8 @@ const stopPLC = async (req, res) => {
 
 const getPLCStatus = async (req, res) => {
   try {
-    const plc = await PLCConnection.findById(req.params.id);
-    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
     const isRunning = plcManager.isRunning(plc._id, plc.protocol);
     res.json({
       success: true,
@@ -344,14 +386,14 @@ const getPLCStatus = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ BONUS: EXPORT PLCs AS CSV
-// GET /api/plc/export/csv
+// EXPORT PLCs AS CSV (scoped)
 // ═══════════════════════════════════════════════════════════
 const exportPLCsCSV = async (req, res) => {
   try {
-    // Exclude simulation PLCs (they auto-regenerate)
-    const plcs = await PLCConnection.find({ isSimulation: { $ne: true } })
-      .sort({ name: 1 });
+    const plcs = await PLCConnection.find({
+      companyId: req.companyId,
+      isSimulation: { $ne: true },
+    }).sort({ name: 1 });
 
     const headers = [
       'name', 'description', 'protocol', 'ipAddress', 'port',
@@ -360,6 +402,7 @@ const exportPLCsCSV = async (req, res) => {
 
     let csv = '';
     csv += `# OnlineSCADA PLC Export\n`;
+    csv += `# Workspace: ${req.company?.slug || 'unknown'}\n`;
     csv += `# Generated: ${new Date().toISOString()}\n`;
     csv += `# Total PLCs: ${plcs.length}\n`;
     csv += `# Note: Simulation PLCs are excluded from export.\n`;
@@ -395,8 +438,7 @@ const exportPLCsCSV = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ BONUS: DOWNLOAD PLC CSV TEMPLATE
-// GET /api/plc/template/csv
+// DOWNLOAD PLC CSV TEMPLATE (unchanged — template is static)
 // ═══════════════════════════════════════════════════════════
 const downloadPLCTemplate = async (req, res) => {
   const headers = [
@@ -430,11 +472,7 @@ Water_System,Water treatment PLC,MODBUS_TCP,192.168.1.30,502,0,1,ALLEN_BRADLEY,M
 };
 
 // ═══════════════════════════════════════════════════════════
-// ✅ T062: IMPORT PLCs FROM CSV
-// POST /api/plc/import/csv    Body: { csvText, mode: 'create' | 'update' | 'upsert' }
-// ═══════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════
-// ✅ T062: IMPORT PLCs FROM CSV (hardened — case-insensitive)
+// IMPORT PLCs FROM CSV (scoped + plan limit check)
 // ═══════════════════════════════════════════════════════════
 const importPLCsCSV = async (req, res) => {
   try {
@@ -446,24 +484,15 @@ const importPLCsCSV = async (req, res) => {
 
     const { headers, rows } = parseCSV(csvText);
 
-    console.log(`📥 PLC import: detected ${headers.length} headers, ${rows.length} data rows`);
-    console.log(`   Headers: [${headers.join(', ')}]`);
+    console.log(`📥 PLC import [${req.companySlug}]: ${headers.length} headers, ${rows.length} rows`);
 
     if (headers.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'CSV appears to be empty or contains only comment lines.',
-      });
+      return res.status(400).json({ success: false, message: 'CSV appears to be empty or contains only comment lines.' });
     }
-
     if (rows.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'CSV has headers but no data rows.',
-      });
+      return res.status(400).json({ success: false, message: 'CSV has headers but no data rows.' });
     }
 
-    // Case-insensitive header check
     const findHeader = (target) => {
       const lower = target.toLowerCase();
       return headers.find(h => h.toLowerCase() === lower);
@@ -477,30 +506,27 @@ const importPLCsCSV = async (req, res) => {
         success: false,
         message:
           `CSV is missing required headers: ${missingHeaders.join(', ')}.\n\n` +
-          `Detected headers: [${headers.join(', ')}].\n\n` +
-          `Tip: Download a fresh template if unsure of the format.`,
+          `Detected headers: [${headers.join(', ')}].`,
       });
     }
 
-    // Normalize row keys to lowercase
+    // ✅ Plan limit check — how many can we still add?
+    const currentCount = await PLCConnection.countDocuments({ companyId: req.companyId });
+    const maxPLCs = req.company?.limits?.maxPLCs || 999;
+    const slotsRemaining = Math.max(0, maxPLCs - currentCount);
+
     const normalizeRow = (row) => {
       const normalized = {};
-      Object.keys(row).forEach((key) => {
-        normalized[key.toLowerCase().trim()] = row[key];
-      });
+      Object.keys(row).forEach((key) => { normalized[key.toLowerCase().trim()] = row[key]; });
       return normalized;
     };
 
-    const results = {
-      total: rows.length,
-      created: [],
-      updated: [],
-      skipped: [],
-      failed: [],
-    };
+    const results = { total: rows.length, created: [], updated: [], skipped: [], failed: [] };
 
     const validProtocols = ['MODBUS_TCP', 'MODBUS_RTU', 'S7', 'OPC_UA', 'ETHERNET_IP', 'SIMULATION'];
     const validBrands = ['SIEMENS', 'ALLEN_BRADLEY', 'SCHNEIDER', 'DELTA', 'MITSUBISHI', 'OMRON', 'OTHER', 'SIMULATION'];
+
+    let createdCount = 0;
 
     for (let i = 0; i < rows.length; i++) {
       const rowRaw = rows[i];
@@ -511,33 +537,19 @@ const importPLCsCSV = async (req, res) => {
         const name = (row.name || '').trim();
         const protocol = (row.protocol || '').trim();
 
-        if (!name) {
-          results.failed.push({ row: rowNum, error: 'Missing name' });
-          continue;
-        }
-        if (!protocol) {
-          results.failed.push({ row: rowNum, name, error: 'Missing protocol' });
-          continue;
-        }
+        if (!name) { results.failed.push({ row: rowNum, error: 'Missing name' }); continue; }
+        if (!protocol) { results.failed.push({ row: rowNum, name, error: 'Missing protocol' }); continue; }
 
         const upperProtocol = protocol.toUpperCase();
         if (!validProtocols.includes(upperProtocol)) {
-          results.failed.push({
-            row: rowNum,
-            name,
-            error: `Invalid protocol '${protocol}'. Valid: ${validProtocols.join(', ')}`,
-          });
+          results.failed.push({ row: rowNum, name, error: `Invalid protocol '${protocol}'` });
           continue;
         }
 
         const brand = (row.brand || 'OTHER').trim() || 'OTHER';
         const upperBrand = brand.toUpperCase();
         if (!validBrands.includes(upperBrand)) {
-          results.failed.push({
-            row: rowNum,
-            name,
-            error: `Invalid brand '${brand}'. Valid: ${validBrands.join(', ')}`,
-          });
+          results.failed.push({ row: rowNum, name, error: `Invalid brand '${brand}'` });
           continue;
         }
 
@@ -560,6 +572,7 @@ const importPLCsCSV = async (req, res) => {
         if (upperProtocol === 'ETHERNET_IP') defaultPort = 44818;
 
         const plcData = {
+          companyId: req.companyId, // ✅ MULTI-TENANT
           name,
           description: (row.description || '').trim(),
           protocol: upperProtocol,
@@ -573,50 +586,46 @@ const importPLCsCSV = async (req, res) => {
           isActive: parseBool(row.isactive),
         };
 
-        const existing = await PLCConnection.findOne({ name: plcData.name });
+        // ✅ Query scoped to company
+        const existing = await PLCConnection.findOne({ companyId: req.companyId, name: plcData.name });
 
         if (existing) {
           if (mode === 'create') {
-            results.skipped.push({
-              row: rowNum,
-              name: plcData.name,
-              reason: 'Already exists (mode=create)',
-            });
+            results.skipped.push({ row: rowNum, name: plcData.name, reason: 'Already exists (mode=create)' });
             continue;
           }
           if (existing.isSimulation) {
-            results.skipped.push({
-              row: rowNum,
-              name: plcData.name,
-              reason: 'Cannot update simulation PLC via import',
-            });
+            results.skipped.push({ row: rowNum, name: plcData.name, reason: 'Cannot update simulation PLC' });
             continue;
           }
           Object.assign(existing, plcData);
+          delete plcData.companyId; // don't reassign
           await existing.save();
           results.updated.push(plcData.name);
         } else {
           if (mode === 'update') {
-            results.skipped.push({
+            results.skipped.push({ row: rowNum, name: plcData.name, reason: 'Does not exist (mode=update)' });
+            continue;
+          }
+          // ✅ Check plan limit BEFORE creating
+          if (createdCount >= slotsRemaining) {
+            results.failed.push({
               row: rowNum,
               name: plcData.name,
-              reason: 'Does not exist (mode=update)',
+              error: `Plan limit reached (${maxPLCs} PLCs). Upgrade to add more.`,
             });
             continue;
           }
           await PLCConnection.create(plcData);
           results.created.push(plcData.name);
+          createdCount++;
         }
       } catch (err) {
-        results.failed.push({
-          row: rowNum,
-          name: rowRaw.name || '(unknown)',
-          error: err.message,
-        });
+        results.failed.push({ row: rowNum, name: rowRaw.name || '(unknown)', error: err.message });
       }
     }
 
-    console.log(`✅ PLC import complete: ${results.created.length}c/${results.updated.length}u/${results.skipped.length}s/${results.failed.length}f`);
+    console.log(`✅ PLC import complete [${req.companySlug}]: ${results.created.length}c/${results.updated.length}u/${results.skipped.length}s/${results.failed.length}f`);
 
     res.json({
       success: true,
@@ -625,11 +634,7 @@ const importPLCsCSV = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Import PLCs CSV Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to import PLCs: ' + error.message,
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to import PLCs: ' + error.message, error: error.message });
   }
 };
 
@@ -644,8 +649,7 @@ module.exports = {
   startPLC,
   stopPLC,
   getPLCStatus,
-  // ✅ Round 5
-  exportPLCsCSV,       // Bonus
-  importPLCsCSV,       // T062
-  downloadPLCTemplate, // Bonus
+  exportPLCsCSV,
+  importPLCsCSV,
+  downloadPLCTemplate,
 };

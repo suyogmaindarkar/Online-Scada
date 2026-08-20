@@ -1,17 +1,32 @@
 // ═══════════════════════════════════════════════════════════
-// Alarm Controller
+// Alarm Controller — Multi-Tenant Update
 //
-// Task Bundle applied:
-//   ✅ T019  — accepts emailRecipients + emailThrottleMinutes in create/update
-//   ✅ T021  — POST /alarms/export CSV endpoint (current + history)
-//   ✅ T018  — accepts soundEnabled in create/update
+// ✅ All queries scoped by req.companyId
+// ✅ All creates include companyId
+// ✅ Plan limit enforcement (maxAlarms)
+// ✅ Alarm history also scoped by companyId
 // ═══════════════════════════════════════════════════════════
 
 const Alarm = require('../models/Alarm');
 const AlarmHistory = require('../models/AlarmHistory');
 
+// ─── Helper: Check plan limits ───
+const checkAlarmLimit = async (req) => {
+  const currentCount = await Alarm.countDocuments({ companyId: req.companyId });
+  const maxAlarms = req.company?.limits?.maxAlarms || 999999;
+  if (currentCount >= maxAlarms) {
+    return {
+      exceeded: true,
+      current: currentCount,
+      max: maxAlarms,
+      message: `Plan limit reached: ${currentCount}/${maxAlarms} alarms. Upgrade your plan to add more.`,
+    };
+  }
+  return { exceeded: false };
+};
+
 // ─────────────────────────────────────────
-// CREATE Alarm — POST /api/alarms
+// CREATE Alarm
 // ─────────────────────────────────────────
 const createAlarm = async (req, res) => {
   try {
@@ -19,7 +34,6 @@ const createAlarm = async (req, res) => {
       alarmName, description, tag, alarmType,
       setpoint, deadband, priority, message, group,
       enableEmail, enableSMS, isEnabled,
-      // ✅ T018 + T019 new fields
       emailRecipients, emailThrottleMinutes, soundEnabled,
     } = req.body;
 
@@ -30,15 +44,30 @@ const createAlarm = async (req, res) => {
       });
     }
 
-    const existingAlarm = await Alarm.findOne({ alarmName });
+    // ✅ Plan limit check
+    const limitCheck = await checkAlarmLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({
+        success: false,
+        message: limitCheck.message,
+        code: 'PLAN_LIMIT_EXCEEDED',
+      });
+    }
+
+    // ✅ Uniqueness check SCOPED to company
+    const existingAlarm = await Alarm.findOne({
+      companyId: req.companyId,
+      alarmName,
+    });
     if (existingAlarm) {
       return res.status(400).json({
         success: false,
-        message: `Alarm with name '${alarmName}' already exists`,
+        message: `Alarm '${alarmName}' already exists in this workspace`,
       });
     }
 
     const alarm = await Alarm.create({
+      companyId: req.companyId, // ✅ MULTI-TENANT
       alarmName,
       description,
       tag,
@@ -66,7 +95,7 @@ const createAlarm = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: 'Alarm name already exists',
+        message: 'Alarm name already exists in this workspace',
       });
     }
     res.status(500).json({
@@ -78,7 +107,7 @@ const createAlarm = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// GET ALL Alarms — GET /api/alarms
+// GET ALL Alarms (scoped)
 // ─────────────────────────────────────────
 const getAllAlarms = async (req, res) => {
   try {
@@ -87,7 +116,7 @@ const getAllAlarms = async (req, res) => {
       page = 1, limit = 50,
     } = req.query;
 
-    const filter = {};
+    const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
     if (priority)  filter.priority  = priority.toUpperCase();
     if (group)     filter.group     = group;
     if (alarmType) filter.alarmType = alarmType.toUpperCase();
@@ -120,13 +149,19 @@ const getAllAlarms = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// GET Single Alarm — GET /api/alarms/:id
+// GET Single Alarm (scoped)
 // ─────────────────────────────────────────
 const getAlarm = async (req, res) => {
   try {
-    const alarm = await Alarm.findById(req.params.id);
+    const alarm = await Alarm.findOne({
+      _id: req.params.id,
+      companyId: req.companyId,
+    });
     if (!alarm) {
-      return res.status(404).json({ success: false, message: 'Alarm not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Alarm not found in this workspace',
+      });
     }
     res.json({ success: true, alarm });
   } catch (error) {
@@ -136,11 +171,12 @@ const getAlarm = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// GET ACTIVE Alarms — GET /api/alarms/active
+// GET ACTIVE Alarms (scoped)
 // ─────────────────────────────────────────
 const getActiveAlarms = async (req, res) => {
   try {
     const alarms = await Alarm.find({
+      companyId: req.companyId, // ✅ MULTI-TENANT
       isActive: true,
       isEnabled: true,
     }).sort({
@@ -165,13 +201,14 @@ const getActiveAlarms = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// GET Alarm History — GET /api/alarms/history
+// GET Alarm History (scoped)
 // ─────────────────────────────────────────
 const getAlarmHistory = async (req, res) => {
   try {
     const { tag, priority, startDate, endDate, limit = 100 } = req.query;
 
-    const filter = {};
+    const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
+
     if (tag)      filter.tag      = tag;
     if (priority) filter.priority = priority.toUpperCase();
 
@@ -181,9 +218,11 @@ const getAlarmHistory = async (req, res) => {
       if (endDate)   filter.triggeredAt.$lte = new Date(endDate);
     }
 
-    filter.triggeredAt = filter.triggeredAt || { $ne: null };
+    // Also query active alarms with triggeredAt
+    const activeFilter = { ...filter };
+    if (!activeFilter.triggeredAt) activeFilter.triggeredAt = { $ne: null };
 
-    const alarms = await Alarm.find(filter)
+    const alarms = await Alarm.find(activeFilter)
       .sort({ triggeredAt: -1 })
       .limit(Number(limit));
 
@@ -195,22 +234,26 @@ const getAlarmHistory = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// ACKNOWLEDGE Single Alarm — POST /api/alarms/:id/acknowledge
+// ACKNOWLEDGE Single Alarm (scoped)
 // ─────────────────────────────────────────
 const acknowledgeAlarm = async (req, res) => {
   try {
-    const alarm = await Alarm.findById(req.params.id);
-    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found' });
+    const alarm = await Alarm.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
+    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found in this workspace' });
     if (!alarm.isActive) return res.status(400).json({ success: false, message: 'Cannot acknowledge - alarm is not active' });
     if (alarm.isAcknowledged) return res.status(400).json({ success: false, message: 'Alarm is already acknowledged' });
 
     alarm.isAcknowledged = true;
     alarm.acknowledgedAt = new Date();
-    alarm.acknowledgedBy = req.user.name || req.user.email;
+    alarm.acknowledgedBy = req.user.fullName || req.user.username || req.user.email;
     await alarm.save();
 
-    // Log acknowledgment in history
+    // ✅ Log acknowledgment in history (SCOPED)
     await AlarmHistory.create({
+      companyId: req.companyId,
       alarmName: alarm.alarmName,
       tag: alarm.tag,
       priority: alarm.priority,
@@ -224,6 +267,7 @@ const acknowledgeAlarm = async (req, res) => {
     if (io) {
       io.emit('alarmAcknowledged', {
         _id: alarm._id,
+        companyId: alarm.companyId, // ✅ Include so frontend can filter (future)
         alarmName: alarm.alarmName,
         acknowledgedBy: alarm.acknowledgedBy,
         acknowledgedAt: alarm.acknowledgedAt,
@@ -242,19 +286,27 @@ const acknowledgeAlarm = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// ACKNOWLEDGE ALL — POST /api/alarms/acknowledge-all
+// ACKNOWLEDGE ALL (scoped)
 // ─────────────────────────────────────────
 const acknowledgeAllAlarms = async (req, res) => {
   try {
-    const activeAlarms = await Alarm.find({ isActive: true, isAcknowledged: false });
+    const activeAlarms = await Alarm.find({
+      companyId: req.companyId, // ✅ MULTI-TENANT
+      isActive: true,
+      isAcknowledged: false,
+    });
 
     if (activeAlarms.length === 0) {
       return res.json({ success: true, message: 'No unacknowledged alarms found', count: 0 });
     }
 
-    const ackBy = req.user.name || req.user.email;
+    const ackBy = req.user.fullName || req.user.username || req.user.email;
     const result = await Alarm.updateMany(
-      { isActive: true, isAcknowledged: false },
+      {
+        companyId: req.companyId, // ✅ MULTI-TENANT
+        isActive: true,
+        isAcknowledged: false,
+      },
       {
         $set: {
           isAcknowledged: true,
@@ -264,8 +316,9 @@ const acknowledgeAllAlarms = async (req, res) => {
       }
     );
 
-    // Bulk history entries
+    // ✅ Bulk history entries (SCOPED)
     await AlarmHistory.insertMany(activeAlarms.map(a => ({
+      companyId: req.companyId,
       alarmName: a.alarmName,
       tag: a.tag,
       priority: a.priority,
@@ -275,7 +328,13 @@ const acknowledgeAllAlarms = async (req, res) => {
     })));
 
     const io = req.app.get('io');
-    if (io) io.emit('alarmAcknowledged', { bulk: true, count: result.modifiedCount });
+    if (io) {
+      io.emit('alarmAcknowledged', {
+        bulk: true,
+        companyId: req.companyId,
+        count: result.modifiedCount,
+      });
+    }
 
     res.json({
       success: true,
@@ -289,14 +348,19 @@ const acknowledgeAllAlarms = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// UPDATE Alarm — PUT /api/alarms/:id
+// UPDATE Alarm (scoped)
 // ─────────────────────────────────────────
 const updateAlarm = async (req, res) => {
   try {
-    const alarm = await Alarm.findById(req.params.id);
-    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found' });
+    // Prevent tenant escape
+    delete req.body.companyId;
 
-    // ✅ T018 + T019: allow new fields
+    const alarm = await Alarm.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
+    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found in this workspace' });
+
     const allowedFields = [
       'alarmName', 'description', 'tag', 'alarmType',
       'setpoint', 'deadband', 'priority', 'message', 'group',
@@ -320,20 +384,22 @@ const updateAlarm = async (req, res) => {
   } catch (error) {
     console.error('Update Alarm Error:', error);
     if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: 'Alarm name already exists' });
+      return res.status(400).json({ success: false, message: 'Alarm name already exists in this workspace' });
     }
     res.status(500).json({ success: false, message: 'Failed to update alarm', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// DELETE Alarm — DELETE /api/alarms/:id
+// DELETE Alarm (scoped)
 // ─────────────────────────────────────────
 const deleteAlarm = async (req, res) => {
   try {
-    const alarm = await Alarm.findById(req.params.id);
-    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found' });
-    await alarm.deleteOne();
+    const alarm = await Alarm.findOneAndDelete({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
+    if (!alarm) return res.status(404).json({ success: false, message: 'Alarm not found in this workspace' });
     res.json({ success: true, message: `Alarm '${alarm.alarmName}' deleted successfully` });
   } catch (error) {
     console.error('Delete Alarm Error:', error);
@@ -342,14 +408,12 @@ const deleteAlarm = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// ✅ T021: EXPORT Alarms as CSV
-// GET /api/alarms/export?type=active|history|all&priority=CRITICAL&startDate=...&endDate=...
+// EXPORT Alarms as CSV (scoped)
 // ─────────────────────────────────────────
 const exportAlarmsCSV = async (req, res) => {
   try {
     const { type = 'all', priority, startDate, endDate } = req.query;
 
-    // CSV escape helper
     const esc = (v) => {
       const s = String(v ?? '');
       return s.includes(',') || s.includes('"') || s.includes('\n')
@@ -361,8 +425,7 @@ const exportAlarmsCSV = async (req, res) => {
     const filename = `alarms_${type}_${new Date().toISOString().slice(0, 10)}.csv`;
 
     if (type === 'history') {
-      // Export alarm history
-      const filter = {};
+      const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
       if (priority) filter.priority = priority.toUpperCase();
       if (startDate || endDate) {
         filter.timestamp = {};
@@ -385,6 +448,7 @@ const exportAlarmsCSV = async (req, res) => {
       ]);
 
       csv = `# OnlineSCADA Alarm History Export\n`;
+      csv += `# Workspace: ${req.company?.slug || 'unknown'}\n`;
       csv += `# Generated: ${new Date().toISOString()}\n`;
       csv += `# Total Records: ${rows.length}\n`;
       if (priority) csv += `# Priority Filter: ${priority}\n`;
@@ -392,8 +456,7 @@ const exportAlarmsCSV = async (req, res) => {
       csv += `\n${headers.map(esc).join(',')}\n`;
       csv += rows.map(r => r.map(esc).join(',')).join('\n');
     } else {
-      // Export current alarms (all or active)
-      const filter = {};
+      const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
       if (type === 'active') filter.isActive = true;
       if (priority) filter.priority = priority.toUpperCase();
 
@@ -428,6 +491,7 @@ const exportAlarmsCSV = async (req, res) => {
       ]);
 
       csv = `# OnlineSCADA Alarm Export (${type})\n`;
+      csv += `# Workspace: ${req.company?.slug || 'unknown'}\n`;
       csv += `# Generated: ${new Date().toISOString()}\n`;
       csv += `# Total Alarms: ${rows.length}\n`;
       if (priority) csv += `# Priority Filter: ${priority}\n`;
@@ -449,11 +513,21 @@ const exportAlarmsCSV = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// TRIGGER Alarm (internal — kept for compat)
+// TRIGGER Alarm (internal — used by alarmEngine)
+// Now requires companyId to be passed
 // ─────────────────────────────────────────
-const triggerAlarm = async (alarmName, currentValue) => {
+const triggerAlarm = async (alarmName, currentValue, companyId) => {
   try {
-    const alarm = await Alarm.findOne({ alarmName, isEnabled: true });
+    if (!companyId) {
+      console.warn(`[triggerAlarm] Missing companyId for alarm: ${alarmName}`);
+      return;
+    }
+
+    const alarm = await Alarm.findOne({
+      companyId,
+      alarmName,
+      isEnabled: true,
+    });
     if (!alarm) return;
 
     if (!alarm.isActive) {
@@ -464,7 +538,19 @@ const triggerAlarm = async (alarmName, currentValue) => {
       alarm.acknowledgedBy = null;
       alarm.acknowledgedAt = null;
       await alarm.save();
-      console.log(`🔔 Alarm TRIGGERED: ${alarmName} | Value: ${currentValue}`);
+
+      // Log to history
+      await AlarmHistory.create({
+        companyId,
+        alarmName: alarm.alarmName,
+        tag: alarm.tag,
+        priority: alarm.priority,
+        triggerValue: currentValue,
+        message: `Alarm triggered: ${alarm.message || alarm.alarmName}`,
+        event: 'TRIGGERED',
+      });
+
+      console.log(`🔔 Alarm TRIGGERED [${companyId}]: ${alarmName} | Value: ${currentValue}`);
     }
   } catch (error) {
     console.error('Trigger Alarm Error:', error);
@@ -472,18 +558,38 @@ const triggerAlarm = async (alarmName, currentValue) => {
 };
 
 // ─────────────────────────────────────────
-// CLEAR Alarm (internal — kept for compat)
+// CLEAR Alarm (internal — used by alarmEngine)
 // ─────────────────────────────────────────
-const clearAlarm = async (alarmName) => {
+const clearAlarm = async (alarmName, companyId) => {
   try {
-    const alarm = await Alarm.findOne({ alarmName });
+    if (!companyId) {
+      console.warn(`[clearAlarm] Missing companyId for alarm: ${alarmName}`);
+      return;
+    }
+
+    const alarm = await Alarm.findOne({
+      companyId,
+      alarmName,
+    });
     if (!alarm) return;
+
     if (alarm.isActive) {
       alarm.isActive = false;
       alarm.isAcknowledged = false;
       alarm.clearedAt = new Date();
       await alarm.save();
-      console.log(`✅ Alarm CLEARED: ${alarmName}`);
+
+      // Log to history
+      await AlarmHistory.create({
+        companyId,
+        alarmName: alarm.alarmName,
+        tag: alarm.tag,
+        priority: alarm.priority,
+        message: `Alarm cleared`,
+        event: 'CLEARED',
+      });
+
+      console.log(`✅ Alarm CLEARED [${companyId}]: ${alarmName}`);
     }
   } catch (error) {
     console.error('Clear Alarm Error:', error);
@@ -500,8 +606,8 @@ module.exports = {
   acknowledgeAllAlarms,
   updateAlarm,
   deleteAlarm,
-  exportAlarmsCSV, // ✅ T021
-  // Internal for PLC Manager
+  exportAlarmsCSV,
+  // Internal for alarmEngine
   triggerAlarm,
   clearAlarm,
 };

@@ -5,6 +5,8 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useAuth } from '../context/AuthContext';
+
 import RuntimeCanvas from '../components/runtime/RuntimeCanvas';
 import {
   screenAPI, tagAPI,
@@ -21,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Runtime = () => {
   const navigate = useNavigate();
+  const { userData, logoutUser } = useAuth();
 
   const [screens,             setScreens]             = useState([]);
   const [currentScreen,       setCurrentScreen]       = useState(null);
@@ -79,7 +82,17 @@ const Runtime = () => {
           if (document.fullscreenElement) {
             try { await document.exitFullscreen(); } catch {}
           }
-          navigate('/designer');
+
+          // ✅ MULTI-TENANT: Behavior based on role
+          // Operators/Viewers → back to UserSelection (keep workspace)
+          // Admin/Engineer → back to Designer
+          const userRole = userData?.role;
+          if (userRole === 'operator' || userRole === 'viewer') {
+            await logoutUser();          // clear user token, keep workspace
+            navigate('/select-user');
+          } else {
+            navigate('/designer');
+          }
         };
         doExit();
       }

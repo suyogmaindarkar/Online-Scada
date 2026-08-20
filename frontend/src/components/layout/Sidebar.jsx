@@ -1,70 +1,85 @@
+// ═══════════════════════════════════════════════════════════
+// Sidebar — Multi-Tenant with Role-Based Menu Filtering
+//
+// ✅ Hides menu items based on user role
+// ✅ Shows workspace name in header
+// ✅ "Switch User" button (keeps workspace, back to UserSelection)
+// ✅ "Switch Workspace" button (full logout)
+// ═══════════════════════════════════════════════════════════
+
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import socketService from '../../services/socket';
 import {
-  LayoutDashboard,
-  Cpu,
-  Tag,
-  Palette,
-  Monitor,
-  Bell,
-  TrendingUp,
-  ChefHat,
-  Users,
-  Settings as SettingsIcon,
-  Zap,
-  LogOut,
-  User,
-   FileText, 
+  LayoutDashboard, Cpu, Tag, Palette, Monitor, Bell,
+  TrendingUp, ChefHat, Users, Settings as SettingsIcon,
+  Zap, LogOut, User, FileText, Repeat, Shield, Wrench, Radio, Eye,
 } from 'lucide-react';
 
+// ─── Role display config ──────────────────────────────────
+const ROLE_CONFIG = {
+  admin:    { label: 'Administrator', icon: Shield,  color: '#DC2626', bg: '#FEE2E2' },
+  engineer: { label: 'Engineer',      icon: Wrench,  color: '#2563EB', bg: '#EEF6FF' },
+  operator: { label: 'Operator',      icon: Radio,   color: '#F59E0B', bg: '#FEF3C7' },
+  viewer:   { label: 'Viewer',        icon: Eye,     color: '#9333EA', bg: '#F3E8FF' },
+};
+
+// ─── Menu items with role restrictions ────────────────────
+const MENU_ITEMS = [
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard',        roles: ['admin', 'engineer'] },
+  { path: '/plc',       icon: Cpu,             label: 'PLC Management',   roles: ['admin', 'engineer'] },
+  { path: '/tags',      icon: Tag,             label: 'Tag Management',   roles: ['admin', 'engineer'] },
+  { path: '/designer',  icon: Palette,         label: 'Graphic Designer', roles: ['admin', 'engineer'] },
+  { path: '/runtime',   icon: Monitor,         label: 'Runtime',          roles: ['admin', 'engineer', 'operator', 'viewer'] },
+  { path: '/alarms',    icon: Bell,            label: 'Alarms',           roles: ['admin', 'engineer', 'operator', 'viewer'] },
+  { path: '/trends',    icon: TrendingUp,      label: 'Trends',           roles: ['admin', 'engineer'] },
+  { path: '/recipes',   icon: ChefHat,         label: 'Recipes',          roles: ['admin', 'engineer'] },
+  { path: '/reports',   icon: FileText,        label: 'Reports',          roles: ['admin', 'engineer'] },
+  { path: '/users',     icon: Users,           label: 'Users',            roles: ['admin'] },
+  { path: '/settings',  icon: SettingsIcon,    label: 'Settings',         roles: ['admin'] },
+];
+
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { userData, company, logoutUser, logoutAll } = useAuth();
   const navigate = useNavigate();
 
-  // ─── Track unread alarm count (from socket events) ───
   const [unreadAlarms, setUnreadAlarms] = useState(0);
 
   useEffect(() => {
-    const handleAlarmTriggered = () => {
-      setUnreadAlarms((prev) => prev + 1);
-    };
-
-    // Clear count when user visits alarms page
+    const handleAlarmTriggered = () => setUnreadAlarms((prev) => prev + 1);
     const handleRouteChange = () => {
-      if (window.location.pathname === '/alarms') {
-        setUnreadAlarms(0);
-      }
+      if (window.location.pathname === '/alarms') setUnreadAlarms(0);
     };
-
     socketService.on('alarmTriggered', handleAlarmTriggered);
     window.addEventListener('popstate', handleRouteChange);
-    handleRouteChange(); // Initial check
-
+    handleRouteChange();
     return () => {
       socketService.off('alarmTriggered', handleAlarmTriggered);
       window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
 
-  const menuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/plc',       icon: Cpu,             label: 'PLC Management' },
-    { path: '/tags',      icon: Tag,             label: 'Tag Management' },
-    { path: '/designer',  icon: Palette,         label: 'Graphic Designer' },
-    { path: '/runtime',   icon: Monitor,         label: 'Runtime' },
-    { path: '/alarms',    icon: Bell,            label: 'Alarms', badge: unreadAlarms },
-    { path: '/trends',    icon: TrendingUp,      label: 'Trends' },
-    { path: '/recipes',   icon: ChefHat,         label: 'Recipes' },
-      { path: '/reports',   icon: FileText,        label: 'Reports' },   // ✅ NEW
-    { path: '/users',     icon: Users,           label: 'Users' },
-    { path: '/settings',  icon: SettingsIcon,    label: 'Settings' },
-  ];
+  // ─── Filter menu based on user role ────────────────────
+  const visibleMenu = MENU_ITEMS.filter(item =>
+    item.roles.includes(userData?.role)
+  );
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      logout();
+  // ─── Get role config ──────────────────────────────────
+  const roleConfig = ROLE_CONFIG[userData?.role] || ROLE_CONFIG.viewer;
+  const RoleIcon = roleConfig.icon;
+
+  // ─── Actions ──────────────────────────────────────────
+  const handleSwitchUser = async () => {
+    if (window.confirm('Switch to another user?')) {
+      await logoutUser();
+      navigate('/select-user');
+    }
+  };
+
+  const handleFullLogout = async () => {
+    if (window.confirm('Sign out completely and return to workspace login?')) {
+      await logoutAll();
       navigate('/login');
     }
   };
@@ -84,13 +99,10 @@ const Sidebar = () => {
       }}
     >
       {/* ═══════════ LOGO SECTION ═══════════ */}
-      <div
-        className="px-6 py-5"
-        style={{ borderBottom: '1px solid #E5E7EB' }}
-      >
+      <div className="px-6 py-4" style={{ borderBottom: '1px solid #E5E7EB' }}>
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
               background: 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)',
               boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
@@ -98,7 +110,7 @@ const Sidebar = () => {
           >
             <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1
               className="text-lg font-bold leading-tight"
               style={{
@@ -109,12 +121,16 @@ const Sidebar = () => {
             >
               Online<span style={{ color: '#2563EB' }}>SCADA</span>
             </h1>
-            <p
-              className="text-xs mt-0.5"
-              style={{ color: '#94A3B8', fontWeight: 500 }}
-            >
-              v1.0.0
-            </p>
+            {/* Workspace name */}
+            {company?.companyName && (
+              <p
+                className="text-[10px] mt-0.5 truncate"
+                style={{ color: '#5F6B7A', fontWeight: 600 }}
+                title={company.companyName}
+              >
+                🏢 {company.companyName}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -128,7 +144,7 @@ const Sidebar = () => {
           Main Menu
         </p>
         <ul className="space-y-0.5">
-          {menuItems.map((item) => (
+          {visibleMenu.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
@@ -146,9 +162,7 @@ const Sidebar = () => {
                         ? 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)'
                         : 'transparent',
                       color: isActive ? '#FFFFFF' : '#5F6B7A',
-                      boxShadow: isActive
-                        ? '0px 4px 12px rgba(37, 99, 235, 0.25)'
-                        : 'none',
+                      boxShadow: isActive ? '0px 4px 12px rgba(37, 99, 235, 0.25)' : 'none',
                       fontFamily: "'Inter', sans-serif",
                       fontWeight: isActive ? 600 : 500,
                     }}
@@ -165,14 +179,10 @@ const Sidebar = () => {
                       }
                     }}
                   >
-                    <item.icon
-                      className="w-5 h-5 flex-shrink-0"
-                      strokeWidth={isActive ? 2.5 : 2}
-                    />
+                    <item.icon className="w-5 h-5 flex-shrink-0" strokeWidth={isActive ? 2.5 : 2} />
                     <span className="flex-1">{item.label}</span>
 
-                    {/* ─── Unread alarm badge on Alarms menu ─── */}
-                    {item.badge > 0 && (
+                    {item.path === '/alarms' && unreadAlarms > 0 && (
                       <span
                         className="ml-auto px-1.5 py-0.5 text-[10px] font-bold rounded-full min-w-[20px] text-center"
                         style={{
@@ -180,7 +190,7 @@ const Sidebar = () => {
                           color: isActive ? '#DC2626' : '#FFFFFF',
                         }}
                       >
-                        {item.badge > 99 ? '99+' : item.badge}
+                        {unreadAlarms > 99 ? '99+' : unreadAlarms}
                       </span>
                     )}
                   </div>
@@ -193,7 +203,7 @@ const Sidebar = () => {
 
       {/* ═══════════ USER PROFILE + STATUS SECTION ═══════════ */}
       <div style={{ borderTop: '1px solid #E5E7EB' }}>
-        {/* ─── System Online status pill ─── */}
+        {/* System Online status */}
         <div className="px-4 pt-3 pb-2">
           <div
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
@@ -203,19 +213,10 @@ const Sidebar = () => {
             }}
           >
             <div className="relative flex items-center justify-center">
-              <div
-                className="absolute w-3 h-3 rounded-full animate-ping"
-                style={{ background: '#16A34A', opacity: 0.4 }}
-              ></div>
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ background: '#16A34A' }}
-              ></div>
+              <div className="absolute w-3 h-3 rounded-full animate-ping" style={{ background: '#16A34A', opacity: 0.4 }} />
+              <div className="w-2 h-2 rounded-full" style={{ background: '#16A34A' }} />
             </div>
-            <span
-              className="text-xs font-semibold"
-              style={{ color: '#15803D' }}
-            >
+            <span className="text-xs font-semibold" style={{ color: '#15803D' }}>
               System Online
             </span>
           </div>
@@ -224,41 +225,40 @@ const Sidebar = () => {
         {/* ─── User Profile Card ─── */}
         <div
           className="mx-3 mb-2 rounded-xl p-3"
-          style={{
-            background: '#F8FAFC',
-            border: '1px solid #E5E7EB',
-          }}
+          style={{ background: '#F8FAFC', border: '1px solid #E5E7EB' }}
         >
           <div className="flex items-center gap-3">
             {/* Avatar */}
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
               style={{
-                background: 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)',
-                boxShadow: '0px 2px 8px rgba(37, 99, 235, 0.30)',
+                background: `linear-gradient(135deg, ${userData?.avatarColor || '#2563EB'} 0%, ${userData?.avatarColor || '#0F3D91'}dd 100%)`,
+                boxShadow: `0px 2px 8px ${userData?.avatarColor || '#2563EB'}40`,
               }}
             >
-              <User className="w-5 h-5 text-white" />
+              <span style={{
+                fontSize: '15px', fontWeight: 700, color: '#FFFFFF',
+                fontFamily: "'Montserrat', sans-serif",
+              }}>
+                {(userData?.fullName || userData?.username || '?').charAt(0).toUpperCase()}
+              </span>
             </div>
 
             {/* Name + Role */}
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm font-bold truncate"
-                style={{
-                  color: '#081B43',
-                  fontFamily: "'Montserrat', sans-serif",
-                }}
-                title={user?.username}
+                style={{ color: '#081B43', fontFamily: "'Montserrat', sans-serif" }}
+                title={userData?.fullName || userData?.username}
               >
-                {user?.username || 'User'}
+                {userData?.fullName || userData?.username || 'User'}
               </p>
-              <p
-                className="text-[10px] capitalize truncate font-semibold"
-                style={{ color: '#5F6B7A' }}
-              >
-                {user?.role || 'guest'}
-              </p>
+              <div className="flex items-center gap-1 mt-0.5">
+                <RoleIcon size={10} style={{ color: roleConfig.color }} />
+                <p className="text-[10px] font-semibold" style={{ color: roleConfig.color }}>
+                  {roleConfig.label}
+                </p>
+              </div>
             </div>
 
             {/* Bell notification button */}
@@ -284,36 +284,59 @@ const Sidebar = () => {
                 <span
                   className="absolute top-1 right-1 w-2 h-2 rounded-full"
                   style={{ background: '#DC2626' }}
-                ></span>
+                />
               )}
             </button>
           </div>
 
-          {/* ─── Logout Button ─── */}
-          <button
-            onClick={handleLogout}
-            className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
-            style={{
-              background: '#FFFFFF',
-              color: '#DC2626',
-              border: '1px solid rgba(220, 38, 38, 0.30)',
-              fontFamily: "'Montserrat', sans-serif",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#DC2626';
-              e.currentTarget.style.color = '#FFFFFF';
-              e.currentTarget.style.borderColor = '#DC2626';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#FFFFFF';
-              e.currentTarget.style.color = '#DC2626';
-              e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.30)';
-            }}
-            title="Sign out of OnlineSCADA"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Logout
-          </button>
+          {/* ─── Switch User + Logout Buttons ─── */}
+          <div className="flex gap-2 mt-3">
+            {/* Switch User (keeps workspace) */}
+            <button
+              onClick={handleSwitchUser}
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: '#FFFFFF', color: '#2563EB',
+                border: '1px solid rgba(37, 99, 235, 0.30)',
+                fontFamily: "'Montserrat', sans-serif",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#2563EB';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#FFFFFF';
+                e.currentTarget.style.color = '#2563EB';
+              }}
+              title="Switch to another user (keep workspace)"
+            >
+              <Repeat className="w-3 h-3" />
+              Switch
+            </button>
+
+            {/* Full logout */}
+            <button
+              onClick={handleFullLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: '#FFFFFF', color: '#DC2626',
+                border: '1px solid rgba(220, 38, 38, 0.30)',
+                fontFamily: "'Montserrat', sans-serif",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#DC2626';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#FFFFFF';
+                e.currentTarget.style.color = '#DC2626';
+              }}
+              title="Sign out completely (return to workspace login)"
+            >
+              <LogOut className="w-3 h-3" />
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </aside>

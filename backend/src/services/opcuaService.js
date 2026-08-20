@@ -1,7 +1,12 @@
-// ============================================
-// OPC UA Service - Using node-opcua
-// Fixed for Prosys / Mongoose v9
-// ============================================
+// ═══════════════════════════════════════════════════════════
+// OPC UA Service — Multi-Tenant Update
+//
+// ✅ FIXED: Tag lookup scoped by companyId
+// ✅ FIXED: Broadcasts to company room only
+// ✅ FIXED: Batch InfluxDB writes (was single per tag)
+// ✅ IMPROVED: Better error messages for wrong node IDs
+// ✅ IMPROVED: Detailed logging for debugging tag read issues
+// ═══════════════════════════════════════════════════════════
 
 const {
   OPCUAClient,
@@ -10,17 +15,33 @@ const {
   SecurityPolicy,
   DataType,
   UserTokenType,
+  StatusCodes,
 } = require('node-opcua');
 
 const Tag = require('../models/Tag');
-const { writeTagValue: writeTagToInflux } = require('./influxService');
+const PLCConnection = require('../models/PLCConnection');
+const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
+
+const toInfluxValue = (value, dataType) => {
+  if (value === null || value === undefined) return null;
+  if (dataType === 'BOOL' || typeof value === 'boolean') return value ? 1 : 0;
+  if (dataType === 'STRING' || typeof value === 'string') {
+    const n = Number(value);
+    return isNaN(n) ? null : n;
+  }
+  const n = Number(value);
+  return isNaN(n) ? null : n;
+};
 
 class OPCUAService {
   constructor() {
-    this.clients = new Map();
-    this.sessions = new Map();
-    this.intervals = new Map();
-    this.tagCache = new Map();
+    this.clients        = new Map();
+    this.sessions       = new Map();
+    this.intervals      = new Map();
+    this.tagCache       = new Map();
+    this.plcCompanyMap  = new Map(); // ✅ plcId → companyId
+    this.influxWriteCounter = new Map();
+    this.INFLUX_LOG_EVERY = 10;
   }
 
   buildEndpoint(plc) {
@@ -38,9 +59,9 @@ class OPCUAService {
       console.log(`   Endpoint: ${endpoint}`);
 
       const client = OPCUAClient.create({
-        applicationName: 'WebSCADA',
-        applicationUri: 'urn:WebSCADA:Client',
-        clientName: 'WebSCADA',
+        applicationName: 'OnlineSCADA',
+        applicationUri: 'urn:OnlineSCADA:Client',
+        clientName: 'OnlineSCADA',
         connectionStrategy: {
           initialDelay: 1000,
           maxRetry: 1,
@@ -58,13 +79,12 @@ class OPCUAService {
       );
 
       await client.connect(endpoint);
-      console.log(`✅ OPC UA transport connected`);
+      console.log(`✅ OPC UA transport connected to ${plc.name}`);
 
-            const userIdentityInfo = { type: UserTokenType.Anonymous };
+      const userIdentityInfo = { type: UserTokenType.Anonymous };
       const session = await client.createSession(userIdentityInfo);
       console.log(`✅ OPC UA session created for ${plc.name}`);
 
-      // ✅ Detect unexpected disconnects
       const plcId = plc._id.toString();
 
       client.on('connection_lost', () => {
@@ -91,16 +111,12 @@ class OPCUAService {
     }
   }
 
-  // Called when connection drops unexpectedly
   _handleDisconnect(plcId) {
     const id = plcId.toString();
-
-    // Stop polling but don't close everything (plcManager will reconnect)
     if (this.intervals.has(id)) {
       clearInterval(this.intervals.get(id));
       this.intervals.delete(id);
     }
-    // Clean up references but let plcManager handle reconnect
     this.sessions.delete(id);
     this.clients.delete(id);
     this.tagCache.delete(id);
@@ -122,19 +138,26 @@ class OPCUAService {
   }
 
   async start(plc, io) {
-    console.log(`▶️  Starting OPC UA service for: ${plc.name}`);
+    console.log(`▶️  Starting OPC UA service for: ${plc.name} [company=${plc.companyId}]`);
     await this.stop(plc._id);
 
     const result = await this.connect(plc);
-    if (!result.success) {
-      throw new Error(result.error);
-    }
+    if (!result.success) throw new Error(result.error);
 
     const session = result.session;
+    const plcId = plc._id.toString();
+    const companyId = plc.companyId.toString();
+    const companyRoom = `company:${companyId}`;
 
+    // ✅ Store company mapping
+    this.plcCompanyMap.set(plcId, companyId);
+    this.influxWriteCounter.set(plcId, 0);
+
+    // ✅ Load tags SCOPED to this PLC's company
     const tags = await Tag.find({
+      companyId:     plc.companyId,
       plcConnection: plc._id,
-      isActive: true,
+      isActive:      true,
     });
 
     console.log(`📊 Loaded ${tags.length} OPC UA tags for ${plc.name}`);
@@ -144,76 +167,157 @@ class OPCUAService {
       return { success: true, message: 'Connected but no tags' };
     }
 
+    // ✅ Validate each tag's node ID format
     tags.forEach((tag) => {
-      console.log(`   ✓ ${tag.tagName} → ${tag.plcAddress}`);
+      const nodeId = tag.plcAddress;
+      console.log(`   ✓ ${tag.tagName} → ${nodeId}`);
+
+      // Warn about common mistakes
+      if (!nodeId) {
+        console.warn(`     ⚠️  EMPTY node ID — tag won't be read!`);
+      } else if (!nodeId.includes(';')) {
+        console.warn(`     ⚠️  Node ID missing semicolon. Expected format: ns=3;s="Block"."Var" or ns=2;i=1234`);
+      }
     });
 
-    this.tagCache.set(plc._id.toString(), tags);
+    this.tagCache.set(plcId, tags);
 
     const pollRate = plc.pollingRate || 1000;
-    console.log(`⏱️  OPC UA polling rate: ${pollRate}ms`);
+    console.log(`⏱️  OPC UA polling rate: ${pollRate}ms | Company room: ${companyRoom}`);
+
+    let consecutiveFailures = 0;
+    const MAX_FAILURES = 5;
 
     const intervalId = setInterval(async () => {
       try {
-        const nodesToRead = tags.map((tag) => ({
+        // ✅ Build read requests with validation
+        const validTags = tags.filter(t => t.plcAddress && t.plcAddress.includes(';'));
+        if (validTags.length === 0) return;
+
+        const nodesToRead = validTags.map((tag) => ({
           nodeId: tag.plcAddress,
           attributeId: AttributeIds.Value,
         }));
 
-        const dataValues = await session.read(nodesToRead);
-        const updates = [];
+        let dataValues;
+        try {
+          dataValues = await session.read(nodesToRead);
+        } catch (readErr) {
+          consecutiveFailures++;
+          console.error(`❌ OPC UA bulk read error (${consecutiveFailures}/${MAX_FAILURES}): ${readErr.message}`);
+          if (consecutiveFailures >= MAX_FAILURES) {
+            console.warn(`⚠️  OPC UA ${plc.name}: too many failures, stopping`);
+            this.stop(plc._id);
+          }
+          return;
+        }
 
-        for (let i = 0; i < tags.length; i++) {
-          const tag = tags[i];
+        consecutiveFailures = 0;
+
+        const updates = [];
+        const influxPoints = [];
+
+        for (let i = 0; i < validTags.length; i++) {
+          const tag = validTags[i];
           const dv = dataValues[i];
 
-          if (!dv || !dv.statusCode || dv.statusCode.value !== 0) continue;
+          // ✅ Detailed status check with helpful error messages
+          if (!dv || !dv.statusCode) {
+            console.warn(`   ⚠️  ${tag.tagName}: No data value returned`);
+            continue;
+          }
+
+          if (dv.statusCode.value !== 0) {
+            // Only log errors occasionally to avoid spam
+            if (consecutiveFailures === 0) {
+              const statusName = dv.statusCode.name || `0x${dv.statusCode.value.toString(16)}`;
+              console.warn(`   ⚠️  ${tag.tagName}: Read failed — status=${statusName}`);
+
+              // ✅ Helpful hints for common errors
+              if (dv.statusCode.value === 0x80730000 || statusName === 'BadNodeIdUnknown') {
+                console.warn(`     💡 Node ID "${tag.plcAddress}" does not exist on the OPC UA server`);
+                console.warn(`     💡 Check the correct namespace (ns=?) and path in UAExpert or TIA Portal`);
+              }
+              if (dv.statusCode.value === 0x80010000 || statusName === 'BadNodeIdInvalid') {
+                console.warn(`     💡 Node ID format is invalid. Expected: ns=3;s="DBName"."VarName"`);
+              }
+            }
+            continue;
+          }
 
           let value = dv.value.value;
           if (typeof value === 'bigint') value = Number(value);
 
           try {
-            const freshTag = await Tag.findById(tag._id);
+            // ✅ FIXED: Lookup tag scoped by companyId
+            const freshTag = await Tag.findOne({
+              _id: tag._id,
+              companyId: companyId,
+            });
             if (!freshTag) continue;
 
             freshTag.currentValue = value;
-            freshTag.quality = 'GOOD';
-            freshTag.lastUpdated = Date.now();
+            freshTag.quality      = 'GOOD';
+            freshTag.lastUpdated  = Date.now();
             await freshTag.save();
 
             updates.push({
-              tagName: freshTag.tagName,
-              value: value,
-              quality: 'GOOD',
+              tagName:   freshTag.tagName,
+              value:     value,
+              quality:   'GOOD',
               timestamp: freshTag.lastUpdated,
             });
 
+            // ✅ Collect for batch InfluxDB write
             if (freshTag.enableLogging) {
-              try {
-                await writeTagToInflux({
-                  tagId: freshTag._id,
+              const influxValue = toInfluxValue(value, freshTag.dataType);
+              if (influxValue !== null) {
+                influxPoints.push({
+                  tagId:   freshTag._id.toString(),
                   tagName: freshTag.tagName,
-                  value: typeof value === 'boolean' ? (value ? 1 : 0) : value,
-                  unit: freshTag.unit,
-                  plcId: plc._id,
+                  value:   influxValue,
+                  unit:    freshTag.unit || '',
+                  plcId:   plcId,
                   quality: 'GOOD',
                 });
-              } catch (e) {}
+              }
             }
-          } catch (err) {
-            console.error(`❌ Tag update error: ${err.message}`);
+          } catch (tagErr) {
+            console.error(`❌ Tag update error: ${tagErr.message}`);
           }
         }
 
+        // ✅ FIXED: Broadcast ONLY to this company's room
         if (io && updates.length > 0) {
-          io.emit('tagsUpdate', updates);
+          io.to(companyRoom).emit('tagsUpdate', updates);
+        }
+
+        // ✅ FIXED: Batch InfluxDB write (was single per tag)
+        if (influxPoints.length > 0 && isInfluxAvailable()) {
+          try {
+            const success = await writeMultipleTagValues(influxPoints);
+            if (success) {
+              const counter = (this.influxWriteCounter.get(plcId) || 0) + 1;
+              this.influxWriteCounter.set(plcId, counter);
+              if (counter % this.INFLUX_LOG_EVERY === 0) {
+                console.log(`📈 [${plc.name}] OPC UA: Logged ${influxPoints.length} values (${counter} batches)`);
+              }
+            }
+          } catch (influxErr) {
+            // Silent
+          }
         }
       } catch (err) {
-        console.error(`❌ OPC UA poll error: ${err.message}`);
+        consecutiveFailures++;
+        console.error(`❌ OPC UA poll error (${consecutiveFailures}/${MAX_FAILURES}): ${err.message}`);
+        if (consecutiveFailures >= MAX_FAILURES) {
+          console.warn(`⚠️  OPC UA ${plc.name}: too many errors, stopping`);
+          this.stop(plc._id);
+        }
       }
     }, pollRate);
 
-    this.intervals.set(plc._id.toString(), intervalId);
+    this.intervals.set(plcId, intervalId);
 
     return { success: true, message: 'OPC UA polling started' };
   }
@@ -242,7 +346,8 @@ class OPCUAService {
     });
 
     if (statusCode.value !== 0) {
-      throw new Error(`Write failed: ${statusCode.toString()}`);
+      const statusName = statusCode.name || `0x${statusCode.value.toString(16)}`;
+      throw new Error(`OPC UA write failed: ${statusName} — check if tag "${tag.tagName}" (${tag.plcAddress}) is writable`);
     }
 
     console.log(`✅ OPC UA Write: ${tag.tagName} = ${value}`);
@@ -258,21 +363,19 @@ class OPCUAService {
     }
 
     if (this.sessions.has(id)) {
-      try {
-        await this.sessions.get(id).close();
-      } catch (e) {}
+      try { await this.sessions.get(id).close(); } catch (e) {}
       this.sessions.delete(id);
     }
 
     if (this.clients.has(id)) {
-      try {
-        await this.clients.get(id).disconnect();
-      } catch (e) {}
+      try { await this.clients.get(id).disconnect(); } catch (e) {}
       this.clients.delete(id);
       console.log(`⏹️  OPC UA disconnected: ${id}`);
     }
 
     this.tagCache.delete(id);
+    this.plcCompanyMap.delete(id);
+    this.influxWriteCounter.delete(id);
   }
 
   isRunning(plcId) {

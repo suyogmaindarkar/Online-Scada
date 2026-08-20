@@ -1,3 +1,7 @@
+// ═══════════════════════════════════════════════════════════
+// Settings Routes — Multi-Tenant Update
+// ═══════════════════════════════════════════════════════════
+
 const express = require('express');
 const router = express.Router();
 const {
@@ -8,17 +12,17 @@ const {
   importBackup,
   resetSettings,
 } = require('../controllers/settingsController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-// All routes require authentication
-router.use(protect);
+// ✅ All routes require valid user token
+router.use(userProtect);
 
-// VIEW - All authenticated users can view
+// VIEW — admin/engineer can view
 router.get('/', getSettings);
 router.get('/system-info', getSystemInfo);
-router.get('/backup/export', exportBackup);
+router.get('/backup/export', authorize('admin'), exportBackup);
 
-// MODIFY - Only ADMIN can modify
+// MODIFY — admin only
 router.put('/', authorize('admin'), updateSettings);
 router.post('/backup/import', authorize('admin'), importBackup);
 router.post('/reset', authorize('admin'), resetSettings);

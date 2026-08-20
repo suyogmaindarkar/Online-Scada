@@ -1,10 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Report Routes
-//
-// Task Bundle applied:
-//   ✅ T055  — POST /reports/production
-//   ✅ T056  — POST /reports/alarms
-//   ✅ T059  — POST /reports/activity + GET /reports/activity/recent
+// Report Routes — Multi-Tenant Update
 // ═══════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -15,17 +10,13 @@ const {
   getActivityReport,
   getRecentActivity,
 } = require('../controllers/reportController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-// All routes protected
-router.use(protect);
+router.use(userProtect);
 
-// ─── Reports ───
-router.post('/production', getProductionReport);   // T055
-router.post('/alarms', getAlarmReport);            // T056
-router.post('/activity', getActivityReport);        // T059
-
-// ─── Recent activity feed (used for dashboards etc.) ───
-router.get('/activity/recent', getRecentActivity);
+router.post('/production', authorize('admin', 'engineer'), getProductionReport);
+router.post('/alarms', authorize('admin', 'engineer'), getAlarmReport);
+router.post('/activity', authorize('admin'), getActivityReport);
+router.get('/activity/recent', authorize('admin', 'engineer'), getRecentActivity);
 
 module.exports = router;

@@ -1,96 +1,62 @@
 // ═══════════════════════════════════════════════════════════
-// Recipe Model
-//
-// Task Bundle applied:
-//   ✅ T053  — Versioning: auto-bumped, parent tracking
+// Recipe Model — Multi-Tenant Update
 // ═══════════════════════════════════════════════════════════
 
 const mongoose = require('mongoose');
 
 const recipeSchema = new mongoose.Schema(
   {
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
+      required: true,
+      index: true,
+    },
     recipeName: {
       type: String,
       required: [true, 'Recipe name is required'],
-      unique: true,
       trim: true,
     },
-    description: {
-      type: String,
-      default: '',
-    },
-    category: {
-      type: String,
-      default: 'Default',
-    },
-    // Recipe parameters (tag → value mapping)
+    description: { type: String, default: '' },
+    category:    { type: String, default: 'Default' },
     parameters: [
       {
-        tagName: String,
-        value: mongoose.Schema.Types.Mixed,
-        unit: String,
+        tagName:     String,
+        value:       mongoose.Schema.Types.Mixed,
+        unit:        String,
         description: String,
       },
     ],
-    version: {
-      type: String,
-      default: '1.0',
-    },
-    // ✅ T053: Track auto-increment version number for easier bumping
-    versionNumber: {
-      type: Number,
-      default: 1,
-    },
-    // ✅ T053: Track version history (previous versions of this recipe)
+    version:       { type: String, default: '1.0' },
+    versionNumber: { type: Number, default: 1 },
     versionHistory: [
       {
         version: String,
         parameters: [
           {
-            tagName: String,
-            value: mongoose.Schema.Types.Mixed,
-            unit: String,
+            tagName:     String,
+            value:       mongoose.Schema.Types.Mixed,
+            unit:        String,
             description: String,
           },
         ],
-        savedAt: Date,
-        savedBy: String,
+        savedAt:    Date,
+        savedBy:    String,
         changeNote: String,
       },
     ],
-    createdBy: {
-      type: String,
-      default: 'admin',
-    },
-    // Track last modified
-    lastModifiedBy: {
-      type: String,
-      default: null,
-    },
-    lastExecutedAt: {
-      type: Date,
-      default: null,
-    },
-    lastExecutedBy: {
-      type: String,
-      default: null,
-    },
-    executionCount: {
-      type: Number,
-      default: 0,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    createdBy:        { type: String, default: 'admin' },
+    lastModifiedBy:   { type: String, default: null },
+    lastExecutedAt:   { type: Date, default: null },
+    lastExecutedBy:   { type: String, default: null },
+    executionCount:   { type: Number, default: 0 },
+    isActive:         { type: Boolean, default: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Index for faster history queries
-recipeSchema.index({ createdAt: -1 });
-recipeSchema.index({ category: 1 });
+recipeSchema.index({ companyId: 1, recipeName: 1 }, { unique: true });
+recipeSchema.index({ companyId: 1, createdAt: -1 });
+recipeSchema.index({ companyId: 1, category:  1 });
 
 module.exports = mongoose.model('Recipe', recipeSchema);

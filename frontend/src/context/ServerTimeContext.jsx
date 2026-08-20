@@ -1,14 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // ServerTimeContext — subscribes to server time broadcasts
-//
-// Provides:
-//   • serverTime — always-current server time (Date object)
-//   • useServerTime() hook for components
-//
-// Behavior:
-//   • Updates every 1s from backend Socket.IO 'serverTime' event
-//   • If socket disconnects, falls back to LOCAL time + drift warning
-//   • Auto-syncs when reconnected
+// ✅ FIXED: Skip socket listeners when no userToken or on super-admin
 // ═══════════════════════════════════════════════════════════
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
@@ -16,18 +8,33 @@ import socketService from '../services/socket';
 
 const ServerTimeContext = createContext(null);
 
-export const ServerTimeProvider = ({ children }) => {
-  // Server time as Date object (updated every second from backend)
-  const [serverTime, setServerTime] = useState(new Date());
+// ─── Helper: Is this a workspace user context? ─────────────
+const isWorkspaceUserContext = () => {
+  if (typeof window === 'undefined') return false;
+  if (window.location.pathname.startsWith('/super-admin')) return false;
+  if (!localStorage.getItem('userToken')) return false;
+  return true;
+};
 
-  // Track if we're actually getting server updates (vs falling back to local)
+export const ServerTimeProvider = ({ children }) => {
+  const [serverTime, setServerTime]             = useState(new Date());
   const [isServerConnected, setIsServerConnected] = useState(false);
 
   const lastServerUpdateRef = useRef(Date.now());
-  const localTickRef = useRef(null);
+  const localTickRef        = useRef(null);
 
   useEffect(() => {
-    // ─── Handler for server time broadcasts ───
+    // ✅ Guard: super-admin and logged-out pages don't need server time sync
+    if (!isWorkspaceUserContext()) {
+      // Still tick locally so clock components (if any) work
+      localTickRef.current = setInterval(() => {
+        setServerTime(new Date());
+      }, 1000);
+      return () => {
+        if (localTickRef.current) clearInterval(localTickRef.current);
+      };
+    }
+
     const handleServerTime = (data) => {
       if (data?.timestamp) {
         setServerTime(new Date(data.timestamp));
@@ -38,14 +45,11 @@ export const ServerTimeProvider = ({ children }) => {
 
     socketService.on('serverTime', handleServerTime);
 
-    // ─── Local fallback tick — updates every 1s ───
-    // If we haven't heard from server in 3 seconds, fall back to local time
     localTickRef.current = setInterval(() => {
       const now = Date.now();
       const timeSinceLastServer = now - lastServerUpdateRef.current;
 
       if (timeSinceLastServer > 3000) {
-        // Server silent — fall back to local
         if (isServerConnected) setIsServerConnected(false);
         setServerTime(new Date());
       }
@@ -64,11 +68,9 @@ export const ServerTimeProvider = ({ children }) => {
   );
 };
 
-// ─── Hook ───
 export const useServerTime = () => {
   const ctx = useContext(ServerTimeContext);
   if (!ctx) {
-    // Fallback if used outside provider — returns local time
     return { serverTime: new Date(), isServerConnected: false };
   }
   return ctx;

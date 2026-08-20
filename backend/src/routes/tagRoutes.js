@@ -1,10 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Tag Routes
-//
-// Task Bundle applied:
-//   ✅ T060  — POST /tags/import/csv
-//   ✅ T061  — GET /tags/export/csv
-//   ✅ BONUS — GET /tags/template/csv
+// Tag Routes — Multi-Tenant Update
 // ═══════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -18,21 +13,21 @@ const {
   writeTagValue,
   getTagGroups,
   bulkCreateTags,
-  exportTagsCSV,       // ✅ T061
-  importTagsCSV,       // ✅ T060
-  downloadTagTemplate, // ✅ BONUS
+  exportTagsCSV,
+  importTagsCSV,
+  downloadTagTemplate,
 } = require('../controllers/tagController');
-const { protect, authorize } = require('../middleware/auth');
+const { userProtect, authorize } = require('../middleware/auth');
 
-// All routes protected
-router.use(protect);
+// ✅ All routes require valid user token (injects req.companyId)
+router.use(userProtect);
 
 // ─── Specific routes FIRST (before /:id catches everything) ───
 router.post('/bulk', authorize('admin', 'engineer'), bulkCreateTags);
 router.post('/write', writeTagValue);
 router.get('/groups', getTagGroups);
 
-// ─── Round 5: CSV Import/Export ───
+// ─── CSV Import/Export ───
 router.get('/export/csv', exportTagsCSV);
 router.get('/template/csv', downloadTagTemplate);
 router.post('/import/csv', authorize('admin', 'engineer'), importTagsCSV);

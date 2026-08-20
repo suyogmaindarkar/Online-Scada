@@ -1,3 +1,13 @@
+// ═══════════════════════════════════════════════════════════
+// Screen Controller — Multi-Tenant Update
+//
+// ✅ All queries scoped by req.companyId
+// ✅ All creates include companyId
+// ✅ Plan limit enforcement (maxScreens)
+// ✅ Template/Startup/Popup flags scoped WITHIN company
+//    (each company can have their own template, startup, popups)
+// ═══════════════════════════════════════════════════════════
+
 const Graphic = require('../models/Graphic');
 
 // ════════════════════════════════════════════════════════════
@@ -29,14 +39,30 @@ function sanitizeElements(elements) {
   return elements.map((el) => sanitizeValue(el));
 }
 
-// ✅ Convert boolean-ish inputs from body to actual booleans
 function toBool(v) {
   return v === true || v === 'true' || v === 1 || v === '1';
 }
 
-// ===== CREATE SCREEN =====
+// ─── Helper: Check plan limits ───
+const checkScreenLimit = async (req) => {
+  const currentCount = await Graphic.countDocuments({ companyId: req.companyId });
+  const maxScreens = req.company?.limits?.maxScreens || 999999;
+  if (currentCount >= maxScreens) {
+    return {
+      exceeded: true,
+      current: currentCount,
+      max: maxScreens,
+      message: `Plan limit reached: ${currentCount}/${maxScreens} screens. Upgrade your plan to add more.`,
+    };
+  }
+  return { exceeded: false };
+};
+
+// ═══════════════════════════════════════════════════════════
+// CREATE SCREEN
+// ═══════════════════════════════════════════════════════════
 const createScreen = async (req, res) => {
-  console.log('\n━━━━━ CREATE SCREEN ━━━━━');
+  console.log(`\n━━━━━ CREATE SCREEN [${req.companySlug}] ━━━━━`);
   console.log('Screen name:', req.body.screenName);
   console.log('isTemplate:', req.body.isTemplate, '| isPopup:', req.body.isPopup);
 
@@ -44,7 +70,6 @@ const createScreen = async (req, res) => {
     const isTemplate = toBool(req.body.isTemplate);
     const isPopup    = toBool(req.body.isPopup);
 
-    // Prevent both flags being true
     if (isTemplate && isPopup) {
       return res.status(400).json({
         success: false,
@@ -52,7 +77,18 @@ const createScreen = async (req, res) => {
       });
     }
 
+    // ✅ Plan limit check
+    const limitCheck = await checkScreenLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({
+        success: false,
+        message: limitCheck.message,
+        code: 'PLAN_LIMIT_EXCEEDED',
+      });
+    }
+
     const data = {
+      companyId: req.companyId, // ✅ MULTI-TENANT
       screenName:        (req.body.screenName || '').trim(),
       description:       req.body.description || '',
       width:             Number(req.body.width) || 1920,
@@ -64,31 +100,38 @@ const createScreen = async (req, res) => {
       isStartupScreen:   toBool(req.body.isStartupScreen),
       isTemplate,
       isPopup,
-      popupModal:          req.body.popupModal          === undefined ? true : toBool(req.body.popupModal),
-      popupCloseable:      req.body.popupCloseable      === undefined ? true : toBool(req.body.popupCloseable),
-      popupCloseOnBackdrop: req.body.popupCloseOnBackdrop === undefined ? true : toBool(req.body.popupCloseOnBackdrop),
+      popupModal:            req.body.popupModal          === undefined ? true : toBool(req.body.popupModal),
+      popupCloseable:        req.body.popupCloseable      === undefined ? true : toBool(req.body.popupCloseable),
+      popupCloseOnBackdrop:  req.body.popupCloseOnBackdrop === undefined ? true : toBool(req.body.popupCloseOnBackdrop),
     };
 
     if (!data.screenName) {
       return res.status(400).json({ success: false, message: 'Screen name is required' });
     }
 
-    const exists = await Graphic.findOne({ screenName: data.screenName });
+    // ✅ Uniqueness check SCOPED to company
+    const exists = await Graphic.findOne({ companyId: req.companyId, screenName: data.screenName });
     if (exists) {
       return res.status(400).json({
         success: false,
-        message: `Screen "${data.screenName}" already exists.`,
+        message: `Screen "${data.screenName}" already exists in this workspace.`,
       });
     }
 
-    // ✅ Only ONE startup screen allowed
+    // ✅ Only ONE startup screen PER COMPANY
     if (data.isStartupScreen) {
-      await Graphic.updateMany({}, { $set: { isStartupScreen: false } });
+      await Graphic.updateMany(
+        { companyId: req.companyId },
+        { $set: { isStartupScreen: false } }
+      );
     }
 
-    // ✅ Only ONE template screen allowed — clear existing template
+    // ✅ Only ONE template screen PER COMPANY
     if (data.isTemplate) {
-      await Graphic.updateMany({ isTemplate: true }, { $set: { isTemplate: false } });
+      await Graphic.updateMany(
+        { companyId: req.companyId, isTemplate: true },
+        { $set: { isTemplate: false } }
+      );
     }
 
     const screen = await Graphic.create(data);
@@ -109,10 +152,13 @@ const createScreen = async (req, res) => {
   }
 };
 
-// ===== GET ALL =====
+// ═══════════════════════════════════════════════════════════
+// GET ALL SCREENS (scoped)
+// ═══════════════════════════════════════════════════════════
 const getAllScreens = async (req, res) => {
   try {
-    const screens = await Graphic.find().sort({ updatedAt: -1 });
+    const screens = await Graphic.find({ companyId: req.companyId })
+      .sort({ updatedAt: -1 });
     res.json({ success: true, count: screens.length, data: screens });
   } catch (error) {
     console.error('❌ getAllScreens:', error.message);
@@ -120,12 +166,20 @@ const getAllScreens = async (req, res) => {
   }
 };
 
-// ===== GET ONE =====
+// ═══════════════════════════════════════════════════════════
+// GET ONE SCREEN (scoped)
+// ═══════════════════════════════════════════════════════════
 const getScreen = async (req, res) => {
   try {
-    const screen = await Graphic.findById(req.params.id);
+    const screen = await Graphic.findOne({
+      _id: req.params.id,
+      companyId: req.companyId,
+    });
     if (!screen) {
-      return res.status(404).json({ success: false, message: 'Screen not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Screen not found in this workspace',
+      });
     }
     res.json({ success: true, data: screen });
   } catch (error) {
@@ -134,13 +188,17 @@ const getScreen = async (req, res) => {
   }
 };
 
-// ===== UPDATE =====
+// ═══════════════════════════════════════════════════════════
+// UPDATE SCREEN (scoped)
+// ═══════════════════════════════════════════════════════════
 const updateScreen = async (req, res) => {
-  console.log('\n━━━━━ UPDATE SCREEN ━━━━━');
+  console.log(`\n━━━━━ UPDATE SCREEN [${req.companySlug}] ━━━━━`);
   console.log('ID:', req.params.id);
-  console.log('Body keys:', Object.keys(req.body));
 
   try {
+    // Prevent tenant escape
+    delete req.body.companyId;
+
     const updates = {};
 
     if (req.body.screenName      !== undefined) updates.screenName      = req.body.screenName.trim();
@@ -157,10 +215,10 @@ const updateScreen = async (req, res) => {
       updates.directConnections = sanitizeElements(req.body.directConnections);
     }
 
-    // ─── Startup screen ───
+    // ─── Startup screen (scoped to company) ───
     if (req.body.isStartupScreen === true || req.body.isStartupScreen === 'true') {
       await Graphic.updateMany(
-        { _id: { $ne: req.params.id } },
+        { companyId: req.companyId, _id: { $ne: req.params.id } },
         { $set: { isStartupScreen: false } }
       );
       updates.isStartupScreen = true;
@@ -168,11 +226,10 @@ const updateScreen = async (req, res) => {
       updates.isStartupScreen = false;
     }
 
-    // ─── Template flag ───
+    // ─── Template flag (scoped to company) ───
     if (req.body.isTemplate === true || req.body.isTemplate === 'true') {
-      // Clear existing template + ensure this screen isn't also popup
       await Graphic.updateMany(
-        { _id: { $ne: req.params.id }, isTemplate: true },
+        { companyId: req.companyId, _id: { $ne: req.params.id }, isTemplate: true },
         { $set: { isTemplate: false } }
       );
       updates.isTemplate = true;
@@ -184,8 +241,8 @@ const updateScreen = async (req, res) => {
     // ─── Popup flag ───
     if (req.body.isPopup === true || req.body.isPopup === 'true') {
       updates.isPopup = true;
-      updates.isTemplate = false; // popup can't be template
-      updates.isStartupScreen = false; // popup can't be startup
+      updates.isTemplate = false;
+      updates.isStartupScreen = false;
     } else if (req.body.isPopup === false || req.body.isPopup === 'false') {
       updates.isPopup = false;
     }
@@ -195,14 +252,18 @@ const updateScreen = async (req, res) => {
     if (req.body.popupCloseable !== undefined) updates.popupCloseable = toBool(req.body.popupCloseable);
     if (req.body.popupCloseOnBackdrop !== undefined) updates.popupCloseOnBackdrop = toBool(req.body.popupCloseOnBackdrop);
 
-    const screen = await Graphic.findByIdAndUpdate(
-      req.params.id,
+    // ✅ Update SCOPED to company
+    const screen = await Graphic.findOneAndUpdate(
+      { _id: req.params.id, companyId: req.companyId },
       { $set: updates },
       { new: true, runValidators: false, strict: false }
     );
 
     if (!screen) {
-      return res.status(404).json({ success: false, message: 'Screen not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Screen not found in this workspace',
+      });
     }
 
     console.log('✅ Screen updated:', screen._id,
@@ -225,12 +286,20 @@ const updateScreen = async (req, res) => {
   }
 };
 
-// ===== DELETE =====
+// ═══════════════════════════════════════════════════════════
+// DELETE SCREEN (scoped)
+// ═══════════════════════════════════════════════════════════
 const deleteScreen = async (req, res) => {
   try {
-    const screen = await Graphic.findByIdAndDelete(req.params.id);
+    const screen = await Graphic.findOneAndDelete({
+      _id: req.params.id,
+      companyId: req.companyId,
+    });
     if (!screen) {
-      return res.status(404).json({ success: false, message: 'Screen not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Screen not found in this workspace',
+      });
     }
     res.json({ success: true, message: 'Screen deleted successfully' });
   } catch (error) {

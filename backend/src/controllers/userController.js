@@ -1,24 +1,43 @@
-// ============================================
-// User Controller - User Administration
-// ============================================
+// ═══════════════════════════════════════════════════════════
+// User Controller — Multi-Tenant Update
+//
+// ✅ All queries scoped by req.companyId
+// ✅ Creates include companyId
+// ✅ Plan limit enforcement (maxUsers)
+// ✅ Users only visible within their company
+// ═══════════════════════════════════════════════════════════
 
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
+// ─── Helper: Check plan limits ───
+const checkUserLimit = async (req) => {
+  const currentCount = await User.countDocuments({ companyId: req.companyId });
+  const maxUsers = req.company?.limits?.maxUsers || 999;
+  if (currentCount >= maxUsers) {
+    return {
+      exceeded: true,
+      current: currentCount,
+      max: maxUsers,
+      message: `Plan limit reached: ${currentCount}/${maxUsers} users. Upgrade your plan.`,
+    };
+  }
+  return { exceeded: false };
+};
+
 // ─────────────────────────────────────────
-// GET ALL Users
-// GET /api/users
+// GET ALL Users (scoped to company)
 // ─────────────────────────────────────────
 const getAllUsers = async (req, res) => {
   try {
     const { role, isActive, search } = req.query;
 
-    const filter = {};
+    const filter = { companyId: req.companyId }; // ✅ MULTI-TENANT
     if (role) filter.role = role;
     if (isActive !== undefined) filter.isActive = isActive === 'true';
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { fullName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { username: { $regex: search, $options: 'i' } },
       ];
@@ -35,91 +54,81 @@ const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('Get All Users Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch users',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch users', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// GET Single User
-// GET /api/users/:id
+// GET Single User (scoped)
 // ─────────────────────────────────────────
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    }).select('-password');
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found in this workspace' });
     }
-
-    res.json({
-      success: true,
-      user,
-    });
+    res.json({ success: true, user });
   } catch (error) {
     console.error('Get User Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch user',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch user', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// CREATE User (Admin Only)
-// POST /api/users
+// CREATE User (Admin Only, scoped)
 // ─────────────────────────────────────────
 const createUser = async (req, res) => {
   try {
-    const {
-      name,
-      username,
-      email,
-      password,
-      role,
-      isActive,
-    } = req.body;
+    const { username, fullName, email, password, role, isActive } = req.body;
 
-    // Validate
-    if (!name || !email || !password) {
-      return res.status(400).json({
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'email and password are required' });
+    }
+
+    // ✅ Plan limit check
+    const limitCheck = await checkUserLimit(req);
+    if (limitCheck.exceeded) {
+      return res.status(403).json({
         success: false,
-        message: 'name, email, password are required',
+        message: limitCheck.message,
+        code: 'PLAN_LIMIT_EXCEEDED',
       });
     }
 
-    // Check if user exists
+    // ✅ Uniqueness check SCOPED to company
     const existing = await User.findOne({
-      $or: [{ email }, { username }],
+      companyId: req.companyId,
+      $or: [{ email }, { username: username || email.split('@')[0] }],
     });
 
     if (existing) {
       return res.status(400).json({
         success: false,
         message: existing.email === email
-          ? 'Email already registered'
-          : 'Username already taken',
+          ? 'Email already registered in this workspace'
+          : 'Username already taken in this workspace',
       });
     }
 
-    // Create user
+    // ✅ Random avatar color
+    const avatarColors = ['#2563EB', '#DC2626', '#16A34A', '#F59E0B', '#9333EA', '#0891B2', '#EA580C'];
+    const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+
     const user = await User.create({
-      name,
+      companyId: req.companyId, // ✅ MULTI-TENANT
       username: username || email.split('@')[0],
+      fullName: fullName || username || email.split('@')[0],
       email,
-      password, // Will be hashed by model pre-save
+      password,
       role: role || 'viewer',
       isActive: isActive !== undefined ? isActive : true,
+      avatarColor: randomColor,
     });
 
-    // Return without password
     const userObj = user.toObject();
     delete userObj.password;
 
@@ -130,62 +139,40 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Create User Error:', error);
-
     if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email or username already exists',
-      });
+      return res.status(400).json({ success: false, message: 'Email or username already exists in this workspace' });
     }
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create user',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to create user', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// UPDATE User
-// PUT /api/users/:id
+// UPDATE User (scoped)
 // ─────────────────────────────────────────
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    delete req.body.companyId; // Prevent tenant escape
+
+    const user = await User.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found in this workspace' });
     }
 
     // Prevent admin from deactivating themselves
-    if (
-      req.user._id.toString() === user._id.toString() &&
-      req.body.isActive === false
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'You cannot deactivate your own account',
-      });
+    if (String(req.user._id) === String(user._id) && req.body.isActive === false) {
+      return res.status(400).json({ success: false, message: 'You cannot deactivate your own account' });
     }
 
     // Prevent admin from changing their own role
-    if (
-      req.user._id.toString() === user._id.toString() &&
-      req.body.role &&
-      req.body.role !== user.role
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'You cannot change your own role',
-      });
+    if (String(req.user._id) === String(user._id) && req.body.role && req.body.role !== user.role) {
+      return res.status(400).json({ success: false, message: 'You cannot change your own role' });
     }
 
-    // Allowed fields to update
-    const allowedFields = ['name', 'username', 'email', 'role', 'isActive'];
+    const allowedFields = ['fullName', 'username', 'email', 'role', 'isActive', 'avatarColor'];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         user[field] = req.body[field];
@@ -197,180 +184,128 @@ const updateUser = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.json({
-      success: true,
-      message: 'User updated successfully',
-      user: userObj,
-    });
+    res.json({ success: true, message: 'User updated successfully', user: userObj });
   } catch (error) {
     console.error('Update User Error:', error);
-
     if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email or username already exists',
-      });
+      return res.status(400).json({ success: false, message: 'Email or username already exists in this workspace' });
     }
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update user',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to update user', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// DELETE User
-// DELETE /api/users/:id
+// DELETE User (scoped)
 // ─────────────────────────────────────────
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found in this workspace' });
     }
 
-    // Prevent self-deletion
-    if (req.user._id.toString() === user._id.toString()) {
-      return res.status(400).json({
-        success: false,
-        message: 'You cannot delete your own account',
-      });
+    if (String(req.user._id) === String(user._id)) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
     }
 
     await user.deleteOne();
 
-    res.json({
-      success: true,
-      message: `User '${user.name}' deleted successfully`,
-    });
+    res.json({ success: true, message: `User '${user.fullName || user.username}' deleted successfully` });
   } catch (error) {
     console.error('Delete User Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete user',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to delete user', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// RESET Password (Admin only)
-// PUT /api/users/:id/reset-password
+// RESET Password (Admin only, scoped)
 // ─────────────────────────────────────────
 const resetPassword = async (req, res) => {
   try {
     const { newPassword } = req.body;
 
     if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 6 characters',
-      });
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
-    const user = await User.findById(req.params.id);
+    const user = await User.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found in this workspace' });
     }
 
-    // Set new password (will be hashed by pre-save hook)
     user.password = newPassword;
     await user.save();
 
-    res.json({
-      success: true,
-      message: `Password reset successfully for ${user.name}`,
-    });
+    res.json({ success: true, message: `Password reset for ${user.fullName || user.username}` });
   } catch (error) {
     console.error('Reset Password Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to reset password',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to reset password', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// CHANGE OWN Password
-// PUT /api/users/change-password
+// CHANGE OWN Password (scoped)
 // ─────────────────────────────────────────
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Current and new password required',
-      });
+      return res.status(400).json({ success: false, message: 'Current and new password required' });
     }
-
     if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'New password must be at least 6 characters',
-      });
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
     }
 
-    const user = await User.findById(req.user._id);
+    // ✅ Load with password field
+    const user = await User.findOne({
+      _id: req.user._id,
+      companyId: req.companyId,
+    }).select('+password');
 
-    // Verify current password
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: 'Current password is incorrect',
-      });
+      return res.status(400).json({ success: false, message: 'Current password is incorrect' });
     }
 
     user.password = newPassword;
     await user.save();
 
-    res.json({
-      success: true,
-      message: 'Password changed successfully',
-    });
+    res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
     console.error('Change Password Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to change password',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to change password', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// TOGGLE Active Status
-// PUT /api/users/:id/toggle-active
+// TOGGLE Active Status (scoped)
 // ─────────────────────────────────────────
 const toggleActive = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findOne({
+      _id: req.params.id,
+      companyId: req.companyId, // ✅ MULTI-TENANT
+    });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found in this workspace' });
     }
 
-    if (req.user._id.toString() === user._id.toString()) {
-      return res.status(400).json({
-        success: false,
-        message: 'You cannot deactivate your own account',
-      });
+    if (String(req.user._id) === String(user._id)) {
+      return res.status(400).json({ success: false, message: 'You cannot deactivate your own account' });
     }
 
     user.isActive = !user.isActive;
@@ -383,49 +318,36 @@ const toggleActive = async (req, res) => {
     });
   } catch (error) {
     console.error('Toggle Active Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to toggle status',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to toggle status', error: error.message });
   }
 };
 
 // ─────────────────────────────────────────
-// GET User Stats
-// GET /api/users/stats
+// GET User Stats (scoped)
 // ─────────────────────────────────────────
 const getUserStats = async (req, res) => {
   try {
-    const total = await User.countDocuments();
-    const active = await User.countDocuments({ isActive: true });
-    const inactive = await User.countDocuments({ isActive: false });
+    const companyFilter = { companyId: req.companyId }; // ✅ MULTI-TENANT
+
+    const total = await User.countDocuments(companyFilter);
+    const active = await User.countDocuments({ ...companyFilter, isActive: true });
+    const inactive = await User.countDocuments({ ...companyFilter, isActive: false });
 
     const byRole = await User.aggregate([
+      { $match: { companyId: req.companyId } },
       { $group: { _id: '$role', count: { $sum: 1 } } },
     ]);
 
     const roleStats = {};
-    byRole.forEach((r) => {
-      roleStats[r._id] = r.count;
-    });
+    byRole.forEach((r) => { roleStats[r._id] = r.count; });
 
     res.json({
       success: true,
-      stats: {
-        total,
-        active,
-        inactive,
-        byRole: roleStats,
-      },
+      stats: { total, active, inactive, byRole: roleStats },
     });
   } catch (error) {
     console.error('Get User Stats Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch stats',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to fetch stats', error: error.message });
   }
 };
 
