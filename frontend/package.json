@@ -1,48 +1,36 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "OnlineSCADA Cloud Backend - Multi-Tenant SCADA/HMI API",
-  "main": "server.js",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "seed": "node scripts/seed.js",
-    "seed:wipe": "node scripts/seed.js --wipe",
-    "seed:wipe-only": "node scripts/seed.js --wipe-only"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "keywords": [
-    "scada",
-    "hmi",
-    "industrial-automation",
-    "multi-tenant",
-    "plc",
-    "opc-ua",
-    "modbus",
-    "s7"
-  ],
-  "author": "Suyog",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.35.0",
-    "@influxdata/influxdb-client-apis": "^1.35.0",
-    "archiver": "^8.0.0",
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.6.1",
-    "jsonwebtoken": "^9.0.3",
-    "modbus-serial": "^8.0.25",
-    "mongoose": "^9.7.1",
-    "multer": "^2.2.0",
-    "node-opcua": "^2.173.1",
-    "nodemailer": "^9.0.3",
-    "nodemon": "^3.1.14",
-    "nodes7": "^0.3.18",
-    "socket.io": "^4.8.3"
+    "axios": "^1.7.9",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "lucide-react": "^0.474.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-konva": "^18.2.10",
+    "react-router-dom": "^7.1.1",
+    "recharts": "^2.15.0",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.15.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.3"
   }
 }
