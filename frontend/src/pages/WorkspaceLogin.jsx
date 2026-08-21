@@ -2,8 +2,8 @@
 // WorkspaceLogin — Step 1 of Two-Step Authentication
 //
 // User enters:
-//   • Workspace slug (e.g., "demo", "acme-corp")
-//   • Admin email + password (any admin from that workspace)
+//   • Workspace slug (e.g., "acme-corp")
+//   • Admin email + password
 //
 // On success → redirect to /select-user
 // ═══════════════════════════════════════════════════════════
@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 
 const WorkspaceLogin = () => {
-  const [slug, setSlug]                   = useState('demo');
-  const [adminEmail, setAdminEmail]       = useState('admin@demo.com');
-  const [adminPassword, setAdminPassword] = useState('admin123');
+  const [slug, setSlug]                   = useState('');
+  const [adminEmail, setAdminEmail]       = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [error, setError]                 = useState('');
   const [loading, setLoading]             = useState(false);
   const { verifyWorkspace, authState }    = useAuth();
@@ -220,27 +220,12 @@ const WorkspaceLogin = () => {
             </button>
           </form>
 
-          {/* Demo credentials info */}
-          <div
-            className="mt-6 p-3 rounded-lg text-center"
-            style={{ background: '#EEF6FF', border: '1px solid rgba(37,99,235,0.20)' }}
-          >
-            <p className="text-xs" style={{ color: '#5F6B7A' }}>
-              Demo:{' '}
-              <span style={{ color: '#0F3D91', fontWeight: 700 }}>demo</span>
-              {' / '}
-              <span style={{ color: '#0F3D91', fontWeight: 700 }}>admin@demo.com</span>
-              {' / '}
-              <span style={{ color: '#0F3D91', fontWeight: 700 }}>admin123</span>
-            </p>
-          </div>
-
           {/* Contact sales link */}
-          <div className="mt-4 text-center">
+          <div className="mt-6 pt-5 border-t border-gray-100 text-center">
             <p className="text-xs" style={{ color: '#94A3B8' }}>
               Don't have a workspace?{' '}
               <a
-                href="mailto:suyog@onlinescada.in?subject=New Workspace Request&body=Hi,%0D%0A%0D%0AI would like to sign up for OnlineSCADA. Please create a workspace for my company.%0D%0A%0D%0ACompany:%0D%0AContact Name:%0D%0APhone:%0D%0A"
+                href="mailto:suyogmaindarkar@gmail.com?subject=New Workspace Request&body=Hi,%0D%0A%0D%0AI would like to sign up for OnlineSCADA. Please create a workspace for my company.%0D%0A%0D%0ACompany:%0D%0AContact Name:%0D%0APhone:%0D%0A"
                 className="font-semibold hover:underline"
                 style={{ color: '#2563EB' }}
               >
