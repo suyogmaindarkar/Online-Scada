@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Lock, Mail, AlertCircle, Loader2, Zap, Building2,
+  Lock, Mail, AlertCircle, Loader2, Building2,
 } from 'lucide-react';
 
 const WorkspaceLogin = () => {
@@ -81,17 +81,8 @@ const WorkspaceLogin = () => {
       />
 
       <div className="w-full max-w-md relative z-10">
-        {/* ─── Logo + Brand ─── */}
+        {/* ─── Brand ─── */}
         <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{
-              background: 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)',
-              boxShadow: '0px 10px 25px -3px rgba(37,99,235,0.35)',
-            }}
-          >
-            <Zap className="w-8 h-8 text-white" strokeWidth={2.5} />
-          </div>
           <h1 className="text-4xl font-bold mb-2"
             style={{ fontFamily: "'Montserrat', sans-serif", color: '#081B43', letterSpacing: '-0.02em' }}>
             Online<span style={{ color: '#2563EB' }}>SCADA</span>
