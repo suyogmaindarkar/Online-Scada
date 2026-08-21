@@ -25,12 +25,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', process.env.FRONTEND_URL].filter(Boolean),
     methods: ['GET', 'POST'],
     credentials: true,
   },
   maxHttpBufferSize: 50 * 1024 * 1024,
-});
+}); 
 // ─── LEADS route (public POST from landing site, super-admin GET/PUT/DELETE) ───
 // Rate-limit lead creation to prevent spam
 const leadsCreateLimiter = rateLimit({
@@ -60,7 +60,8 @@ const allowedOrigins = [
   'https://onlinescada.in',       // Landing site prod
   'https://www.onlinescada.in',   // Landing site prod (www)
   'https://app.onlinescada.in',   // App prod
-];
+  process.env.FRONTEND_URL,       // Production frontend from env
+].filter(Boolean); // Remove undefined/null values
 
 app.use(
   cors({
