@@ -1,4 +1,10 @@
 // Frontend/src/pages/Settings.jsx
+// ═══════════════════════════════════════════════════════════
+// Settings Page — Multi-Tenant & Centralized API update
+// ✅ FIXED: Uses settingsAPI from central api.js instead of local axios
+// ✅ FIXED: Resolves "View Only" role parsing for administrators
+// ═══════════════════════════════════════════════════════════
+
 import { normalizeColor } from '../utils/colorUtils';
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -8,16 +14,9 @@ import {
   RefreshCw, Eye, EyeOff, Globe, Lock, Zap, Calendar, Trash2, Package, Code,
   ExternalLink, Timer,
 } from 'lucide-react';
-import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
-
-const api = axios.create({ baseURL: API_BASE });
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// Use central api service
+import api, { settingsAPI } from '../services/api';
 
 // ═══════════════════════════════════════════════════════════
 // COLOR TOKENS (blue theme)
@@ -929,8 +928,17 @@ const Settings = () => {
   const [security, setSecurity] = useState({});
   const [email, setEmail] = useState({});
 
-  const userStr = localStorage.getItem('user');
-  const currentUser = userStr ? JSON.parse(userStr) : null;
+  // Parse logged in user using multi-tenant structure ('userData' or legacy 'user' fallback)
+  const getUser = () => {
+    try {
+      const userData = localStorage.getItem('userData') || localStorage.getItem('user');
+      return userData ? JSON.parse(userData) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const currentUser = getUser();
   const isAdmin = currentUser?.role === 'admin';
 
   const addToast = (message, type = 'success') => {
@@ -943,7 +951,7 @@ const Settings = () => {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/settings');
+      const res = await settingsAPI.getAll();
       const data = res.data.data;
       setSettings(data);
       setAppearance(data.appearance || {});
@@ -961,7 +969,7 @@ const Settings = () => {
 
   const loadSystemInfo = async () => {
     try {
-      const res = await api.get('/settings/system-info');
+      const res = await settingsAPI.getSystemInfo();
       setSystemInfo(res.data.data);
     } catch (err) {
       console.error('System info error:', err);
@@ -980,7 +988,7 @@ const Settings = () => {
     }
     try {
       setSaving(true);
-      await api.put('/settings', { section, data });
+      await settingsAPI.update(section, data);
       addToast(`${section} settings saved successfully`, 'success');
       await loadSettings();
     } catch (err) {
@@ -993,7 +1001,7 @@ const Settings = () => {
   const handleExport = async () => {
     try {
       setExportLoading(true);
-      const res = await api.get(`/settings/backup/export?type=${backupOptions.type}`);
+      const res = await settingsAPI.exportBackup(backupOptions.type);
       const blob = new Blob([JSON.stringify(res.data.data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1016,15 +1024,12 @@ const Settings = () => {
       setImportLoading(true);
       const text = await file.text();
       const backup = JSON.parse(text);
-      const res = await api.post('/settings/backup/import', {
-        backup,
-        options: {
-          restorePLCs: backupOptions.restorePLCs,
-          restoreTags: backupOptions.restoreTags,
-          restoreScreens: backupOptions.restoreScreens,
-          restoreSettings: backupOptions.restoreSettings,
-          overwrite: backupOptions.overwrite,
-        },
+      const res = await settingsAPI.importBackup(backup, {
+        restorePLCs: backupOptions.restorePLCs,
+        restoreTags: backupOptions.restoreTags,
+        restoreScreens: backupOptions.restoreScreens,
+        restoreSettings: backupOptions.restoreSettings,
+        overwrite: backupOptions.overwrite,
       });
       const results = res.data.data;
       const restored = Object.entries(results.restored || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
@@ -1041,7 +1046,7 @@ const Settings = () => {
 
   const handleReset = async (section = null) => {
     try {
-      await api.post('/settings/reset', section ? { section } : {});
+      await settingsAPI.reset(section);
       addToast(`${section ? section + ' settings' : 'All settings'} reset to defaults`, 'success');
       setResetConfirm(null);
       await loadSettings();
@@ -1112,9 +1117,6 @@ const Settings = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ FIX: Use h-full + proper overflow structure for scrolling
-  // ═══════════════════════════════════════════════════════════
   return (
     <div className="h-full flex flex-col" style={{ background: C.bg }}>
       <Toast toasts={toasts} removeToast={removeToast} />

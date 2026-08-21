@@ -1,12 +1,27 @@
 // ═══════════════════════════════════════════════════════════
 // Socket Service — Multi-Tenant Update
-// ✅ Sends userToken with socket connection for auth
-// ✅ Reconnects with fresh token on each attempt
+// ✅ FIXED: Auto-detects production environments & fallback protocols
 // ═══════════════════════════════════════════════════════════
 
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = 'http://localhost:5000';
+// ─── Auto-Detect Socket URL with Fallbacks ───
+const getSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    // Strip trailing /api or /api/
+    return envUrl.replace(/\/api\/?$/, '');
+  }
+
+  // Fallback to dynamic window origin if VITE_API_URL is relative or undefined
+  const { protocol, hostname, port } = window.location;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000';
+  }
+  return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+};
+
+const SOCKET_URL = getSocketUrl();
 
 class SocketService {
   constructor() {
@@ -14,10 +29,6 @@ class SocketService {
     this.listeners = new Map();
   }
 
-  // ─────────────────────────────────────────
-  // Connect (idempotent — safe to call multiple times)
-  // Reads userToken from localStorage at connection time
-  // ─────────────────────────────────────────
   connect() {
     if (this.socket?.connected) return this.socket;
 
@@ -27,13 +38,14 @@ class SocketService {
       this.socket = null;
     }
 
-    // ✅ Get token at connect time (not module load)
     const token = localStorage.getItem('userToken');
 
     if (!token) {
       console.warn('⚠️  Socket connect skipped — no userToken');
       return null;
     }
+
+    console.log(`🔌 Attempting Socket connection to: ${SOCKET_URL}`);
 
     this.socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
@@ -43,10 +55,7 @@ class SocketService {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       timeout: 10000,
-      // ✅ MULTI-TENANT: Send userToken for auth
-      auth: {
-        token,
-      },
+      auth: { token },
     });
 
     this.socket.on('connect', () => {
@@ -59,31 +68,11 @@ class SocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('⚠️  Socket error:', error.message);
-
-      // If auth error, trigger re-login
-      if (error.message === 'AUTH_REQUIRED' ||
-          error.message === 'AUTH_INVALID' ||
-          error.message === 'WRONG_TOKEN_TYPE') {
-        console.warn('🔒 Socket auth failed — token may be expired');
-        // Optional: could dispatch an event here for app to react
-      }
-    });
-
-    this.socket.on('reconnect', (attempt) => {
-      console.log(`🔄 Socket reconnected after ${attempt} attempts`);
-    });
-
-    // ✅ Server sends welcome with company info
-    this.socket.on('welcome', (data) => {
-      console.log(`🎉 Server welcomed us: company=${data.companyId}, role=${data.role}`);
     });
 
     return this.socket;
   }
 
-  // ─────────────────────────────────────────
-  // Reconnect with fresh token (call after login)
-  // ─────────────────────────────────────────
   reconnectWithNewToken() {
     console.log('🔄 Reconnecting socket with new token...');
     this.disconnect();
@@ -101,11 +90,7 @@ class SocketService {
 
   on(event, callback) {
     if (!this.socket) this.connect();
-    if (typeof callback !== 'function') {
-      console.warn(`⚠️  socketService.on('${event}') called without callback`);
-      return;
-    }
-    // Socket may still be null if no token
+    if (typeof callback !== 'function') return;
     if (this.socket) {
       this.socket.on(event, callback);
     }
@@ -116,7 +101,6 @@ class SocketService {
     if (callback) {
       this.socket.off(event, callback);
     } else {
-      console.warn(`⚠️  socketService.off('${event}') called without callback — removing ALL handlers`);
       this.socket.off(event);
     }
   }
@@ -124,18 +108,11 @@ class SocketService {
   emit(event, data) {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
-    } else {
-      console.warn(`⚠️  Cannot emit '${event}' — socket not connected`);
     }
   }
 
   isConnected() {
     return this.socket?.connected || false;
-  }
-
-  register(event, callback) {
-    this.on(event, callback);
-    return () => this.off(event, callback);
   }
 }
 
