@@ -1,16 +1,13 @@
 // ═══════════════════════════════════════════════════════════
-// WorkspaceLogin — Login & Self-Service Signup Page
-// Features:
-//   • Existing Workspace Login
-//   • Google OAuth One-Click Signup
-//   • Manual Free-Trial Workspace Signup
+// WorkspaceLogin — Step 1 of Two-Step Authentication
+// ✅ Added "Confirm Password" field for manual signup
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Lock, Mail, AlertCircle, Loader2, Building2, User,
+  Lock, Mail, AlertCircle, Loader2, Building2, User, Sparkles, ArrowRight,
 } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -28,6 +25,7 @@ const WorkspaceLogin = () => {
   const [signupName, setSignupName]       = useState('');
   const [signupEmail, setSignupEmail]     = useState('');
   const [signupPass, setSignupPass]       = useState('');
+  const [signupPassConfirm, setSignupPassConfirm] = useState(''); // ✅ NEW
 
   const [error, setError]                 = useState('');
   const [loading, setLoading]             = useState(false);
@@ -36,7 +34,6 @@ const WorkspaceLogin = () => {
   const navigate = useNavigate();
   const googleBtnRef = useRef(null);
 
-  // Auto-redirect if already logged in
   useEffect(() => {
     if (authState === 'LOGGED_IN')      navigate('/dashboard');
     if (authState === 'WORKSPACE_ONLY') navigate('/select-user');
@@ -52,7 +49,6 @@ const WorkspaceLogin = () => {
     if (savedSlug) setSlug(savedSlug);
   }, []);
 
-  // ─── Initialize Google SDK ──────────────────────────────
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
 
@@ -124,8 +120,14 @@ const WorkspaceLogin = () => {
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
+    // ✅ NEW: Verify passwords match before calling API
+    if (signupPass !== signupPassConfirm) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
     const result = await signupManual(
       signupCompany.trim(),
       signupName.trim(),
@@ -158,7 +160,6 @@ const WorkspaceLogin = () => {
       />
 
       <div className="w-full max-w-md relative z-10 my-8">
-        {/* Brand */}
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold mb-1"
             style={{ fontFamily: "'Montserrat', sans-serif", color: '#081B43', letterSpacing: '-0.02em' }}>
@@ -169,7 +170,6 @@ const WorkspaceLogin = () => {
           </p>
         </div>
 
-        {/* Card */}
         <div
           className="p-8 rounded-2xl"
           style={{
@@ -178,7 +178,6 @@ const WorkspaceLogin = () => {
             boxShadow: '0px 24px 80px rgba(8,27,67,0.10)',
           }}
         >
-          {/* Tabs */}
           <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
             <button
               type="button"
@@ -194,17 +193,16 @@ const WorkspaceLogin = () => {
             <button
               type="button"
               onClick={() => { setTab('signup'); setError(''); }}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 tab === 'signup'
                   ? 'bg-[#2563EB] text-white shadow-sm'
                   : 'text-[#5F6B7A] hover:text-[#2563EB]'
               }`}
             >
-              Sign Up
+              <Sparkles size={14} /> Free Trial
             </button>
           </div>
 
-          {/* Error Banner */}
           {error && (
             <div
               className="px-4 py-3 rounded-lg mb-5 flex items-start gap-2 text-sm"
@@ -215,7 +213,7 @@ const WorkspaceLogin = () => {
             </div>
           )}
 
-          {/* TAB 1: EXISTING WORKSPACE LOGIN */}
+          {/* TAB 1: LOGIN */}
           {tab === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
@@ -276,10 +274,9 @@ const WorkspaceLogin = () => {
             </form>
           )}
 
-          {/* TAB 2: SELF-SERVICE FREE TRIAL SIGNUP */}
+          {/* TAB 2: SIGNUP */}
           {tab === 'signup' && (
             <div className="space-y-4">
-              {/* Google OAuth Button Container */}
               {GOOGLE_CLIENT_ID && (
                 <>
                   <div ref={googleBtnRef} className="w-full min-h-[40px] flex justify-center" />
@@ -352,6 +349,22 @@ const WorkspaceLogin = () => {
                   </div>
                 </div>
 
+                {/* ✅ NEW: Confirm Password Field */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#081B43' }}>
+                    Confirm Password *
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password" value={signupPassConfirm}
+                      onChange={(e) => setSignupPassConfirm(e.target.value)}
+                      placeholder="Re-type password" required minLength={6}
+                      className="w-full pl-9 pr-4 py-2 rounded-xl text-sm border border-gray-200 bg-slate-50 outline-none focus:border-blue-600"
+                    />
+                  </div>
+                </div>
+
                 <button
                   type="submit" disabled={loading}
                   className="w-full font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-all cursor-pointer mt-3"
@@ -359,14 +372,18 @@ const WorkspaceLogin = () => {
                   {loading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Creating Workspace…</>
                   ) : (
-                    'CONTINUE'
+                    <>Start 14-Day Free Trial <ArrowRight size={16} /></>
                   )}
                 </button>
               </form>
+
+              <p className="text-[11px] text-center text-gray-400 font-medium pt-1">
+                🔒 Includes Demo Simulation PLC + 5 live tags • No credit card
+              </p>
             </div>
           )}
 
-          {/* Contact Sales */}
+          {/* Contact sales link */}
           <div className="mt-6 pt-4 border-t border-gray-100 text-center">
             <p className="text-xs text-gray-400">
               Need enterprise setup or custom features?{' '}

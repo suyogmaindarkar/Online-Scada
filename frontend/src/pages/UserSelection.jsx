@@ -1,8 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // UserSelection — Step 2: Choose which user to log in as
-//
-// Grid of user cards after workspace is verified.
-// Click card → password modal → login → redirect based on role
+// ✅ Added "Forgot Password?" Mailto fallback link
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
@@ -10,11 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Loader2, AlertCircle, Building2, LogOut, RefreshCw,
-  Shield, Wrench, Radio, Eye,
-  X, Lock, User as UserIcon,
+  Shield, Wrench, Radio, Eye, X, Lock, User as UserIcon,
 } from 'lucide-react';
 
-// Role display config
 const ROLE_CONFIG = {
   admin:    { label: 'Administrator', icon: Shield,  color: '#DC2626', bg: '#FEE2E2' },
   engineer: { label: 'Engineer',      icon: Wrench,  color: '#2563EB', bg: '#EEF6FF' },
@@ -29,19 +25,14 @@ const UserSelection = () => {
     logoutAll, refreshUsers, loginUser,
   } = useAuth();
 
-  const [selectedUser, setSelectedUser] = useState(null); // for password modal
+  const [selectedUser, setSelectedUser] = useState(null);
   const [refreshing,   setRefreshing]   = useState(false);
 
-  // ─── Redirect if not in the right auth state ─────────
   useEffect(() => {
     if (authState === 'LOGGED_OUT') navigate('/login');
-    if (authState === 'LOGGED_IN')  {
-      // Already logged in — send based on role
-      navigate('/dashboard');
-    }
+    if (authState === 'LOGGED_IN')  navigate('/dashboard');
   }, [authState, navigate]);
 
-  // ─── Auto-refresh user list every 30s ────────────────
   useEffect(() => {
     const interval = setInterval(() => {
       refreshUsers().catch(() => {});
@@ -55,13 +46,8 @@ const UserSelection = () => {
     setRefreshing(false);
   };
 
-  const handleUserClick = (user) => {
-    setSelectedUser(user);
-  };
-
-  const handleClosePasswordModal = () => {
-    setSelectedUser(null);
-  };
+  const handleUserClick = (user) => setSelectedUser(user);
+  const handleClosePasswordModal = () => setSelectedUser(null);
 
   const handleFullLogout = async () => {
     if (window.confirm('Sign out completely and switch workspace?')) {
@@ -77,7 +63,6 @@ const UserSelection = () => {
       className="min-h-screen flex flex-col p-4"
       style={{ background: 'linear-gradient(135deg, #F8FBFF 0%, #EEF6FF 100%)' }}
     >
-      {/* Blueprint grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -90,7 +75,6 @@ const UserSelection = () => {
       />
 
       <div className="w-full max-w-4xl mx-auto relative z-10 flex-1 flex flex-col justify-center py-8">
-        {/* ─── Header ─── */}
         <div className="text-center mb-8">
           <div
             className="inline-flex items-center gap-3 px-5 py-2 rounded-full mb-4"
@@ -108,25 +92,17 @@ const UserSelection = () => {
             </span>
           </div>
 
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ fontFamily: "'Montserrat', sans-serif", color: '#081B43' }}
-          >
+          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Montserrat', sans-serif", color: '#081B43' }}>
             Choose Your Account
           </h1>
-          <p style={{ color: '#5F6B7A', fontSize: '14px' }}>
-            Click your name to sign in
-          </p>
+          <p style={{ color: '#5F6B7A', fontSize: '14px' }}>Click your name to sign in</p>
         </div>
 
-        {/* ─── User Grid ─── */}
         {users.length === 0 ? (
           <div className="text-center py-16">
             <UserIcon size={48} style={{ color: '#94A3B8', margin: '0 auto 12px' }} />
             <p style={{ color: '#5F6B7A' }}>No users found in this workspace.</p>
-            <p style={{ color: '#94A3B8', fontSize: '12px', marginTop: '4px' }}>
-              Contact your administrator.
-            </p>
+            <p style={{ color: '#94A3B8', fontSize: '12px', marginTop: '4px' }}>Contact your administrator.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -156,7 +132,6 @@ const UserSelection = () => {
                     e.currentTarget.style.borderColor = '#E5E7EB';
                   }}
                 >
-                  {/* Avatar circle */}
                   <div
                     className="w-16 h-16 rounded-full flex items-center justify-center mb-3 mx-auto"
                     style={{
@@ -164,40 +139,26 @@ const UserSelection = () => {
                       boxShadow: `0px 4px 16px ${user.avatarColor || '#2563EB'}40`,
                     }}
                   >
-                    <span style={{
-                      fontSize: '24px', fontWeight: 700, color: '#FFFFFF',
-                      fontFamily: "'Montserrat', sans-serif",
-                    }}>
+                    <span style={{ fontSize: '24px', fontWeight: 700, color: '#FFFFFF', fontFamily: "'Montserrat', sans-serif" }}>
                       {(user.fullName || user.username || '?').charAt(0).toUpperCase()}
                     </span>
                   </div>
 
-                  {/* Name */}
-                  <p className="text-center font-bold mb-1"
-                    style={{ color: '#081B43', fontSize: '15px', fontFamily: "'Montserrat', sans-serif" }}>
+                  <p className="text-center font-bold mb-1" style={{ color: '#081B43', fontSize: '15px', fontFamily: "'Montserrat', sans-serif" }}>
                     {user.fullName || user.username}
                   </p>
-
-                  {/* Username */}
                   <p className="text-center text-xs mb-3" style={{ color: '#5F6B7A' }}>
                     @{user.username}
                   </p>
 
-                  {/* Role badge */}
-                  <div
-                    className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-full mx-auto"
-                    style={{
-                      background: roleConfig.bg, color: roleConfig.color,
-                      width: 'fit-content',
-                    }}
-                  >
+                  <div className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-full mx-auto"
+                    style={{ background: roleConfig.bg, color: roleConfig.color, width: 'fit-content' }}>
                     <RoleIcon size={11} />
                     <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {roleConfig.label}
                     </span>
                   </div>
 
-                  {/* Last login */}
                   {user.lastLogin && (
                     <p className="text-center text-[10px] mt-2" style={{ color: '#94A3B8' }}>
                       Last login: {new Date(user.lastLogin).toLocaleDateString()}
@@ -209,7 +170,6 @@ const UserSelection = () => {
           </div>
         )}
 
-        {/* ─── Footer actions ─── */}
         <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
           <button
             onClick={handleRefresh}
@@ -233,14 +193,8 @@ const UserSelection = () => {
               background: '#FFFFFF', border: '1px solid rgba(220,38,38,0.30)',
               color: '#DC2626', cursor: 'pointer',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#DC2626';
-              e.currentTarget.style.color = '#FFFFFF';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#FFFFFF';
-              e.currentTarget.style.color = '#DC2626';
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#DC2626'; e.currentTarget.style.color = '#FFFFFF'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.color = '#DC2626'; }}
           >
             <LogOut size={14} />
             Switch Workspace
@@ -248,13 +202,12 @@ const UserSelection = () => {
         </div>
       </div>
 
-      {/* ─── Password Modal ─── */}
       {selectedUser && (
         <UserLoginModal
           user={selectedUser}
+          company={company}
           onClose={handleClosePasswordModal}
           onSuccess={(user) => {
-            // Role-based landing
             if (user.role === 'operator' || user.role === 'viewer') {
               navigate('/runtime');
             } else {
@@ -269,9 +222,9 @@ const UserSelection = () => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// USER LOGIN MODAL — Enter password after clicking user card
+// USER LOGIN MODAL
 // ═══════════════════════════════════════════════════════════
-const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
+const UserLoginModal = ({ user, company, onClose, onSuccess, loginUser }) => {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
@@ -285,7 +238,6 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
     setLoading(true);
 
     const result = await loginUser(user._id, password);
-
     if (result.success) {
       onSuccess(result.user);
     } else {
@@ -296,16 +248,8 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(8,27,67,0.6)', backdropFilter: 'blur(4px)',
-        }}
-      />
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(8,27,67,0.6)', backdropFilter: 'blur(4px)' }} />
 
-      {/* Modal */}
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
         transform: 'translate(-50%,-50%)', zIndex: 10000,
@@ -313,14 +257,12 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
         padding: '28px', width: '380px', maxWidth: '90vw',
         boxShadow: '0px 24px 80px rgba(8,27,67,0.25)',
       }}>
-        {/* Close button */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute', top: '12px', right: '12px',
             background: 'transparent', border: 'none', cursor: 'pointer',
-            padding: '6px', borderRadius: '6px',
-            color: '#94A3B8',
+            padding: '6px', borderRadius: '6px', color: '#94A3B8',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#081B43'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}
@@ -328,7 +270,6 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
           <X size={18} />
         </button>
 
-        {/* Avatar */}
         <div style={{
           width: '72px', height: '72px', borderRadius: '50%',
           background: `linear-gradient(135deg, ${user.avatarColor || '#2563EB'} 0%, ${user.avatarColor || '#0F3D91'}dd 100%)`,
@@ -336,28 +277,20 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
           margin: '0 auto 16px',
           boxShadow: `0px 8px 24px ${user.avatarColor || '#2563EB'}40`,
         }}>
-          <span style={{
-            fontSize: '32px', fontWeight: 700, color: '#FFFFFF',
-            fontFamily: "'Montserrat', sans-serif",
-          }}>
+          <span style={{ fontSize: '32px', fontWeight: 700, color: '#FFFFFF', fontFamily: "'Montserrat', sans-serif" }}>
             {(user.fullName || user.username || '?').charAt(0).toUpperCase()}
           </span>
         </div>
 
-        {/* Name */}
-        <p style={{
-          textAlign: 'center', fontSize: '18px', fontWeight: 700,
-          color: '#081B43', margin: 0, fontFamily: "'Montserrat', sans-serif",
-        }}>
+        <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: 700, color: '#081B43', margin: 0, fontFamily: "'Montserrat', sans-serif" }}>
           {user.fullName || user.username}
         </p>
         <p style={{ textAlign: 'center', fontSize: '12px', color: '#5F6B7A', margin: '4px 0 12px' }}>
           {user.email}
         </p>
 
-        {/* Role badge */}
         <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+          display: 'flex', alignItems: 'center', justifycenter: 'center', gap: '6px',
           padding: '4px 12px', borderRadius: '999px',
           background: roleConfig.bg, color: roleConfig.color,
           width: 'fit-content', margin: '0 auto 20px',
@@ -368,7 +301,6 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
           </span>
         </div>
 
-        {/* Error */}
         {error && (
           <div style={{
             padding: '10px 12px', borderRadius: '8px', marginBottom: '12px',
@@ -380,13 +312,9 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           <div style={{ position: 'relative', marginBottom: '12px' }}>
-            <Lock size={16} style={{
-              position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-              color: '#94A3B8',
-            }} />
+            <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
             <input
               type="password" value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -398,14 +326,8 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
                 fontSize: '14px', outline: 'none',
                 background: '#F8FAFC', color: '#081B43',
               }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#2563EB';
-                e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.15)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#E5E7EB';
-                e.target.style.boxShadow = 'none';
-              }}
+              onFocus={(e) => { e.target.style.borderColor = '#2563EB'; e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.15)'; }}
+              onBlur={(e) => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none'; }}
             />
           </div>
 
@@ -413,22 +335,33 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
             type="submit" disabled={loading || !password}
             style={{
               width: '100%', padding: '12px', borderRadius: '10px', border: 'none',
-              background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: '#FFFFFF',
-              boxShadow: '0px 4px 16px rgba(37, 99, 235, 0.35)',
+              background: '#081B43', color: '#FFFFFF',
               fontSize: '14px', fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
               fontFamily: "'Montserrat', sans-serif",
               opacity: (loading || !password) ? 0.6 : 1,
             }}
-            onMouseEnter={(e) => { if (!loading && password) e.currentTarget.style.background = 'linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%)'; }}
-            onMouseLeave={(e) => { if (!loading && password) e.currentTarget.style.background = 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)'; }}
+            onMouseEnter={(e) => { if (!loading && password) e.currentTarget.style.background = '#123E8A'; }}
+            onMouseLeave={(e) => { if (!loading && password) e.currentTarget.style.background = '#081B43'; }}
           >
-            {loading
-              ? <><Loader2 size={16} className="animate-spin" />Signing in…</>
-              : 'Sign In'
-            }
+            {loading ? <><Loader2 size={16} className="animate-spin" />Signing in…</> : 'Sign In'}
           </button>
         </form>
+
+        {/* ✅ NEW: Forgot Password Mailto Link */}
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <a
+            href={`mailto:suyogmaindarkar@gmail.com?subject=Password Reset Request - ${company?.companyName || 'OnlineSCADA'}&body=Hi,%0D%0A%0D%0AI have forgotten the password for my user account and need a reset.%0D%0A%0D%0AUser Email: ${user.email}%0D%0AWorkspace: ${company?.slug}%0D%0A`}
+            style={{
+              fontSize: '12px', color: '#64748B', textDecoration: 'none', fontWeight: 500,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#2563EB'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.textDecoration = 'none'; }}
+          >
+            Forgot Password?
+          </a>
+        </div>
+
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // Signup Controller — Self-Service Free Trial Workspace Creation
-// ✅ Sends automated Welcome Email upon signup
+// ✅ FIXED: Platform-wide check to prevent duplicate emails
 // ═══════════════════════════════════════════════════════════
 
 const jwt           = require('jsonwebtoken');
@@ -120,6 +120,16 @@ const manualSignup = async (req, res) => {
       });
     }
 
+    // ✅ FIXED: Check if this email is already registered ANYWHERE in the platform
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is already associated with an existing workspace. Please log in instead.',
+        code: 'EMAIL_ALREADY_EXISTS',
+      });
+    }
+
     const slug = await generateUniqueSlug(companyName);
 
     const company = await Company.create({
@@ -177,7 +187,6 @@ const manualSignup = async (req, res) => {
       });
     } catch {}
 
-    // ✉️ Send Automated Welcome Email (Non-blocking)
     sendWelcomeEmail({
       email: user.email,
       fullName: user.fullName,
@@ -267,7 +276,6 @@ const googleSignup = async (req, res) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-
     let user = await User.findOne({ email: cleanEmail });
     let company;
 
@@ -327,7 +335,6 @@ const googleSignup = async (req, res) => {
         });
       } catch {}
 
-      // ✉️ Send Automated Welcome Email for new Google signups
       sendWelcomeEmail({
         email: user.email,
         fullName: user.fullName,
