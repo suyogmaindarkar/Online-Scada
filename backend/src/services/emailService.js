@@ -1,13 +1,12 @@
 // ═══════════════════════════════════════════════════════════
 // Email Service — Multi-Tenant Nodemailer Transport
-// ✅ Hardened for Render.com (IPv4 DNS priority + Gmail service)
+// ✅ Hardened for Render.com (FORCED IPv4 ONLY - family: 4)
 // ═══════════════════════════════════════════════════════════
 
 const nodemailer = require('nodemailer');
 const dns        = require('dns');
 
-// 🔒 Force Node.js to resolve IPv4 addresses first.
-// Node 18+ defaults to IPv6 first, which causes 30s connection timeouts on Render.com
+// Force global Node.js DNS to return IPv4 first
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
@@ -22,14 +21,17 @@ const getTransporter = () => {
     return null;
   }
 
-  // ✅ Use Nodemailer's native 'gmail' service adapter
+  // ✅ CRITICAL FIX for Render: family: 4 forces IPv4 socket connection
+  // Prevents ENETUNREACH error caused by Render having no IPv6 interface
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // implicit SSL
+    family: 4,    // 👈 FORCES IPv4 (skips IPv6 completely)
     auth: {
       user,
       pass,
     },
-    // Set 10s connection timeouts so it fails fast if there is a network issue
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 10000,
