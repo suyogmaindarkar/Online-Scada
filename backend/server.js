@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Server Entry Point — OnlineSCADA Backend (Multi-Tenant)
-// ✅ FIXED: Added trust proxy for Render / Reverse Proxy support
+// Server Entry Point — OnlineSCADA Backend (Production Hardened)
+// ✅ Hardened with Helmet security headers & masked errors
 // ═══════════════════════════════════════════════════════════
 
 const dotenv = require('dotenv');
@@ -10,6 +10,7 @@ const express   = require('express');
 const http      = require('http');
 const cors      = require('cors');
 const jwt       = require('jsonwebtoken');
+const helmet    = require('helmet');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
 
@@ -19,6 +20,17 @@ const connectDB   = require('./src/config/database');
 
 const app    = express();
 const server = http.createServer(app);
+
+// 🔒 1. Disable X-Powered-By Express header
+app.disable('x-powered-by');
+
+// 🔒 2. Apply Helmet security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Handled at CDN level
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // ✅ Enable trust proxy for Render/Cloudflare/Vercel reverse proxies
 app.set('trust proxy', 1);
@@ -299,6 +311,6 @@ server.listen(PORT, () => {
   console.log(`║  🌍 Environment: ${(process.env.NODE_ENV || 'development').padEnd(37)}║`);
   console.log(`║  🔗 URL: http://localhost:${PORT}                          ║`);
   console.log('║  🏢 Multi-Tenant Mode: ENABLED                         ║');
-  console.log('║  🔒 Socket auth: REQUIRED (userToken)                  ║');
+  console.log('║  🛡️  Security Headers (Helmet) & Proxy Trust: ACTIVE   ║');
   console.log('╚════════════════════════════════════════════════════════╝');
 });

@@ -1,106 +1,34 @@
 // ═══════════════════════════════════════════════════════════
-// Global Error Handler Middleware
-// Catches ALL errors and returns consistent response format
+// Error Handler Middleware — Production Hardened
+// ✅ Masks internal error details and stack traces in production
 // ═══════════════════════════════════════════════════════════
 
-const AppError = require('../utils/AppError');
-
-// ─────────────────────────────────────────
-// 404 Handler — for undefined routes
-// ─────────────────────────────────────────
 const notFound = (req, res, next) => {
-  const error = new AppError(
-    `Route not found: ${req.method} ${req.originalUrl}`,
-    404,
-    'ROUTE_NOT_FOUND'
-  );
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
   next(error);
 };
 
-// ─────────────────────────────────────────
-// Global Error Handler
-// Formats ALL errors consistently
-// ─────────────────────────────────────────
 const errorHandler = (err, req, res, next) => {
-  let error = { ...err };
-  error.message = err.message;
-  error.statusCode = err.statusCode || 500;
-  error.errorCode = err.errorCode || null;
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // ── Log for developers ────────────────────────────────
-  console.error('❌ Error:', {
-    method: req.method,
-    url: req.originalUrl,
-    status: error.statusCode,
-    message: err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
-
-  // ── Handle specific Mongoose errors ──────────────────
-
-  // CastError = invalid ObjectId
-  if (err.name === 'CastError') {
-    error.statusCode = 400;
-    error.message = `Invalid ${err.path}: ${err.value}`;
-    error.errorCode = 'INVALID_ID';
+  // Log full stack trace on server terminal (for Suyog's debugging)
+  if (!isProduction) {
+    console.error('❌ Server Error:', err.stack);
+  } else {
+    console.error(`❌ [PROD ERROR] ${req.method} ${req.originalUrl}:`, err.message);
   }
 
-  // Duplicate key error (E11000)
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue || {})[0] || 'field';
-    const value = err.keyValue?.[field] || 'value';
-    error.statusCode = 400;
-    error.message = `Duplicate ${field}: '${value}' already exists`;
-    error.errorCode = 'DUPLICATE_ENTRY';
-  }
-
-  // Validation errors
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors || {}).map((e) => e.message);
-    error.statusCode = 400;
-    error.message = messages.join(', ') || 'Validation failed';
-    error.errorCode = 'VALIDATION_ERROR';
-  }
-
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    error.statusCode = 401;
-    error.message = 'Invalid authentication token';
-    error.errorCode = 'INVALID_TOKEN';
-  }
-  if (err.name === 'TokenExpiredError') {
-    error.statusCode = 401;
-    error.message = 'Authentication token expired. Please login again.';
-    error.errorCode = 'TOKEN_EXPIRED';
-  }
-
-  // JSON parse error
-  if (err.type === 'entity.parse.failed') {
-    error.statusCode = 400;
-    error.message = 'Invalid JSON in request body';
-    error.errorCode = 'INVALID_JSON';
-  }
-
-  // Payload too large
-  if (err.type === 'entity.too.large') {
-    error.statusCode = 413;
-    error.message = 'Request too large. Please reduce data size.';
-    error.errorCode = 'PAYLOAD_TOO_LARGE';
-  }
-
-  // ── Send standardized response ────────────────────────
-  const response = {
+  res.status(statusCode).json({
     success: false,
-    message: error.message || 'Internal Server Error',
-    errorCode: error.errorCode || 'UNKNOWN_ERROR',
-  };
-
-  // Only include stack trace in development
-  if (process.env.NODE_ENV === 'development' && err.stack) {
-    response.stack = err.stack;
-  }
-
-  res.status(error.statusCode).json(response);
+    message: isProduction && statusCode === 500
+      ? 'An internal server error occurred. Please try again later.'
+      : err.message,
+    code: err.code || 'SERVER_ERROR',
+    // 🔒 Never leak stack trace to the browser network tab in production
+    stack: isProduction ? null : err.stack,
+  });
 };
 
 module.exports = { notFound, errorHandler };
