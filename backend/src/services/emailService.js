@@ -1,33 +1,51 @@
 // ═══════════════════════════════════════════════════════════
-// Email Service — Nodemailer Transport & Email Templates
+// Email Service — Nodemailer Transport for Gmail & Custom SMTP
+// Sender: suyogmaindarkar@gmail.com
 // ═══════════════════════════════════════════════════════════
 
 const nodemailer = require('nodemailer');
 
+const SENDER_EMAIL = 'suyogmaindarkar@gmail.com';
+
 const getTransporter = () => {
-  if (!process.env.SMTP_HOST) return null;
+  const user = process.env.SMTP_USER || SENDER_EMAIL;
+  const pass = process.env.SMTP_PASS;
+
+  if (!pass) {
+    return null;
+  }
+
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT) || 587;
+
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
+    host,
+    port,
+    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user,
+      pass,
+    },
+    // Prevent SSL handshake failures on cloud servers
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 };
 
-// ─── T019: Send Alarm Email ───────────────────────────────
+// ─── Send Alarm Email ─────────────────────────────────────
 const sendAlarmEmail = async (alarm, currentValue) => {
   const transporter = getTransporter();
-  if (!transporter) return { sent: false, reason: 'SMTP not configured' };
+  if (!transporter) {
+    console.warn('⚠️  SMTP_PASS missing — Alarm email skipped');
+    return { sent: false, reason: 'SMTP_PASS missing' };
+  }
 
   const recipients = alarm.emailRecipients;
   if (!recipients || recipients.length === 0) {
     return { sent: false, reason: 'No recipients' };
   }
 
-  // Check throttle (1 email per N minutes per alarm)
   const throttleMs = (alarm.emailThrottleMinutes || 15) * 60 * 1000;
   if (alarm.lastEmailSentAt && (Date.now() - new Date(alarm.lastEmailSentAt).getTime() < throttleMs)) {
     return { sent: false, reason: 'Throttled' };
@@ -49,12 +67,14 @@ const sendAlarmEmail = async (alarm, currentValue) => {
   `;
 
   try {
+    const sender = process.env.SMTP_USER || SENDER_EMAIL;
     await transporter.sendMail({
-      from: `"OnlineSCADA Alarms" <${process.env.SMTP_USER}>`,
+      from: `"OnlineSCADA Alarms" <${sender}>`,
       to: recipients.join(','),
       subject,
       html,
     });
+    console.log(`✉️ Alarm email sent to ${recipients.join(',')}`);
     return { sent: true };
   } catch (error) {
     console.error('❌ Failed to send alarm email:', error.message);
@@ -66,13 +86,14 @@ const sendAlarmEmail = async (alarm, currentValue) => {
 const sendWelcomeEmail = async ({ email, fullName, companyName, slug }) => {
   const transporter = getTransporter();
   if (!transporter) {
-    console.warn('⚠️ SMTP not configured — Welcome email skipped');
-    return { sent: false, reason: 'SMTP not configured' };
+    console.warn('⚠️  SMTP_PASS missing in .env — Welcome email skipped. Please set SMTP_PASS in Render!');
+    return { sent: false, reason: 'SMTP_PASS missing' };
   }
 
   const appUrl = process.env.APP_URL || 'https://app.onlinescada.in';
   const loginUrl = `${appUrl}/login`;
   const subject = `Welcome to OnlineSCADA — Your ${companyName} Workspace is Ready! 🚀`;
+  const senderUser = process.env.SMTP_USER || SENDER_EMAIL;
 
   const html = `
     <!DOCTYPE html>
@@ -132,7 +153,7 @@ const sendWelcomeEmail = async ({ email, fullName, companyName, slug }) => {
           <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 32px 0 20px;" />
 
           <p style="font-size: 13px; color: #64748B; margin: 0;">
-            Need assistance or custom PLC connectivity support? Reply directly to this email or reach us at <a href="mailto:suyogmaindarkar@gmail.com" style="color: #2563EB; text-decoration: none;">suyogmaindarkar@gmail.com</a>.
+            Need assistance or custom PLC connectivity support? Reply directly to this email or reach us at <a href="mailto:${SENDER_EMAIL}" style="color: #2563EB; text-decoration: none;">${SENDER_EMAIL}</a>.
           </p>
         </div>
 
@@ -148,15 +169,15 @@ const sendWelcomeEmail = async ({ email, fullName, companyName, slug }) => {
 
   try {
     await transporter.sendMail({
-      from: `"OnlineSCADA" <${process.env.SMTP_USER}>`,
+      from: `"OnlineSCADA" <${senderUser}>`,
       to: email,
       subject,
       html,
     });
-    console.log(`✉️ Welcome email sent successfully to ${email}`);
+    console.log(`✉️ Welcome email sent successfully to ${email} (from ${senderUser})`);
     return { sent: true };
   } catch (error) {
-    console.error('❌ Failed to send welcome email:', error.message);
+    console.error(`❌ Failed to send welcome email to ${email}:`, error.message);
     return { sent: false, reason: error.message };
   }
 };
