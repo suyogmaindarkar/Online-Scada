@@ -1,17 +1,12 @@
 // ═══════════════════════════════════════════════════════════
 // Server Entry Point — OnlineSCADA Backend (Production Hardened)
 // ═══════════════════════════════════════════════════════════
-const dotenv = require('dotenv');
-dotenv.config();
-
 const dns = require('dns');
-// 🔒 Force Node.js to resolve IPv4 addresses first across all network operations
+// 🔒 Force Node.js to resolve IPv4 addresses first across all network operations (fixes Render.com email/SMTP timeouts)
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
 
-const express = require('express');
-// ... rest of server.js
 const dotenv = require('dotenv');
 dotenv.config();
 
