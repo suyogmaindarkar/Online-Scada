@@ -1,23 +1,33 @@
 // ═══════════════════════════════════════════════════════════
 // Server Entry Point — OnlineSCADA Backend (Production Hardened)
 // ═══════════════════════════════════════════════════════════
-
 const dotenv = require('dotenv');
 dotenv.config();
 
-const express   = require('express');
-const http      = require('http');
-const cors      = require('cors');
-const jwt       = require('jsonwebtoken');
-const helmet    = require('helmet');
+const dns = require('dns');
+// 🔒 Force Node.js to resolve IPv4 addresses first across all network operations
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
+const express = require('express');
+// ... rest of server.js
+const dotenv = require('dotenv');
+dotenv.config();
+
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
 
 const { initInflux, closeInflux, isInfluxAvailable } = require('./src/services/influxService');
 const trendRoutes = require('./src/routes/trendRoutes');
-const connectDB   = require('./src/config/database');
+const connectDB = require('./src/config/database');
 
-const app    = express();
+const app = express();
 const server = http.createServer(app);
 
 app.disable('x-powered-by');
@@ -93,12 +103,12 @@ const signupLimiter = rateLimit({
 });
 
 app.use('/api', generalLimiter);
-app.use('/api/workspace/verify',     authLimiter);
+app.use('/api/workspace/verify', authLimiter);
 app.use('/api/workspace/login-user', authLimiter);
-app.use('/api/super-admin/login',    authLimiter);
-app.use('/api/auth/login',           authLimiter);
-app.use('/api/tags/write',           writeLimiter);
-app.use('/api/signup',               signupLimiter);
+app.use('/api/super-admin/login', authLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/tags/write', writeLimiter);
+app.use('/api/signup', signupLimiter);
 
 // ═══════════════════════════════════════════════════════════
 // DATABASE CONNECTION + AUTO-SEED
@@ -112,21 +122,21 @@ app.use('/api/signup',               signupLimiter);
 // ═══════════════════════════════════════════════════════════
 // API ROUTES
 // ═══════════════════════════════════════════════════════════
-app.use('/api/workspace',   require('./src/routes/workspaceRoutes'));
+app.use('/api/workspace', require('./src/routes/workspaceRoutes'));
 app.use('/api/super-admin', require('./src/routes/superAdminRoutes'));
-app.use('/api/auth',        require('./src/routes/authRoutes'));
-app.use('/api/plc',         require('./src/routes/plcRoutes'));
-app.use('/api/tags',        require('./src/routes/tagRoutes'));
-app.use('/api/screens',     require('./src/routes/screenRoutes'));
-app.use('/api/alarms',      require('./src/routes/alarmRoutes'));
-app.use('/api/trends',      trendRoutes);
-app.use('/api/recipes',     require('./src/routes/recipeRoutes'));
-app.use('/api/users',       require('./src/routes/userRoutes'));
-app.use('/api/settings',    require('./src/routes/settingsRoutes'));
-app.use('/api/reports',     require('./src/routes/reportRoutes'));
-app.use('/api/discovery',   require('./src/routes/discoveryRoutes'));
-app.use('/api/leads',       require('./src/routes/leadsRoutes'));
-app.use('/api/signup',      require('./src/routes/signupRoutes'));
+app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/plc', require('./src/routes/plcRoutes'));
+app.use('/api/tags', require('./src/routes/tagRoutes'));
+app.use('/api/screens', require('./src/routes/screenRoutes'));
+app.use('/api/alarms', require('./src/routes/alarmRoutes'));
+app.use('/api/trends', trendRoutes);
+app.use('/api/recipes', require('./src/routes/recipeRoutes'));
+app.use('/api/users', require('./src/routes/userRoutes'));
+app.use('/api/settings', require('./src/routes/settingsRoutes'));
+app.use('/api/reports', require('./src/routes/reportRoutes'));
+app.use('/api/discovery', require('./src/routes/discoveryRoutes'));
+app.use('/api/leads', require('./src/routes/leadsRoutes'));
+app.use('/api/signup', require('./src/routes/signupRoutes'));
 
 app.set('io', io);
 
@@ -144,10 +154,10 @@ app.get('/', (req, res) => {
 
 app.get('/api/health', (req, res) => {
   res.json({
-    status:   'OK',
-    server:   'OnlineSCADA Backend',
-    uptime:   process.uptime(),
-    memory:   process.memoryUsage(),
+    status: 'OK',
+    server: 'OnlineSCADA Backend',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
     influxdb: typeof isInfluxAvailable === 'function' ? isInfluxAvailable() : 'unknown',
   });
 });
@@ -171,7 +181,7 @@ app.get('/api/test-email', async (req, res) => {
         smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
         smtpPort: process.env.SMTP_PORT || '465',
         smtpUser: process.env.SMTP_USER || 'Not set',
-        hasPass:  !!process.env.SMTP_PASS,
+        hasPass: !!process.env.SMTP_PASS,
       },
     });
   } catch (err) {
@@ -186,7 +196,7 @@ app.get('/api/test-email', async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // SERVICE INITIALIZATION
 // ═══════════════════════════════════════════════════════════
-const plcManager  = require('./src/services/plcManager');
+const plcManager = require('./src/services/plcManager');
 plcManager.init(io);
 
 const alarmEngine = require('./src/services/alarmEngine');
@@ -228,9 +238,9 @@ io.use(async (socket, next) => {
       return next(new Error('WRONG_TOKEN_TYPE'));
     }
 
-    socket.userId    = payload.userId;
+    socket.userId = payload.userId;
     socket.companyId = String(payload.companyId);
-    socket.userRole  = payload.role;
+    socket.userRole = payload.role;
 
     next();
   } catch (err) {
@@ -246,22 +256,22 @@ io.on('connection', async (socket) => {
   console.log(`🔌 Socket connected: ${socket.id} | company=${socket.companyId} | role=${socket.userRole}`);
 
   socket.emit('welcome', {
-    message:   'Connected to OnlineSCADA Server',
-    socketId:  socket.id,
+    message: 'Connected to OnlineSCADA Server',
+    socketId: socket.id,
     companyId: socket.companyId,
-    role:      socket.userRole,
+    role: socket.userRole,
   });
 
   try {
     const Tag = require('./src/models/Tag');
     const tags = await Tag.find({
       companyId: socket.companyId,
-      isActive:  true,
+      isActive: true,
     });
     const initialData = tags.map((tag) => ({
-      tagName:   tag.tagName,
-      value:     tag.currentValue,
-      quality:   tag.quality,
+      tagName: tag.tagName,
+      value: tag.currentValue,
+      quality: tag.quality,
       timestamp: tag.lastUpdated,
     }));
     socket.emit('initialTags', initialData);
@@ -279,7 +289,7 @@ io.on('connection', async (socket) => {
       const Tag = require('./src/models/Tag');
       const tag = await Tag.findOne({
         companyId: socket.companyId,
-        tagName:   data.tagName,
+        tagName: data.tagName,
       });
 
       if (!tag) {
@@ -288,13 +298,13 @@ io.on('connection', async (socket) => {
       }
 
       tag.currentValue = data.value;
-      tag.lastUpdated  = Date.now();
+      tag.lastUpdated = Date.now();
       await tag.save();
 
       io.to(companyRoom).emit('tagsUpdate', [{
-        tagName:   tag.tagName,
-        value:     tag.currentValue,
-        quality:   tag.quality,
+        tagName: tag.tagName,
+        value: tag.currentValue,
+        quality: tag.quality,
         timestamp: tag.lastUpdated,
       }]);
     } catch (err) {

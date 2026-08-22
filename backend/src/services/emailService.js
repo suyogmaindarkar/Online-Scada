@@ -1,9 +1,16 @@
 // ═══════════════════════════════════════════════════════════
 // Email Service — Multi-Tenant Nodemailer Transport
-// Hardened for Render.com / Cloud Firewalls (Port 465 SSL)
+// ✅ Hardened for Render.com (IPv4 DNS priority + Gmail service)
 // ═══════════════════════════════════════════════════════════
 
 const nodemailer = require('nodemailer');
+const dns        = require('dns');
+
+// 🔒 Force Node.js to resolve IPv4 addresses first.
+// Node 18+ defaults to IPv6 first, which causes 30s connection timeouts on Render.com
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const DEFAULT_SENDER = 'suyogmaindarkar@gmail.com';
 
@@ -15,18 +22,17 @@ const getTransporter = () => {
     return null;
   }
 
-  // ✅ Port 465 with secure: true bypasses Render/GCP port 587 blocking
+  // ✅ Use Nodemailer's native 'gmail' service adapter
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 465,
-    secure: process.env.SMTP_SECURE === 'true' || true, // true for 465
+    service: 'gmail',
     auth: {
       user,
       pass,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
+    // Set 10s connection timeouts so it fails fast if there is a network issue
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 };
 
