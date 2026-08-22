@@ -4,18 +4,9 @@
 // Endpoints:
 //   POST /api/signup/manual — Manual form signup
 //   POST /api/signup/google — Google OAuth ID Token signup
-//
-// Auto-Creates per signup:
-//   1. Company (slug, trial plan, 14-day expiry)
-//   2. Admin User
-//   3. Default Settings
-//   4. Simulation PLC + 5 live demo tags (instant interactivity)
-//   5. Lead record for SuperAdmin tracking
-//   6. Returns workspaceToken + userToken (instant login)
 // ═══════════════════════════════════════════════════════════
 
 const jwt           = require('jsonwebtoken');
-const axios         = require('axios');
 const Company       = require('../models/Company');
 const User          = require('../models/User');
 const Settings      = require('../models/Settings');
@@ -111,7 +102,6 @@ const provisionDemoWorkspaceData = async (companyId) => {
 
 // ═══════════════════════════════════════════════════════════
 // 1. MANUAL SIGNUP
-// Body: { companyName, fullName, email, password }
 // ═══════════════════════════════════════════════════════════
 const manualSignup = async (req, res) => {
   try {
@@ -135,17 +125,16 @@ const manualSignup = async (req, res) => {
       });
     }
 
-    // Generate user-friendly slug
     const slug = await generateUniqueSlug(companyName);
 
-    // 1. Create Company (Trial Plan)
+    // 1. Create Company
     const company = await Company.create({
       companyName: companyName.trim(),
       slug,
       contactEmail: cleanEmail,
       contactName: fullName.trim(),
       plan: 'trial',
-      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14-day trial
+      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     });
 
     // 2. Create Admin User
@@ -160,7 +149,7 @@ const manualSignup = async (req, res) => {
       avatarColor: '#2563EB',
     });
 
-    // 3. Create Default Settings
+    // 3. Create Settings
     await Settings.create({
       companyId: company._id,
       system: { systemName: 'OnlineSCADA', companyName: company.companyName },
@@ -199,7 +188,7 @@ const manualSignup = async (req, res) => {
       });
     } catch {}
 
-    // 7. Generate Tokens
+    // 7. Tokens
     const workspaceToken = generateWorkspaceToken(company._id, company.slug);
     const userToken = generateUserToken(user._id, company._id, user.role);
 
@@ -239,8 +228,7 @@ const manualSignup = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 2. GOOGLE OAUTH SIGNUP
-// Body: { credential } (Google ID Token from frontend)
+// 2. GOOGLE OAUTH SIGNUP (Uses Native Node.js fetch)
 // ═══════════════════════════════════════════════════════════
 const googleSignup = async (req, res) => {
   try {
@@ -254,17 +242,22 @@ const googleSignup = async (req, res) => {
       });
     }
 
-    // Verify token with Google API directly (zero external npm dependency)
+    // ✅ Uses native Node 18+ fetch (no axios needed)
     let googleUser;
     try {
-      const googleRes = await axios.get(
-        `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`
-      );
-      googleUser = googleRes.data;
+      const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+      if (!googleRes.ok) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid Google authentication token',
+          code: 'INVALID_GOOGLE_TOKEN',
+        });
+      }
+      googleUser = await googleRes.json();
     } catch (err) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid Google authentication token',
+        message: 'Failed to verify Google token',
         code: 'INVALID_GOOGLE_TOKEN',
       });
     }
@@ -280,12 +273,10 @@ const googleSignup = async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // Check if user already exists in any company
     let user = await User.findOne({ email: cleanEmail });
     let company;
 
     if (user) {
-      // Existing user — log them in directly!
       company = await Company.findById(user.companyId);
       if (!company || !company.canAccess()) {
         return res.status(403).json({
@@ -294,7 +285,6 @@ const googleSignup = async (req, res) => {
         });
       }
     } else {
-      // New user — create company & admin user!
       const companyName = `${name}'s Workspace`;
       const slug = await generateUniqueSlug(companyName);
 
@@ -308,7 +298,6 @@ const googleSignup = async (req, res) => {
       });
 
       const username = cleanEmail.split('@')[0].replace(/[^a-z0-9]/g, '') || 'admin';
-      // Create random strong password for DB requirement
       const randomPass = `G_${Math.random().toString(36).slice(-10)}!2026`;
 
       user = await User.create({
@@ -328,7 +317,6 @@ const googleSignup = async (req, res) => {
 
       await provisionDemoWorkspaceData(company._id);
 
-      // Track Lead
       try {
         await Lead.create({
           companyName: company.companyName,
