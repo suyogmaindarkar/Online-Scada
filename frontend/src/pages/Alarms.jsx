@@ -7,10 +7,11 @@
 //   ✅ T020  — Priority filter chips + color-coded rows
 //   ✅ T021  — Server-side CSV export
 //   ✅ GLOBAL_SOUND — Sound now plays from any page (not just Alarms)
+//   ✅ UI FIX — Removed header icon badge for clean left-alignment
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect } from 'react';
-import { alarmAPI, tagAPI } from '../services/api';
+import { useState, useEffect, useRef } from 'react';
+import { alarmAPI, tagAPI, settingsAPI } from '../services/api';
 import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
 import { useAlarmNotification } from '../context/AlarmNotificationContext'; // ✅ NEW
@@ -43,6 +44,7 @@ const C = {
   danger:     '#DC2626',
 };
 
+// ─── T020: Priority style config ───
 const PRIORITY_STYLES = {
   CRITICAL: { bg: '#FEE2E2', border: '#DC2626', text: '#7F1D1D', dot: '#DC2626', icon: '🔴', order: 4 },
   HIGH:     { bg: '#FFEDD5', border: '#EA580C', text: '#7C2D12', dot: '#EA580C', icon: '🟠', order: 3 },
@@ -71,7 +73,10 @@ const Alarms = () => {
   const [showAckAllConfirm, setShowAckAllConfirm] = useState(false);
   const [error, setError] = useState(null);
 
-  const [priorityFilter, setPriorityFilter] = useState(null);
+  // ─── T020: Priority filter ───
+  const [priorityFilter, setPriorityFilter] = useState(null); // null = all
+
+  // ─── T021: Export ───
   const [exporting, setExporting] = useState(false);
 
   const [formData, setFormData] = useState(initialForm());
@@ -87,6 +92,7 @@ const Alarms = () => {
       priority: 'MEDIUM',
       message: '',
       group: 'Default',
+      // T018 + T019
       soundEnabled: true,
       enableEmail: false,
       emailRecipients: [],
@@ -172,6 +178,9 @@ const Alarms = () => {
     }
   };
 
+  // ═══════════════════════════════════════════════════════════
+  // ✅ T021: Export CSV (server-side, with priority filter)
+  // ═══════════════════════════════════════════════════════════
   const handleExportCSV = async (type = 'all') => {
     try {
       setExporting(true);
@@ -273,6 +282,7 @@ const Alarms = () => {
     });
   };
 
+  // Email recipients helpers
   const addEmailRecipient = (email) => {
     const trimmed = email.trim();
     if (!trimmed) return;
@@ -294,6 +304,9 @@ const Alarms = () => {
     });
   };
 
+  // ═══════════════════════════════════════════════════════════
+  // Filtered lists (T020)
+  // ═══════════════════════════════════════════════════════════
   const filteredActiveAlarms = priorityFilter
     ? activeAlarms.filter((a) => a.priority === priorityFilter)
     : activeAlarms;
@@ -315,6 +328,9 @@ const Alarms = () => {
     unacked: activeAlarms.filter((a) => !a.isAcknowledged).length,
   };
 
+  // ═══════════════════════════════════════════════════════════
+  // Loading state
+  // ═══════════════════════════════════════════════════════════
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -338,30 +354,20 @@ const Alarms = () => {
         }}
       >
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${C.brand} 0%, ${C.brandDark} 100%)`,
-                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
-              }}
+          {/* ✅ UI FIX: Removed the icon container, kept cleanly left-aligned text */}
+          <div>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}
             >
-              <Bell className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1
-                className="text-2xl font-bold"
-                style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}
-              >
-                Alarm Management
-              </h1>
-              <p className="text-sm" style={{ color: C.muted }}>
-                Monitor & manage system alarms
-                <span className="ml-2 text-xs" style={{ color: C.brand, fontWeight: 600 }}>
-                  · 🌐 Notifications active on all pages
-                </span>
-              </p>
-            </div>
+              Alarm Management
+            </h1>
+            <p className="text-sm" style={{ color: C.muted }}>
+              Monitor & manage system alarms
+              <span className="ml-2 text-xs" style={{ color: C.brand, fontWeight: 600 }}>
+                · 🌐 Notifications active on all pages
+              </span>
+            </p>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -381,7 +387,7 @@ const Alarms = () => {
                 setSoundEnabled(!soundEnabled);
                 showToast(
                   !soundEnabled
-                    ? `🔊 Alarm sound ENABLED globally (${soundVolume}%)`
+                    ? `🔊 Alarm sound ENABLED globally`
                     : '🔇 Alarm sound DISABLED globally',
                   'info',
                   2500
@@ -395,7 +401,7 @@ const Alarms = () => {
               }}
               title={
                 soundEnabled
-                  ? `Alarm sound ON globally (${soundVolume}%) — plays on ALL pages`
+                  ? `Alarm sound ON globally — plays on ALL pages`
                   : 'Alarm sound OFF globally — click to enable'
               }
             >
@@ -414,6 +420,7 @@ const Alarms = () => {
               </button>
             )}
 
+            {/* ✅ T021: Export CSV */}
             <button
               onClick={() => handleExportCSV(activeTab === 'history' ? 'history' : activeTab === 'active' ? 'active' : 'all')}
               disabled={exporting}
@@ -430,6 +437,7 @@ const Alarms = () => {
               Export
             </button>
 
+            {/* Add button (only in Config tab) */}
             {activeTab === 'config' && (
               <button
                 onClick={handleOpenAdd}
@@ -451,7 +459,7 @@ const Alarms = () => {
         </div>
       </div>
 
-      {/* Error banner */}
+      {/* ═══════════ ERROR BANNER ═══════════ */}
       {error && (
         <div
           className="p-3 rounded-lg text-sm flex items-center gap-2"
@@ -462,7 +470,7 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* Stats boxes */}
+      {/* ═══════════ STATS BOXES (T020: click to filter) ═══════════ */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatBox
           label="All Active"
@@ -506,7 +514,7 @@ const Alarms = () => {
         />
       </div>
 
-      {/* Filter indicator */}
+      {/* ═══════════ FILTER INDICATOR ═══════════ */}
       {priorityFilter && (
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
@@ -515,8 +523,10 @@ const Alarms = () => {
           <Filter className="w-4 h-4" style={{ color: C.brand }} />
           <span style={{ color: C.text }}>
             Filtering by:{' '}
-            <strong style={{ color: getPriorityStyle(priorityFilter).dot }}>{priorityFilter}</strong>
-            {' '}priority
+            <strong style={{ color: getPriorityStyle(priorityFilter).dot }}>
+              {priorityFilter}
+            </strong>{' '}
+            priority
           </span>
           <button
             onClick={() => setPriorityFilter(null)}
@@ -529,14 +539,29 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* ═══════════ TABS ═══════════ */}
       <div
         className="flex gap-1 p-1 rounded-lg w-fit"
         style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}
       >
-        <TabButton active={activeTab === 'active'} onClick={() => setActiveTab('active')} icon={BellRing} label={`Active (${filteredActiveAlarms.length})`} />
-        <TabButton active={activeTab === 'config'} onClick={() => setActiveTab('config')} icon={Bell} label={`Configuration (${filteredAllAlarms.length})`} />
-        <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={History} label={`History (${filteredHistory.length})`} />
+        <TabButton
+          active={activeTab === 'active'}
+          onClick={() => setActiveTab('active')}
+          icon={BellRing}
+          label={`Active (${filteredActiveAlarms.length})`}
+        />
+        <TabButton
+          active={activeTab === 'config'}
+          onClick={() => setActiveTab('config')}
+          icon={Bell}
+          label={`Configuration (${filteredAllAlarms.length})`}
+        />
+        <TabButton
+          active={activeTab === 'history'}
+          onClick={() => setActiveTab('history')}
+          icon={History}
+          label={`History (${filteredHistory.length})`}
+        />
       </div>
 
       {/* ═══════════ ACTIVE ALARMS TAB ═══════════ */}
@@ -590,7 +615,7 @@ const Alarms = () => {
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div
-                            className={`w-3 h-3 rounded-full mt-2 ${!alarm.isAcknowledged ? 'animate-pulse' : ''}`}
+                            className={`w-3 h-3 ${style.dot} rounded-full mt-2 ${!alarm.isAcknowledged ? 'animate-pulse' : ''}`}
                             style={{ background: style.dot }}
                           />
                           <div className="flex-1 min-w-0">
@@ -609,7 +634,10 @@ const Alarms = () => {
                                 {alarm.alarmName}
                               </h3>
                               {alarm.isAcknowledged && (
-                                <span className="px-2 py-0.5 text-xs rounded flex items-center gap-1" style={{ background: '#DCFCE7', color: '#15803D' }}>
+                                <span
+                                  className="px-2 py-0.5 text-xs rounded flex items-center gap-1"
+                                  style={{ background: '#DCFCE7', color: '#15803D' }}
+                                >
                                   <CheckCircle className="w-3 h-3" />
                                   Ack
                                 </span>

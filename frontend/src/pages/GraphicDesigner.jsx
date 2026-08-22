@@ -119,7 +119,7 @@ const GraphicDesigner = () => {
     : null;
   const selectedElements = elements.filter(el => selectedIds.includes(el.id));
 
-  // Auto-switch tab for specialized element types
+  // Auto-switch to Element Specific tab when selecting a specialized element
   useEffect(() => {
     if (selectedElement) {
       const specialTypes = [
@@ -657,7 +657,7 @@ const handleCreateTemplate = () => {
     showToast(`Sent ${opLabel}`, 'success', 1500);
   }, [selectedIds, pushUndo, showToast, scheduleAutoSave]);
 
-  // ─── Binding Handlers ────────────────────────────────────
+  // ─── Binding Handlers ───────────────────────────────────
   const handleOpenBinding = useCallback((propertyKey, propertyLabel, propertyType = 'text') => {
     setBindingContext({ propertyKey, propertyLabel, propertyType });
     setBindingDialogOpen(true);
@@ -683,38 +683,40 @@ const handleCreateTemplate = () => {
 
   const getPropertyType = (propertyKey) => {
     const colorProps = ['fill', 'stroke', 'fontColor', 'shadowColor',
-      'motorRunningColor', 'motorStoppedColor', 'tankLiquidColor',
-      'pumpRunningColor', 'pumpStoppedColor', 'valveOpenColor',
-      'valveClosedColor', 'barNormalColor', 'barWarningColor',
-      'barCriticalColor', 'buttonPressedColor', 'symbolTint', 'listSelectionColor'];
+      'motorRunningColor', 'motorStoppedColor', 'motorFaultColor',
+      'tankLiquidColor', 'pumpRunningColor', 'pumpStoppedColor',
+      'valveOpenColor', 'valveClosedColor', 'valvePartialColor',
+      'barNormalColor', 'barWarningColor', 'barCriticalColor',
+      'buttonPressedColor', 'buttonDisabledColor',
+      'symbolTint', 'listSelectionColor',
+    ];
     const numberProps = ['x', 'y', 'width', 'height', 'rotation', 'opacity',
-      'strokeWidth', 'fontSize', 'cornerRadius', 'shadowBlur',
-      'shadowOffsetX', 'shadowOffsetY', 'shadowOpacity',
-      'motorRPM', 'tankMinLevel', 'tankMaxLevel', 'pumpFlowRate',
-      'barMin', 'barMax', 'ioDecimals', 'numDecimals', 'layer'];
+      'strokeWidth', 'fontSize', 'cornerRadius',
+      'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'shadowOpacity',
+      'motorRPM', 'tankMinLevel', 'tankMaxLevel', 'tankWarningHigh', 'tankWarningLow',
+      'pumpFlowRate', 'pumpRPM', 'valvePosition',
+      'barMin', 'barMax', 'barWarningHigh', 'barWarningLow',
+      'ioDecimals', 'ioMinValue', 'ioMaxValue', 'numDecimals',
+      'buttonRepeatDelay', 'layer',
+    ];
     const boolProps = ['isVisible', 'operatorControlEnable'];
+
     if (colorProps.includes(propertyKey)) return 'color';
     if (numberProps.includes(propertyKey)) return 'number';
     if (boolProps.includes(propertyKey)) return 'boolean';
     return 'text';
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // SCREEN ACTIONS
-  // ═══════════════════════════════════════════════════════════
-
+  // ─── Screen Actions ─────────────────────────────────────
   const handleNewScreen = () => {
-    // Auto-save current screen before clearing
-    if (currentScreenRef.current && hasUnsavedChangesRef.current) {
-      performSave(true);
-    }
+    if (elements.length > 0 && !confirm('Discard current changes?')) return;
     setElements([]);
     setSelectedIds([]);
     setDirectConnections([]);
     setCurrentScreen(null);
     setUndoStack([]);
     setRedoStack([]);
-    hasUnsavedChangesRef.current = false;
+
     setCanvasWidth(defaultCanvasSettings.width);
     setCanvasHeight(defaultCanvasSettings.height);
     setCanvasBg(defaultCanvasSettings.bg);
@@ -724,7 +726,21 @@ const handleCreateTemplate = () => {
 
   const handleSave = async () => {
     if (currentScreen) {
-      await performSave(false);
+      try {
+        setSaving(true);
+        await screenAPI.update(currentScreen._id, {
+          elements,
+          width: canvasWidth,
+          height: canvasHeight,
+          backgroundColor: canvasBg,
+          directConnections,
+        });
+        showToast('Screen saved successfully', 'success');
+        loadScreens();
+      } catch (err) {
+        showToast(err.response?.data?.message || 'Save failed', 'error');
+      }
+      finally { setSaving(false); }
     } else {
       setScreenName('');
       setShowSaveModal(true);
@@ -732,29 +748,31 @@ const handleCreateTemplate = () => {
   };
 
   const handleSaveAs = async () => {
-    if (!screenName.trim()) { showToast('Please enter a screen name', 'warning'); return; }
+    if (!screenName.trim()) {
+      showToast('Please enter a screen name', 'warning');
+      return;
+    }
     try {
       setSaving(true);
       const res = await screenAPI.create({
-        screenName, elements,
-        width: canvasWidth, height: canvasHeight,
-        backgroundColor: canvasBg, directConnections,
+        screenName,
+        elements,
+        width: canvasWidth,
+        height: canvasHeight,
+        backgroundColor: canvasBg,
+        directConnections,
       });
       setCurrentScreen(res.data.data);
       setShowSaveModal(false);
-      hasUnsavedChangesRef.current = false;
       showToast(`Screen "${screenName}" saved`, 'success');
       loadScreens();
     } catch (err) {
       showToast(err.response?.data?.message || 'Save failed', 'error');
-    } finally { setSaving(false); }
+    }
+    finally { setSaving(false); }
   };
 
   const handleLoadScreen = async (screen) => {
-    // Auto-save current before switching
-    if (currentScreenRef.current && hasUnsavedChangesRef.current) {
-      await performSave(true);
-    }
     try {
       const res = await screenAPI.getOne(screen._id);
       const data = res.data.data;
@@ -767,19 +785,17 @@ const handleCreateTemplate = () => {
       setSelectedIds([]);
       setUndoStack([]);
       setRedoStack([]);
-      hasUnsavedChangesRef.current = false;
       showToast(`Loaded: ${data.screenName}`, 'success');
     } catch (err) {
       showToast('Failed to load screen', 'error');
     }
   };
 
-  // ✅ #2: Delete screen
+  // ✅ Delete screen
   const handleDeleteScreen = async (screen) => {
     try {
       await screenAPI.delete(screen._id);
       showToast(`Deleted screen "${screen.screenName}"`, 'success');
-      // If the deleted screen is currently open, clear the canvas
       if (currentScreen?._id === screen._id) {
         handleNewScreen();
       }
@@ -789,14 +805,12 @@ const handleCreateTemplate = () => {
     }
   };
 
-  // ✅ #3: Set startup screen
+  // ✅ Set startup screen
   const handleSetStartupScreen = async (screen) => {
     try {
-      // Update this screen to be startup, clear others
       await screenAPI.update(screen._id, { isStartupScreen: true });
       showToast(`"${screen.screenName}" set as startup screen`, 'success');
       loadScreens();
-      // If currently editing this screen, update local currentScreen
       if (currentScreen?._id === screen._id) {
         setCurrentScreen(prev => ({ ...prev, isStartupScreen: true }));
       }
@@ -809,6 +823,7 @@ const handleCreateTemplate = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
       if (e.ctrlKey || e.metaKey) {
         if (e.shiftKey) {
           switch (e.key.toLowerCase()) {
@@ -817,6 +832,7 @@ const handleCreateTemplate = () => {
             case 'arrowdown': e.preventDefault(); handleZOrder('back'); return;
           }
         }
+
         switch (e.key.toLowerCase()) {
           case 'z': e.preventDefault(); handleUndo(); break;
           case 'y': e.preventDefault(); handleRedo(); break;
@@ -831,20 +847,21 @@ const handleCreateTemplate = () => {
           case 'g': e.preventDefault(); handleGroup(); break;
         }
       }
+
       if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
         if (e.key === 'PageUp') { e.preventDefault(); handleZOrder('forward'); }
         if (e.key === 'PageDown') { e.preventDefault(); handleZOrder('backward'); }
       }
+
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedIds.length > 0) { e.preventDefault(); handleDeleteSelected(); }
       }
-      if (e.key === 'Escape') setSelectedIds([]);
+      if (e.key === 'Escape') { setSelectedIds([]); }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo, handleCopy, handleCut, handlePaste, handleSave,
-      handleNewScreen, handleDeleteSelected, handleDuplicate, handleSelectAll,
-      handleGroup, handleUngroup, handleZOrder, selectedIds]);
+  }, [handleUndo, handleRedo, handleCopy, handleCut, handlePaste, handleSave, handleNewScreen, handleDeleteSelected, handleDuplicate, handleSelectAll, handleGroup, handleUngroup, handleZOrder, selectedIds]);
 
   const selectedForHeader = selectedElement || (selectedIds.length > 1 ? { type: `${selectedIds.length} objects`, id: selectedIds[0] } : null);
 
@@ -914,7 +931,10 @@ const handleCreateTemplate = () => {
 
       <div className="flex-1 flex overflow-hidden min-h-0">
         <div className="flex-shrink-0">
-          <LeftSidebar onAddElement={handleAddElement} onAddComponent={handleAddComponent} />
+          <LeftSidebar
+            onAddElement={handleAddElement}
+            onAddComponent={handleAddComponent}
+          />
         </div>
 
         <div className="flex-1 overflow-auto min-w-0">
@@ -955,9 +975,9 @@ const handleCreateTemplate = () => {
             onRefresh={loadScreens}
             onDeleteScreen={handleDeleteScreen}
             onSetStartupScreen={handleSetStartupScreen}
-              onAddElement={handleAddElement}
-               onCreatePopup={handleCreatePopup}       // ✅ NEW
-  onCreateTemplate={handleCreateTemplate}
+            onAddElement={handleAddElement}
+            onCreatePopup={handleCreatePopup}
+            onCreateTemplate={handleCreateTemplate}
           />
         </div>
       </div>
@@ -1018,24 +1038,25 @@ const handleCreateTemplate = () => {
           )}
         </div>
 
-{currentScreen?.isTemplate && (
-  <span style={{
-    marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
-    background: 'rgba(147,51,234,0.15)', color: '#9333EA',
-    fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
-  }}>
-    ⚙ TEMPLATE — elements appear on all screens
-  </span>
-)}
-{currentScreen?.isPopup && (
-  <span style={{
-    marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
-    background: 'rgba(245,158,11,0.15)', color: '#F59E0B',
-    fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
-  }}>
-    🪟 POPUP {currentScreen.width}×{currentScreen.height}
-  </span>
-)}
+        {currentScreen?.isTemplate && (
+          <span style={{
+            marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
+            background: 'rgba(147,51,234,0.15)', color: '#9333EA',
+            fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
+          }}>
+            ⚙ TEMPLATE — elements appear on all screens
+          </span>
+        )}
+        {currentScreen?.isPopup && (
+          <span style={{
+            marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
+            background: 'rgba(245,158,11,0.15)', color: '#F59E0B',
+            fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
+          }}>
+            🪟 POPUP {currentScreen.width}×{currentScreen.height}
+          </span>
+        )}
+
         {/* Tab bar */}
         <div className="flex" style={{ background: '#F8FAFC', borderBottom: `1px solid ${COLORS.lineDefault}`, flexShrink: 0 }}>
           {[
@@ -1063,7 +1084,6 @@ const handleCreateTemplate = () => {
           })}
         </div>
 
-        {/* ✅ #5 FIX: overflow-auto on each tab so they scroll independently */}
         <div className="flex-1 overflow-hidden min-h-0">
           {activeTab === 'properties' && (
             <div className="flex h-full overflow-hidden">
@@ -1088,7 +1108,6 @@ const handleCreateTemplate = () => {
           )}
 
           {activeTab === 'events' && (
-            // ✅ #5 FIX: Full height container, EventsTab handles its own scroll
             <div className="h-full overflow-hidden">
               <EventsTab
                 element={selectedElement}
@@ -1106,7 +1125,6 @@ const handleCreateTemplate = () => {
           )}
 
           {activeTab === 'animation' && (
-            // ✅ #5 FIX: AnimationTab gets full height with scroll
             <div className="h-full overflow-auto">
               <AnimationTab
                 element={selectedElement}

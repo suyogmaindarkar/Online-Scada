@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Mail, Lock, Shield } from 'lucide-react';
+import { User, Mail, Lock, Shield, AlertTriangle, Loader2 } from 'lucide-react';
+import Modal from '../ui/Modal';
 
 const ROLES = [
   { value: 'admin',    label: '👑 Admin',    desc: 'Full system access' },
@@ -70,154 +71,147 @@ const UserForm = ({ user, onSubmit, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-lg w-full max-w-md border border-slate-700">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <User className="w-6 h-6 text-blue-500" />
-            {user ? 'Edit User' : 'Add New User'}
-          </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
-            <X className="w-6 h-6" />
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={user ? `Edit User: ${user.name}` : 'Add New User'}
+      size="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Name */}
+        <div>
+          <label className="text-xs font-semibold uppercase text-slate-600 mb-1.5 block">Full Name *</label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full bg-[#F8FAFC] text-slate-900 rounded-lg pl-10 pr-3 py-2 text-sm border border-slate-200 focus:border-[#2563EB] focus:bg-white outline-none transition-colors"
+              placeholder="e.g. John Doe"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Username */}
+        <div>
+          <label className="text-xs font-semibold uppercase text-slate-600 mb-1.5 block">Username</label>
+          <input
+            type="text"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            className="w-full bg-[#F8FAFC] text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-200 focus:border-[#2563EB] focus:bg-white outline-none transition-colors"
+            placeholder="johndoe (auto from email if empty)"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="text-xs font-semibold uppercase text-slate-600 mb-1.5 block">Email *</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full bg-[#F8FAFC] text-slate-900 rounded-lg pl-10 pr-3 py-2 text-sm border border-slate-200 focus:border-[#2563EB] focus:bg-white outline-none transition-colors"
+              placeholder="john@example.com"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="text-xs font-semibold uppercase text-slate-600 mb-1.5 block">
+            {user ? 'Password (leave blank to keep current)' : 'Password *'}
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full bg-[#F8FAFC] text-slate-900 rounded-lg pl-10 pr-3 py-2 text-sm border border-slate-200 focus:border-[#2563EB] focus:bg-white outline-none transition-colors"
+              placeholder={user ? '••••••••' : 'Min 6 characters'}
+              minLength={user ? 0 : 6}
+            />
+          </div>
+        </div>
+
+        {/* Role */}
+        <div>
+          <label className="text-xs font-semibold uppercase text-slate-600 mb-1.5 block flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-slate-500" /> Role *
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {ROLES.map((r) => (
+              <button
+                key={r.value}
+                type="button"
+                onClick={() => setFormData({ ...formData, role: r.value })}
+                className={`p-2.5 rounded-lg border text-left transition-all ${
+                  formData.role === r.value
+                    ? 'bg-blue-50 border-[#2563EB] text-[#1E40AF] shadow-xs'
+                    : 'bg-[#F8FAFC] border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="text-xs font-bold">{r.label}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{r.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Active Status */}
+        <div className="flex items-center justify-between bg-[#F8FAFC] p-3 rounded-lg border border-slate-200">
+          <div>
+            <div className="text-slate-800 text-xs font-bold">Account Status</div>
+            <div className="text-slate-500 text-[11px]">
+              {formData.isActive ? 'User can log in to the system' : 'User is deactivated'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              formData.isActive ? 'bg-emerald-500' : 'bg-slate-300'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              formData.isActive ? 'translate-x-6' : 'translate-x-1'
+            }`}/>
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="bg-red-900 border border-red-600 text-red-200 rounded-lg p-3 text-sm">
-              ❌ {error}
-            </div>
-          )}
-
-          {/* Name */}
-          <div>
-            <label className="text-slate-300 text-sm mb-1 block">Full Name *</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-slate-700 text-white rounded pl-10 pr-3 py-2 border border-slate-600 focus:border-blue-500 outline-none"
-                placeholder="John Doe"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Username */}
-          <div>
-            <label className="text-slate-300 text-sm mb-1 block">Username</label>
-            <input
-              type="text"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="w-full bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 outline-none"
-              placeholder="johndoe (auto from email if empty)"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="text-slate-300 text-sm mb-1 block">Email *</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-slate-700 text-white rounded pl-10 pr-3 py-2 border border-slate-600 focus:border-blue-500 outline-none"
-                placeholder="john@example.com"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="text-slate-300 text-sm mb-1 block">
-              {user ? 'Password (leave blank to keep current)' : 'Password *'}
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-slate-700 text-white rounded pl-10 pr-3 py-2 border border-slate-600 focus:border-blue-500 outline-none"
-                placeholder={user ? '••••••••' : 'Min 6 characters'}
-                minLength={user ? 0 : 6}
-              />
-            </div>
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="text-slate-300 text-sm mb-2 block flex items-center gap-1">
-              <Shield className="w-4 h-4" /> Role *
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {ROLES.map((r) => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: r.value })}
-                  className={`p-3 rounded-lg border text-left transition-all ${
-                    formData.role === r.value
-                      ? 'bg-blue-900 border-blue-500 text-white'
-                      : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
-                  }`}
-                >
-                  <div className="text-sm font-semibold">{r.label}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">{r.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Status */}
-          <div className="flex items-center justify-between bg-slate-900 p-3 rounded-lg border border-slate-700">
-            <div>
-              <div className="text-white text-sm font-medium">Account Status</div>
-              <div className="text-slate-400 text-xs">
-                {formData.isActive ? 'User can login' : 'User cannot login'}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                formData.isActive ? 'bg-green-600' : 'bg-slate-600'
-              }`}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                formData.isActive ? 'translate-x-6' : 'translate-x-1'
-              }`}/>
-            </button>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-700">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white rounded"
-            >
-              {saving ? 'Saving...' : user ? 'Update User' : 'Create User'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Buttons */}
+        <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg transition-colors border border-slate-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-medium text-sm rounded-lg shadow-sm flex items-center gap-2 transition-colors"
+          >
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span>{saving ? 'Saving...' : user ? 'Update User' : 'Create User'}</span>
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

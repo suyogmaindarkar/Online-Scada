@@ -6,7 +6,7 @@
 //   ✅ T027  — PLC status widgets (per-PLC card list with health info)
 //   ✅ T028  — Recent alarms feed (last 10 triggered, click to nav)
 //   ✅ T029  — Live trend mini-charts (SVG sparklines for top numeric tags)
-//   ✅ BONUS — Blue theme rebrand, click-through nav, toast, refactored layout
+//   ✅ UI FIX — Removed header icon badge for clean left-alignment
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -16,7 +16,7 @@ import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
 import {
   Cpu, Tag, Bell, Activity, TrendingUp, AlertCircle, RefreshCw, Loader2,
-  Wifi, WifiOff, Zap, ChevronRight, BarChart3, Clock, ShieldAlert,
+  Wifi, WifiOff, ChevronRight, BarChart3, Clock, ShieldAlert,
   Bell as BellIcon,
 } from 'lucide-react';
 
@@ -125,7 +125,6 @@ const Dashboard = () => {
         const historyData = results[3].value?.data;
         historyAlarms = historyData?.alarms || historyData?.data || [];
       }
-      // History failure is non-critical, don't add to errors
 
       setStats({
         totalPLCs: plcs.length,
@@ -156,15 +155,11 @@ const Dashboard = () => {
       console.error('Unexpected loadStats error:', error);
       setErrors(['Unknown error']);
     } finally {
-      // ✅ T005: Only clear loading on initial completion (regardless of success/errors)
       if (isInitial) setLoading(false);
       if (isManualRefresh) setRefreshing(false);
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Initial load + socket setup
-  // ═══════════════════════════════════════════════════════════
   useEffect(() => {
     loadStats(true);
 
@@ -194,30 +189,25 @@ const Dashboard = () => {
         return next;
       });
 
-      // ✅ T029: Update sparkline history for numeric tags
       updates.forEach((u) => {
         if (!u || !u.tagName || typeof u.value !== 'number') return;
         const history = sparklineRef.current[u.tagName] || [];
         history.push({ time: Date.now(), value: u.value });
-        // Keep only recent points
         if (history.length > SPARKLINE_HISTORY_SIZE) {
           history.shift();
         }
         sparklineRef.current[u.tagName] = history;
       });
 
-      // Trigger sparkline re-render (throttled by React batching)
       setSparklineData({ ...sparklineRef.current });
     };
 
     const handlePlcStatus = (data) => {
-      // Update PLC connected status in real-time (T027)
       setPlcs((prev) =>
         prev.map((p) =>
           p._id === data.plcId ? { ...p, isConnected: data.isConnected } : p
         )
       );
-      // Also update online count
       setStats((prev) => ({
         ...prev,
         onlinePLCs: data.isConnected
@@ -226,7 +216,6 @@ const Dashboard = () => {
       }));
     };
 
-    // Alarm events trigger stats refresh
     const handleAlarmEvent = () => loadStats(false);
 
     socketService.on('connect', handleConnect);
@@ -236,7 +225,6 @@ const Dashboard = () => {
     socketService.on('alarmTriggered', handleAlarmEvent);
     socketService.on('alarmCleared', handleAlarmEvent);
 
-    // Auto-refresh every 10 seconds
     refreshIntervalRef.current = setInterval(() => loadStats(false), 10000);
 
     return () => {
@@ -250,23 +238,17 @@ const Dashboard = () => {
     };
   }, []);
 
-  // ─── Filtered/sorted live tag list ───
   const tagList = Object.values(liveTags)
     .filter((t) => validTagNames.has(t.tagName))
     .sort((a, b) => a.tagName.localeCompare(b.tagName));
 
-  // ─── Get top numeric tags for sparklines (T029) ───
   const sparklineTags = Object.entries(sparklineData)
     .filter(([name, hist]) => validTagNames.has(name) && hist.length >= 2)
     .slice(0, 4);
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T005: LOADING STATE (skeleton) — properly waits for first data
-  // ═══════════════════════════════════════════════════════════
   if (loading) {
     return (
       <div className="space-y-4">
-        {/* Skeleton header */}
         <div className="flex items-center justify-between">
           <div>
             <div className="h-8 w-40 rounded animate-pulse" style={{ background: C.border }} />
@@ -274,15 +256,9 @@ const Dashboard = () => {
           </div>
           <div className="h-10 w-32 rounded animate-pulse" style={{ background: C.border }} />
         </div>
-
-        {/* Skeleton stat cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl"
-              style={{ background: C.card, border: `1px solid ${C.border}` }}
-            >
+            <div key={i} className="p-6 rounded-2xl" style={{ background: C.card, border: `1px solid ${C.border}` }}>
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 rounded-lg animate-pulse" style={{ background: C.border }} />
                 <div className="w-6 h-6 rounded animate-pulse" style={{ background: C.border }} />
@@ -292,8 +268,6 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
-
-        {/* Skeleton main content */}
         <div className="rounded-2xl p-6" style={{ background: C.card, border: `1px solid ${C.border}` }}>
           <div className="flex items-center justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin" style={{ color: C.brand }} />
@@ -304,13 +278,11 @@ const Dashboard = () => {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // MAIN RENDER
-  // ═══════════════════════════════════════════════════════════
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* ═══════════ HEADER ═══════════ */}
       <div className="flex items-center justify-between flex-wrap gap-3">
+        {/* ✅ UI FIX: Removed the icon container, kept cleanly left-aligned text */}
         <div>
           <h1
             className="text-3xl font-bold"
@@ -330,7 +302,6 @@ const Dashboard = () => {
             </span>
           )}
 
-          {/* Refresh */}
           <button
             onClick={() => loadStats(false, true)}
             disabled={refreshing}
@@ -344,7 +315,6 @@ const Dashboard = () => {
             Refresh
           </button>
 
-          {/* Connection status */}
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-lg"
             style={{
@@ -369,7 +339,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ═══════════ ERRORS BANNER ═══════════ */}
       {errors.length > 0 && (
         <div
           className="p-3 rounded-lg text-sm flex items-center gap-2"
@@ -382,48 +351,15 @@ const Dashboard = () => {
 
       {/* ═══════════ STAT CARDS ═══════════ */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label="Total PLCs"
-          value={stats.totalPLCs}
-          icon={Cpu}
-          color={C.brand}
-          onClick={() => navigate('/plc')}
-        />
-        <StatCard
-          label="Online PLCs"
-          value={stats.onlinePLCs}
-          subValue={stats.totalPLCs > 0 ? `${Math.round((stats.onlinePLCs / stats.totalPLCs) * 100)}%` : null}
-          icon={Activity}
-          color={C.success}
-          onClick={() => navigate('/plc')}
-        />
-        <StatCard
-          label="Total Tags"
-          value={stats.totalTags}
-          icon={Tag}
-          color={C.purple}
-          onClick={() => navigate('/tags')}
-        />
-        <StatCard
-          label="Active Alarms"
-          value={stats.activeAlarms}
-          icon={Bell}
-          color={stats.activeAlarms > 0 ? C.danger : C.success}
-          onClick={() => navigate('/alarms')}
-          pulse={stats.activeAlarms > 0}
-        />
+        <StatCard label="Total PLCs" value={stats.totalPLCs} icon={Cpu} color={C.brand} onClick={() => navigate('/plc')} />
+        <StatCard label="Online PLCs" value={stats.onlinePLCs} subValue={stats.totalPLCs > 0 ? `${Math.round((stats.onlinePLCs / stats.totalPLCs) * 100)}%` : null} icon={Activity} color={C.success} onClick={() => navigate('/plc')} />
+        <StatCard label="Total Tags" value={stats.totalTags} icon={Tag} color={C.purple} onClick={() => navigate('/tags')} />
+        <StatCard label="Active Alarms" value={stats.activeAlarms} icon={Bell} color={stats.activeAlarms > 0 ? C.danger : C.success} onClick={() => navigate('/alarms')} pulse={stats.activeAlarms > 0} />
       </div>
 
-      {/* ═══════════ MAIN GRID: 3 columns (T027 + Live Tags + T028) ═══════════ */}
+      {/* ═══════════ MAIN GRID ═══════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* ─── T027: PLC WIDGETS ─── */}
-        <Widget
-          title="PLC Status"
-          subtitle={`${stats.onlinePLCs} of ${stats.totalPLCs} online`}
-          icon={Cpu}
-          iconColor={C.brand}
-          onSeeAll={() => navigate('/plc')}
-        >
+        <Widget title="PLC Status" subtitle={`${stats.onlinePLCs} of ${stats.totalPLCs} online`} icon={Cpu} iconColor={C.brand} onSeeAll={() => navigate('/plc')}>
           {plcs.length === 0 ? (
             <EmptyState icon={Cpu} label="No PLCs configured" hint="Add a PLC in PLC Management" />
           ) : (
@@ -444,15 +380,7 @@ const Dashboard = () => {
           )}
         </Widget>
 
-        {/* ─── LIVE TAGS ─── */}
-        <Widget
-          title="Live Tag Updates"
-          subtitle={`${tagList.length} ${tagList.length === 1 ? 'tag' : 'tags'} streaming`}
-          icon={Activity}
-          iconColor={C.brand}
-          iconAnimated={tagList.length > 0}
-          onSeeAll={() => navigate('/tags')}
-        >
+        <Widget title="Live Tag Updates" subtitle={`${tagList.length} ${tagList.length === 1 ? 'tag' : 'tags'} streaming`} icon={Activity} iconColor={C.brand} iconAnimated={tagList.length > 0} onSeeAll={() => navigate('/tags')}>
           {tagList.length === 0 ? (
             <EmptyState icon={AlertCircle} label="No live data yet" hint="Start a PLC to see updates" />
           ) : (
@@ -473,15 +401,7 @@ const Dashboard = () => {
           )}
         </Widget>
 
-        {/* ─── T028: RECENT ALARMS ─── */}
-        <Widget
-          title="Recent Alarms"
-          subtitle={`${recentAlarms.length} in history`}
-          icon={BellIcon}
-          iconColor={stats.activeAlarms > 0 ? C.danger : C.brand}
-          iconAnimated={stats.activeAlarms > 0}
-          onSeeAll={() => navigate('/alarms')}
-        >
+        <Widget title="Recent Alarms" subtitle={`${recentAlarms.length} in history`} icon={BellIcon} iconColor={stats.activeAlarms > 0 ? C.danger : C.brand} iconAnimated={stats.activeAlarms > 0} onSeeAll={() => navigate('/alarms')}>
           {recentAlarms.length === 0 ? (
             <EmptyState icon={ShieldAlert} label="All systems normal" hint="No alarms in history" />
           ) : (
@@ -494,21 +414,15 @@ const Dashboard = () => {
         </Widget>
       </div>
 
-      {/* ═══════════ T029: LIVE TREND MINI-CHARTS ═══════════ */}
+      {/* ═══════════ LIVE TREND MINI-CHARTS ═══════════ */}
       {sparklineTags.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
             <BarChart3 size={20} style={{ color: C.brand }} />
-            <h2
-              className="text-lg font-bold"
-              style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}
-            >
+            <h2 className="text-lg font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
               Live Trends
             </h2>
-            <span
-              className="text-xs px-2 py-0.5 rounded font-mono font-semibold"
-              style={{ background: C.cardHover, color: C.brand }}
-            >
+            <span className="text-xs px-2 py-0.5 rounded font-mono font-semibold" style={{ background: C.cardHover, color: C.brand }}>
               real-time
             </span>
             <button
@@ -540,14 +454,8 @@ const Dashboard = () => {
 
               return (
                 <MiniTrendCard
-                  key={tagName}
-                  tagName={tagName}
-                  unit={tag?.unit || ''}
-                  currentValue={currentValue}
-                  trend={trend}
-                  history={history}
-                  min={min}
-                  max={max}
+                  key={tagName} tagName={tagName} unit={tag?.unit || ''} currentValue={currentValue}
+                  trend={trend} history={history} min={min} max={max}
                   color={[C.brand, C.success, C.purple, C.warning][idx % 4]}
                   onClick={() => navigate('/trends')}
                 />
@@ -564,7 +472,6 @@ const Dashboard = () => {
 // SUB-COMPONENTS
 // ═══════════════════════════════════════════════════════════
 
-// ─── Stat Card (top row) ───
 const StatCard = ({ label, value, subValue, icon: Icon, color, onClick, pulse = false }) => (
   <button
     onClick={onClick}
@@ -587,10 +494,7 @@ const StatCard = ({ label, value, subValue, icon: Icon, color, onClick, pulse = 
     }}
   >
     <div className="flex items-center justify-between mb-4">
-      <div
-        className="p-3 rounded-xl"
-        style={{ background: `${color}15` }}
-      >
+      <div className="p-3 rounded-xl" style={{ background: `${color}15` }}>
         <Icon className={`w-6 h-6 ${pulse ? 'animate-pulse' : ''}`} style={{ color }} />
       </div>
       <TrendingUp className="w-4 h-4" style={{ color: C.subtle }} />
@@ -609,29 +513,16 @@ const StatCard = ({ label, value, subValue, icon: Icon, color, onClick, pulse = 
   </button>
 );
 
-// ─── Widget Container ───
 const Widget = ({ title, subtitle, icon: Icon, iconColor, iconAnimated, onSeeAll, children }) => (
   <div
     className="rounded-2xl p-5"
-    style={{
-      background: C.card,
-      border: `1px solid ${C.border}`,
-      boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
-    }}
+    style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)' }}
   >
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
-        <Icon
-          className={`w-5 h-5 ${iconAnimated ? 'animate-pulse' : ''}`}
-          style={{ color: iconColor }}
-        />
+        <Icon className={`w-5 h-5 ${iconAnimated ? 'animate-pulse' : ''}`} style={{ color: iconColor }} />
         <div>
-          <h3
-            className="text-base font-bold leading-tight"
-            style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}
-          >
-            {title}
-          </h3>
+          <h3 className="text-base font-bold leading-tight" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>{title}</h3>
           <p className="text-xs mt-0.5" style={{ color: C.subtle }}>{subtitle}</p>
         </div>
       </div>
@@ -642,7 +533,6 @@ const Widget = ({ title, subtitle, icon: Icon, iconColor, iconAnimated, onSeeAll
           style={{ color: C.brand }}
           onMouseEnter={(e) => { e.currentTarget.style.color = C.brandDark; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = C.brand; }}
-          title="View all"
         >
           See all <ChevronRight size={12} />
         </button>
@@ -652,51 +542,24 @@ const Widget = ({ title, subtitle, icon: Icon, iconColor, iconAnimated, onSeeAll
   </div>
 );
 
-// ─── PLC Card (T027) ───
 const PLCCard = ({ plc, onClick }) => {
   const isOnline = plc.isConnected;
   return (
     <button
       onClick={onClick}
       className="w-full p-3 rounded-lg text-left transition-all group"
-      style={{
-        background: C.cardSubtle,
-        border: `1px solid ${C.border}`,
-        cursor: 'pointer',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = C.cardHover;
-        e.currentTarget.style.borderColor = C.brand;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = C.cardSubtle;
-        e.currentTarget.style.borderColor = C.border;
-      }}
+      style={{ background: C.cardSubtle, border: `1px solid ${C.border}`, cursor: 'pointer' }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = C.cardHover; e.currentTarget.style.borderColor = C.brand; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = C.cardSubtle; e.currentTarget.style.borderColor = C.border; }}
     >
       <div className="flex items-center gap-3">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: isOnline ? '#DCFCE7' : '#FEE2E2' }}
-        >
-          {isOnline ? (
-            <Wifi className="w-4 h-4" style={{ color: C.success }} />
-          ) : (
-            <WifiOff className="w-4 h-4" style={{ color: C.danger }} />
-          )}
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: isOnline ? '#DCFCE7' : '#FEE2E2' }}>
+          {isOnline ? <Wifi className="w-4 h-4" style={{ color: C.success }} /> : <WifiOff className="w-4 h-4" style={{ color: C.danger }} />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p
-              className="text-sm font-semibold truncate"
-              style={{ color: C.heading }}
-              title={plc.name}
-            >
-              {plc.name}
-            </p>
-            <span
-              className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold flex-shrink-0"
-              style={{ background: C.cardHover, color: C.brand }}
-            >
+            <p className="text-sm font-semibold truncate" style={{ color: C.heading }} title={plc.name}>{plc.name}</p>
+            <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold flex-shrink-0" style={{ background: C.cardHover, color: C.brand }}>
               {plc.protocol}
             </span>
           </div>
@@ -705,16 +568,11 @@ const PLCCard = ({ plc, onClick }) => {
           </p>
         </div>
         <div className="text-right flex-shrink-0">
-          <span
-            className="text-[10px] font-bold uppercase tracking-wider"
-            style={{ color: isOnline ? C.success : C.danger }}
-          >
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: isOnline ? C.success : C.danger }}>
             {isOnline ? 'Online' : 'Offline'}
           </span>
           {plc.tagCount !== undefined && (
-            <p className="text-[10px] mt-0.5" style={{ color: C.subtle }}>
-              {plc.tagCount} tags
-            </p>
+            <p className="text-[10px] mt-0.5" style={{ color: C.subtle }}>{plc.tagCount} tags</p>
           )}
         </div>
       </div>
@@ -722,7 +580,6 @@ const PLCCard = ({ plc, onClick }) => {
   );
 };
 
-// ─── Live Tag Row ───
 const LiveTagRow = ({ tag }) => {
   const isGood = tag.quality === 'GOOD';
   const formatValue = (v) => {
@@ -730,44 +587,22 @@ const LiveTagRow = ({ tag }) => {
     if (typeof v === 'number') return Number.isInteger(v) ? v.toString() : v.toFixed(2);
     return String(v);
   };
-
   return (
-    <div
-      className="flex items-center justify-between p-2.5 rounded-lg transition-colors"
-      style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}
-    >
+    <div className="flex items-center justify-between p-2.5 rounded-lg transition-colors" style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}>
       <div className="flex items-center gap-2 min-w-0 flex-1">
-        <div
-          className={`w-2 h-2 rounded-full flex-shrink-0 ${isGood ? '' : 'animate-pulse'}`}
-          style={{ background: isGood ? C.success : C.danger }}
-        />
-        <span
-          className="font-mono text-xs truncate"
-          style={{ color: C.heading, fontWeight: 500 }}
-          title={tag.tagName}
-        >
-          {tag.tagName}
-        </span>
+        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isGood ? '' : 'animate-pulse'}`} style={{ background: isGood ? C.success : C.danger }} />
+        <span className="font-mono text-xs truncate" style={{ color: C.heading, fontWeight: 500 }} title={tag.tagName}>{tag.tagName}</span>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
-        <span
-          className="font-mono font-bold text-sm"
-          style={{ color: typeof tag.value === 'boolean'
-            ? (tag.value ? C.success : C.danger)
-            : C.brand
-          }}
-        >
+        <span className="font-mono font-bold text-sm" style={{ color: typeof tag.value === 'boolean' ? (tag.value ? C.success : C.danger) : C.brand }}>
           {formatValue(tag.value)}
         </span>
-        <span className="text-[10px]" style={{ color: C.subtle }}>
-          {new Date(tag.timestamp).toLocaleTimeString()}
-        </span>
+        <span className="text-[10px]" style={{ color: C.subtle }}>{new Date(tag.timestamp).toLocaleTimeString()}</span>
       </div>
     </div>
   );
 };
 
-// ─── Alarm Row (T028) ───
 const AlarmRow = ({ alarm, onClick }) => {
   const color = PRIORITY_COLORS[alarm.priority] || C.brand;
   return (
@@ -775,11 +610,7 @@ const AlarmRow = ({ alarm, onClick }) => {
       onClick={onClick}
       className="w-full p-2.5 rounded-lg text-left transition-all"
       style={{
-        background: C.cardSubtle,
-        borderLeft: `3px solid ${color}`,
-        border: `1px solid ${C.border}`,
-        borderLeftWidth: '3px',
-        cursor: 'pointer',
+        background: C.cardSubtle, borderLeft: `3px solid ${color}`, border: `1px solid ${C.border}`, borderLeftWidth: '3px', cursor: 'pointer',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.background = C.cardHover; }}
       onMouseLeave={(e) => { e.currentTarget.style.background = C.cardSubtle; }}
@@ -787,38 +618,18 @@ const AlarmRow = ({ alarm, onClick }) => {
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <span
-              className="text-[9px] px-1.5 py-0.5 rounded font-bold"
-              style={{ background: `${color}20`, color }}
-            >
-              {alarm.priority}
-            </span>
-            <p
-              className="text-xs font-semibold truncate"
-              style={{ color: C.heading }}
-              title={alarm.alarmName}
-            >
-              {alarm.alarmName}
-            </p>
+            <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{ background: `${color}20`, color }}>{alarm.priority}</span>
+            <p className="text-xs font-semibold truncate" style={{ color: C.heading }} title={alarm.alarmName}>{alarm.alarmName}</p>
           </div>
-          <p className="text-[11px] truncate" style={{ color: C.muted }} title={alarm.message}>
-            {alarm.message || alarm.tag}
-          </p>
+          <p className="text-[11px] truncate" style={{ color: C.muted }} title={alarm.message}>{alarm.message || alarm.tag}</p>
         </div>
         <div className="text-right flex-shrink-0">
           <div className="flex items-center gap-1 text-[10px]" style={{ color: C.subtle }}>
             <Clock size={9} />
-            {alarm.triggeredAt || alarm.timestamp
-              ? new Date(alarm.triggeredAt || alarm.timestamp).toLocaleTimeString()
-              : '—'}
+            {alarm.triggeredAt || alarm.timestamp ? new Date(alarm.triggeredAt || alarm.timestamp).toLocaleTimeString() : '—'}
           </div>
           {alarm.event && (
-            <span
-              className="text-[9px] font-semibold uppercase"
-              style={{ color: alarm.event === 'CLEARED' ? C.success : color }}
-            >
-              {alarm.event}
-            </span>
+            <span className="text-[9px] font-semibold uppercase" style={{ color: alarm.event === 'CLEARED' ? C.success : color }}>{alarm.event}</span>
           )}
         </div>
       </div>
@@ -826,13 +637,8 @@ const AlarmRow = ({ alarm, onClick }) => {
   );
 };
 
-// ─── Mini Trend Card / Sparkline (T029) ───
 const MiniTrendCard = ({ tagName, unit, currentValue, trend, history, min, max, color, onClick }) => {
-  const chartWidth = 200;
-  const chartHeight = 50;
-  const padding = 4;
-
-  // Generate SVG path
+  const chartWidth = 200, chartHeight = 50, padding = 4;
   const range = max - min || 1;
   const points = history.map((h, i) => {
     const x = padding + (i / (history.length - 1)) * (chartWidth - padding * 2);
@@ -840,8 +646,6 @@ const MiniTrendCard = ({ tagName, unit, currentValue, trend, history, min, max, 
     return `${x},${y}`;
   });
   const pathData = `M ${points.join(' L ')}`;
-
-  // Area fill (path back down to bottom)
   const areaData = `M ${points[0]} L ${points.join(' L ')} L ${chartWidth - padding},${chartHeight - padding} L ${padding},${chartHeight - padding} Z`;
 
   const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
@@ -851,84 +655,35 @@ const MiniTrendCard = ({ tagName, unit, currentValue, trend, history, min, max, 
     <button
       onClick={onClick}
       className="p-4 rounded-2xl text-left transition-all"
-      style={{
-        background: C.card,
-        border: `1px solid ${C.border}`,
-        boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.04)',
-        cursor: 'pointer',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = color;
-        e.currentTarget.style.boxShadow = `0px 8px 24px ${color}20`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = C.border;
-        e.currentTarget.style.boxShadow = '0px 4px 20px rgba(8, 27, 67, 0.04)';
-      }}
+      style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.04)', cursor: 'pointer' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0px 8px 24px ${color}20`; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = '0px 4px 20px rgba(8, 27, 67, 0.04)'; }}
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1 min-w-0">
-          <p
-            className="text-xs font-semibold truncate"
-            style={{ color: C.muted }}
-            title={tagName}
-          >
-            {tagName}
-          </p>
+          <p className="text-xs font-semibold truncate" style={{ color: C.muted }} title={tagName}>{tagName}</p>
           <div className="flex items-baseline gap-1 mt-1">
-            <span
-              className="text-xl font-bold"
-              style={{ color, fontFamily: 'monospace' }}
-            >
-              {typeof currentValue === 'number'
-                ? Number.isInteger(currentValue) ? currentValue : currentValue.toFixed(2)
-                : '—'}
+            <span className="text-xl font-bold" style={{ color, fontFamily: 'monospace' }}>
+              {typeof currentValue === 'number' ? Number.isInteger(currentValue) ? currentValue : currentValue.toFixed(2) : '—'}
             </span>
-            {unit && (
-              <span className="text-[10px]" style={{ color: C.subtle }}>{unit}</span>
-            )}
+            {unit && <span className="text-[10px]" style={{ color: C.subtle }}>{unit}</span>}
           </div>
         </div>
-        <span
-          className="text-lg font-bold"
-          style={{ color: trendColor }}
-          title={`Trend: ${trend}`}
-        >
-          {trendIcon}
-        </span>
+        <span className="text-lg font-bold" style={{ color: trendColor }} title={`Trend: ${trend}`}>{trendIcon}</span>
       </div>
-
-      {/* Sparkline SVG */}
-      <svg
-        width="100%"
-        height={chartHeight}
-        viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-        style={{ display: 'block' }}
-      >
+      <svg width="100%" height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ display: 'block' }}>
         <defs>
           <linearGradient id={`grad-${tagName}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={color} stopOpacity="0.3" />
             <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
-        {/* Area fill */}
         <path d={areaData} fill={`url(#grad-${tagName})`} />
-        {/* Line */}
         <path d={pathData} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        {/* Last point dot */}
         {points.length > 0 && (
-          <circle
-            cx={points[points.length - 1].split(',')[0]}
-            cy={points[points.length - 1].split(',')[1]}
-            r="3"
-            fill={color}
-            stroke={C.card}
-            strokeWidth="2"
-          />
+          <circle cx={points[points.length - 1].split(',')[0]} cy={points[points.length - 1].split(',')[1]} r="3" fill={color} stroke={C.card} strokeWidth="2" />
         )}
       </svg>
-
-      {/* Min/Max footer */}
       <div className="flex justify-between text-[10px] mt-1" style={{ color: C.subtle }}>
         <span>min: {min.toFixed(2)}</span>
         <span>{history.length} pts</span>
@@ -938,7 +693,6 @@ const MiniTrendCard = ({ tagName, unit, currentValue, trend, history, min, max, 
   );
 };
 
-// ─── Empty State ───
 const EmptyState = ({ icon: Icon, label, hint }) => (
   <div className="text-center py-8">
     <Icon className="w-10 h-10 mx-auto mb-3" style={{ color: C.subtle }} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Users as UsersIcon, Shield, UserCheck, UserX } from 'lucide-react';
+import { Plus, Search, Users as UsersIcon, Shield, UserCheck, UserX, AlertTriangle, Loader2 } from 'lucide-react';
 import { userAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import UserList from '../components/users/UserList';
@@ -7,6 +7,28 @@ import UserForm from '../components/users/UserForm';
 import ResetPasswordModal from '../components/users/ResetPasswordModal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
+
+// ─── Theme ───
+const C = {
+  bg:         '#F8FAFC',
+  card:       '#FFFFFF',
+  cardSubtle: '#F8FAFC',
+  cardHover:  '#EEF6FF',
+  border:     '#E5E7EB',
+  heading:    '#081B43',
+  text:       '#334155',
+  muted:      '#5F6B7A',
+  subtle:     '#94A3B8',
+  brand:      '#2563EB',
+  brandDark:  '#0F3D91',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
+  success:    '#16A34A',
+  warning:    '#F59E0B',
+  danger:     '#DC2626',
+  purple:     '#9333EA',
+};
+
 const Users = () => {
   const { showToast } = useToast();
 
@@ -24,7 +46,6 @@ const Users = () => {
   const [filterRole, setFilterRole] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  // ✅ T013: Replace window.confirm with ConfirmDialog state
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { user }
   const [toggleConfirm, setToggleConfirm] = useState(null); // { user }
 
@@ -60,7 +81,6 @@ const Users = () => {
     try {
       if (editingUser) {
         await userAPI.update(editingUser._id, data);
-        // ✅ T012: Toast instead of nothing
         showToast(`User "${data.name || data.username}" updated successfully`, 'success');
       } else {
         await userAPI.create(data);
@@ -71,24 +91,20 @@ const Users = () => {
       loadUsers();
       loadStats();
     } catch (err) {
-      // ✅ T012: Toast instead of nothing (errors were swallowed before)
       showToast(err.response?.data?.message || 'Operation failed', 'error');
-      throw err; // Re-throw so UserForm can handle it too
+      throw err;
     }
   };
 
-  // ✅ T013: Triggered by ConfirmDialog — no window.confirm
   const handleDeleteConfirmed = async () => {
     if (!deleteConfirm) return;
     try {
       await userAPI.delete(deleteConfirm.user._id);
-      // ✅ T012: Toast on success
       showToast(`User "${deleteConfirm.user.name}" deleted`, 'success');
       setDeleteConfirm(null);
       loadUsers();
       loadStats();
     } catch (err) {
-      // ✅ T012: Toast instead of alert()
       showToast(err.response?.data?.message || 'Failed to delete user', 'error');
     }
   };
@@ -97,19 +113,16 @@ const Users = () => {
     return await userAPI.resetPassword(userId, newPassword);
   };
 
-  // ✅ T013: Triggered by ConfirmDialog — no window.confirm
   const handleToggleConfirmed = async () => {
     if (!toggleConfirm) return;
     try {
       await userAPI.toggleActive(toggleConfirm.user._id);
       const newStatus = toggleConfirm.user.isActive ? 'deactivated' : 'activated';
-      // ✅ T012: Toast on success
       showToast(`User "${toggleConfirm.user.name}" ${newStatus}`, 'success');
       setToggleConfirm(null);
       loadUsers();
       loadStats();
     } catch (err) {
-      // ✅ T012: Toast instead of alert()
       showToast(err.response?.data?.message || 'Failed to toggle status', 'error');
     }
   };
@@ -132,102 +145,176 @@ const Users = () => {
 
   if (!isAdmin) {
     return (
-      <div className="p-6">
-        <div className="bg-red-900 border border-red-600 rounded-lg p-6 text-center">
-          <Shield className="w-16 h-16 text-red-400 mx-auto mb-3" />
-          <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-          <p className="text-red-200">Only administrators can access user management.</p>
+      <div className="p-6" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div
+          className="rounded-2xl p-8 text-center max-w-lg mx-auto"
+          style={{ background: '#FEE2E2', border: `1px solid ${C.danger}` }}
+        >
+          <Shield className="w-16 h-16 mx-auto mb-3" style={{ color: C.danger }} />
+          <h2 className="text-2xl font-bold mb-2" style={{ color: '#991B1B', fontFamily: "'Montserrat', sans-serif" }}>
+            Access Denied
+          </h2>
+          <p className="text-sm" style={{ color: '#B91C1C' }}>
+            Only administrators can access user management.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-            <UsersIcon className="w-8 h-8 text-blue-500" />
-            User Management
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">Manage users and access permissions</p>
+      <div
+        className="p-5 rounded-2xl"
+        style={{
+          background: C.card,
+          border: `1px solid ${C.border}`,
+          boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+        }}
+      >
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}
+            >
+              User Management
+            </h1>
+            <p className="text-sm mt-0.5" style={{ color: C.muted }}>
+              Manage users and access permissions
+            </p>
+          </div>
+          <button
+            onClick={() => { setEditingUser(null); setShowForm(true); }}
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+            title="Add a new user"
+          >
+            <Plus className="w-5 h-5 text-white" />
+            <span className="text-white">+ Add User</span>
+          </button>
         </div>
-        <button
-          onClick={() => { setEditingUser(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-          title="Add a new user"
-        >
-          <Plus className="w-5 h-5" />
-          Add User
-        </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div
+          className="p-4 rounded-2xl transition-all"
+          style={{
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-900 rounded-lg">
-              <UsersIcon className="w-6 h-6 text-blue-400" />
+            <div className="p-3 rounded-xl" style={{ background: '#EEF6FF' }}>
+              <UsersIcon className="w-6 h-6" style={{ color: C.brand }} />
             </div>
             <div>
-              <div className="text-slate-400 text-sm">Total Users</div>
-              <div className="text-2xl font-bold text-white">{stats?.total || 0}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Total Users</div>
+              <div className="text-2xl font-bold mt-0.5" style={{ color: C.heading }}>{stats?.total ?? users.length}</div>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+
+        <div
+          className="p-4 rounded-2xl transition-all"
+          style={{
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-900 rounded-lg">
-              <UserCheck className="w-6 h-6 text-green-400" />
+            <div className="p-3 rounded-xl" style={{ background: '#DCFCE7' }}>
+              <UserCheck className="w-6 h-6" style={{ color: C.success }} />
             </div>
             <div>
-              <div className="text-slate-400 text-sm">Active</div>
-              <div className="text-2xl font-bold text-green-400">{stats?.active || 0}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Active</div>
+              <div className="text-2xl font-bold mt-0.5" style={{ color: C.success }}>
+                {stats?.active ?? users.filter((u) => u.isActive).length}
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+
+        <div
+          className="p-4 rounded-2xl transition-all"
+          style={{
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-red-900 rounded-lg">
-              <UserX className="w-6 h-6 text-red-400" />
+            <div className="p-3 rounded-xl" style={{ background: '#FEE2E2' }}>
+              <UserX className="w-6 h-6" style={{ color: C.danger }} />
             </div>
             <div>
-              <div className="text-slate-400 text-sm">Inactive</div>
-              <div className="text-2xl font-bold text-red-400">{stats?.inactive || 0}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Inactive</div>
+              <div className="text-2xl font-bold mt-0.5" style={{ color: C.danger }}>
+                {stats?.inactive ?? users.filter((u) => !u.isActive).length}
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+
+        <div
+          className="p-4 rounded-2xl transition-all"
+          style={{
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-900 rounded-lg">
-              <Shield className="w-6 h-6 text-purple-400" />
+            <div className="p-3 rounded-xl" style={{ background: '#F5F3FF' }}>
+              <Shield className="w-6 h-6" style={{ color: C.purple }} />
             </div>
             <div>
-              <div className="text-slate-400 text-sm">Admins</div>
-              <div className="text-2xl font-bold text-purple-400">{stats?.byRole?.admin || 0}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Admins</div>
+              <div className="text-2xl font-bold mt-0.5" style={{ color: C.purple }}>
+                {stats?.byRole?.admin ?? users.filter((u) => u.role === 'admin').length}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-4">
-        <div className="grid grid-cols-3 gap-3">
+      <div
+        className="p-4 rounded-2xl"
+        style={{
+          background: C.card,
+          border: `1px solid ${C.border}`,
+          boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)',
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: C.muted }} />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search users by name, email, username..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-700 text-white rounded pl-10 pr-3 py-2 border border-slate-600 focus:border-blue-500 outline-none"
+              className="w-full rounded-lg pl-10 pr-3 py-2 text-sm outline-none transition-colors"
+              style={{
+                background: C.cardSubtle,
+                border: `1px solid ${C.border}`,
+                color: C.heading,
+              }}
             />
           </div>
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 outline-none"
+            className="rounded-lg px-3 py-2 text-sm outline-none transition-colors"
+            style={{
+              background: C.cardSubtle,
+              border: `1px solid ${C.border}`,
+              color: C.heading,
+            }}
           >
             <option value="">All Roles</option>
             <option value="admin">Admin</option>
@@ -238,7 +325,12 @@ const Users = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 outline-none"
+            className="rounded-lg px-3 py-2 text-sm outline-none transition-colors"
+            style={{
+              background: C.cardSubtle,
+              border: `1px solid ${C.border}`,
+              color: C.heading,
+            }}
           >
             <option value="">All Status</option>
             <option value="active">Active Only</option>
@@ -247,29 +339,42 @@ const Users = () => {
         </div>
       </div>
 
-      {/* Error */}
+      {/* Error banner */}
       {error && (
-        <div className="bg-red-900 border border-red-600 text-red-200 rounded-lg p-3 mb-4">
-          ❌ {error}
+        <div
+          className="p-3 rounded-lg text-sm flex items-center gap-2"
+          style={{ background: '#FEE2E2', border: `1px solid ${C.danger}`, color: '#B91C1C' }}
+        >
+          <AlertTriangle className="w-4 h-4" />
+          {error}
         </div>
       )}
 
-      {/* ✅ T014: Empty state when no users */}
+      {/* User Table / Empty state */}
       {loading ? (
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-12 text-center">
-          <div className="text-slate-400">Loading users...</div>
+        <div
+          className="rounded-2xl p-16 text-center"
+          style={{ background: C.card, border: `1px solid ${C.border}` }}
+        >
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: C.brand }} />
+          <div style={{ color: C.muted }}>Loading users...</div>
         </div>
       ) : filteredUsers.length === 0 && !searchQuery && !filterRole && !filterStatus ? (
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-12 text-center">
-          <UsersIcon className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-white mb-2">No Users Yet</h3>
-          <p className="text-slate-400 mb-4">Create the first user to get started</p>
+        <div
+          className="rounded-2xl p-16 text-center"
+          style={{ background: C.card, border: `1px solid ${C.border}` }}
+        >
+          <UsersIcon className="w-12 h-12 mx-auto mb-3" style={{ color: C.subtle }} />
+          <h3 className="text-lg font-semibold mb-2" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
+            No Users Yet
+          </h3>
+          <p className="text-sm mb-4" style={{ color: C.muted }}>Create the first user to get started</p>
           <button
             onClick={() => { setEditingUser(null); setShowForm(true); }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium rounded-lg shadow-sm"
           >
-            <Plus className="w-4 h-4" />
-            Add User
+            <Plus className="w-4 h-4 text-white" />
+            <span>+ Add User</span>
           </button>
         </div>
       ) : (
@@ -277,7 +382,6 @@ const Users = () => {
           users={filteredUsers}
           currentUser={currentUser}
           onEdit={(user) => { setEditingUser(user); setShowForm(true); }}
-          // ✅ T013: Pass ConfirmDialog trigger instead of internal window.confirm
           onDelete={(user) => setDeleteConfirm({ user })}
           onResetPassword={(user) => setResetPasswordUser(user)}
           onToggleActive={(user) => setToggleConfirm({ user })}
@@ -302,7 +406,7 @@ const Users = () => {
         />
       )}
 
-      {/* ✅ T013: Delete user ConfirmDialog */}
+      {/* Delete user ConfirmDialog */}
       <ConfirmDialog
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
@@ -314,7 +418,7 @@ const Users = () => {
         icon="warning"
       />
 
-      {/* ✅ T013: Toggle active ConfirmDialog */}
+      {/* Toggle active ConfirmDialog */}
       <ConfirmDialog
         isOpen={!!toggleConfirm}
         onClose={() => setToggleConfirm(null)}
