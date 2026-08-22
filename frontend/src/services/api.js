@@ -313,7 +313,13 @@ export const settingsAPI = {
     api.post('/settings/backup/import', { backup, options }),
   reset: (section = null) => api.post('/settings/reset', { section }),
 };
-
+// Add signupAPI export:
+export const signupAPI = {
+  manual: (companyName, fullName, email, password) =>
+    api.post('/signup/manual', { companyName, fullName, email, password }),
+  google: (credential) =>
+    api.post('/signup/google', { credential }),
+};
 export default api;
 
 // ─── TREND APIs ────────────────────────────────────────────

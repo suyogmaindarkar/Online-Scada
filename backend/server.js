@@ -82,6 +82,17 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ─── Rate Limiters ─────────────────────────────────────
+// Find the rate limiters section and add signupLimiter:
+const signupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'Too many signup attempts. Please wait 15 minutes.' },
+});
+
+app.use('/api/signup', signupLimiter);
+app.use('/api/signup', require('./src/routes/signupRoutes'));
+
+
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000, max: 300,
   standardHeaders: true, legacyHeaders: false,

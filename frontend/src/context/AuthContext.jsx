@@ -1,10 +1,9 @@
 // ═══════════════════════════════════════════════════════════
-// AuthContext — Multi-Tenant Dual-Token Management
-// ✅ FIXED: Reconnects socket with new userToken on login/logout
+// AuthContext — Multi-Tenant Dual-Token + Signup Management
 // ═══════════════════════════════════════════════════════════
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { workspaceAPI } from '../services/api';
+import { workspaceAPI, signupAPI } from '../services/api';
 import socketService from '../services/socket';
 
 const AuthContext = createContext(null);
@@ -21,7 +20,6 @@ export const AuthProvider = ({ children }) => {
       if (ws) setWorkspaceData(JSON.parse(ws));
       if (u)  {
         setUserData(JSON.parse(u));
-        // ✅ Reconnect socket if we already have a userToken on mount
         setTimeout(() => socketService.connect(), 500);
       }
     } catch (err) {
@@ -31,6 +29,24 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Helper to persist successful signup/login
+  const handleAuthSuccess = (data) => {
+    const { workspaceToken, userToken, company, user, users } = data;
+
+    localStorage.setItem('workspaceToken', workspaceToken);
+    localStorage.setItem('userToken', userToken);
+
+    const wsData = { company, users: users || [user] };
+    localStorage.setItem('workspaceData', JSON.stringify(wsData));
+    localStorage.setItem('userData', JSON.stringify(user));
+
+    setWorkspaceData(wsData);
+    setUserData(user);
+
+    socketService.reconnectWithNewToken();
+  };
+
+  // Step 1: Verify Workspace
   const verifyWorkspace = async (slug, adminEmail, adminPassword) => {
     try {
       const res = await workspaceAPI.verify(slug, adminEmail, adminPassword);
@@ -51,6 +67,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Step 2: Login User
   const loginUser = async (userId, password) => {
     try {
       const res = await workspaceAPI.loginUser(userId, password);
@@ -60,8 +77,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('userData', JSON.stringify(user));
       setUserData(user);
 
-      // ✅ CRITICAL: Reconnect socket with the new userToken
-      // so backend can authenticate and join user's company room
       socketService.reconnectWithNewToken();
 
       return { success: true, user };
@@ -73,26 +88,45 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logoutUser = async () => {
+  // Manual Signup
+  const signupManual = async (companyName, fullName, email, password) => {
     try {
-      await workspaceAPI.logoutUser().catch(() => {});
-    } catch {}
+      const res = await signupAPI.manual(companyName, fullName, email, password);
+      handleAuthSuccess(res.data.data);
+      return { success: true, user: res.data.data.user };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Signup failed',
+      };
+    }
+  };
 
-    // ✅ Disconnect socket (no user context anymore)
+  // Google Signup/Login
+  const signupGoogle = async (credential) => {
+    try {
+      const res = await signupAPI.google(credential);
+      handleAuthSuccess(res.data.data);
+      return { success: true, user: res.data.data.user };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Google authentication failed',
+      };
+    }
+  };
+
+  const logoutUser = async () => {
+    try { await workspaceAPI.logoutUser().catch(() => {}); } catch {}
     socketService.disconnect();
-
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
     setUserData(null);
   };
 
   const logoutAll = async () => {
-    try {
-      await workspaceAPI.logoutAll().catch(() => {});
-    } catch {}
-
+    try { await workspaceAPI.logoutAll().catch(() => {}); } catch {}
     socketService.disconnect();
-
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('workspaceToken');
@@ -109,7 +143,7 @@ export const AuthProvider = ({ children }) => {
       setWorkspaceData(updated);
       localStorage.setItem('workspaceData', JSON.stringify(updated));
       return users;
-    } catch (error) {
+    } catch {
       return [];
     }
   };
@@ -120,62 +154,33 @@ export const AuthProvider = ({ children }) => {
     return 'LOGGED_OUT';
   })();
 
-  const isRole = (...roles) => {
-    if (!userData) return false;
-    return roles.includes(userData.role);
-  };
+  const isRole = (...roles) => userData && roles.includes(userData.role);
+  const hasPermission = (perm) => !!userData?.permissions?.[perm];
 
-  const hasPermission = (perm) => {
-    if (!userData?.permissions) return false;
-    return !!userData.permissions[perm];
-  };
+  const legacyUser = userData ? { ...userData, username: userData.username, role: userData.role, email: userData.email, _id: userData._id } : null;
 
-  const legacyUser = userData ? {
-    ...userData,
-    username: userData.username,
-    role:     userData.role,
-    email:    userData.email,
-    _id:      userData._id,
-  } : null;
-
-  const legacyLogin = async () => {
-    throw new Error('Legacy login() is deprecated. Use verifyWorkspace() + loginUser().');
-  };
-
-  const legacyLogout = async () => {
-    await logoutAll();
-    window.location.href = '/login';
-  };
-
-  const value = {
-    workspaceData,
-    userData,
-    company:  workspaceData?.company || null,
-    users:    workspaceData?.users   || [],
-    loading,
-    authState,
-    verifyWorkspace,
-    loginUser,
-    logoutUser,
-    logoutAll,
-    refreshUsers,
-    isRole,
-    hasPermission,
-
-    // Legacy compat
-    user:            legacyUser,
-    login:           legacyLogin,
-    logout:          legacyLogout,
-    isAuthenticated: authState === 'LOGGED_IN',
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        workspaceData, userData,
+        company: workspaceData?.company || null,
+        users: workspaceData?.users || [],
+        loading, authState,
+        verifyWorkspace, loginUser,
+        signupManual, signupGoogle,
+        logoutUser, logoutAll, refreshUsers,
+        isRole, hasPermission,
+        user: legacyUser,
+        isAuthenticated: authState === 'LOGGED_IN',
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used inside AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used inside AuthProvider');
   return context;
 };
