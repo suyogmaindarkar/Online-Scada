@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // Server Entry Point — OnlineSCADA Backend (Multi-Tenant)
-// ✅ FIXED: Socket.IO now authenticates + joins company room
+// ✅ FIXED: Added trust proxy for Render / Reverse Proxy support
 // ═══════════════════════════════════════════════════════════
 
 const dotenv = require('dotenv');
@@ -17,56 +17,36 @@ const { initInflux, closeInflux, isInfluxAvailable } = require('./src/services/i
 const trendRoutes = require('./src/routes/trendRoutes');
 const connectDB   = require('./src/config/database');
 
-// ═══════════════════════════════════════════════════════════
-// APP + SERVER SETUP
-// ═══════════════════════════════════════════════════════════
 const app    = express();
 const server = http.createServer(app);
 
+// ✅ Enable trust proxy for Render/Cloudflare/Vercel reverse proxies
+app.set('trust proxy', 1);
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'https://onlinescada.in',
+  'https://www.onlinescada.in',
+  'https://app.onlinescada.in',
+  'https://online-scada.vercel.app',
+];
+
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', process.env.FRONTEND_URL].filter(Boolean),
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
   maxHttpBufferSize: 50 * 1024 * 1024,
-}); 
-// ─── LEADS route (public POST from landing site, super-admin GET/PUT/DELETE) ───
-// Rate-limit lead creation to prevent spam
-const leadsCreateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,                   // 10 lead submissions per IP per hour
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: 'Too many demo requests from this IP. Please wait an hour or contact us directly.',
-  },
-  // Apply only to POST /api/leads (not the super-admin GETs)
-  skip: (req) => req.method !== 'POST',
 });
-app.use('/api/leads', leadsCreateLimiter);
-app.use('/api/leads', require('./src/routes/leadsRoutes'));
-// ═══════════════════════════════════════════════════════════
-// MIDDLEWARE
-// ═══════════════════════════════════════════════════════════
-// ✅ NEW: Allow landing site (CRA on 3000) + app (Vite on 5173) + production domain
-const allowedOrigins = [
-  'http://localhost:5173',    // App dev (Vite)
-  'http://localhost:5174',    // App dev (alt port)
-  'http://localhost:3000',    // Landing site dev (CRA default)
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000',
-  'https://onlinescada.in',       // Landing site prod
-  'https://www.onlinescada.in',   // Landing site prod (www)
-  'https://app.onlinescada.in',   // App prod
-  process.env.FRONTEND_URL,       // Production frontend from env
-].filter(Boolean); // Remove undefined/null values
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, Postman)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       console.warn(`⚠️  CORS blocked origin: ${origin}`);
@@ -82,17 +62,6 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ─── Rate Limiters ─────────────────────────────────────
-// Find the rate limiters section and add signupLimiter:
-const signupLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 10,
-  standardHeaders: true, legacyHeaders: false,
-  message: { success: false, message: 'Too many signup attempts. Please wait 15 minutes.' },
-});
-
-app.use('/api/signup', signupLimiter);
-app.use('/api/signup', require('./src/routes/signupRoutes'));
-
-
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000, max: 300,
   standardHeaders: true, legacyHeaders: false,
@@ -108,6 +77,12 @@ const authLimiter = rateLimit({
   standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'Too many login attempts. Please wait 15 minutes.' },
 });
+const signupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'Too many signup attempts. Please wait 15 minutes.' },
+  skip: (req) => req.method !== 'POST',
+});
 
 app.use('/api', generalLimiter);
 app.use('/api/workspace/verify',     authLimiter);
@@ -115,6 +90,7 @@ app.use('/api/workspace/login-user', authLimiter);
 app.use('/api/super-admin/login',    authLimiter);
 app.use('/api/auth/login',           authLimiter);
 app.use('/api/tags/write',           writeLimiter);
+app.use('/api/signup',               signupLimiter);
 
 // ═══════════════════════════════════════════════════════════
 // DATABASE CONNECTION + AUTO-SEED
@@ -141,6 +117,8 @@ app.use('/api/users',       require('./src/routes/userRoutes'));
 app.use('/api/settings',    require('./src/routes/settingsRoutes'));
 app.use('/api/reports',     require('./src/routes/reportRoutes'));
 app.use('/api/discovery',   require('./src/routes/discoveryRoutes'));
+app.use('/api/leads',       require('./src/routes/leadsRoutes'));
+app.use('/api/signup',      require('./src/routes/signupRoutes'));
 
 app.set('io', io);
 
@@ -185,18 +163,10 @@ setTimeout(() => {
 }, 3000);
 
 // ═══════════════════════════════════════════════════════════
-// ✅ SOCKET.IO — MULTI-TENANT AUTHENTICATED
-//
-// Every socket connection MUST authenticate with a userToken.
-// After auth, socket joins a room named "company:<companyId>".
-// All broadcasts use io.to(`company:${companyId}`).emit(...)
-// so users only receive events for THEIR company.
+// SOCKET.IO — MULTI-TENANT AUTHENTICATED
 // ═══════════════════════════════════════════════════════════
-
-// ─── Socket auth middleware (runs on every new connection) ───
 io.use(async (socket, next) => {
   try {
-    // Token can be passed via handshake.auth (preferred) or query (fallback)
     const token =
       socket.handshake.auth?.token ||
       socket.handshake.query?.token;
@@ -219,7 +189,6 @@ io.use(async (socket, next) => {
       return next(new Error('WRONG_TOKEN_TYPE'));
     }
 
-    // ✅ Attach tenant context to socket
     socket.userId    = payload.userId;
     socket.companyId = String(payload.companyId);
     socket.userRole  = payload.role;
@@ -231,7 +200,6 @@ io.use(async (socket, next) => {
   }
 });
 
-// ─── Handle authenticated socket connections ───
 io.on('connection', async (socket) => {
   const companyRoom = `company:${socket.companyId}`;
   socket.join(companyRoom);
@@ -245,7 +213,6 @@ io.on('connection', async (socket) => {
     role:      socket.userRole,
   });
 
-  // ─── Send initial tags SCOPED to this user's company ───
   try {
     const Tag = require('./src/models/Tag');
     const tags = await Tag.find({
@@ -259,22 +226,18 @@ io.on('connection', async (socket) => {
       timestamp: tag.lastUpdated,
     }));
     socket.emit('initialTags', initialData);
-    console.log(`   📦 Sent ${initialData.length} initial tags to ${socket.id}`);
   } catch (err) {
     console.error('Error sending initial tags:', err.message);
   }
 
-  // ─── writeTag socket event — scoped to user's company ───
   socket.on('writeTag', async (data) => {
     try {
-      // Viewers can't write
       if (socket.userRole === 'viewer') {
         socket.emit('error', { message: 'Viewers cannot write tags' });
         return;
       }
 
       const Tag = require('./src/models/Tag');
-      // ✅ Scoped by companyId — user can't write to other companies' tags
       const tag = await Tag.findOne({
         companyId: socket.companyId,
         tagName:   data.tagName,
@@ -289,7 +252,6 @@ io.on('connection', async (socket) => {
       tag.lastUpdated  = Date.now();
       await tag.save();
 
-      // ✅ Broadcast ONLY to this company's room
       io.to(companyRoom).emit('tagsUpdate', [{
         tagName:   tag.tagName,
         value:     tag.currentValue,
@@ -329,9 +291,6 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// ═══════════════════════════════════════════════════════════
-// START SERVER
-// ═══════════════════════════════════════════════════════════
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
@@ -341,11 +300,5 @@ server.listen(PORT, () => {
   console.log(`║  🔗 URL: http://localhost:${PORT}                          ║`);
   console.log('║  🏢 Multi-Tenant Mode: ENABLED                         ║');
   console.log('║  🔒 Socket auth: REQUIRED (userToken)                  ║');
-  console.log('║  🛡️  Rate limiting: enabled                            ║');
-  console.log('║                                                        ║');
-  console.log('║  Auth endpoints:                                        ║');
-  console.log('║    POST /api/workspace/verify         (Step 1)         ║');
-  console.log('║    POST /api/workspace/login-user     (Step 2)         ║');
-  console.log('║    POST /api/super-admin/login        (Super Admin)    ║');
   console.log('╚════════════════════════════════════════════════════════╝');
 });

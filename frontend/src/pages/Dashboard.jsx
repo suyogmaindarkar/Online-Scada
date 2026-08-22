@@ -1,12 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Dashboard — Blue theme + full task bundle
-//
-// Task Bundle applied:
-//   ✅ T005  — Fix stats showing 0 on load (proper loading state)
-//   ✅ T027  — PLC status widgets (per-PLC card list with health info)
-//   ✅ T028  — Recent alarms feed (last 10 triggered, click to nav)
-//   ✅ T029  — Live trend mini-charts (SVG sparklines for top numeric tags)
-//   ✅ UI FIX — Removed header icon badge for clean left-alignment
+// Dashboard — Multi-Tenant & Robust Error Handling
+// ✅ FIXED: Replaced alarmAPI.getActiveAlarms() with alarmAPI.getActive()
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -20,7 +14,6 @@ import {
   Bell as BellIcon,
 } from 'lucide-react';
 
-// ─── Theme ───
 const C = {
   bg:         '#F8FAFC',
   card:       '#FFFFFF',
@@ -41,7 +34,6 @@ const C = {
   purple:     '#9333EA',
 };
 
-// ─── Priority colors ───
 const PRIORITY_COLORS = {
   CRITICAL: '#DC2626',
   HIGH:     '#EA580C',
@@ -49,23 +41,21 @@ const PRIORITY_COLORS = {
   LOW:      '#2563EB',
 };
 
-// ─── Max points to keep in sparkline history ───
 const SPARKLINE_HISTORY_SIZE = 30;
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  // ─── State ───
   const [stats, setStats] = useState({
     totalPLCs: 0,
     onlinePLCs: 0,
     totalTags: 0,
     activeAlarms: 0,
   });
-  const [plcs, setPlcs] = useState([]);              // T027
-  const [tags, setTags] = useState([]);              // For sparkline metadata
-  const [recentAlarms, setRecentAlarms] = useState([]); // T028
+  const [plcs, setPlcs] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [recentAlarms, setRecentAlarms] = useState([]);
   const [liveTags, setLiveTags] = useState({});
   const [validTagNames, setValidTagNames] = useState(new Set());
   const [connected, setConnected] = useState(false);
@@ -74,74 +64,72 @@ const Dashboard = () => {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [errors, setErrors] = useState([]);
 
-  // ─── T029: Sparkline history (per tag) ───
   const [sparklineData, setSparklineData] = useState({});
   const sparklineRef = useRef({});
-
   const refreshIntervalRef = useRef(null);
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T005: Load stats — only set loading=false AFTER first data arrives
-  // ═══════════════════════════════════════════════════════════
   const loadStats = async (isInitial = false, isManualRefresh = false) => {
     if (isManualRefresh) setRefreshing(true);
 
     try {
+      // ✅ Use safe API calls
+      const activeAlarmsCall = alarmAPI.getActive ? alarmAPI.getActive() : alarmAPI.getAll();
+      const alarmHistoryCall = alarmAPI.getHistory ? alarmAPI.getHistory({ limit: 10 }) : Promise.resolve({ data: [] });
+
       const results = await Promise.allSettled([
         plcAPI.getAll(),
         tagAPI.getAll(),
-        alarmAPI.getActiveAlarms(),
-        alarmAPI.getHistory({ limit: 10 }),  // T028: recent alarms
+        activeAlarmsCall,
+        alarmHistoryCall,
       ]);
 
-      const errors = [];
-      let plcs = [];
-      let tags = [];
+      const errorsFound = [];
+      let loadedPlcs = [];
+      let loadedTags = [];
       let activeAlarms = [];
       let historyAlarms = [];
 
       if (results[0].status === 'fulfilled') {
-        plcs = results[0].value?.data?.data || [];
+        loadedPlcs = results[0].value?.data?.data || results[0].value?.data || [];
       } else {
-        errors.push('PLCs');
+        errorsFound.push('PLCs');
         console.error('PLC API error:', results[0].reason);
       }
 
       if (results[1].status === 'fulfilled') {
-        tags = results[1].value?.data?.data || [];
+        loadedTags = results[1].value?.data?.data || results[1].value?.data || [];
       } else {
-        errors.push('Tags');
+        errorsFound.push('Tags');
         console.error('Tag API error:', results[1].reason);
       }
 
       if (results[2].status === 'fulfilled') {
         const alarmData = results[2].value?.data;
-        activeAlarms = alarmData?.alarms || alarmData?.data || [];
+        activeAlarms = alarmData?.alarms || alarmData?.data || (Array.isArray(alarmData) ? alarmData : []);
       } else {
-        errors.push('Alarms');
+        errorsFound.push('Alarms');
         console.error('Alarm API error:', results[2].reason);
       }
 
       if (results[3].status === 'fulfilled') {
         const historyData = results[3].value?.data;
-        historyAlarms = historyData?.alarms || historyData?.data || [];
+        historyAlarms = historyData?.alarms || historyData?.history || historyData?.data || (Array.isArray(historyData) ? historyData : []);
       }
 
       setStats({
-        totalPLCs: plcs.length,
-        onlinePLCs: plcs.filter((p) => p.isConnected).length,
-        totalTags: tags.length,
+        totalPLCs: loadedPlcs.length,
+        onlinePLCs: loadedPlcs.filter((p) => p.isConnected).length,
+        totalTags: loadedTags.length,
         activeAlarms: activeAlarms.length,
       });
 
-      setPlcs(plcs);      // T027
-      setTags(tags);
-      setRecentAlarms(historyAlarms); // T028
+      setPlcs(loadedPlcs);
+      setTags(loadedTags);
+      setRecentAlarms(historyAlarms);
 
-      const validNames = new Set(tags.map((t) => t.tagName));
+      const validNames = new Set(loadedTags.map((t) => t.tagName));
       setValidTagNames(validNames);
 
-      // Clean up live tags — remove tags that no longer exist
       setLiveTags((prev) => {
         const cleaned = {};
         Object.keys(prev).forEach((tagName) => {
@@ -150,7 +138,7 @@ const Dashboard = () => {
         return cleaned;
       });
 
-      setErrors(errors);
+      setErrors(errorsFound);
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Unexpected loadStats error:', error);
@@ -281,9 +269,8 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* ═══════════ HEADER ═══════════ */}
+      {/* HEADER */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        {/* ✅ UI FIX: Removed the icon container, kept cleanly left-aligned text */}
         <div>
           <h1
             className="text-3xl font-bold"
@@ -328,7 +315,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* ═══════════ STAT CARDS ═══════════ */}
+      {/* STAT CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total PLCs" value={stats.totalPLCs} icon={Cpu} color={C.brand} onClick={() => navigate('/plc')} />
         <StatCard label="Online PLCs" value={stats.onlinePLCs} subValue={stats.totalPLCs > 0 ? `${Math.round((stats.onlinePLCs / stats.totalPLCs) * 100)}%` : null} icon={Activity} color={C.success} onClick={() => navigate('/plc')} />
@@ -336,7 +323,7 @@ const Dashboard = () => {
         <StatCard label="Active Alarms" value={stats.activeAlarms} icon={Bell} color={stats.activeAlarms > 0 ? C.danger : C.success} onClick={() => navigate('/alarms')} pulse={stats.activeAlarms > 0} />
       </div>
 
-      {/* ═══════════ MAIN GRID ═══════════ */}
+      {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Widget title="PLC Status" subtitle={`${stats.onlinePLCs} of ${stats.totalPLCs} online`} icon={Cpu} iconColor={C.brand} onSeeAll={() => navigate('/plc')}>
           {plcs.length === 0 ? (
@@ -386,14 +373,14 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-2 max-h-[380px] overflow-y-auto">
               {recentAlarms.slice(0, 10).map((alarm) => (
-                <AlarmRow key={alarm._id} alarm={alarm} onClick={() => navigate('/alarms')} />
+                <AlarmRow key={alarm._id || alarm.alarmName} alarm={alarm} onClick={() => navigate('/alarms')} />
               ))}
             </div>
           )}
         </Widget>
       </div>
 
-      {/* ═══════════ LIVE TREND MINI-CHARTS ═══════════ */}
+      {/* LIVE TREND MINI-CHARTS */}
       {sparklineTags.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
@@ -446,10 +433,6 @@ const Dashboard = () => {
     </div>
   );
 };
-
-// ═══════════════════════════════════════════════════════════
-// SUB-COMPONENTS
-// ═══════════════════════════════════════════════════════════
 
 const StatCard = ({ label, value, subValue, icon: Icon, color, onClick, pulse = false }) => (
   <button

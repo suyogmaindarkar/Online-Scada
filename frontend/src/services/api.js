@@ -178,6 +178,7 @@ export const discoveryAPI = {
 export const alarmAPI = {
   getAll: (filters = {}) => api.get(`/alarms?${new URLSearchParams(filters)}`),
   getActive: () => api.get('/alarms/active'),
+  getActiveAlarms: () => api.get('/alarms/active'), // ✅ Alias for backward compatibility
   getHistory: (filters = {}) => api.get(`/alarms/history?${new URLSearchParams(filters)}`),
   getOne: (id) => api.get(`/alarms/${id}`),
   create: (data) => api.post('/alarms', data),
@@ -185,6 +186,8 @@ export const alarmAPI = {
   delete: (id) => api.delete(`/alarms/${id}`),
   acknowledge: (id) => api.post(`/alarms/${id}/acknowledge`),
   acknowledgeAll: () => api.post('/alarms/acknowledge-all'),
+  getAllAlarms: () => api.get('/alarms'),
+  acknowledgeAlarm: (id) => api.post(`/alarms/${id}/acknowledge`),
 };
 
 export const recipeAPI = {
@@ -213,3 +216,15 @@ export const settingsAPI = {
 };
 
 export default api;
+
+export const getTagHistory = (tagId, timeRange = '1h', aggregation = '10s') =>
+  api.get(`/trends/history/${tagId}`, { params: { timeRange, aggregation } });
+
+export const getMultipleTagsHistory = (tagIds, timeRange = '1h', aggregation = '10s') =>
+  api.post('/trends/history/multiple', { tagIds, timeRange, aggregation });
+
+export const getCustomRangeHistory = (tagIds, startTime, endTime, aggregation = '1m') =>
+  api.post('/trends/history/custom', { tagIds, startTime, endTime, aggregation });
+
+export const getTagStats = (tagId, timeRange = '1h') =>
+  api.get(`/trends/stats/${tagId}`, { params: { timeRange } });
