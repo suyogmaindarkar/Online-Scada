@@ -58,6 +58,13 @@ class SocketService {
       auth: { token },
     });
 
+    // Re-bind any existing listeners to the new socket
+    for (const [event, callbacks] of this.listeners.entries()) {
+      for (const cb of callbacks) {
+        this.socket.on(event, cb);
+      }
+    }
+
     this.socket.on('connect', () => {
       console.log('✅ Socket connected:', this.socket.id);
     });
@@ -75,7 +82,11 @@ class SocketService {
 
   reconnectWithNewToken() {
     console.log('🔄 Reconnecting socket with new token...');
-    this.disconnect();
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
     return this.connect();
   }
 
@@ -89,19 +100,32 @@ class SocketService {
   }
 
   on(event, callback) {
-    if (!this.socket) this.connect();
     if (typeof callback !== 'function') return;
-    if (this.socket) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event).add(callback);
+
+    if (!this.socket) {
+      this.connect();
+    } else {
       this.socket.on(event, callback);
     }
   }
 
   off(event, callback) {
-    if (!this.socket) return;
     if (callback) {
-      this.socket.off(event, callback);
+      if (this.listeners.has(event)) {
+        this.listeners.get(event).delete(callback);
+      }
+      if (this.socket) {
+        this.socket.off(event, callback);
+      }
     } else {
-      this.socket.off(event);
+      this.listeners.delete(event);
+      if (this.socket) {
+        this.socket.off(event);
+      }
     }
   }
 

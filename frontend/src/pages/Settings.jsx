@@ -8,11 +8,10 @@
 import { normalizeColor } from '../utils/colorUtils';
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Settings as SettingsIcon, Palette, Bell, Server, Database, Shield, Mail,
+  Settings as SettingsIcon, Palette, Bell, Server, Database, Shield,
   Info, Download, Upload, RotateCcw, Save, ChevronRight, Monitor, Grid, Clock,
-  Volume2, AlertTriangle, Cpu, HardDrive, Activity, CheckCircle, XCircle,
-  RefreshCw, Eye, EyeOff, Globe, Lock, Zap, Calendar, Trash2, Package, Code,
-  ExternalLink, Timer,
+  Volume2, AlertTriangle, Activity, CheckCircle, XCircle,
+  RefreshCw, Globe, Lock, Zap, Calendar, Trash2, Package, Timer,
 } from 'lucide-react';
 
 // Use central api service
@@ -531,76 +530,6 @@ const SecurityPanel = ({ security, setSecurity, save, saving, isAdmin, onReset }
   </div>
 );
 
-const EmailPanel = ({ email, setEmail, save, saving, isAdmin, onReset, showSmtpPassword, setShowSmtpPassword }) => (
-  <div>
-    <SectionHeader title="Email / SMTP Settings" description="Configure outgoing email for alarm notifications"
-      onReset={onReset} onSave={() => save('email', email)} saving={saving} isAdmin={isAdmin} />
-
-    <div className="flex items-start gap-3 p-4 rounded-xl mb-6"
-      style={{ background: '#FEF3C7', border: `1px solid ${C.warning}` }}>
-      <AlertTriangle size={16} style={{ color: '#B45309', marginTop: 2 }} className="shrink-0" />
-      <p className="text-sm" style={{ color: '#78350F' }}>
-        Email functionality is currently disabled in this release. These settings will be active in a future version.
-      </p>
-    </div>
-
-    <SectionCard title="SMTP Server" icon={Mail} description="Outgoing mail server configuration">
-      <div className="mb-4">
-        <ToggleRow label="Enable Email Notifications" hint="Master switch for all email functionality"
-          checked={email.enabled ?? false}
-          onChange={(v) => setEmail({ ...email, enabled: v })} disabled={!isAdmin} />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="SMTP Host">
-          <Input value={email.smtpHost ?? ''} onChange={(e) => setEmail({ ...email, smtpHost: e.target.value })}
-            placeholder="smtp.gmail.com" disabled={!isAdmin || !email.enabled} />
-        </FormField>
-
-        <FormField label="SMTP Port">
-          <Input type="number" value={email.smtpPort ?? ''}
-            onChange={(e) => setEmail({ ...email, smtpPort: e.target.value === '' ? '' : parseInt(e.target.value) })}
-            min={1} max={65535} disabled={!isAdmin || !email.enabled} />
-        </FormField>
-
-        <FormField label="Username / Email">
-          <Input value={email.smtpUser ?? ''} onChange={(e) => setEmail({ ...email, smtpUser: e.target.value })}
-            placeholder="you@company.com" disabled={!isAdmin || !email.enabled} />
-        </FormField>
-
-        <FormField label="Password">
-          <div className="relative">
-            <Input type={showSmtpPassword ? 'text' : 'password'}
-              value={email.smtpPassword ?? ''}
-              onChange={(e) => setEmail({ ...email, smtpPassword: e.target.value })}
-              placeholder="••••••••" disabled={!isAdmin || !email.enabled} />
-            <button type="button" onClick={() => setShowSmtpPassword(!showSmtpPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: C.subtle }}>
-              {showSmtpPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </FormField>
-
-        <FormField label="From Email">
-          <Input value={email.fromEmail ?? ''} onChange={(e) => setEmail({ ...email, fromEmail: e.target.value })}
-            placeholder="noreply@company.com" disabled={!isAdmin || !email.enabled} />
-        </FormField>
-
-        <FormField label="From Name">
-          <Input value={email.fromName ?? ''} onChange={(e) => setEmail({ ...email, fromName: e.target.value })}
-            placeholder="OnlineSCADA System" disabled={!isAdmin || !email.enabled} />
-        </FormField>
-      </div>
-
-      <div className="mt-4">
-        <ToggleRow label="Use SSL/TLS (SMTPS)" hint="Enable for port 465; leave off for STARTTLS on 587"
-          checked={email.smtpSecure ?? false}
-          onChange={(v) => setEmail({ ...email, smtpSecure: v })} disabled={!isAdmin || !email.enabled} />
-      </div>
-    </SectionCard>
-  </div>
-);
-
 const BackupPanel = ({
   backupOptions, setBackupOptions, handleExport, handleImport, fileInputRef,
   exportLoading, importLoading, isAdmin, setResetConfirm,
@@ -736,7 +665,7 @@ const AboutPanel = ({ systemInfo, loadSystemInfo }) => (
     <div className="mb-6">
       <h2 className="text-xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>About &amp; System Info</h2>
       <p className="text-sm mt-1" style={{ color: C.muted }}>
-        Application version, runtime statistics and developer info
+        Application version and system statistics
       </p>
     </div>
 
@@ -783,109 +712,6 @@ const AboutPanel = ({ systemInfo, loadSystemInfo }) => (
       </SectionCard>
     )}
 
-    {systemInfo?.memory && (
-      <SectionCard title="Memory" icon={HardDrive} description="Server memory usage">
-        <div className="mb-3">
-          <div className="flex justify-between text-xs mb-1" style={{ color: C.text }}>
-            <span>System Memory Usage</span>
-            <span className="font-bold">{systemInfo.memory.usagePercent}%</span>
-          </div>
-          <div className="h-3 rounded-full overflow-hidden" style={{ background: C.border }}>
-            <div className="h-full rounded-full transition-all"
-              style={{
-                width: `${systemInfo.memory.usagePercent}%`,
-                background:
-                  parseFloat(systemInfo.memory.usagePercent) > 80 ? C.danger
-                  : parseFloat(systemInfo.memory.usagePercent) > 60 ? C.warning
-                  : C.brand,
-              }}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            ['Total', `${systemInfo.memory.totalMB} MB`],
-            ['Used', `${systemInfo.memory.usedMB} MB`],
-            ['Free', `${systemInfo.memory.freeMB} MB`],
-            ['Process', `${systemInfo.memory.processMB} MB`],
-          ].map(([label, val]) => (
-            <div key={label} className="text-center p-3 rounded-xl" style={{ background: C.cardHover }}>
-              <p className="font-mono font-bold text-sm" style={{ color: C.heading }}>{val}</p>
-              <p className="text-xs mt-1" style={{ color: C.muted }}>{label}</p>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-    )}
-
-    {systemInfo?.uptime && (
-      <SectionCard title="Uptime" icon={Timer} description="Server and system uptime">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl"
-            style={{ background: C.cardHover, border: `1px solid ${C.border}` }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: C.muted }}>Server (Node.js)</p>
-            <p className="text-xl font-bold font-mono" style={{ color: C.brand }}>{systemInfo.uptime.serverFormatted}</p>
-          </div>
-          <div className="p-4 rounded-xl"
-            style={{ background: C.cardHover, border: `1px solid ${C.border}` }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: C.muted }}>Operating System</p>
-            <p className="text-xl font-bold font-mono" style={{ color: C.brand }}>{systemInfo.uptime.systemFormatted}</p>
-          </div>
-        </div>
-      </SectionCard>
-    )}
-
-    {systemInfo?.databases && (
-      <SectionCard title="Database Status" icon={Database} description="Connection status">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {Object.entries(systemInfo.databases).map(([db, info]) => (
-            <div key={db} className="flex items-center justify-between p-4 rounded-xl"
-              style={{ background: C.cardHover, border: `1px solid ${C.border}` }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: C.card }}>
-                  <Database size={16} style={{ color: C.brand }} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold capitalize" style={{ color: C.heading }}>{db}</p>
-                  <p className="text-xs" style={{ color: C.subtle }}>{info.status}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                {info.connected
-                  ? <CheckCircle size={16} style={{ color: C.success }} />
-                  : <XCircle size={16} style={{ color: C.danger }} />}
-                <span className="text-xs font-bold" style={{ color: info.connected ? C.success : C.danger }}>
-                  {info.connected ? 'Connected' : 'Offline'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-    )}
-
-    {systemInfo?.developer && (
-      <SectionCard title="Developer" icon={Code} description="Built by">
-        <div className="flex items-center gap-4 p-4 rounded-xl"
-          style={{ background: C.cardHover, border: `1px solid ${C.border}` }}>
-          <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold shrink-0"
-            style={{ background: `linear-gradient(135deg, ${C.brand} 0%, ${C.brandDark} 100%)`, color: '#FFFFFF' }}>
-            {systemInfo.developer.name.charAt(0)}
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-base" style={{ color: C.heading }}>{systemInfo.developer.name}</p>
-            <p className="text-sm" style={{ color: C.text }}>{systemInfo.developer.email}</p>
-            <a href={systemInfo.developer.portfolio} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs mt-1 font-semibold"
-              style={{ color: C.brand }}>
-              Portfolio <ExternalLink size={11} />
-            </a>
-          </div>
-        </div>
-      </SectionCard>
-    )}
-
     <div className="flex justify-end">
       <button onClick={loadSystemInfo}
         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
@@ -926,7 +752,6 @@ const Settings = () => {
   const [system, setSystem] = useState({});
   const [dataManagement, setDataManagement] = useState({});
   const [security, setSecurity] = useState({});
-  const [email, setEmail] = useState({});
 
   // Parse logged in user using multi-tenant structure ('userData' or legacy 'user' fallback)
   const getUser = () => {
@@ -959,7 +784,6 @@ const Settings = () => {
       setSystem(data.system || {});
       setDataManagement(data.dataManagement || {});
       setSecurity(data.security || {});
-      setEmail(data.email || {});
     } catch (err) {
       addToast('Failed to load settings', 'error');
     } finally {
@@ -1061,7 +885,6 @@ const Settings = () => {
     { id: 'system', label: 'System', icon: Server },
     { id: 'dataManagement', label: 'Data Management', icon: Database },
     { id: 'security', label: 'Security', icon: Shield },
-    { id: 'email', label: 'Email / SMTP', icon: Mail },
     { id: 'backup', label: 'Backup & Restore', icon: Package },
     { id: 'about', label: 'About', icon: Info },
   ];
@@ -1099,11 +922,6 @@ const Settings = () => {
         return <SecurityPanel security={security} setSecurity={setSecurity}
           save={saveSection} saving={saving} isAdmin={isAdmin}
           onReset={() => setResetConfirm('security')} />;
-      case 'email':
-        return <EmailPanel email={email} setEmail={setEmail}
-          save={saveSection} saving={saving} isAdmin={isAdmin}
-          onReset={() => setResetConfirm('email')}
-          showSmtpPassword={showSmtpPassword} setShowSmtpPassword={setShowSmtpPassword} />;
       case 'backup':
         return <BackupPanel backupOptions={backupOptions} setBackupOptions={setBackupOptions}
           handleExport={handleExport} handleImport={handleImport}

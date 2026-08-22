@@ -1,28 +1,20 @@
 // ═══════════════════════════════════════════════════════════
 // AlarmNotificationContext — GLOBAL alarm notification handler
-// ✅ FIXED: Skip API calls + socket listeners when no userToken
-//          or on super-admin pages
+// ✅ Real audio playback (/alarm.mp3 & /sounds/alarm.mp3)
+// ✅ Global Toast notifications on all pages
+// ✅ Active alarms state sync + browser desktop notifications
 // ═══════════════════════════════════════════════════════════
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import socketService from '../services/socket';
-import { settingsAPI } from '../services/api';
+import { settingsAPI, alarmAPI } from '../services/api';
 import { useToast } from './ToastContext';
 
 const AlarmNotificationContext = createContext(null);
 
 const LS_ENABLED = 'onlinescada.alarmSoundEnabled';
 const LS_VOLUME  = 'onlinescada.alarmSoundVolume';
-const DEDUP_WINDOW_MS = 3000;
-
-// ─── Helper: Is this a workspace user context? ─────────────
-// Returns false if: on super-admin route, or no userToken exists
-const isWorkspaceUserContext = () => {
-  if (typeof window === 'undefined') return false;
-  if (window.location.pathname.startsWith('/super-admin')) return false;
-  if (!localStorage.getItem('userToken')) return false;
-  return true;
-};
+const DEDUP_WINDOW_MS = 2500;
 
 export const AlarmNotificationProvider = ({ children }) => {
   const { showToast } = useToast();
@@ -38,9 +30,11 @@ export const AlarmNotificationProvider = ({ children }) => {
     return isNaN(parsed) ? 70 : Math.max(0, Math.min(100, parsed));
   });
 
+  const [activeAlarms, setActiveAlarms] = useState([]);
   const soundEnabledRef = useRef(soundEnabled);
   const soundVolumeRef  = useRef(soundVolume);
   const audioRef        = useRef(null);
+  const audioUnlockedRef = useRef(false);
   const recentAlarmsRef = useRef(new Map());
 
   useEffect(() => { soundEnabledRef.current = soundEnabled; }, [soundEnabled]);
@@ -58,14 +52,57 @@ export const AlarmNotificationProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════
-  // Load Settings defaults on mount
-  // ✅ FIXED: Only if user is logged in (skip on super-admin/login pages)
+  // User interaction unlock for browser autoplay policy
   // ═══════════════════════════════════════════════════════════
   useEffect(() => {
-    // ✅ Guard: don't call API if we're not a workspace user
-    if (!isWorkspaceUserContext()) return;
+    const unlockAudio = () => {
+      if (audioUnlockedRef.current) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const ctx = new AudioContext();
+          if (ctx.state === 'suspended') ctx.resume();
+        }
+        if (!audioRef.current) {
+          audioRef.current = new Audio('/alarm.mp3');
+          audioRef.current.volume = 0;
+          audioRef.current.play().then(() => {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }).catch(() => {});
+        }
+        audioUnlockedRef.current = true;
+      } catch {}
+    };
 
+    window.addEventListener('click', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════
+  // Load Settings & Active Alarms on mount / login
+  // ═══════════════════════════════════════════════════════════
+  const fetchActiveAlarms = useCallback(async () => {
+    if (!localStorage.getItem('userToken')) return;
+    try {
+      const res = await alarmAPI.getActive();
+      const alarms = res.data?.alarms || res.data?.data || [];
+      setActiveAlarms(alarms);
+    } catch {
+      // Non-critical fallback
+    }
+  }, []);
+
+  useEffect(() => {
     const loadFromSettings = async () => {
+      if (!localStorage.getItem('userToken')) return;
       try {
         const res = await settingsAPI.getAll();
         const n = res.data?.data?.notifications || {};
@@ -76,54 +113,39 @@ export const AlarmNotificationProvider = ({ children }) => {
         if (localStorage.getItem(LS_VOLUME) === null && typeof n.alarmSoundVolume === 'number') {
           setSoundVolume(n.alarmSoundVolume);
         }
-      } catch {
-        // Silent fallback
-      }
+      } catch {}
     };
-    loadFromSettings();
 
-    // Request browser notification permission (only for workspace users)
+    loadFromSettings();
+    fetchActiveAlarms();
+
+    // Request browser notification permission
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
-  }, []);
+
+    // Safety polling for active alarms every 15 seconds
+    const interval = setInterval(fetchActiveAlarms, 15000);
+    return () => clearInterval(interval);
+  }, [setSoundEnabled, setSoundVolume, fetchActiveAlarms]);
 
   // ═══════════════════════════════════════════════════════════
-  // Play audio file with WebAudio fallback
+  // Play audio file (/alarm.mp3 -> /sounds/alarm.mp3 -> WebAudio)
   // ═══════════════════════════════════════════════════════════
-  const playAlarmSound = useCallback((priority = 'MEDIUM') => {
-    const enabled = soundEnabledRef.current;
-    const volume  = soundVolumeRef.current;
-    if (!enabled) return;
-
-    try {
-      if (!audioRef.current) {
-        audioRef.current = new Audio('/sounds/alarm.mp3');
-        audioRef.current.preload = 'auto';
-      }
-      audioRef.current.volume = Math.max(0, Math.min(1, volume / 100));
-      audioRef.current.currentTime = 0;
-
-      const playPromise = audioRef.current.play();
-      if (playPromise && playPromise.catch) {
-        playPromise.catch(() => playFallbackBeep(priority, volume));
-      }
-    } catch {
-      playFallbackBeep(priority, volume);
-    }
-  }, []);
-
   const playFallbackBeep = (priority, volume) => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const gainVal = (volume / 100) * 0.3;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      const gainVal = (volume / 100) * 0.35;
 
       const patterns = {
         CRITICAL: [
           { delay: 0,   freq: 1000, duration: 0.15 },
           { delay: 180, freq: 1000, duration: 0.15 },
           { delay: 360, freq: 1000, duration: 0.15 },
-          { delay: 540, freq: 1000, duration: 0.25 },
+          { delay: 540, freq: 1000, duration: 0.30 },
         ],
         HIGH:   [{ delay: 0, freq: 880, duration: 0.15 }, { delay: 220, freq: 880, duration: 0.15 }],
         MEDIUM: [{ delay: 0, freq: 660, duration: 0.20 }],
@@ -133,16 +155,18 @@ export const AlarmNotificationProvider = ({ children }) => {
       const pattern = patterns[priority] || patterns.MEDIUM;
       pattern.forEach(({ delay, freq, duration }) => {
         setTimeout(() => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(gainVal, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-          osc.start(ctx.currentTime);
-          osc.stop(ctx.currentTime + duration);
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration);
+          } catch {}
         }, delay);
       });
     } catch (e) {
@@ -150,12 +174,39 @@ export const AlarmNotificationProvider = ({ children }) => {
     }
   };
 
+  const playAlarmSound = useCallback((priority = 'MEDIUM') => {
+    const enabled = soundEnabledRef.current;
+    const volume  = soundVolumeRef.current;
+    if (!enabled) return;
+
+    try {
+      const audio = new Audio('/alarm.mp3');
+      audio.volume = Math.max(0, Math.min(1, volume / 100));
+      audio.preload = 'auto';
+
+      const playPromise = audio.play();
+      if (playPromise && playPromise.catch) {
+        playPromise.catch(() => {
+          // Try /sounds/alarm.mp3
+          const altAudio = new Audio('/sounds/alarm.mp3');
+          altAudio.volume = Math.max(0, Math.min(1, volume / 100));
+          const altPromise = altAudio.play();
+          if (altPromise && altPromise.catch) {
+            altPromise.catch(() => playFallbackBeep(priority, volume));
+          }
+        });
+      }
+    } catch {
+      playFallbackBeep(priority, volume);
+    }
+  }, []);
+
   const showBrowserNotification = useCallback((alarm) => {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     try {
       const notif = new Notification(`🚨 ${alarm.priority || 'ALARM'}: ${alarm.alarmName}`, {
-        body: alarm.message || `Tag ${alarm.tag} triggered`,
-        icon: '/favicon.ico',
+        body: alarm.message || `Tag ${alarm.tag} triggered value ${alarm.value ?? ''}`,
+        icon: '/favicon.svg',
         tag: `alarm-${alarm.alarmName}`,
         requireInteraction: alarm.priority === 'CRITICAL',
         silent: soundEnabledRef.current,
@@ -173,12 +224,8 @@ export const AlarmNotificationProvider = ({ children }) => {
 
   // ═══════════════════════════════════════════════════════════
   // GLOBAL SOCKET LISTENERS
-  // ✅ FIXED: Only register listeners if workspace user is active
   // ═══════════════════════════════════════════════════════════
   useEffect(() => {
-    // ✅ Guard: no listeners on super-admin or logged-out pages
-    if (!isWorkspaceUserContext()) return;
-
     const handleAlarmTriggered = (alarm) => {
       if (!alarm || !alarm.alarmName) return;
 
@@ -191,11 +238,20 @@ export const AlarmNotificationProvider = ({ children }) => {
         if (now - ts > 60000) recentAlarmsRef.current.delete(key);
       }
 
+      // Update active alarms state
+      setActiveAlarms((prev) => {
+        const filtered = prev.filter((a) => a._id !== alarm._id && a.alarmName !== alarm.alarmName);
+        return [{ ...alarm, isActive: true, triggeredAt: alarm.triggeredAt || new Date() }, ...filtered];
+      });
+
+      // Play alarm.mp3 sound
       const alarmSoundOk = alarm.soundEnabled !== false;
       if (alarmSoundOk) playAlarmSound(alarm.priority || 'MEDIUM');
 
+      // Desktop notification
       showBrowserNotification(alarm);
 
+      // Global floating toast across all pages
       const toastType =
         alarm.priority === 'CRITICAL' ? 'error' :
         alarm.priority === 'HIGH'     ? 'warning' :
@@ -204,22 +260,40 @@ export const AlarmNotificationProvider = ({ children }) => {
       showToast(
         `🚨 ${alarm.priority || 'ALARM'}: ${alarm.alarmName}${alarm.message ? ` — ${alarm.message}` : ''}`,
         toastType,
-        alarm.priority === 'CRITICAL' ? 8000 : 4000
+        alarm.priority === 'CRITICAL' ? 8000 : 5000
       );
     };
 
     const handleAlarmCleared = (alarm) => {
       if (!alarm || !alarm.alarmName) return;
       recentAlarmsRef.current.delete(alarm.alarmName);
-      showToast(`✅ Cleared: ${alarm.alarmName}`, 'success', 2500);
+
+      setActiveAlarms((prev) => prev.filter((a) => a._id !== alarm._id && a.alarmName !== alarm.alarmName));
+
+      showToast(`✅ Cleared: ${alarm.alarmName}`, 'success', 3000);
+    };
+
+    const handleAlarmAcked = (alarm) => {
+      if (!alarm || !alarm._id) return;
+      setActiveAlarms((prev) =>
+        prev.map((a) => (a._id === alarm._id ? { ...a, isAcknowledged: true } : a))
+      );
     };
 
     socketService.on('alarmTriggered', handleAlarmTriggered);
+    socketService.on('alarm:triggered', handleAlarmTriggered);
     socketService.on('alarmCleared', handleAlarmCleared);
+    socketService.on('alarm:cleared', handleAlarmCleared);
+    socketService.on('alarmAcknowledged', handleAlarmAcked);
+    socketService.on('alarm:acknowledged', handleAlarmAcked);
 
     return () => {
       socketService.off('alarmTriggered', handleAlarmTriggered);
+      socketService.off('alarm:triggered', handleAlarmTriggered);
       socketService.off('alarmCleared', handleAlarmCleared);
+      socketService.off('alarm:cleared', handleAlarmCleared);
+      socketService.off('alarmAcknowledged', handleAlarmAcked);
+      socketService.off('alarm:acknowledged', handleAlarmAcked);
     };
   }, [playAlarmSound, showBrowserNotification, showToast]);
 
@@ -230,6 +304,9 @@ export const AlarmNotificationProvider = ({ children }) => {
     setSoundVolume,
     testSound,
     playAlarmSound,
+    activeAlarms,
+    unreadCount: activeAlarms.filter((a) => !a.isAcknowledged).length,
+    fetchActiveAlarms,
   };
 
   return (
@@ -250,6 +327,9 @@ export const useAlarmNotification = () => {
       setSoundVolume: () => {},
       testSound: () => {},
       playAlarmSound: () => {},
+      activeAlarms: [],
+      unreadCount: 0,
+      fetchActiveAlarms: () => {},
     };
   }
   return ctx;
