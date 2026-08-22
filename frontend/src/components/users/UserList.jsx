@@ -151,40 +151,33 @@ const UserList = ({ users, currentUser, onEdit, onDelete, onResetPassword, onTog
 
                   {/* Actions */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-1">
-                      <IconButton
+                    <div className="flex items-center justify-center gap-1.5">
+                      <TableActionButton
+                        variant="blue"
+                        icon={Edit2}
                         onClick={() => onEdit(user)}
                         title="Edit User"
-                        bg={C.brand}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </IconButton>
-
-                      <IconButton
+                      />
+                      <TableActionButton
+                        variant="amber"
+                        icon={Key}
                         onClick={() => onResetPassword(user)}
                         title="Reset Password"
-                        bg={C.warning}
-                      >
-                        <Key className="w-3.5 h-3.5" />
-                      </IconButton>
-
-                      <IconButton
+                      />
+                      <TableActionButton
+                        variant={user.isActive ? 'orange' : 'green'}
+                        icon={Power}
                         onClick={() => onToggleActive(user)}
                         disabled={isCurrentUser}
-                        bg={user.isActive ? '#EA580C' : C.success}
                         title={isCurrentUser ? 'Cannot deactivate yourself' : user.isActive ? 'Deactivate User' : 'Activate User'}
-                      >
-                        <Power className="w-3.5 h-3.5" />
-                      </IconButton>
-
-                      <IconButton
+                      />
+                      <TableActionButton
+                        variant="red"
+                        icon={Trash2}
                         onClick={() => onDelete(user)}
                         disabled={isCurrentUser}
-                        bg={C.danger}
                         title={isCurrentUser ? 'Cannot delete yourself' : 'Delete User'}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </IconButton>
+                      />
                     </div>
                   </td>
                 </tr>
@@ -197,22 +190,77 @@ const UserList = ({ users, currentUser, onEdit, onDelete, onResetPassword, onTog
   );
 };
 
-const IconButton = ({ children, onClick, disabled, title, bg }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    title={title}
-    className="p-1.5 rounded transition-all text-white"
-    style={{
-      background: disabled ? '#CBD5E1' : bg,
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.45 : 1,
-    }}
-    onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.transform = 'scale(1.1)'; }}
-    onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.transform = 'scale(1)'; }}
-  >
-    {children}
-  </button>
-);
+const TableActionButton = ({ variant = 'blue', icon: Icon, onClick, title, disabled }) => {
+  const styles = {
+    green: {
+      bg: '#F0FDF4',
+      bgHover: '#DCFCE7',
+      color: '#16A34A',
+      border: '#BBF7D0',
+    },
+    orange: {
+      bg: '#FFF7ED',
+      bgHover: '#FFEDD5',
+      color: '#EA580C',
+      border: '#FED7AA',
+    },
+    blue: {
+      bg: '#EFF6FF',
+      bgHover: '#DBEAFE',
+      color: '#2563EB',
+      border: '#BFDBFE',
+    },
+    red: {
+      bg: '#FEF2F2',
+      bgHover: '#FEE2E2',
+      color: '#DC2626',
+      border: '#FECACA',
+    },
+    amber: {
+      bg: '#FFFBEB',
+      bgHover: '#FEF3C7',
+      color: '#D97706',
+      border: '#FDE68A',
+    },
+  };
+
+  const s = styles[variant] || styles.blue;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: s.bg,
+        color: s.color,
+        border: `1px solid ${s.border}`,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.45 : 1,
+        transition: 'all 0.15s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bgHover;
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bg;
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+};
 
 export default UserList;

@@ -98,40 +98,29 @@ const Sidebar = () => {
         boxShadow: '1px 0 3px rgba(8, 27, 67, 0.03)',
       }}
     >
-      {/* ═══════════ LOGO SECTION ═══════════ */}
+      {/* ═══════════ LOGO / TITLE SECTION ═══════════ */}
       <div className="px-6 py-4" style={{ borderBottom: '1px solid #E5E7EB' }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+        <div>
+          <h1
+            className="text-lg font-bold leading-tight"
             style={{
-              background: 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)',
-              boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
+              fontFamily: "'Montserrat', sans-serif",
+              color: '#081B43',
+              letterSpacing: '-0.01em',
             }}
           >
-            <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1
-              className="text-lg font-bold leading-tight"
-              style={{
-                fontFamily: "'Montserrat', sans-serif",
-                color: '#081B43',
-                letterSpacing: '-0.01em',
-              }}
+            Online<span style={{ color: '#2563EB' }}>SCADA</span>
+          </h1>
+          {/* Workspace name */}
+          {company?.companyName && (
+            <p
+              className="text-[11px] mt-0.5 truncate"
+              style={{ color: '#5F6B7A', fontWeight: 600 }}
+              title={company.companyName}
             >
-              Online<span style={{ color: '#2563EB' }}>SCADA</span>
-            </h1>
-            {/* Workspace name */}
-            {company?.companyName && (
-              <p
-                className="text-[10px] mt-0.5 truncate"
-                style={{ color: '#5F6B7A', fontWeight: 600 }}
-                title={company.companyName}
-              >
-                🏢 {company.companyName}
-              </p>
-            )}
-          </div>
+              🏢 {company.companyName}
+            </p>
+          )}
         </div>
       </div>
 

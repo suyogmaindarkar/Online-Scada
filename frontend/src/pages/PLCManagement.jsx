@@ -554,18 +554,25 @@ const PLCManagement = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <IconButton onClick={() => handleStartStop(plc)} bg={plc.isConnected ? C.danger : C.success}
-                          title={plc.isConnected ? `Stop ${plc.name}` : `Start ${plc.name}`}>
-                          {plc.isConnected ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                        </IconButton>
-                        <IconButton onClick={() => handleOpenEdit(plc)} bg={C.brand} title={`Edit ${plc.name}`}>
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </IconButton>
-                        <IconButton onClick={() => setDeleteId(plc._id)} bg={C.danger}
-                          title={`Delete ${plc.name}`}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </IconButton>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <TableActionButton
+                          variant={plc.isConnected ? 'orange' : 'green'}
+                          icon={plc.isConnected ? Pause : Play}
+                          onClick={() => handleStartStop(plc)}
+                          title={plc.isConnected ? `Stop ${plc.name}` : `Start ${plc.name}`}
+                        />
+                        <TableActionButton
+                          variant="blue"
+                          icon={Edit2}
+                          onClick={() => handleOpenEdit(plc)}
+                          title={`Edit ${plc.name}`}
+                        />
+                        <TableActionButton
+                          variant="red"
+                          icon={Trash2}
+                          onClick={() => setDeleteId(plc._id)}
+                          title={`Delete ${plc.name}`}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -1166,14 +1173,78 @@ const PLCManagement = () => {
 // SUB-COMPONENTS (outside PLCManagement — no access to state)
 // ═══════════════════════════════════════════════════════════
 
-const IconButton = ({ children, onClick, bg, title }) => (
-  <button onClick={onClick} title={title}
-    className="p-1.5 rounded transition-all text-white" style={{ background: bg }}
-    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-    {children}
-  </button>
-);
+const TableActionButton = ({ variant = 'blue', icon: Icon, onClick, title, disabled }) => {
+  const styles = {
+    green: {
+      bg: '#F0FDF4',
+      bgHover: '#DCFCE7',
+      color: '#16A34A',
+      border: '#BBF7D0',
+    },
+    orange: {
+      bg: '#FFF7ED',
+      bgHover: '#FFEDD5',
+      color: '#EA580C',
+      border: '#FED7AA',
+    },
+    blue: {
+      bg: '#EFF6FF',
+      bgHover: '#DBEAFE',
+      color: '#2563EB',
+      border: '#BFDBFE',
+    },
+    red: {
+      bg: '#FEF2F2',
+      bgHover: '#FEE2E2',
+      color: '#DC2626',
+      border: '#FECACA',
+    },
+    amber: {
+      bg: '#FFFBEB',
+      bgHover: '#FEF3C7',
+      color: '#D97706',
+      border: '#FDE68A',
+    },
+  };
+
+  const s = styles[variant] || styles.blue;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: s.bg,
+        color: s.color,
+        border: `1px solid ${s.border}`,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.45 : 1,
+        transition: 'all 0.15s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bgHover;
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bg;
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+};
 
 const FormField = ({ label, name, type = 'text', value, onChange, required }) => (
   <div>

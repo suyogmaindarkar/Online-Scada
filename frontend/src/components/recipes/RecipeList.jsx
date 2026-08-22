@@ -129,58 +129,49 @@ const RecipeList = ({ recipes, onExecute, onEdit, onDelete, onView, onDuplicate,
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-1">
-                    <IconButton onClick={() => onView(recipe)} title="View Details" color={C.text} bg={C.cardSubtle}>
-                      <Eye className="w-3.5 h-3.5" />
-                    </IconButton>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <TableActionButton
+                      variant="blue"
+                      icon={Eye}
+                      onClick={() => onView(recipe)}
+                      title="View Details"
+                    />
 
-                    <IconButton
+                    <TableActionButton
+                      variant="green"
+                      icon={Play}
                       onClick={() => onExecute(recipe)}
                       disabled={!recipe.isActive}
                       title={recipe.isActive ? 'Execute Recipe' : 'Recipe is inactive'}
-                      color="#FFFFFF"
-                      bg={C.success}
-                    >
-                      <Play className="w-3.5 h-3.5" />
-                    </IconButton>
+                    />
 
-                    <IconButton
+                    <TableActionButton
+                      variant="blue"
+                      icon={Edit}
                       onClick={() => onEdit(recipe)}
                       title="Edit Recipe"
-                      color="#FFFFFF"
-                      bg={C.brand}
-                    >
-                      <Edit className="w-3.5 h-3.5" />
-                    </IconButton>
+                    />
 
-                    {/* ✅ T054: Duplicate */}
-                    <IconButton
+                    <TableActionButton
+                      variant="purple"
+                      icon={Copy}
                       onClick={() => onDuplicate(recipe)}
                       title="Duplicate as template"
-                      color="#FFFFFF"
-                      bg={C.purple}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </IconButton>
+                    />
 
-                    {/* ✅ T053: Version history */}
-                    <IconButton
+                    <TableActionButton
+                      variant="amber"
+                      icon={HistoryIcon}
                       onClick={() => onViewVersions(recipe)}
                       title="Version history"
-                      color="#FFFFFF"
-                      bg={C.warning}
-                    >
-                      <HistoryIcon className="w-3.5 h-3.5" />
-                    </IconButton>
+                    />
 
-                    <IconButton
+                    <TableActionButton
+                      variant="red"
+                      icon={Trash2}
                       onClick={() => onDelete(recipe)}
                       title="Delete Recipe"
-                      color="#FFFFFF"
-                      bg={C.danger}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </IconButton>
+                    />
                   </div>
                 </td>
               </tr>
@@ -192,23 +183,83 @@ const RecipeList = ({ recipes, onExecute, onEdit, onDelete, onView, onDuplicate,
   );
 };
 
-const IconButton = ({ children, onClick, disabled, title, color, bg }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    title={title}
-    className="p-1.5 rounded transition-all"
-    style={{
-      background: disabled ? '#CBD5E1' : bg,
-      color: disabled ? '#94A3B8' : color,
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.5 : 1,
-    }}
-    onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.transform = 'scale(1.1)'; }}
-    onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.transform = 'scale(1)'; }}
-  >
-    {children}
-  </button>
-);
+const TableActionButton = ({ variant = 'blue', icon: Icon, onClick, title, disabled }) => {
+  const styles = {
+    green: {
+      bg: '#F0FDF4',
+      bgHover: '#DCFCE7',
+      color: '#16A34A',
+      border: '#BBF7D0',
+    },
+    orange: {
+      bg: '#FFF7ED',
+      bgHover: '#FFEDD5',
+      color: '#EA580C',
+      border: '#FED7AA',
+    },
+    blue: {
+      bg: '#EFF6FF',
+      bgHover: '#DBEAFE',
+      color: '#2563EB',
+      border: '#BFDBFE',
+    },
+    red: {
+      bg: '#FEF2F2',
+      bgHover: '#FEE2E2',
+      color: '#DC2626',
+      border: '#FECACA',
+    },
+    amber: {
+      bg: '#FFFBEB',
+      bgHover: '#FEF3C7',
+      color: '#D97706',
+      border: '#FDE68A',
+    },
+    purple: {
+      bg: '#FAF5FF',
+      bgHover: '#F3E8FF',
+      color: '#9333EA',
+      border: '#E9D5FF',
+    },
+  };
+
+  const s = styles[variant] || styles.blue;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: s.bg,
+        color: s.color,
+        border: `1px solid ${s.border}`,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.45 : 1,
+        transition: 'all 0.15s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bgHover;
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.background = s.bg;
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+};
 
 export default RecipeList;
