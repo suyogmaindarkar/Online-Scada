@@ -190,27 +190,8 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {/* ═══════════ USER PROFILE + STATUS SECTION ═══════════ */}
-      <div style={{ borderTop: '1px solid #E5E7EB' }}>
-        {/* System Online status */}
-        <div className="px-4 pt-3 pb-2">
-          <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-            style={{
-              background: 'rgba(22, 163, 74, 0.08)',
-              border: '1px solid rgba(22, 163, 74, 0.20)',
-            }}
-          >
-            <div className="relative flex items-center justify-center">
-              <div className="absolute w-3 h-3 rounded-full animate-ping" style={{ background: '#16A34A', opacity: 0.4 }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: '#16A34A' }} />
-            </div>
-            <span className="text-xs font-semibold" style={{ color: '#15803D' }}>
-              System Online
-            </span>
-          </div>
-        </div>
-
+      {/* ═══════════ USER PROFILE SECTION ═══════════ */}
+      <div className="pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
         {/* ─── User Profile Card ─── */}
         <div
           className="mx-3 mb-2 rounded-xl p-3"

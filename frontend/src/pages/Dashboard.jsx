@@ -315,28 +315,6 @@ const Dashboard = () => {
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
             Refresh
           </button>
-
-          <div
-            className="flex items-center gap-2 px-3 py-2 rounded-lg"
-            style={{
-              background: connected ? '#DCFCE7' : '#FEE2E2',
-              border: `1px solid ${connected ? C.success : C.danger}`,
-            }}
-          >
-            <div className="relative flex items-center justify-center">
-              <div
-                className="absolute w-3 h-3 rounded-full animate-ping"
-                style={{ background: connected ? C.success : C.danger, opacity: 0.4 }}
-              />
-              <div
-                className="w-2 h-2 rounded-full relative"
-                style={{ background: connected ? C.success : C.danger }}
-              />
-            </div>
-            <span className="text-xs font-semibold" style={{ color: connected ? '#15803D' : '#B91C1C' }}>
-              {connected ? 'CONNECTED' : 'DISCONNECTED'}
-            </span>
-          </div>
         </div>
       </div>
 
