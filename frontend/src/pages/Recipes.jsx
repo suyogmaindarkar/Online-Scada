@@ -6,7 +6,8 @@
 //   ✅ T052  — Execution Log tab (with filters + detail view)
 //   ✅ T053  — Version history badge + restore modal
 //   ✅ T054  — Duplicate button (template creation)
-//   ✅ BONUS — Blue theme, toast, empty states, "View" opens modal (not alert)
+//   ✅ UI FIX 2: Fixed Create Recipe button styling and contrast.
+//   ✅ UI FIX 3: Removed header icon badge for left-alignment.
 // ═══════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from 'react';
@@ -54,9 +55,9 @@ const STATUS_COLORS = {
 const Recipes = () => {
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('recipes'); // 'recipes' | 'logs'
+  const [activeTab, setActiveTab] = useState('recipes');
 
-  // ─── Recipes state ───
+  // Recipes state
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -68,20 +69,20 @@ const Recipes = () => {
   const [categories, setCategories] = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // ─── T054: Duplicate state ───
+  // Duplicate state
   const [duplicating, setDuplicating] = useState(null);
   const [duplicateName, setDuplicateName] = useState('');
 
-  // ─── T053: Version history state ───
+  // Version history state
   const [viewingVersions, setViewingVersions] = useState(null);
   const [versionHistory, setVersionHistory] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
-  const [restoreConfirm, setRestoreConfirm] = useState(null); // { versionIndex, version }
+  const [restoreConfirm, setRestoreConfirm] = useState(null);
 
-  // ─── View details state ───
+  // View details state
   const [viewingRecipe, setViewingRecipe] = useState(null);
 
-  // ─── T052: Logs state ───
+  // Logs state
   const [logs, setLogs] = useState([]);
   const [logSummary, setLogSummary] = useState({ total: 0, success: 0, partial: 0, failed: 0 });
   const [logsLoading, setLogsLoading] = useState(false);
@@ -89,9 +90,6 @@ const Recipes = () => {
   const [logRecipeFilter, setLogRecipeFilter] = useState('');
   const [viewingLog, setViewingLog] = useState(null);
 
-  // ═══════════════════════════════════════════════════════════
-  // Load recipes
-  // ═══════════════════════════════════════════════════════════
   const loadRecipes = async () => {
     try {
       setLoading(true);
@@ -141,9 +139,6 @@ const Recipes = () => {
     if (activeTab === 'logs') loadLogs();
   }, [activeTab, logStatusFilter, logRecipeFilter]);
 
-  // ═══════════════════════════════════════════════════════════
-  // Handlers
-  // ═══════════════════════════════════════════════════════════
   const handleSubmit = async (data) => {
     try {
       let result;
@@ -183,12 +178,10 @@ const Recipes = () => {
     }
   };
 
-  // ✅ T051: Execute (RecipeExecute component handles the confirmation UI)
   const handleExecute = async (id, note = '') => {
     try {
       const res = await recipeAPI.execute(id, note);
       loadRecipes();
-      // If on logs tab or user asks, could reload logs; here we do it silently
       if (activeTab === 'logs') loadLogs();
       showToast(
         res.data?.status === 'SUCCESS' ? 'Recipe executed successfully' :
@@ -204,7 +197,6 @@ const Recipes = () => {
     }
   };
 
-  // ✅ T054: Duplicate
   const handleOpenDuplicate = (recipe) => {
     setDuplicating(recipe);
     setDuplicateName(`${recipe.recipeName} (Copy)`);
@@ -223,7 +215,6 @@ const Recipes = () => {
     }
   };
 
-  // ✅ T053: Version history
   const handleOpenVersions = async (recipe) => {
     setViewingVersions(recipe);
     setLoadingVersions(true);
@@ -251,7 +242,6 @@ const Recipes = () => {
     }
   };
 
-  // ─── Filter recipes ───
   const filteredRecipes = recipes.filter((r) => {
     const matchesSearch = r.recipeName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !filterCategory || r.category === filterCategory;
@@ -266,40 +256,23 @@ const Recipes = () => {
         style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)' }}
       >
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${C.brand} 0%, ${C.brandDark} 100%)`,
-                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
-              }}
-            >
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
-                Recipe Management
-              </h1>
-              <p className="text-sm mt-0.5" style={{ color: C.muted }}>
-                Create, version & execute PLC parameter sets
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
+              Recipe Management
+            </h1>
+            <p className="text-sm mt-0.5" style={{ color: C.muted }}>
+              Create, version & execute PLC parameter sets
+            </p>
           </div>
+
           {activeTab === 'recipes' && (
             <button
               onClick={() => { setEditingRecipe(null); setShowForm(true); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold transition-all"
-              style={{
-                background: C.btnPrimary,
-                boxShadow: '0px 2px 8px rgba(8, 27, 67, 0.25)',
-                fontFamily: "'Montserrat', sans-serif",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
-              onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
               title="Create a new recipe"
             >
-              <Plus className="w-4 h-4" />
-              New Recipe
+              <Plus className="w-5 h-5 text-white" />
+              <span className="text-white">Create Recipe</span>
             </button>
           )}
         </div>
@@ -444,7 +417,7 @@ const Recipes = () => {
             title="No Recipes Yet"
             hint="Create your first recipe to start automating parameter sets"
             action={{
-              label: 'New Recipe',
+              label: '+ Create Recipe',
               onClick: () => { setEditingRecipe(null); setShowForm(true); },
             }}
           />
@@ -504,7 +477,7 @@ const Recipes = () => {
         icon="warning"
       />
 
-      {/* ✅ T054: Duplicate modal */}
+      {/* Duplicate modal */}
       <Modal
         isOpen={!!duplicating}
         onClose={() => { setDuplicating(null); setDuplicateName(''); }}
@@ -553,7 +526,7 @@ const Recipes = () => {
         </div>
       </Modal>
 
-      {/* ✅ T053: Version history modal */}
+      {/* Version history modal */}
       <Modal
         isOpen={!!viewingVersions}
         onClose={() => { setViewingVersions(null); setVersionHistory([]); }}
@@ -624,7 +597,7 @@ const Recipes = () => {
         icon="question"
       />
 
-      {/* ─── View Details modal ─── */}
+      {/* View Details modal */}
       <Modal
         isOpen={!!viewingRecipe}
         onClose={() => setViewingRecipe(null)}
@@ -679,7 +652,7 @@ const Recipes = () => {
         )}
       </Modal>
 
-      {/* ─── View Log detail modal ─── */}
+      {/* View Log detail modal */}
       <Modal
         isOpen={!!viewingLog}
         onClose={() => setViewingLog(null)}
@@ -808,11 +781,10 @@ const EmptyStateCard = ({ icon: Icon, title, hint, action }) => (
     {action && (
       <button
         onClick={action.onClick}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold"
-        style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium transition-colors shadow-sm"
       >
-        <Plus className="w-4 h-4" />
-        {action.label}
+        <Plus className="w-5 h-5 text-white" />
+        <span className="text-white">+ Create Recipe</span>
       </button>
     )}
   </div>
@@ -825,7 +797,6 @@ const InfoField = ({ label, value }) => (
   </div>
 );
 
-// ─── T052: Logs list ───
 const LogsList = ({ logs, onView }) => (
   <div
     className="rounded-2xl overflow-hidden"

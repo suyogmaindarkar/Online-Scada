@@ -5,7 +5,8 @@
 //   ✅ T060  — Bulk import from CSV (with preview + mode selector)
 //   ✅ T061  — Bulk export to CSV
 //   ✅ BONUS — Template download + import summary modal
-//   ✅ Previous — T012 toast, T013 confirm, T015 tooltips (kept)
+//   ✅ UI FIX 1: Updated action button styles to match design specs.
+//   ✅ UI FIX 3: Removed header icon container for clean left-alignment.
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
@@ -57,7 +58,7 @@ const TagManagement = () => {
   const [writeTag, setWriteTag] = useState(null);
   const [writeValue, setWriteValue] = useState('');
 
-  // ✅ T060/T061: Import/Export state
+  // Import/Export state
   const [showImportModal, setShowImportModal] = useState(false);
   const [importCsvText, setImportCsvText] = useState('');
   const [importMode, setImportMode] = useState('create');
@@ -231,9 +232,6 @@ const TagManagement = () => {
     });
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T061: Export CSV
-  // ═══════════════════════════════════════════════════════════
   const handleExportCSV = async () => {
     try {
       setExporting(true);
@@ -255,9 +253,6 @@ const TagManagement = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ BONUS: Download template
-  // ═══════════════════════════════════════════════════════════
   const handleDownloadTemplate = async () => {
     try {
       const res = await tagAPI.downloadTemplate();
@@ -276,9 +271,6 @@ const TagManagement = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T060: Read CSV file into textarea
-  // ═══════════════════════════════════════════════════════════
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -293,7 +285,7 @@ const TagManagement = () => {
     };
     reader.onerror = () => showToast('Failed to read file', 'error');
     reader.readAsText(file);
-    e.target.value = ''; // Reset input so same file can be re-selected
+    e.target.value = '';
   };
 
   const handleOpenImport = () => {
@@ -303,9 +295,6 @@ const TagManagement = () => {
     setShowImportModal(true);
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T060: Perform import
-  // ═══════════════════════════════════════════════════════════
   const handleImportSubmit = async () => {
     if (!importCsvText.trim()) {
       showToast('No CSV content to import', 'warning');
@@ -346,7 +335,7 @@ const TagManagement = () => {
 
   const csvLineCount = importCsvText
     .split('\n')
-    .filter(l => l.trim() && !l.trim().startsWith('#')).length - 1; // minus header
+    .filter(l => l.trim() && !l.trim().startsWith('#')).length - 1;
 
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -356,78 +345,45 @@ const TagManagement = () => {
         style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)' }}
       >
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${C.brand} 0%, ${C.brandDark} 100%)`,
-                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
-              }}
-            >
-              <TagIcon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
-                Tag Management
-              </h1>
-              <p className="text-sm mt-0.5" style={{ color: C.muted }}>
-                Manage PLC tags and variables
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
+              Tag Management
+            </h1>
+            <p className="text-sm mt-0.5" style={{ color: C.muted }}>
+              Manage PLC tags and variables
+            </p>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {/* ✅ Import button */}
+            {/* ✅ Import CSV button */}
             <button
               onClick={handleOpenImport}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all"
-              style={{
-                background: C.purple,
-                color: '#FFFFFF',
-                boxShadow: '0px 2px 8px rgba(147, 51, 234, 0.30)',
-                fontFamily: "'Montserrat', sans-serif",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#7E22CE'}
-              onMouseLeave={(e) => e.currentTarget.style.background = C.purple}
+              className="border border-amber-500 text-amber-600 bg-white hover:bg-amber-50 font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
               title="Import tags from a CSV file"
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-5 h-5" />
               Import CSV
             </button>
 
-            {/* ✅ Export button */}
+            {/* ✅ Export CSV button */}
             <button
               onClick={handleExportCSV}
               disabled={exporting || tags.length === 0}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50"
-              style={{
-                background: C.success,
-                color: '#FFFFFF',
-                boxShadow: '0px 2px 8px rgba(22, 163, 74, 0.30)',
-                fontFamily: "'Montserrat', sans-serif",
-              }}
-              onMouseEnter={(e) => { if (!exporting) e.currentTarget.style.background = '#15803D'; }}
-              onMouseLeave={(e) => { if (!exporting) e.currentTarget.style.background = C.success; }}
+              className="border border-emerald-500 text-emerald-600 bg-white hover:bg-emerald-50 font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm disabled:opacity-50"
               title="Export all tags to a CSV file"
             >
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {exporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
               Export CSV
             </button>
 
+            {/* ✅ + Add Tag button */}
             <button
               onClick={handleOpenAdd}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold transition-all"
-              style={{
-                background: C.btnPrimary,
-                boxShadow: '0px 2px 8px rgba(8, 27, 67, 0.25)',
-                fontFamily: "'Montserrat', sans-serif",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
-              onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
               title="Add a new tag"
             >
-              <Plus className="w-4 h-4" />
-              Add Tag
+              <Plus className="w-5 h-5 text-white" />
+              <span className="text-white">+ Add Tag</span>
             </button>
           </div>
         </div>
@@ -505,18 +461,16 @@ const TagManagement = () => {
               <div className="flex items-center justify-center gap-2 flex-wrap">
                 <button
                   onClick={handleOpenAdd}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold"
-                  style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <Plus className="w-4 h-4" />
-                  Add Tag
+                  <Plus className="w-5 h-5 text-white" />
+                  <span className="text-white">+ Add Tag</span>
                 </button>
                 <button
                   onClick={handleOpenImport}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold"
-                  style={{ background: C.purple, fontFamily: "'Montserrat', sans-serif" }}
+                  className="border border-amber-500 text-amber-600 bg-white hover:bg-amber-50 font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <Upload className="w-4 h-4" />
+                  <Upload className="w-5 h-5" />
                   Import CSV
                 </button>
               </div>
@@ -789,7 +743,7 @@ const TagManagement = () => {
         )}
       </Modal>
 
-      {/* ═══════════ ✅ T060: IMPORT CSV MODAL ═══════════ */}
+      {/* ═══════════ IMPORT CSV MODAL ═══════════ */}
       <Modal
         isOpen={showImportModal}
         onClose={handleCloseImport}
@@ -797,9 +751,7 @@ const TagManagement = () => {
         size="lg"
       >
         {!importResults ? (
-          // ─── Import form ───
           <div className="space-y-4">
-            {/* Info banner + template download */}
             <div
               className="p-3 rounded-lg flex items-start gap-3"
               style={{ background: C.cardHover, border: `1px solid ${C.brand}40` }}
@@ -821,7 +773,6 @@ const TagManagement = () => {
               </button>
             </div>
 
-            {/* File input */}
             <div>
               <label className="block text-sm font-semibold mb-2" style={{ color: C.heading }}>
                 Select CSV File
@@ -836,7 +787,6 @@ const TagManagement = () => {
               />
             </div>
 
-            {/* Preview textarea */}
             <div>
               <label className="block text-sm font-semibold mb-2" style={{ color: C.heading }}>
                 CSV Preview {csvLineCount > 0 && (
@@ -857,7 +807,6 @@ const TagManagement = () => {
               />
             </div>
 
-            {/* Mode selector */}
             <div>
               <label className="block text-sm font-semibold mb-2" style={{ color: C.heading }}>
                 Import Mode
@@ -905,7 +854,6 @@ const TagManagement = () => {
             </div>
           </div>
         ) : (
-          // ─── Import results ───
           <ImportResults
             results={importResults}
             entityLabel="tags"
@@ -983,12 +931,8 @@ const IconButton = ({ children, onClick, bg, title }) => (
   </button>
 );
 
-// ═══════════════════════════════════════════════════════════
-// IMPORT RESULTS COMPONENT (used by both Tag + PLC pages)
-// ═══════════════════════════════════════════════════════════
 export const ImportResults = ({ results, entityLabel = 'items', onClose, onImportAgain }) => (
   <div className="space-y-4">
-    {/* Summary */}
     <div className="grid grid-cols-4 gap-2">
       <ResultStat label="Total" value={results.total} color={C.brand} icon={FileText} />
       <ResultStat label="Created" value={results.created?.length || 0} color={C.success} icon={CheckCircle} />
@@ -1006,7 +950,6 @@ export const ImportResults = ({ results, entityLabel = 'items', onClose, onImpor
       </div>
     )}
 
-    {/* Details */}
     <div className="max-h-64 overflow-y-auto space-y-3">
       {results.created?.length > 0 && (
         <ResultSection

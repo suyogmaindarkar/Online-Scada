@@ -30,13 +30,9 @@ const C = {
   verified:   '#059669',
 };
 
-// ═══════════════════════════════════════════════════════════
-// ✅ REUSABLE BUTTON COMPONENT — uniform styling for all pages
-// Copy this to your other 4 pages (TagManagement, Recipes, Users, Reports)
-// ═══════════════════════════════════════════════════════════
+// ─── REUSABLE BUTTON COMPONENT ───
 const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disabled, loading, title }) => {
   const variants = {
-    // Primary — solid blue, white text (the MAIN action)
     primary: {
       bg: '#2563EB',
       bgHover: '#1D4ED8',
@@ -44,7 +40,6 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
       border: 'transparent',
       shadow: '0px 2px 8px rgba(37,99,235,0.25)',
     },
-    // Secondary — outlined blue (secondary actions)
     secondary: {
       bg: '#FFFFFF',
       bgHover: '#EEF6FF',
@@ -52,7 +47,6 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
       border: '#2563EB',
       shadow: 'none',
     },
-    // Purple — outlined (Quick Simulation type)
     purple: {
       bg: '#FFFFFF',
       bgHover: '#F5F3FF',
@@ -60,7 +54,6 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
       border: '#9333EA',
       shadow: 'none',
     },
-    // Amber — outlined (Import type)
     amber: {
       bg: '#FFFFFF',
       bgHover: '#FEF3C7',
@@ -68,7 +61,6 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
       border: '#F59E0B',
       shadow: 'none',
     },
-    // Green — outlined (Export type)
     green: {
       bg: '#FFFFFF',
       bgHover: '#DCFCE7',
@@ -76,7 +68,6 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
       border: '#16A34A',
       shadow: 'none',
     },
-    // Teal — outlined (Discover PLC type)
     teal: {
       bg: '#FFFFFF',
       bgHover: '#CFFAFE',
@@ -439,20 +430,14 @@ const PLCManagement = () => {
       <div className="p-5 rounded-2xl"
         style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8,27,67,0.06)' }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${C.brand} 0%, ${C.brandDark} 100%)`, boxShadow: '0px 4px 12px rgba(37,99,235,0.30)' }}>
-              <Cpu className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
-                PLC Management
-              </h1>
-              <p className="text-sm mt-0.5" style={{ color: C.muted }}>Configure & manage PLC connections</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: C.heading, fontFamily: "'Montserrat', sans-serif" }}>
+              PLC Management
+            </h1>
+            <p className="text-sm mt-0.5" style={{ color: C.muted }}>Configure & manage PLC connections</p>
           </div>
 
-          {/* ✅ CLEAN BUTTON BAR — uniform styling, clear hierarchy */}
+          {/* ✅ CLEAN BUTTON BAR */}
           <div className="flex items-center gap-2 flex-wrap">
             <ActionButton variant="teal" icon={Radar} onClick={handleOpenDiscovery} title="Scan network for PLCs">
               Discover PLCs
@@ -754,9 +739,7 @@ const PLCManagement = () => {
         )}
       </Modal>
 
-      {/* ═══════════════════════════════════════════════════════
-          PLC DISCOVERY MODAL — Phase 3
-          ═══════════════════════════════════════════════════════ */}
+      {/* ═══════════ PLC DISCOVERY MODAL — Phase 3 ═══════════ */}
       <Modal
         isOpen={showDiscoveryModal}
         onClose={() => { setShowDiscoveryModal(false); setScanning(false); setScanResults(null); }}
@@ -1174,9 +1157,14 @@ const PLCManagement = () => {
           )}
         </div>
       </Modal>
+
     </div>
   );
 };
+
+// ═══════════════════════════════════════════════════════════
+// SUB-COMPONENTS (outside PLCManagement — no access to state)
+// ═══════════════════════════════════════════════════════════
 
 const IconButton = ({ children, onClick, bg, title }) => (
   <button onClick={onClick} title={title}
