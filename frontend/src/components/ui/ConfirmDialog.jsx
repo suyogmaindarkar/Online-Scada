@@ -42,7 +42,7 @@ const ConfirmDialog = ({
     blue:   { bg: '#2563EB', hover: '#1D4ED8' },
     green:  { bg: '#16A34A', hover: '#15803D' },
     yellow: { bg: '#F59E0B', hover: '#D97706' },
-    navy:   { bg: '#081B43', hover: '#123E8A' },
+    navy:   { bg: '#2563EB', hover: '#1D4ED8' },
   };
 
   const { Icon, bg, color } = iconConfig[icon] || iconConfig.warning;

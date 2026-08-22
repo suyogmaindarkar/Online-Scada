@@ -191,14 +191,14 @@ const WorkspaceLogin = () => {
             {/* Submit */}
             <button
               type="submit" disabled={loading}
-              className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
               style={{
-                background: '#081B43', color: '#FFFFFF',
-                boxShadow: '0px 4px 16px rgba(8,27,67,0.25)',
+                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: '#FFFFFF',
+                boxShadow: '0px 4px 16px rgba(37, 99, 235, 0.35)',
                 fontFamily: "'Montserrat', sans-serif", fontSize: '15px',
               }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#123E8A'; }}
-              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#081B43'; }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = 'linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%)'; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)'; }}
             >
               {loading ? (
                 <>

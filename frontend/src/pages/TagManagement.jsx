@@ -34,8 +34,8 @@ const C = {
   subtle:     '#94A3B8',
   brand:      '#2563EB',
   brandDark:  '#0F3D91',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   warning:    '#F59E0B',
   danger:     '#DC2626',
@@ -663,15 +663,28 @@ const TagManagement = () => {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="flex-1 px-4 py-2.5 rounded-lg font-semibold"
-              style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
+              style={{
+                background: '#FFFFFF',
+                color: C.heading,
+                border: `1.5px solid ${C.border}`,
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white"
-              style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors"
+              style={{
+                background: C.btnPrimary,
+                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
               onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
               onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
             >
@@ -834,16 +847,31 @@ const TagManagement = () => {
             <div className="flex gap-3 pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
               <button
                 onClick={handleCloseImport}
-                className="flex-1 px-4 py-2.5 rounded-lg font-semibold"
-                style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}
+                className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
+                style={{
+                  background: '#FFFFFF',
+                  color: C.heading,
+                  border: `1.5px solid ${C.border}`,
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
               >
                 Cancel
               </button>
               <button
                 onClick={handleImportSubmit}
                 disabled={importing || !importCsvText.trim()}
-                className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+                className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                style={{
+                  background: C.btnPrimary,
+                  boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
+                onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
               >
                 {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {importing ? 'Importing...' : 'Import Tags'}

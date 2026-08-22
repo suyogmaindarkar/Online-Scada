@@ -45,7 +45,7 @@ h1, h2, h3, h4, h5, h6 {
 .bg-slate-900\/50 { background-color: rgba(255, 255, 255, 0.6) !important; }
 
 /* ─── Dark Text (slate) → Ink Colors ─── */
-.text-white      { color: #081B43 !important; }
+.text-white      { color: #FFFFFF !important; }
 .text-slate-300  { color: #081B43 !important; }
 .text-slate-400  { color: #5F6B7A !important; }
 .text-slate-500  { color: #94A3B8 !important; }
@@ -57,8 +57,8 @@ h1, h2, h3, h4, h5, h6 {
 .border-slate-600 { border-color: #CBD5E1 !important; }
 
 /* ─── Blue → Brand Blue (deeper, more professional) ─── */
-.bg-blue-600       { background-color: #2563EB !important; }
-.bg-blue-700       { background-color: #1D4ED8 !important; }
+.bg-blue-600       { background-color: #2563EB !important; color: #FFFFFF !important; }
+.bg-blue-700       { background-color: #1D4ED8 !important; color: #FFFFFF !important; }
 .bg-blue-500       { background-color: #3B82F6 !important; }
 .bg-blue-500\/10   { background-color: rgba(37, 99, 235, 0.10) !important; }
 .bg-blue-500\/20   { background-color: rgba(37, 99, 235, 0.20) !important; }
@@ -140,9 +140,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .disabled\:opacity-50:disabled { opacity: 0.5; }
 
-/* ─── Special: active navigation state ─── */
-.bg-blue-600.text-white {
-  background-color: #081B43 !important;
+/* ─── Blue primary button states ─── */
+.bg-blue-600.text-white,
+.bg-blue-700.text-white {
+  background-color: #2563EB !important;
   color: #FFFFFF !important;
 }
 

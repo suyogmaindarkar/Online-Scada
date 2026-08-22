@@ -33,8 +33,8 @@ const C = {
   subtle:       '#94A3B8',      // hints
   brand:        '#2563EB',      // brand accent
   brandDark:    '#0F3D91',      // deep brand
-  btnPrimary:   '#081B43',      // primary CTA
-  btnHover:     '#123E8A',      // primary hover
+  btnPrimary:   '#2563EB',      // primary CTA
+  btnHover:     '#1D4ED8',      // primary hover
   success:      '#16A34A',
   warning:      '#F59E0B',
   danger:       '#DC2626',
@@ -191,11 +191,11 @@ const SaveButton = ({ onClick, saving, isAdmin }) => (
   <button
     onClick={onClick}
     disabled={saving || !isAdmin}
-    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
     style={{
       background: saving || !isAdmin ? C.borderStrong : C.btnPrimary,
       color: '#FFFFFF',
-      boxShadow: saving || !isAdmin ? 'none' : '0px 4px 12px rgba(8, 27, 67, 0.25)',
+      boxShadow: saving || !isAdmin ? 'none' : '0px 4px 12px rgba(37, 99, 235, 0.25)',
       fontFamily: "'Montserrat', sans-serif",
     }}
     onMouseEnter={(e) => { if (!saving && isAdmin) e.currentTarget.style.background = C.btnHover; }}

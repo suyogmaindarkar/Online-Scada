@@ -413,14 +413,15 @@ const UserLoginModal = ({ user, onClose, onSuccess, loginUser }) => {
             type="submit" disabled={loading || !password}
             style={{
               width: '100%', padding: '12px', borderRadius: '10px', border: 'none',
-              background: '#081B43', color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: '#FFFFFF',
+              boxShadow: '0px 4px 16px rgba(37, 99, 235, 0.35)',
               fontSize: '14px', fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
               fontFamily: "'Montserrat', sans-serif",
               opacity: (loading || !password) ? 0.6 : 1,
             }}
-            onMouseEnter={(e) => { if (!loading && password) e.currentTarget.style.background = '#123E8A'; }}
-            onMouseLeave={(e) => { if (!loading && password) e.currentTarget.style.background = '#081B43'; }}
+            onMouseEnter={(e) => { if (!loading && password) e.currentTarget.style.background = 'linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%)'; }}
+            onMouseLeave={(e) => { if (!loading && password) e.currentTarget.style.background = 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)'; }}
           >
             {loading
               ? <><Loader2 size={16} className="animate-spin" />Signing in…</>

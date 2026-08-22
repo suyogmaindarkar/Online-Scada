@@ -35,8 +35,8 @@ const C = {
   subtle:     '#94A3B8',
   brand:      '#2563EB',
   brandDark:  '#0F3D91',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   warning:    '#F59E0B',
   danger:     '#DC2626',
@@ -784,8 +784,9 @@ const Reports = () => {
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-50"
             style={{
               background: C.btnPrimary,
-              boxShadow: '0px 2px 8px rgba(8, 27, 67, 0.25)',
+              boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
               fontFamily: "'Montserrat', sans-serif",
+              cursor: 'pointer',
             }}
             onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = C.btnHover; }}
             onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = C.btnPrimary; }}

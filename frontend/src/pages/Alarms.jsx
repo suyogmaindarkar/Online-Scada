@@ -37,8 +37,8 @@ const C = {
   subtle:     '#94A3B8',
   brand:      '#2563EB',
   brandDark:  '#0F3D91',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   warning:    '#F59E0B',
   danger:     '#DC2626',
@@ -444,14 +444,14 @@ const Alarms = () => {
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all"
                 style={{
                   background: C.btnPrimary,
-                  boxShadow: '0px 2px 8px rgba(8, 27, 67, 0.25)',
+                  boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
                   fontFamily: "'Montserrat', sans-serif",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = C.btnHover; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = C.btnPrimary; }}
                 title="Add new alarm"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-white" />
                 Add Alarm
               </button>
             )}
@@ -1026,14 +1026,27 @@ const Alarms = () => {
               type="button"
               onClick={() => setShowModal(false)}
               className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
-              style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}
+              style={{
+                background: '#FFFFFF',
+                color: C.heading,
+                border: `1.5px solid ${C.border}`,
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors"
-              style={{ background: C.btnPrimary, boxShadow: '0px 2px 8px rgba(8, 27, 67, 0.25)', fontFamily: "'Montserrat', sans-serif" }}
+              style={{
+                background: C.btnPrimary,
+                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
               onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
               onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
             >

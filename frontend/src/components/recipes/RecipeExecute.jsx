@@ -22,8 +22,8 @@ const C = {
   muted:      '#5F6B7A',
   subtle:     '#94A3B8',
   brand:      '#2563EB',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   danger:     '#DC2626',
   warning:    '#F59E0B',
@@ -242,22 +242,35 @@ const RecipeExecute = ({ recipe, onExecute, onClose }) => {
 
         {/* Footer */}
         <div
-          className="px-6 py-4 flex justify-between gap-2"
+          className="px-6 py-4 flex justify-between gap-3"
           style={{ borderTop: `1px solid ${C.border}`, background: C.cardSubtle }}
         >
           {step === 'review' && (
             <>
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg font-semibold text-sm"
-                style={{ background: C.card, color: C.text, border: `1px solid ${C.border}` }}
+                className="px-4 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+                style={{
+                  background: '#FFFFFF',
+                  color: C.heading,
+                  border: `1.5px solid ${C.border}`,
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
               >
                 Cancel
               </button>
               <button
                 onClick={handleProceedToConfirm}
-                className="px-4 py-2 rounded-lg font-semibold text-white text-sm flex items-center gap-2"
-                style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+                className="px-5 py-2.5 rounded-lg font-semibold text-white text-sm flex items-center gap-2 transition-colors"
+                style={{
+                  background: C.btnPrimary,
+                  boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
+                }}
                 onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
                 onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
               >
@@ -270,18 +283,27 @@ const RecipeExecute = ({ recipe, onExecute, onClose }) => {
             <>
               <button
                 onClick={handleBack}
-                className="px-4 py-2 rounded-lg font-semibold text-sm"
-                style={{ background: C.card, color: C.text, border: `1px solid ${C.border}` }}
+                className="px-4 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+                style={{
+                  background: '#FFFFFF',
+                  color: C.heading,
+                  border: `1.5px solid ${C.border}`,
+                  fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
               >
                 ← Back
               </button>
               <button
                 onClick={handleExecute}
-                className="px-4 py-2 rounded-lg font-semibold text-white text-sm flex items-center gap-2"
+                className="px-5 py-2.5 rounded-lg font-semibold text-white text-sm flex items-center gap-2 transition-colors"
                 style={{
                   background: C.success,
-                  boxShadow: '0px 2px 8px rgba(22, 163, 74, 0.30)',
+                  boxShadow: '0px 4px 12px rgba(22, 163, 74, 0.30)',
                   fontFamily: "'Montserrat', sans-serif",
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = '#15803D'}
                 onMouseLeave={(e) => e.currentTarget.style.background = C.success}
@@ -295,7 +317,7 @@ const RecipeExecute = ({ recipe, onExecute, onClose }) => {
           {step === 'executing' && (
             <button
               disabled
-              className="ml-auto px-4 py-2 rounded-lg text-white text-sm opacity-50 cursor-not-allowed"
+              className="ml-auto px-5 py-2.5 rounded-lg text-white text-sm opacity-50 cursor-not-allowed"
               style={{ background: C.subtle }}
             >
               Executing...
@@ -305,8 +327,13 @@ const RecipeExecute = ({ recipe, onExecute, onClose }) => {
           {step === 'done' && (
             <button
               onClick={onClose}
-              className="ml-auto px-4 py-2 rounded-lg font-semibold text-white text-sm"
-              style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+              className="ml-auto px-5 py-2.5 rounded-lg font-semibold text-white text-sm transition-colors"
+              style={{
+                background: C.btnPrimary,
+                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
               onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
               onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
             >

@@ -13,8 +13,8 @@ export const COLORS = {
   siteBg:         '#FFFFFF',
   brandPrimary:   '#0F3D91',   // deep blue
   brandAccent:    '#2563EB',   // royal blue accent
-  btnPrimary:     '#081B43',   // dark navy button
-  btnHover:       '#123E8A',   // button hover
+  btnPrimary:     '#2563EB',   // brand blue button
+  btnHover:       '#1D4ED8',   // button hover
   heading:        '#081B43',   // all headings
   paragraph:      '#5F6B7A',   // body text
   borderCol:      '#E5E7EB',   // default borders

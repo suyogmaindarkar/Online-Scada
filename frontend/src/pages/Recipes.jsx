@@ -37,8 +37,8 @@ const C = {
   subtle:     '#94A3B8',
   brand:      '#2563EB',
   brandDark:  '#0F3D91',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   warning:    '#F59E0B',
   danger:     '#DC2626',
@@ -505,19 +505,34 @@ const Recipes = () => {
               onKeyDown={(e) => e.key === 'Enter' && handleDuplicate()}
             />
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               onClick={() => { setDuplicating(null); setDuplicateName(''); }}
-              className="flex-1 px-4 py-2 rounded-lg font-semibold"
-              style={{ background: C.cardSubtle, color: C.heading, border: `1px solid ${C.border}` }}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
+              style={{
+                background: '#FFFFFF',
+                color: C.heading,
+                border: `1.5px solid ${C.border}`,
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
             >
               Cancel
             </button>
             <button
               onClick={handleDuplicate}
               disabled={!duplicateName.trim()}
-              className="flex-1 px-4 py-2 rounded-lg font-semibold text-white disabled:opacity-50"
-              style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors disabled:opacity-50"
+              style={{
+                background: C.btnPrimary,
+                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
+              onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
             >
               <Copy className="w-4 h-4 inline mr-2" />
               Duplicate

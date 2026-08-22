@@ -21,8 +21,8 @@ const C = {
   muted:      '#5F6B7A',
   subtle:     '#94A3B8',
   brand:      '#2563EB',
-  btnPrimary: '#081B43',
-  btnHover:   '#123E8A',
+  btnPrimary: '#2563EB',
+  btnHover:   '#1D4ED8',
   success:    '#16A34A',
   danger:     '#DC2626',
   warning:    '#F59E0B',
@@ -385,25 +385,34 @@ const RecipeForm = ({ recipe, onSubmit, onClose }) => {
 
           {/* Footer */}
           <div
-            className="px-6 py-4 flex justify-end gap-2"
+            className="px-6 py-4 flex justify-end gap-3"
             style={{ borderTop: `1px solid ${C.border}`, background: C.cardSubtle }}
           >
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg font-semibold text-sm"
-              style={{ background: C.card, color: C.text, border: `1px solid ${C.border}` }}
+              className="px-4 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+              style={{
+                background: '#FFFFFF',
+                color: C.heading,
+                border: `1.5px solid ${C.border}`,
+                fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 rounded-lg font-semibold text-white text-sm disabled:opacity-50"
+              className="px-5 py-2.5 rounded-lg font-semibold text-white text-sm transition-colors disabled:opacity-50"
               style={{
                 background: C.btnPrimary,
-                boxShadow: '0px 2px 6px rgba(8, 27, 67, 0.25)',
+                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
                 fontFamily: "'Montserrat', sans-serif",
+                cursor: 'pointer',
               }}
               onMouseEnter={(e) => { if (!saving) e.currentTarget.style.background = C.btnHover; }}
               onMouseLeave={(e) => { if (!saving) e.currentTarget.style.background = C.btnPrimary; }}
