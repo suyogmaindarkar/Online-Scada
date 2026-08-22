@@ -1,14 +1,14 @@
 // ═══════════════════════════════════════════════════════════
-// Email Service — Nodemailer Transport for Gmail & Custom SMTP
-// Sender: suyogmaindarkar@gmail.com
+// Email Service — Multi-Tenant Nodemailer Transport
+// Optimized for Gmail App Passwords on Render.com
 // ═══════════════════════════════════════════════════════════
 
 const nodemailer = require('nodemailer');
 
-const SENDER_EMAIL = 'suyogmaindarkar@gmail.com';
+const DEFAULT_SENDER = 'suyogmaindarkar@gmail.com';
 
 const getTransporter = () => {
-  const user = process.env.SMTP_USER || SENDER_EMAIL;
+  const user = process.env.SMTP_USER || DEFAULT_SENDER;
   const pass = process.env.SMTP_PASS;
 
   if (!pass) {
@@ -16,20 +16,26 @@ const getTransporter = () => {
   }
 
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = parseInt(process.env.SMTP_PORT) || 587;
 
+  // ✅ If using Gmail, use Nodemailer's native 'gmail' service adapter
+  if (host.includes('gmail.com')) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user,
+        pass,
+      },
+    });
+  }
+
+  // Generic SMTP configuration for non-Gmail hosts
+  const port = parseInt(process.env.SMTP_PORT) || 587;
   return nodemailer.createTransport({
     host,
     port,
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
-    auth: {
-      user,
-      pass,
-    },
-    // Prevent SSL handshake failures on cloud servers
-    tls: {
-      rejectUnauthorized: false,
-    },
+    secure: process.env.SMTP_SECURE === 'true' || port === 465,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false },
   });
 };
 
@@ -67,7 +73,7 @@ const sendAlarmEmail = async (alarm, currentValue) => {
   `;
 
   try {
-    const sender = process.env.SMTP_USER || SENDER_EMAIL;
+    const sender = process.env.SMTP_USER || DEFAULT_SENDER;
     await transporter.sendMail({
       from: `"OnlineSCADA Alarms" <${sender}>`,
       to: recipients.join(','),
@@ -86,14 +92,14 @@ const sendAlarmEmail = async (alarm, currentValue) => {
 const sendWelcomeEmail = async ({ email, fullName, companyName, slug }) => {
   const transporter = getTransporter();
   if (!transporter) {
-    console.warn('⚠️  SMTP_PASS missing in .env — Welcome email skipped. Please set SMTP_PASS in Render!');
+    console.warn('⚠️  SMTP_PASS missing in Render environment variables — Welcome email skipped.');
     return { sent: false, reason: 'SMTP_PASS missing' };
   }
 
   const appUrl = process.env.APP_URL || 'https://app.onlinescada.in';
   const loginUrl = `${appUrl}/login`;
   const subject = `Welcome to OnlineSCADA — Your ${companyName} Workspace is Ready! 🚀`;
-  const senderUser = process.env.SMTP_USER || SENDER_EMAIL;
+  const senderUser = process.env.SMTP_USER || DEFAULT_SENDER;
 
   const html = `
     <!DOCTYPE html>
@@ -153,7 +159,7 @@ const sendWelcomeEmail = async ({ email, fullName, companyName, slug }) => {
           <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 32px 0 20px;" />
 
           <p style="font-size: 13px; color: #64748B; margin: 0;">
-            Need assistance or custom PLC connectivity support? Reply directly to this email or reach us at <a href="mailto:${SENDER_EMAIL}" style="color: #2563EB; text-decoration: none;">${SENDER_EMAIL}</a>.
+            Need assistance or custom PLC connectivity support? Reply directly to this email or reach us at <a href="mailto:${DEFAULT_SENDER}" style="color: #2563EB; text-decoration: none;">${DEFAULT_SENDER}</a>.
           </p>
         </div>
 
