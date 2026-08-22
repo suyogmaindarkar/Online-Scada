@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Lock, Mail, AlertCircle, Loader2, Building2, User, Sparkles, ArrowRight,
+  Lock, Mail, AlertCircle, Loader2, Building2, User,
 } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -193,13 +193,13 @@ const WorkspaceLogin = () => {
             <button
               type="button"
               onClick={() => { setTab('signup'); setError(''); }}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                 tab === 'signup'
                   ? 'bg-[#2563EB] text-white shadow-sm'
                   : 'text-[#5F6B7A] hover:text-[#2563EB]'
               }`}
             >
-              <Sparkles size={14} /> Free Trial
+              Sign Up
             </button>
           </div>
 
@@ -372,14 +372,10 @@ const WorkspaceLogin = () => {
                   {loading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Creating Workspace…</>
                   ) : (
-                    <>Start 14-Day Free Trial <ArrowRight size={16} /></>
+                    'CONTINUE'
                   )}
                 </button>
               </form>
-
-              <p className="text-[11px] text-center text-gray-400 font-medium pt-1">
-                🔒 Includes Demo Simulation PLC + 5 live tags • No credit card
-              </p>
             </div>
           )}
 
