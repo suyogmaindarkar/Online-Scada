@@ -6,10 +6,15 @@
 const nodemailer = require('nodemailer');
 const dns        = require('dns');
 
-// Force global Node.js DNS to return IPv4 first
+// Force global Node.js DNS to return IPv4 first across all network calls
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
+
+// Custom lookup function to guarantee only IPv4 addresses are returned
+const ipv4Lookup = (hostname, options, callback) => {
+  return dns.lookup(hostname, { family: 4, all: false }, callback);
+};
 
 const DEFAULT_SENDER = 'suyogmaindarkar@gmail.com';
 
@@ -21,20 +26,29 @@ const getTransporter = () => {
     return null;
   }
 
-  // ✅ CRITICAL FIX for Render: family: 4 forces IPv4 socket connection
-  // Prevents ENETUNREACH error caused by Render having no IPv6 interface
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT, 10) || 465;
+  const isSecure = port === 465;
+
+  // ✅ CRITICAL FIX for Render.com:
+  // Explicit custom lookup guarantees IPv4 (A records only), bypassing IPv6 completely
+  // and preventing "connect ENETUNREACH 2607:f8b0:..." errors.
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // implicit SSL
-    family: 4,    // 👈 FORCES IPv4 (skips IPv6 completely)
+    host,
+    port,
+    secure: isSecure,
+    lookup: ipv4Lookup,
     auth: {
       user,
       pass,
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
+    tls: {
+      rejectUnauthorized: false,
+      servername: host,
+    },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000,
   });
 };
 
