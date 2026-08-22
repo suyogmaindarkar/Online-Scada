@@ -1,9 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // Signup Controller — Self-Service Free Trial Workspace Creation
-//
-// Endpoints:
-//   POST /api/signup/manual — Manual form signup
-//   POST /api/signup/google — Google OAuth ID Token signup
+// ✅ Sends automated Welcome Email upon signup
 // ═══════════════════════════════════════════════════════════
 
 const jwt           = require('jsonwebtoken');
@@ -14,8 +11,8 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag           = require('../models/Tag');
 const Lead          = require('../models/Lead');
 const { logActivity } = require('./reportController');
+const { sendWelcomeEmail } = require('../services/emailService');
 
-// ─── Token Generators ─────────────────────────────────────
 const generateWorkspaceToken = (companyId, companySlug) => {
   return jwt.sign(
     { type: 'workspace', companyId, companySlug },
@@ -32,7 +29,6 @@ const generateUserToken = (userId, companyId, role) => {
   );
 };
 
-// ─── Slug Generator (User Friendly) ───────────────────────
 const generateUniqueSlug = async (companyName) => {
   let baseSlug = companyName
     .toLowerCase()
@@ -55,7 +51,6 @@ const generateUniqueSlug = async (companyName) => {
   return candidateSlug;
 };
 
-// ─── Helper: Auto-provision Demo PLC & Tags ──────────────
 const provisionDemoWorkspaceData = async (companyId) => {
   try {
     const simPLC = await PLCConnection.create({
@@ -127,7 +122,6 @@ const manualSignup = async (req, res) => {
 
     const slug = await generateUniqueSlug(companyName);
 
-    // 1. Create Company
     const company = await Company.create({
       companyName: companyName.trim(),
       slug,
@@ -137,7 +131,6 @@ const manualSignup = async (req, res) => {
       trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     });
 
-    // 2. Create Admin User
     const username = cleanEmail.split('@')[0].replace(/[^a-z0-9]/g, '') || 'admin';
     const user = await User.create({
       companyId: company._id,
@@ -149,16 +142,13 @@ const manualSignup = async (req, res) => {
       avatarColor: '#2563EB',
     });
 
-    // 3. Create Settings
     await Settings.create({
       companyId: company._id,
       system: { systemName: 'OnlineSCADA', companyName: company.companyName },
     });
 
-    // 4. Auto-provision Simulation PLC & Demo Tags
     await provisionDemoWorkspaceData(company._id);
 
-    // 5. Track Lead in SuperAdmin
     try {
       await Lead.create({
         companyName: company.companyName,
@@ -174,7 +164,6 @@ const manualSignup = async (req, res) => {
       });
     } catch {}
 
-    // 6. Log Activity
     try {
       await logActivity({
         companyId: company._id,
@@ -188,7 +177,14 @@ const manualSignup = async (req, res) => {
       });
     } catch {}
 
-    // 7. Tokens
+    // ✉️ Send Automated Welcome Email (Non-blocking)
+    sendWelcomeEmail({
+      email: user.email,
+      fullName: user.fullName,
+      companyName: company.companyName,
+      slug: company.slug,
+    }).catch(err => console.warn('Welcome email error:', err.message));
+
     const workspaceToken = generateWorkspaceToken(company._id, company.slug);
     const userToken = generateUserToken(user._id, company._id, user.role);
 
@@ -228,7 +224,7 @@ const manualSignup = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 2. GOOGLE OAUTH SIGNUP (Uses Native Node.js fetch)
+// 2. GOOGLE OAUTH SIGNUP
 // ═══════════════════════════════════════════════════════════
 const googleSignup = async (req, res) => {
   try {
@@ -242,7 +238,6 @@ const googleSignup = async (req, res) => {
       });
     }
 
-    // ✅ Uses native Node 18+ fetch (no axios needed)
     let googleUser;
     try {
       const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
@@ -254,7 +249,7 @@ const googleSignup = async (req, res) => {
         });
       }
       googleUser = await googleRes.json();
-    } catch (err) {
+    } catch {
       return res.status(401).json({
         success: false,
         message: 'Failed to verify Google token',
@@ -262,7 +257,7 @@ const googleSignup = async (req, res) => {
       });
     }
 
-    const { email, name, picture, sub: googleId } = googleUser;
+    const { email, name } = googleUser;
 
     if (!email) {
       return res.status(400).json({
@@ -331,6 +326,14 @@ const googleSignup = async (req, res) => {
           userAgent: req.headers['user-agent'] || '',
         });
       } catch {}
+
+      // ✉️ Send Automated Welcome Email for new Google signups
+      sendWelcomeEmail({
+        email: user.email,
+        fullName: user.fullName,
+        companyName: company.companyName,
+        slug: company.slug,
+      }).catch(err => console.warn('Welcome email error:', err.message));
     }
 
     user.lastLogin = new Date();

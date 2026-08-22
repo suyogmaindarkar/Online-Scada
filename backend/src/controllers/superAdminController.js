@@ -1,13 +1,5 @@
 // ═══════════════════════════════════════════════════════════
 // Super Admin Controller — Platform-level management
-//
-// Endpoints (all require superAdminToken):
-//   POST /api/super-admin/login       — Super admin login
-//   GET  /api/super-admin/companies   — List all companies
-//   POST /api/super-admin/companies   — Create new company
-//   PUT  /api/super-admin/companies/:id — Update company (plan, status)
-//   DELETE /api/super-admin/companies/:id — Delete company (dangerous)
-//   POST /api/super-admin/companies/:id/reset-admin — Reset admin password
 // ═══════════════════════════════════════════════════════════
 
 const jwt        = require('jsonwebtoken');
@@ -21,19 +13,14 @@ const Graphic    = require('../models/Graphic');
 const Alarm      = require('../models/Alarm');
 const Recipe     = require('../models/Recipe');
 
-// ─── Token generator ──────────────────────────────────────
 const generateSuperAdminToken = (id) => {
   return jwt.sign(
     { type: 'super-admin', id },
     process.env.JWT_SECRET,
-    { expiresIn: '4h' } // shorter for security
+    { expiresIn: '4h' }
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// SUPER ADMIN LOGIN
-// Body: { email, password }
-// ═══════════════════════════════════════════════════════════
 const superAdminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -93,14 +80,10 @@ const superAdminLogin = async (req, res) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// LIST ALL COMPANIES (with stats)
-// ═══════════════════════════════════════════════════════════
 const listCompanies = async (req, res) => {
   try {
     const companies = await Company.find().sort({ createdAt: -1 });
 
-    // Attach stats to each company
     const withStats = await Promise.all(
       companies.map(async (company) => {
         const [userCount, plcCount, tagCount, screenCount] = await Promise.all([
@@ -132,14 +115,6 @@ const listCompanies = async (req, res) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// CREATE NEW COMPANY (with initial admin user)
-// Body: {
-//   companyName, slug, contactEmail, contactName, contactPhone,
-//   plan, timezone, country,
-//   adminUsername, adminEmail, adminPassword, adminFullName
-// }
-// ═══════════════════════════════════════════════════════════
 const createCompany = async (req, res) => {
   try {
     const {
@@ -148,7 +123,6 @@ const createCompany = async (req, res) => {
       adminUsername, adminEmail, adminPassword, adminFullName,
     } = req.body;
 
-    // Validate required fields
     if (!companyName || !slug || !contactEmail || !adminEmail || !adminPassword) {
       return res.status(400).json({
         success: false,
@@ -156,7 +130,6 @@ const createCompany = async (req, res) => {
       });
     }
 
-    // Check slug uniqueness
     const existing = await Company.findOne({ slug: slug.toLowerCase().trim() });
     if (existing) {
       return res.status(400).json({
@@ -165,7 +138,6 @@ const createCompany = async (req, res) => {
       });
     }
 
-    // ─── 1. Create company ────────────────────────────────
     const company = await Company.create({
       companyName: companyName.trim(),
       slug: slug.toLowerCase().trim(),
@@ -178,7 +150,6 @@ const createCompany = async (req, res) => {
       createdBy: req.superAdmin?._id,
     });
 
-    // ─── 2. Create default admin user ─────────────────────
     const admin = await User.create({
       companyId: company._id,
       username: adminUsername || 'admin',
@@ -189,7 +160,6 @@ const createCompany = async (req, res) => {
       avatarColor: '#2563EB',
     });
 
-    // ─── 3. Create default settings ───────────────────────
     await Settings.create({
       companyId: company._id,
       system: {
@@ -197,8 +167,6 @@ const createCompany = async (req, res) => {
         companyName: company.companyName,
       },
     });
-
-    console.log(`✅ Company created: ${company.companyName} (${company.slug})`);
 
     res.status(201).json({
       success: true,
@@ -229,9 +197,6 @@ const createCompany = async (req, res) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// UPDATE COMPANY (plan, active/suspended, limits)
-// ═══════════════════════════════════════════════════════════
 const updateCompany = async (req, res) => {
   try {
     const allowed = [
@@ -271,9 +236,6 @@ const updateCompany = async (req, res) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// DELETE COMPANY (DANGEROUS — cascades to all data)
-// ═══════════════════════════════════════════════════════════
 const deleteCompany = async (req, res) => {
   try {
     const { id } = req.params;
@@ -294,7 +256,6 @@ const deleteCompany = async (req, res) => {
       });
     }
 
-    // Cascade delete ALL company data
     await Promise.all([
       User.deleteMany({ companyId: id }),
       PLCConnection.deleteMany({ companyId: id }),
@@ -303,12 +264,9 @@ const deleteCompany = async (req, res) => {
       Alarm.deleteMany({ companyId: id }),
       Recipe.deleteMany({ companyId: id }),
       Settings.deleteMany({ companyId: id }),
-      // AlarmHistory, RecipeLog, UserActivityLog also
     ]);
 
     await Company.findByIdAndDelete(id);
-
-    console.log(`🗑️  Deleted company: ${company.companyName} (${company.slug}) + all data`);
 
     res.json({
       success: true,
@@ -323,9 +281,6 @@ const deleteCompany = async (req, res) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// RESET COMPANY ADMIN PASSWORD (emergency)
-// ═══════════════════════════════════════════════════════════
 const resetCompanyAdminPassword = async (req, res) => {
   try {
     const { id } = req.params;
@@ -346,7 +301,7 @@ const resetCompanyAdminPassword = async (req, res) => {
       });
     }
 
-    admin.password = newPassword; // pre-save hook will hash
+    admin.password = newPassword;
     await admin.save();
 
     res.json({
@@ -366,6 +321,71 @@ const resetCompanyAdminPassword = async (req, res) => {
   }
 };
 
+// ═══════════════════════════════════════════════════════════
+// EXPORT ALL USERS CSV (Platform-wide user directory)
+// ═══════════════════════════════════════════════════════════
+const exportAllUsersCSV = async (req, res) => {
+  try {
+    const users = await User.find()
+      .populate('companyId', 'companyName slug plan')
+      .sort({ createdAt: -1 });
+
+    const csvEscape = (v) => {
+      const s = String(v ?? '');
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
+    };
+
+    const headers = [
+      'Company Name',
+      'Workspace Slug',
+      'Plan',
+      'Full Name',
+      'Username',
+      'Email',
+      'Role',
+      'Status',
+      'Created Date',
+      'Last Login',
+    ];
+
+    let csv = `# OnlineSCADA Platform-Wide Registered Users Export\n`;
+    csv += `# Generated At: ${new Date().toISOString()}\n`;
+    csv += `# Total Registered Users: ${users.length}\n#\n`;
+    csv += headers.map(csvEscape).join(',') + '\n';
+
+    users.forEach((u) => {
+      const company = u.companyId || {};
+      const row = [
+        csvEscape(company.companyName || 'Unassigned'),
+        csvEscape(company.slug || 'N/A'),
+        csvEscape(company.plan || 'N/A'),
+        csvEscape(u.fullName || u.username),
+        csvEscape(u.username),
+        csvEscape(u.email),
+        csvEscape(u.role),
+        csvEscape(u.isActive ? 'Active' : 'Disabled'),
+        csvEscape(u.createdAt ? new Date(u.createdAt).toISOString() : ''),
+        csvEscape(u.lastLogin ? new Date(u.lastLogin).toISOString() : 'Never'),
+      ];
+      csv += row.join(',') + '\n';
+    });
+
+    const filename = `onlinescada_all_users_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    console.error('Export All Users CSV Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to export users CSV',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   superAdminLogin,
   listCompanies,
@@ -373,4 +393,5 @@ module.exports = {
   updateCompany,
   deleteCompany,
   resetCompanyAdminPassword,
+  exportAllUsersCSV,
 };

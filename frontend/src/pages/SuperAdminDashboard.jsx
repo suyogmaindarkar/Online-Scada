@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // SuperAdminDashboard — Platform control center
-// Lists all companies with stats, actions, create/edit/delete
+// Added: Export All Users CSV button
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect } from 'react';
@@ -14,7 +14,7 @@ import ResetPasswordModal from '../components/superAdmin/ResetPasswordModal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import {
   ShieldCheck, LogOut, Plus, Search, Loader2, RefreshCw,
-  Building2, Users, TrendingUp, AlertTriangle, Filter,
+  Building2, Users, TrendingUp, AlertTriangle, Filter, Download,
 } from 'lucide-react';
 
 const SuperAdminDashboard = () => {
@@ -24,17 +24,16 @@ const SuperAdminDashboard = () => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [exporting, setExporting]   = useState(false);
   const [search, setSearch]       = useState('');
   const [planFilter, setPlanFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Modals
-  const [showCreate, setShowCreate]     = useState(false);
-  const [editingCompany, setEditingCompany] = useState(null);
+  const [showCreate, setShowCreate]           = useState(false);
+  const [editingCompany, setEditingCompany]   = useState(null);
   const [resetPasswordCompany, setResetPasswordCompany] = useState(null);
   const [deletingCompany, setDeletingCompany] = useState(null);
 
-  // ─── Fetch companies ───
   const loadCompanies = async () => {
     try {
       const res = await superAdminAPI.listCompanies();
@@ -58,6 +57,26 @@ const SuperAdminDashboard = () => {
     setRefreshing(false);
   };
 
+  const handleExportUsers = async () => {
+    try {
+      setExporting(true);
+      const res = await superAdminAPI.exportAllUsersCSV();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `onlinescada_all_users_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to export users CSV: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const handleLogout = () => {
     if (window.confirm('Sign out of Super Admin?')) {
       logout();
@@ -67,7 +86,7 @@ const SuperAdminDashboard = () => {
 
   const handleSuspend = async (company) => {
     const reason = prompt(`Suspend "${company.companyName}"?\nEnter reason (optional):`, 'Payment overdue');
-    if (reason === null) return; // Cancelled
+    if (reason === null) return;
     try {
       await superAdminAPI.updateCompany(company._id, {
         isSuspended: true,
@@ -103,7 +122,6 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  // ─── Filtering ───
   const filtered = companies.filter(c => {
     const searchLower = search.toLowerCase();
     if (search && !c.companyName.toLowerCase().includes(searchLower) &&
@@ -116,7 +134,6 @@ const SuperAdminDashboard = () => {
     return true;
   });
 
-  // ─── Aggregate stats ───
   const totalCompanies = companies.length;
   const activeCompanies = companies.filter(c => c.isActive && !c.isSuspended && !c.isExpiredNow).length;
   const totalUsers = companies.reduce((sum, c) => sum + (c.stats?.userCount || 0), 0);
@@ -141,7 +158,7 @@ const SuperAdminDashboard = () => {
       color: '#F8FAFC',
       fontFamily: "'Inter', sans-serif",
     }}>
-      {/* ═══ HEADER ═══ */}
+      {/* HEADER */}
       <header style={{
         padding: '16px 24px',
         background: 'rgba(15,23,42,0.9)',
@@ -168,9 +185,24 @@ const SuperAdminDashboard = () => {
             Signed in as <strong style={{ color: '#F1F5F9' }}>{superAdmin?.fullName || superAdmin?.email}</strong>
           </p>
         </div>
-        <button onClick={handleRefresh} disabled={refreshing}
-          style={darkButtonStyle}
-          title="Refresh companies">
+
+        {/* Export Users CSV Button */}
+        <button
+          onClick={handleExportUsers}
+          disabled={exporting}
+          style={{
+            ...darkButtonStyle,
+            background: '#16A34A',
+            color: '#FFFFFF',
+            border: 'none',
+          }}
+          title="Export Directory of All Users across all Workspaces to CSV"
+        >
+          {exporting ? <Loader2 style={{ width: 14, height: 14, animation: 'spin 1s linear infinite' }} /> : <Download style={{ width: 14, height: 14 }} />}
+          Export Users CSV
+        </button>
+
+        <button onClick={handleRefresh} disabled={refreshing} style={darkButtonStyle} title="Refresh companies">
           <RefreshCw style={{ width: 14, height: 14, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>
@@ -181,7 +213,7 @@ const SuperAdminDashboard = () => {
       </header>
 
       <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-        {/* ═══ STATS ROW ═══ */}
+        {/* STATS ROW */}
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px',
           marginBottom: '20px',
@@ -192,12 +224,11 @@ const SuperAdminDashboard = () => {
           <StatCard icon={AlertTriangle} label="Suspended/Expired" value={suspendedCount} color="#DC2626" />
         </div>
 
-        {/* ═══ CONTROLS BAR ═══ */}
+        {/* CONTROLS BAR */}
         <div style={{
           display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap',
           alignItems: 'center',
         }}>
-          {/* Search */}
           <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '240px' }}>
             <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#64748B' }} />
             <input
@@ -215,7 +246,6 @@ const SuperAdminDashboard = () => {
             />
           </div>
 
-          {/* Plan filter */}
           <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} style={darkSelectStyle}>
             <option value="all">All Plans</option>
             <option value="trial">Trial</option>
@@ -224,7 +254,6 @@ const SuperAdminDashboard = () => {
             <option value="enterprise">Enterprise</option>
           </select>
 
-          {/* Status filter */}
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={darkSelectStyle}>
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -232,7 +261,6 @@ const SuperAdminDashboard = () => {
             <option value="expired">Expired</option>
           </select>
 
-          {/* Create button */}
           <button onClick={() => setShowCreate(true)}
             style={{
               padding: '9px 16px', borderRadius: '8px', border: 'none',
@@ -247,7 +275,7 @@ const SuperAdminDashboard = () => {
           </button>
         </div>
 
-        {/* ═══ COMPANY GRID ═══ */}
+        {/* COMPANY GRID */}
         {filtered.length === 0 ? (
           <div style={{
             padding: '60px 20px', textAlign: 'center',
@@ -283,7 +311,6 @@ const SuperAdminDashboard = () => {
         )}
       </div>
 
-      {/* ═══ MODALS ═══ */}
       <CreateCompanyModal
         isOpen={showCreate}
         onClose={() => setShowCreate(false)}
@@ -308,7 +335,7 @@ const SuperAdminDashboard = () => {
         onClose={() => setDeletingCompany(null)}
         onConfirm={handleDelete}
         title="Delete Company?"
-        message={`This will PERMANENTLY delete "${deletingCompany?.companyName}" and ALL its data (users, PLCs, tags, screens, alarms, recipes, settings). This action cannot be undone.`}
+        message={`This will PERMANENTLY delete "${deletingCompany?.companyName}" and ALL its data. This action cannot be undone.`}
         confirmText="Delete Forever"
         confirmColor="red"
         icon="warning"
@@ -317,7 +344,6 @@ const SuperAdminDashboard = () => {
   );
 };
 
-// ─── Sub-components ────────────────────────────────────
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div style={{
     padding: '14px 16px', borderRadius: '10px',
@@ -347,7 +373,6 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
   </div>
 );
 
-// ─── Shared dark styles ───────────────────────────────
 const darkButtonStyle = {
   padding: '8px 12px', borderRadius: '8px',
   border: '1px solid rgba(148,163,184,0.2)',

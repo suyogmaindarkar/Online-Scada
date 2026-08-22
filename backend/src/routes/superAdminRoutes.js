@@ -11,6 +11,7 @@ const {
   updateCompany,
   deleteCompany,
   resetCompanyAdminPassword,
+  exportAllUsersCSV,
 } = require('../controllers/superAdminController');
 const { superAdminProtect } = require('../middleware/auth');
 
@@ -18,10 +19,11 @@ const { superAdminProtect } = require('../middleware/auth');
 router.post('/login', superAdminLogin);
 
 // Protected — all require super admin token
-router.get('/companies',              superAdminProtect, listCompanies);
-router.post('/companies',             superAdminProtect, createCompany);
-router.put('/companies/:id',          superAdminProtect, updateCompany);
-router.delete('/companies/:id',       superAdminProtect, deleteCompany);
+router.get('/companies',                  superAdminProtect, listCompanies);
+router.post('/companies',                 superAdminProtect, createCompany);
+router.put('/companies/:id',              superAdminProtect, updateCompany);
+router.delete('/companies/:id',           superAdminProtect, deleteCompany);
 router.post('/companies/:id/reset-admin', superAdminProtect, resetCompanyAdminPassword);
+router.get('/users/export',               superAdminProtect, exportAllUsersCSV);
 
 module.exports = router;
