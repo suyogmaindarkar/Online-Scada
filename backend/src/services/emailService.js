@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
 // Email Service — Multi-Tenant Nodemailer Transport
-// Optimized for Gmail App Passwords on Render.com
+// Hardened for Render.com / Cloud Firewalls (Port 465 SSL)
 // ═══════════════════════════════════════════════════════════
 
 const nodemailer = require('nodemailer');
@@ -15,27 +15,18 @@ const getTransporter = () => {
     return null;
   }
 
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-
-  // ✅ If using Gmail, use Nodemailer's native 'gmail' service adapter
-  if (host.includes('gmail.com')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user,
-        pass,
-      },
-    });
-  }
-
-  // Generic SMTP configuration for non-Gmail hosts
-  const port = parseInt(process.env.SMTP_PORT) || 587;
+  // ✅ Port 465 with secure: true bypasses Render/GCP port 587 blocking
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: process.env.SMTP_SECURE === 'true' || port === 465,
-    auth: { user, pass },
-    tls: { rejectUnauthorized: false },
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE === 'true' || true, // true for 465
+    auth: {
+      user,
+      pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 };
 
