@@ -1,6 +1,5 @@
 // ═══════════════════════════════════════════════════════════
 // Server Entry Point — OnlineSCADA Backend (Production Hardened)
-// ✅ Hardened with Helmet security headers & masked errors
 // ═══════════════════════════════════════════════════════════
 
 const dotenv = require('dotenv');
@@ -21,18 +20,15 @@ const connectDB   = require('./src/config/database');
 const app    = express();
 const server = http.createServer(app);
 
-// 🔒 1. Disable X-Powered-By Express header
 app.disable('x-powered-by');
 
-// 🔒 2. Apply Helmet security headers
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Handled at CDN level
+    contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
-// ✅ Enable trust proxy for Render/Cloudflare/Vercel reverse proxies
 app.set('trust proxy', 1);
 
 const allowedOrigins = [
@@ -135,7 +131,7 @@ app.use('/api/signup',      require('./src/routes/signupRoutes'));
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════
-// SYSTEM ROUTES
+// SYSTEM & DIAGNOSTIC ROUTES
 // ═══════════════════════════════════════════════════════════
 app.get('/', (req, res) => {
   res.json({
@@ -154,6 +150,37 @@ app.get('/api/health', (req, res) => {
     memory:   process.memoryUsage(),
     influxdb: typeof isInfluxAvailable === 'function' ? isInfluxAvailable() : 'unknown',
   });
+});
+
+// ✉️ DIRECT EMAIL TEST ENDPOINT FOR SUYOG
+app.get('/api/test-email', async (req, res) => {
+  const { sendWelcomeEmail } = require('./src/services/emailService');
+  const targetEmail = req.query.to || process.env.SMTP_USER || 'suyogmaindarkar@gmail.com';
+  try {
+    const result = await sendWelcomeEmail({
+      email: targetEmail,
+      fullName: 'Suyog Maindarkar (Test)',
+      companyName: 'OnlineSCADA Test',
+      slug: 'test-workspace',
+    });
+
+    res.json({
+      success: result.sent,
+      message: result.sent ? `Email sent successfully to ${targetEmail}` : `Email failed: ${result.reason}`,
+      config: {
+        smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+        smtpPort: process.env.SMTP_PORT || '465',
+        smtpUser: process.env.SMTP_USER || 'Not set',
+        hasPass:  !!process.env.SMTP_PASS,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      stack: err.stack,
+    });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -308,9 +335,5 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log('╔════════════════════════════════════════════════════════╗');
   console.log(`║  🚀 OnlineSCADA Server running on port ${PORT}            ║`);
-  console.log(`║  🌍 Environment: ${(process.env.NODE_ENV || 'development').padEnd(37)}║`);
-  console.log(`║  🔗 URL: http://localhost:${PORT}                          ║`);
-  console.log('║  🏢 Multi-Tenant Mode: ENABLED                         ║');
-  console.log('║  🛡️  Security Headers (Helmet) & Proxy Trust: ACTIVE   ║');
   console.log('╚════════════════════════════════════════════════════════╝');
 });
