@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /login
+Allow: /select-user
+Allow: /super-admin/login
+Disallow: /dashboard
+Disallow: /plc
+Disallow: /tags
+Disallow: /designer
+Disallow: /runtime
+Disallow: /alarms
+Disallow: /trends
+Disallow: /recipes
+Disallow: /reports
+Disallow: /users
+Disallow: /settings
+
+Sitemap: https://app.onlinescada.in/sitemap.xml
