@@ -12,7 +12,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { ImportResults } from './TagManagement';
 import {
   Plus, Edit2, Trash2, Play, Pause, Cpu,
-  Wifi, WifiOff, Loader2, Sparkles, Info,
+  Wifi, WifiOff, Loader2, Sparkles,
   Download, Upload, FileText, Search, Radar,
   Signal, SignalHigh, SignalLow, CheckCircle2,
   ShieldCheck, Microscope, RefreshCw, ChevronDown, ChevronUp,
@@ -462,17 +462,6 @@ const PLCManagement = () => {
         </div>
       </div>
 
-      {/* Info banner */}
-      {!loading && plcs.length > 0 && !plcs.some(p => p.isSimulation) && (
-        <div className="p-3 rounded-lg flex items-start gap-3"
-          style={{ background: 'rgba(147,51,234,0.08)', border: `1px solid ${C.purple}40` }}>
-          <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: C.purple }} />
-          <div className="flex-1 text-sm">
-            <p className="font-semibold" style={{ color: C.purpleDark }}>Try the Quick Simulation PLC!</p>
-            <p className="mt-0.5" style={{ color: C.text }}>Click <strong>"Quick Simulation"</strong> to instantly create a virtual PLC with 5 demo tags.</p>
-          </div>
-        </div>
-      )}
 
       {/* ═══ PLC TABLE ═══ */}
       <div className="rounded-2xl overflow-hidden"
