@@ -95,7 +95,6 @@ export const workspaceAPI = {
 
 export const signupAPI = {
   manual: (companyName, fullName, email, password) => api.post('/signup/manual', { companyName, fullName, email, password }),
-  google: (credential) => api.post('/signup/google', { credential }),
 };
 
 export const superAdminAPI = {
@@ -178,7 +177,7 @@ export const discoveryAPI = {
 export const alarmAPI = {
   getAll: (filters = {}) => api.get(`/alarms?${new URLSearchParams(filters)}`),
   getActive: () => api.get('/alarms/active'),
-  getActiveAlarms: () => api.get('/alarms/active'), // ✅ Alias for backward compatibility
+  getActiveAlarms: () => api.get('/alarms/active'),
   getHistory: (filters = {}) => api.get(`/alarms/history?${new URLSearchParams(filters)}`),
   getOne: (id) => api.get(`/alarms/${id}`),
   create: (data) => api.post('/alarms', data),

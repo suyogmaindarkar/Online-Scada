@@ -1,16 +1,15 @@
 // ═══════════════════════════════════════════════════════════
 // WorkspaceLogin — Step 1 of Two-Step Authentication
-// ✅ Added "Confirm Password" field for manual signup
+// ✅ Removed Google OAuth Sign up and Sign in completely
+// ✅ Added manual signup with "Confirm Password" validation
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Lock, Mail, AlertCircle, Loader2, Building2, User,
 } from 'lucide-react';
-
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 const WorkspaceLogin = () => {
   const [tab, setTab]                     = useState('login'); // 'login' | 'signup'
@@ -25,14 +24,13 @@ const WorkspaceLogin = () => {
   const [signupName, setSignupName]       = useState('');
   const [signupEmail, setSignupEmail]     = useState('');
   const [signupPass, setSignupPass]       = useState('');
-  const [signupPassConfirm, setSignupPassConfirm] = useState(''); // ✅ NEW
+  const [signupPassConfirm, setSignupPassConfirm] = useState('');
 
   const [error, setError]                 = useState('');
   const [loading, setLoading]             = useState(false);
 
-  const { verifyWorkspace, signupManual, signupGoogle, authState } = useAuth();
+  const { verifyWorkspace, signupManual, authState } = useAuth();
   const navigate = useNavigate();
-  const googleBtnRef = useRef(null);
 
   useEffect(() => {
     if (authState === 'LOGGED_IN')      navigate('/dashboard');
@@ -48,57 +46,6 @@ const WorkspaceLogin = () => {
     const savedSlug = localStorage.getItem('lastWorkspaceSlug');
     if (savedSlug) setSlug(savedSlug);
   }, []);
-
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
-
-    const loadGoogleScript = () => {
-      if (document.getElementById('google-jssdk')) {
-        renderGoogleBtn();
-        return;
-      }
-      const script = document.createElement('script');
-      script.id = 'google-jssdk';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = renderGoogleBtn;
-      document.body.appendChild(script);
-    };
-
-    const renderGoogleBtn = () => {
-      if (window.google?.accounts?.id && googleBtnRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCallback,
-        });
-
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          theme: 'outline',
-          size: 'large',
-          width: '100%',
-          text: 'continue_with',
-          shape: 'pill',
-        });
-      }
-    };
-
-    loadGoogleScript();
-  }, [tab]);
-
-  const handleGoogleCallback = async (response) => {
-    if (!response.credential) return;
-    setError('');
-    setLoading(true);
-
-    const res = await signupGoogle(response.credential);
-    if (res.success) {
-      navigate('/dashboard');
-    } else {
-      setError(res.message);
-      setLoading(false);
-    }
-  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +68,6 @@ const WorkspaceLogin = () => {
     e.preventDefault();
     setError('');
 
-    // ✅ NEW: Verify passwords match before calling API
     if (signupPass !== signupPassConfirm) {
       setError('Passwords do not match');
       return;
@@ -277,17 +223,6 @@ const WorkspaceLogin = () => {
           {/* TAB 2: SIGNUP */}
           {tab === 'signup' && (
             <div className="space-y-4">
-              {GOOGLE_CLIENT_ID && (
-                <>
-                  <div ref={googleBtnRef} className="w-full min-h-[40px] flex justify-center" />
-                  <div className="flex items-center my-3">
-                    <div className="flex-1 border-t border-gray-200" />
-                    <span className="px-3 text-xs text-gray-400 font-semibold uppercase">Or manual signup</span>
-                    <div className="flex-1 border-t border-gray-200" />
-                  </div>
-                </>
-              )}
-
               <form onSubmit={handleSignupSubmit} className="space-y-3">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#081B43' }}>
@@ -349,7 +284,6 @@ const WorkspaceLogin = () => {
                   </div>
                 </div>
 
-                {/* ✅ NEW: Confirm Password Field */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#081B43' }}>
                     Confirm Password *

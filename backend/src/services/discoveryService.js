@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Discovery Service — Phase 3.1
+// PLC Discovery Service — Phase 3.1 (Improved)
 //
-// FIXES:
-//   ✅ OPC UA reads BuildInfo as a STRUCT correctly
-//      (previous version returned corrupt/wrong-field data)
-//   ✅ Uses browseName-based reads for reliability
-//   ✅ Sanitizes DateTime/struct values (no more "Fri Aug 01 2092...")
-//   ✅ Better false-positive filtering
+// FIXES & IMPROVEMENTS:
+//   ✅ Discovers PLCs on ALL interfaces (including 169.254.x.x link-local & virtual)
+//   ✅ Dual-Path Host Alive: checks Ping OR quick PLC ports to bypass ICMP firewalls
+//   ✅ Smart PC Bypass: PLCs with active web servers (ports 80/443) are never ignored
+//   ✅ S7 reads BuildInfo as STRUCT correctly
+//   ✅ Sanitizes software versions & models reliably
 // ═══════════════════════════════════════════════════════════
 
 const net  = require('net');
@@ -111,11 +111,10 @@ class DiscoveryService {
 
     for (const [name, addrs] of Object.entries(interfaces)) {
       for (const addr of addrs) {
-        if (addr.internal || addr.family !== 'IPv4') continue;
-        if (addr.address.startsWith('169.254.')) continue;
+        if (addr.family !== 'IPv4') continue;
 
         const ipParts        = addr.address.split('.').map(Number);
-        const maskParts      = addr.netmask.split('.').map(Number);
+        const maskParts      = (addr.netmask || '255.255.255.0').split('.').map(Number);
         const networkParts   = ipParts.map((ip, i) => ip & maskParts[i]);
         const broadcastParts = ipParts.map((ip, i) => ip | (~maskParts[i] & 255));
         const totalHosts     = broadcastParts.reduce(
@@ -125,11 +124,11 @@ class DiscoveryService {
         networks.push({
           interface:  name,
           address:    addr.address,
-          netmask:    addr.netmask,
+          netmask:    addr.netmask || '255.255.255.0',
           mac:        addr.mac,
           network:    networkParts.join('.'),
           broadcast:  broadcastParts.join('.'),
-          cidr:       `${networkParts.join('.')}/${this.netmaskToCidr(addr.netmask)}`,
+          cidr:       `${networkParts.join('.')}/${this.netmaskToCidr(addr.netmask || '255.255.255.0')}`,
           totalHosts: Math.min(totalHosts, 254),
           startIP:    `${networkParts[0]}.${networkParts[1]}.${networkParts[2]}.${networkParts[3] + 1}`,
           endIP:      `${broadcastParts[0]}.${broadcastParts[1]}.${broadcastParts[2]}.${broadcastParts[3] - 1}`,
@@ -208,6 +207,27 @@ class DiscoveryService {
     });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ✅ DUAL-PATH HOST DETECTION
+  // A host is alive if it pings OR responds to any standard PLC port.
+  // ═══════════════════════════════════════════════════════════
+  async isHostAlive(ip, timeout = 1500) {
+    const [pingRes, portChecks] = await Promise.all([
+      this.pingHost(ip, timeout),
+      Promise.all(PLC_PORTS.map(({ port }) => this.probePort(ip, port, Math.min(timeout, 1000))))
+    ]);
+
+    const isPingAlive = pingRes && pingRes.alive;
+    const openPorts = portChecks.filter(r => r && r.open).map(r => r.port);
+    const hasOpenPort = openPorts.length > 0;
+
+    return {
+      ip,
+      alive: isPingAlive || hasOpenPort,
+      openPorts
+    };
+  }
+
   getMacAddress(ip) {
     return new Promise((resolve) => {
       const isWindows = os.platform() === 'win32';
@@ -232,19 +252,10 @@ class DiscoveryService {
       } catch { resolve(null); }
       setTimeout(() => resolve(null), 2000);
     });
-
-    
   }
+
   // ═══════════════════════════════════════════════════════════
-  // ✅ NEW: Detect if an IP is likely a PC (not a PLC)
-  // Checks for common PC-only services:
-  //   - HTTP (80, 443) — web browsers, IIS, Apache
-  //   - RDP (3389) — Windows Remote Desktop
-  //   - SMB (445) — Windows file sharing
-  //   - SSH (22) — Linux/Mac
-  //   - DNS (53) — usually routers/servers, not PLCs
-  //
-  // If device has 2+ PC services open → likely a PC → exclude
+  // PC DETECTION (FILTER OUT NON-PLCs)
   // ═══════════════════════════════════════════════════════════
   async isLikelyPC(ip, timeout = 800) {
     const pcPorts = [
@@ -266,10 +277,7 @@ class DiscoveryService {
       .filter(r => r.open)
       .map((r, i) => pcPorts[i]);
 
-    // If 2+ PC-specific ports are open → very likely a PC
     const pcScore = openPcPorts.length;
-
-    // RDP or SMB alone is a strong PC indicator
     const hasRDP = openPcPorts.some(p => p.port === 3389);
     const hasSMB = openPcPorts.some(p => p.port === 445);
 
@@ -285,6 +293,7 @@ class DiscoveryService {
       openPcPorts: openPcPorts.map(p => p.name),
     };
   }
+
   lookupVendor(mac) {
     if (!mac) return null;
     const oui = mac.split(':').slice(0, 3).join(':').toUpperCase();
@@ -465,13 +474,7 @@ class DiscoveryService {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ✅ OPC UA DEEP PROBE — FIXED
-  // Now reads BuildInfo as a STRUCT (ns=0;i=2260) and extracts
-  // fields via BrowsePath since Siemens returns individual
-  // BuildInfo child nodes as null on some firmwares.
-  //
-  // Also validates + sanitizes each field so no DateTime,
-  // structs, or numeric-only values leak into text fields.
+  // OPC UA DEEP PROBE
   // ═══════════════════════════════════════════════════════════
   async probeOPCUA(ip, timeout = 10000) {
     const result = {
@@ -511,24 +514,19 @@ class DiscoveryService {
         try {
           const session = await client.createSession();
           try {
-            // ✅ Read BuildInfo as a whole STRUCT first (most reliable on Siemens)
-            // NodeId 2260 = Server_ServerStatus_BuildInfo
             const buildInfoStruct = await session.readVariableValue('ns=0;i=2260');
 
             if (buildInfoStruct?.value?.value && typeof buildInfoStruct.value.value === 'object') {
               const bi = buildInfoStruct.value.value;
-              // BuildInfo struct fields (as defined in OPC UA spec)
               if (bi.productUri)        result.productUri      = this._sanitizeString(bi.productUri);
               if (bi.manufacturerName)  result.manufacturer    = this._sanitizeString(bi.manufacturerName);
               if (bi.productName)       result.productName     = this._sanitizeString(bi.productName);
               if (bi.softwareVersion)   result.softwareVersion = this._sanitizeString(bi.softwareVersion);
               if (bi.buildNumber)       result.buildNumber     = this._sanitizeString(bi.buildNumber);
-              // buildDate is a DateTime — we skip it (not needed for identification)
 
               result.appName = result.productName;
             }
 
-            // ✅ Read ServerState separately (i=2259)
             try {
               const stateNode = await session.readVariableValue('ns=0;i=2259');
               if (stateNode?.value?.value !== undefined && stateNode.value.value !== null) {
@@ -540,14 +538,13 @@ class DiscoveryService {
               }
             } catch { /* ignore */ }
 
-            // ✅ Fallback: if struct read failed, try individual nodes with validation
             if (!result.productName) {
               const fallbackNodes = [
-                { field: 'manufacturer',    nodeId: 'ns=0;i=2263' }, // BuildInfo_ManufacturerName
-                { field: 'productName',     nodeId: 'ns=0;i=2261' }, // BuildInfo_ProductName
-                { field: 'productUri',      nodeId: 'ns=0;i=2262' }, // BuildInfo_ProductUri
-                { field: 'softwareVersion', nodeId: 'ns=0;i=2264' }, // BuildInfo_SoftwareVersion
-                { field: 'buildNumber',     nodeId: 'ns=0;i=2265' }, // BuildInfo_BuildNumber
+                { field: 'manufacturer',    nodeId: 'ns=0;i=2263' },
+                { field: 'productName',     nodeId: 'ns=0;i=2261' },
+                { field: 'productUri',      nodeId: 'ns=0;i=2262' },
+                { field: 'softwareVersion', nodeId: 'ns=0;i=2264' },
+                { field: 'buildNumber',     nodeId: 'ns=0;i=2265' },
               ];
               for (const { field, nodeId } of fallbackNodes) {
                 try {
@@ -582,35 +579,19 @@ class DiscoveryService {
     }
   }
 
-  // ✅ Sanitize OPC UA values — reject DateTime, structs, numeric-only,
-  //    or anything that clearly isn't a human-readable string.
   _sanitizeString(val) {
     if (val === null || val === undefined) return null;
-
-    // Reject Date objects (Firmware "Fri Aug 01 2092..." bug)
     if (val instanceof Date) return null;
-
-    // Reject arrays and structs
     if (Array.isArray(val)) return null;
     if (typeof val === 'object') return null;
-
-    // Reject booleans
     if (typeof val === 'boolean') return null;
 
-    // Convert to string safely
     const str = String(val).trim();
-
-    // Reject empty or whitespace-only
     if (!str) return null;
 
-    // Reject if it looks like a Date string
     if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+\w{3}\s+\d/.test(str)) return null;
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str)) return null;
-
-    // Reject numeric-only values (like "00" or "1")
     if (/^\d+$/.test(str) && str.length < 4) return null;
-
-    // Reject if it's just a number with dots (e.g. "0.0")
     if (/^\d+(\.\d+)*$/.test(str) && !/[A-Za-z]/.test(str) && str.length < 5) return null;
 
     return str;
@@ -743,7 +724,6 @@ class DiscoveryService {
     };
   }
 
-  // ✅ FIXED: Correct field mapping — no more swapped values
   _mergeDeepInfo(s7, opcua, modbus, vendor) {
     const info = {
       model: null, firmware: null, serial: null,
@@ -752,7 +732,6 @@ class DiscoveryService {
       opcuaServerState: null, softwareVersion: null,
     };
 
-    // ─── OPC UA (primary for S7-1500) ───
     if (opcua && opcua.success) {
       info.manufacturer     = opcua.manufacturer || VENDOR_NAMES[vendor] || null;
       info.opcuaAppName     = opcua.productName || opcua.appName || null;
@@ -760,22 +739,18 @@ class DiscoveryService {
       info.softwareVersion  = opcua.softwareVersion || null;
       info.probeMethod      = 'OPC UA';
 
-      // Model = productName (validated, not "00")
       if (opcua.productName && opcua.productName.length > 2) {
         info.model = opcua.productName;
       }
 
-      // Firmware = softwareVersion (validated, not a Date string)
       if (opcua.softwareVersion) {
         const sv = opcua.softwareVersion;
-        // Only accept if it looks like a version string
         if (/^V?\d+[\.\d]*/.test(sv)) {
           info.firmware = sv.startsWith('V') ? sv : `V${sv}`;
         }
       }
     }
 
-    // ─── S7 (adds order number + refines model) ───
     if (s7 && s7.success) {
       if (s7.orderNumber) info.orderNumber = s7.orderNumber;
       if (s7.plcName)     info.plcName     = s7.plcName;
@@ -786,7 +761,6 @@ class DiscoveryService {
       else if (!info.probeMethod.includes('S7')) info.probeMethod += ' + S7';
     }
 
-    // ─── Modbus (last fallback) ───
     if (modbus && modbus.success) {
       if (!info.model       && modbus.modelName)   info.model       = modbus.modelName;
       if (!info.firmware    && modbus.firmware)     info.firmware    = modbus.firmware;
@@ -827,27 +801,24 @@ class DiscoveryService {
           return { success: false, message: 'No network interfaces found' };
         }
         const selectedNetwork = networks[networkIndex] || networks[0];
-        console.log(`🌐 Using network: ${selectedNetwork.interface} (${selectedNetwork.cidr})`);
+        console.log(`🌐 Using network interface: ${selectedNetwork.interface} (${selectedNetwork.cidr})`);
         ips = this.generateIPRange(selectedNetwork.startIP, selectedNetwork.endIP);
       }
 
-      console.log(`🔍 Discovery Phase 1: scanning ${ips.length} IPs...`);
+      console.log(`🔍 Discovery Phase 1: Checking ${ips.length} IPs (Ping & PLC Port probing)...`);
       this.scanProgress = { total: ips.length, scanned: 0, found: 0, phase: 'pinging' };
 
-      const pingTasks   = ips.map(ip => () => this.pingHost(ip, timeout));
-      const pingResults = await this.runParallel(pingTasks, concurrency);
+      const aliveTasks = ips.map(ip => () => this.isHostAlive(ip, timeout));
+      const aliveResults = await this.runParallel(aliveTasks, concurrency);
 
       const ownIPs = this.getOwnIPs();
       console.log(`   🔒 Own IPs excluded: ${[...ownIPs].join(', ')}`);
 
-      const aliveHosts = pingResults
-        .filter(r => r && r.alive)
-        .map(r => r.ip)
-        .filter(ip => !ownIPs.has(ip));
+      // Filter out invalid/null results and exclude own IPs
+      const aliveHostsInfo = aliveResults.filter(r => r && r.alive && !ownIPs.has(r.ip));
+      console.log(`   📡 ${aliveHostsInfo.length} hosts found responsive to ping or PLC ports`);
 
-      console.log(`   📡 ${aliveHosts.length} hosts alive`);
-
-      if (aliveHosts.length === 0) {
+      if (aliveHostsInfo.length === 0) {
         this.isScanning = false;
         this.scanProgress = { total: ips.length, scanned: ips.length, found: 0, phase: 'done' };
         return {
@@ -856,29 +827,42 @@ class DiscoveryService {
         };
       }
 
-      this.scanProgress.phase   = 'probing';
-      this.scanProgress.scanned = 0;
-      this.scanProgress.total   = aliveHosts.length * PLC_PORTS.length;
-
-      const portTasks = [];
-      aliveHosts.forEach(ip => {
-        PLC_PORTS.forEach(({ port }) => {
-          portTasks.push(() => this.probePort(ip, port, timeout));
-        });
-      });
-      const portResults = await this.runParallel(portTasks, concurrency);
-      const openPortResults = portResults.filter(r => r && r.open);
-
-      console.log(`   🔌 ${openPortResults.length} open PLC ports found across hosts`);
-
       const deviceMap = new Map();
-      openPortResults.forEach(({ ip, port }) => {
-        if (ownIPs.has(ip)) return;
-        if (!deviceMap.has(ip)) deviceMap.set(ip, []);
-        deviceMap.get(ip).push(port);
+      aliveHostsInfo.forEach(info => {
+        deviceMap.set(info.ip, info.openPorts || []);
       });
 
-      console.log(`   🎯 ${deviceMap.size} potential PLC devices found`);
+      // For hosts responsive only to Ping with no quick open ports found, execute a complete port sweep
+      const pingOnlyHosts = aliveHostsInfo.filter(r => !r.openPorts || r.openPorts.length === 0).map(r => r.ip);
+      if (pingOnlyHosts.length > 0) {
+        console.log(`   🔌 Scanning ports on ${pingOnlyHosts.length} hosts that only responded to ping...`);
+        this.scanProgress.phase   = 'probing';
+        this.scanProgress.scanned = 0;
+        this.scanProgress.total   = pingOnlyHosts.length * PLC_PORTS.length;
+
+        const portTasks = [];
+        pingOnlyHosts.forEach(ip => {
+          PLC_PORTS.forEach(({ port }) => {
+            portTasks.push(() => this.probePort(ip, port, timeout));
+          });
+        });
+        const portResults = await this.runParallel(portTasks, concurrency);
+        
+        portResults.filter(r => r && r.open).forEach(({ ip, port }) => {
+          if (!deviceMap.has(ip)) deviceMap.set(ip, []);
+          const ports = deviceMap.get(ip);
+          if (!ports.includes(port)) ports.push(port);
+        });
+      }
+
+      // Filter out hosts that literally had no open industrial ports at the end of sweep
+      for (const [ip, ports] of deviceMap.entries()) {
+        if (ports.length === 0) {
+          deviceMap.delete(ip);
+        }
+      }
+
+      console.log(`   🎯 ${deviceMap.size} valid industrial devices found`);
 
       const devices = [];
 
@@ -888,15 +872,20 @@ class DiscoveryService {
         this.scanProgress.scanned = 0;
         this.scanProgress.total   = deviceMap.size;
 
-               for (const [ip, ports] of deviceMap) {
+        for (const [ip, ports] of deviceMap) {
           console.log(`   🔬 Deep probing ${ip} (ports: ${ports.join(', ')})`);
           try {
-            // ✅ NEW: Check if this IP is likely a PC (not a PLC)
-            const pcCheck = await this.isLikelyPC(ip, 800);
-            if (pcCheck.isPC) {
-              console.log(`   🖥️  Skipping ${ip} — identified as PC (${pcCheck.openPcPorts.join(', ')})`);
-              this.scanProgress.scanned += 1;
-              continue; // Skip this device entirely
+            // Check if standard industrial ports are present. If so, bypass PC check
+            const hasIndustrialPorts = ports && ports.some(p => [102, 502, 4840, 44818].includes(p));
+            let bypassPCFlag = hasIndustrialPorts;
+
+            if (!bypassPCFlag) {
+              const pcCheck = await this.isLikelyPC(ip, 800);
+              if (pcCheck.isPC) {
+                console.log(`   🖥️  Skipping ${ip} — identified as PC (${pcCheck.openPcPorts.join(', ')})`);
+                this.scanProgress.scanned += 1;
+                continue;
+              }
             }
 
             const deviceInfo = await this.probeDevice(ip, ports);
@@ -914,16 +903,20 @@ class DiscoveryService {
           this.scanProgress.scanned += 1;
           this.scanProgress.found = devices.filter(d => d.verified).length;
         }
-            } else {
+      } else {
         for (const [ip, ports] of deviceMap) {
           if (ownIPs.has(ip)) continue;
 
-          // ✅ Quick PC check even in fast mode
-          const pcCheck = await this.isLikelyPC(ip, 500);
-          if (pcCheck.isPC) {
-            console.log(`   🖥️  Skipping ${ip} — identified as PC`);
-            continue;
+          // Quick PC Bypass
+          const hasIndustrialPorts = ports && ports.some(p => [102, 502, 4840, 44818].includes(p));
+          if (!hasIndustrialPorts) {
+            const pcCheck = await this.isLikelyPC(ip, 500);
+            if (pcCheck.isPC) {
+              console.log(`   🖥️  Skipping ${ip} — identified as PC`);
+              continue;
+            }
           }
+
           const mac  = await this.getMacAddress(ip);
           const vendor = this.lookupVendor(mac);
           const prots  = this.identifyProtocols(ports);
@@ -960,7 +953,7 @@ class DiscoveryService {
       return {
         success:       true,
         scannedIPs:    ips.length,
-        aliveHosts:    aliveHosts.length,
+        aliveHosts:    aliveHostsInfo.length,
         devices,
         networks:      this.getNetworkInfo(),
         deepProbeUsed: deepProbe,
@@ -992,13 +985,11 @@ class DiscoveryService {
     return score >= 5 ? 'high' : score >= 2 ? 'medium' : 'low';
   }
 
-    // ✅ FIXED: Default slot=0 for all Siemens PLCs
-  // Only use slot=2 if we POSITIVELY identify S7-300/400
   getRecommendedSettings(ip, ports, vendor, protocols, deepInfo = {}) {
     let bestProtocol = 'MODBUS_TCP';
     let bestPort     = 502;
     let rack         = 0;
-    let slot         = 0; // ✅ Default slot=0 for everything
+    let slot         = 0;
 
     if (ports.includes(4840)) {
       bestProtocol = 'OPC_UA';
@@ -1008,8 +999,6 @@ class DiscoveryService {
       bestProtocol = 'S7';
       bestPort     = 102;
 
-      // ✅ FIXED: Only use slot=2 if we POSITIVELY identify S7-300 or S7-400
-      // Default is slot=0 (works for S7-1500, S7-1200, and most modern PLCs)
       const model = (deepInfo?.model || '').toLowerCase();
       const orderNum = (deepInfo?.orderNumber || '').toLowerCase();
 
@@ -1021,10 +1010,10 @@ class DiscoveryService {
                         orderNum.startsWith('6es7 41');
 
       if (isS7_300 || isS7_400) {
-        slot = 2; // Old S7-300/400 uses slot 2
+        slot = 2;
         console.log(`   📌 Detected S7-300/400 — using slot 2`);
       } else {
-        slot = 0; // S7-1500, S7-1200, unknown → slot 0 (safest default)
+        slot = 0;
         if (model || orderNum) {
           console.log(`   📌 Detected ${model || orderNum} — using slot 0`);
         } else {
