@@ -17,6 +17,7 @@ import {
   Signal, SignalHigh, SignalLow, CheckCircle2,
   ShieldCheck, Microscope, RefreshCw, ChevronDown, ChevronUp,
   Zap, Package, Hash, Tag, Server, Settings2,
+  CheckCircle, AlertCircle,
 } from 'lucide-react';
 
 const C = {
@@ -159,6 +160,7 @@ const PLCManagement = () => {
   const [importing,       setImporting]       = useState(false);
   const [importResults,   setImportResults]   = useState(null);
   const [exporting,       setExporting]       = useState(false);
+  const [testingPLC,      setTestingPLC]      = useState(null);
   const fileInputRef = useRef(null);
 
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
@@ -279,6 +281,25 @@ const PLCManagement = () => {
       setTimeout(loadPLCs, 500);
     } catch (err) {
       showToast(err.response?.data?.message || 'Operation failed', 'error');
+    }
+  };
+
+  const handleTestConnection = async (plc) => {
+    try {
+      setTestingPLC(plc._id);
+      const res = await plcAPI.testConnection(plc._id);
+      const data = res.data?.data;
+      if (res.data.success && data?.connected) {
+        showToast(`✅ ${plc.name} — Connection test successful (${plc.protocol})`, 'success', 5000);
+        // Reload to update the status indicator
+        setTimeout(loadPLCs, 500);
+      } else {
+        showToast(`❌ ${plc.name} — Connection test failed: ${data?.error || 'Unknown error'}`, 'error', 5000);
+      }
+    } catch (err) {
+      showToast(`❌ ${plc.name} — Connection test error: ${err.response?.data?.message || err.message}`, 'error');
+    } finally {
+      setTestingPLC(null);
     }
   };
 
@@ -549,6 +570,14 @@ const PLCManagement = () => {
                           icon={plc.isConnected ? Pause : Play}
                           onClick={() => handleStartStop(plc)}
                           title={plc.isConnected ? `Stop ${plc.name}` : `Start ${plc.name}`}
+                        />
+                        <TableActionButton
+                          variant="teal"
+                          icon={testingPLC === plc._id ? Loader2 : CheckCircle}
+                          onClick={() => handleTestConnection(plc)}
+                          title={`Test connection to ${plc.name}`}
+                          disabled={testingPLC !== null && testingPLC !== plc._id}
+                          loading={testingPLC === plc._id}
                         />
                         <TableActionButton
                           variant="blue"

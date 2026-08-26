@@ -368,6 +368,40 @@ class ModbusService {
     return this.intervals.has(plcId.toString());
   }
 
+  async test(plc) {
+    try {
+      const client = new ModbusRTU();
+
+      console.log(`🔌 Testing Modbus connection: ${plc.name} (${plc.ipAddress}:${plc.port || 502})`);
+
+      await client.connectTCP(plc.ipAddress, {
+        port: plc.port || 502,
+      });
+
+      client.setID(1);
+      client.setTimeout(3000);
+
+      // Try to read a single holding register to verify the connection works
+      try {
+        await client.readHoldingRegisters(0, 1);
+      } catch (readErr) {
+        // Some PLCs may not allow register 0, try register 1
+        try {
+          await client.readHoldingRegisters(1, 1);
+        } catch {
+          // Ignore read errors - connection itself succeeded
+        }
+      }
+
+      client.close(() => {});
+      console.log(`✅ Modbus test successful for ${plc.name}`);
+      return { success: true, message: 'Modbus connection test successful' };
+    } catch (error) {
+      console.error(`❌ Modbus test failed for ${plc.name}:`, error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   stopAll() {
     for (const id of this.intervals.keys()) {
       this.stop(id);

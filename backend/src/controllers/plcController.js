@@ -325,11 +325,48 @@ const testPLCConnection = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: 'PLC test feature will be enabled in Section 9',
-      data: { protocol: plc.protocol },
-    });
+    // Import services dynamically to avoid circular dependencies
+    let service;
+    switch (plc.protocol) {
+      case 'S7':
+        service = require('../services/s7Service');
+        break;
+      case 'MODBUS_TCP':
+      case 'MODBUS_RTU':
+        service = require('../services/modbusService');
+        break;
+      case 'OPC_UA':
+        service = require('../services/opcuaService');
+        break;
+      default:
+        return res.json({
+          success: false,
+          message: `Connection test not supported for protocol: ${plc.protocol}`,
+          data: { protocol: plc.protocol },
+        });
+    }
+
+    // Use the service's test method
+    const result = await service.test(plc);
+
+    if (result.success) {
+      // Update PLC status on successful test
+      plc.isConnected = true;
+      plc.lastConnected = Date.now();
+      await plc.save();
+
+      return res.json({
+        success: true,
+        message: `PLC connection test successful (${plc.protocol})`,
+        data: { connected: true, protocol: plc.protocol, timestamp: new Date() },
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: `PLC connection test failed: ${result.error}`,
+        data: { connected: false, protocol: plc.protocol, error: result.error },
+      });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
