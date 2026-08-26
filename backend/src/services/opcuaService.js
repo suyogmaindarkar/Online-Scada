@@ -58,17 +58,77 @@ class OPCUAService {
       console.log(`🔌 Connecting to OPC UA: ${plc.name}`);
       console.log(`   Endpoint: ${endpoint}`);
 
+      // First, try to discover available endpoints to find the right security mode/policy
+      let securityMode = MessageSecurityMode.None;
+      let securityPolicy = SecurityPolicy.None;
+      let discoveredEndpoint = endpoint;
+
+      try {
+        console.log(`   Discovering endpoints...`);
+        const tempClient = OPCUAClient.create({
+          applicationName: 'OnlineSCADA',
+          applicationUri: 'urn:OnlineSCADA:Client',
+          clientName: 'OnlineSCADA-Discovery',
+          connectionStrategy: { maxRetry: 0 },
+          endpointMustExist: false,
+        });
+        const endpoints = await tempClient.getEndpoints(endpoint);
+        await tempClient.disconnect();
+
+        // Log available endpoints for debugging
+        console.log(`   Available endpoints:`);
+        endpoints.forEach((ep, i) => {
+          console.log(`     [${i}] ${ep.endpointUrl} | SecurityMode: ${ep.securityMode} | SecurityPolicy: ${ep.securityPolicyUri}`);
+        });
+
+        // Prefer None/None if available, otherwise try to find a compatible one
+        const noneEndpoint = endpoints.find(ep =>
+          ep.securityMode === MessageSecurityMode.None &&
+          ep.securityPolicyUri === SecurityPolicy.None
+        );
+
+        if (noneEndpoint) {
+          securityMode = MessageSecurityMode.None;
+          securityPolicy = SecurityPolicy.None;
+          discoveredEndpoint = noneEndpoint.endpointUrl;
+          console.log(`   ✅ Using discovered None/None endpoint: ${discoveredEndpoint}`);
+        } else {
+          // Try Basic256Sha256 with Sign or SignAndEncrypt if None not available
+          const secureEndpoint = endpoints.find(ep =>
+            ep.securityPolicyUri.includes('Basic256Sha256') &&
+            (ep.securityMode === MessageSecurityMode.Sign || ep.securityMode === MessageSecurityMode.SignAndEncrypt)
+          );
+
+          if (secureEndpoint) {
+            securityMode = secureEndpoint.securityMode;
+            securityPolicy = secureEndpoint.securityPolicyUri;
+            discoveredEndpoint = secureEndpoint.endpointUrl;
+            console.log(`   ⚠️  None/None not available, using secure endpoint: ${discoveredEndpoint} (${securityMode}/${securityPolicy})`);
+          } else {
+            // Fallback to first available endpoint
+            if (endpoints.length > 0) {
+              securityMode = endpoints[0].securityMode;
+              securityPolicy = endpoints[0].securityPolicyUri;
+              discoveredEndpoint = endpoints[0].endpointUrl;
+              console.log(`   ⚠️  Using first available endpoint: ${discoveredEndpoint} (${securityMode}/${securityPolicy})`);
+            }
+          }
+        }
+      } catch (discoveryErr) {
+        console.warn(`   ⚠️  Endpoint discovery failed, using default: ${discoveryErr.message}`);
+      }
+
       const client = OPCUAClient.create({
         applicationName: 'OnlineSCADA',
         applicationUri: 'urn:OnlineSCADA:Client',
         clientName: 'OnlineSCADA',
         connectionStrategy: {
           initialDelay: 1000,
-          maxRetry: 1,
-          maxDelay: 2000,
+          maxRetry: 2,
+          maxDelay: 5000,
         },
-        securityMode: MessageSecurityMode.None,
-        securityPolicy: SecurityPolicy.None,
+        securityMode,
+        securityPolicy,
         endpointMustExist: false,
         requestedSessionTimeout: 60000,
         keepSessionAlive: true,
@@ -78,10 +138,22 @@ class OPCUAService {
         console.log(`⏳ OPC UA backoff retry=${retry} delay=${delay}ms`)
       );
 
-      await client.connect(endpoint);
+      await client.connect(discoveredEndpoint);
       console.log(`✅ OPC UA transport connected to ${plc.name}`);
 
-      const userIdentityInfo = { type: UserTokenType.Anonymous };
+      // Try anonymous first, then username/password if provided
+      let userIdentityInfo = { type: UserTokenType.Anonymous };
+      if (plc.opcuaUsername && plc.opcuaPassword) {
+        userIdentityInfo = {
+          type: UserTokenType.UserName,
+          userName: plc.opcuaUsername,
+          password: plc.opcuaPassword,
+        };
+        console.log(`   Using username/password authentication`);
+      } else {
+        console.log(`   Using anonymous authentication`);
+      }
+
       const session = await client.createSession(userIdentityInfo);
       console.log(`✅ OPC UA session created for ${plc.name}`);
 
@@ -107,7 +179,20 @@ class OPCUAService {
       return { success: true, client, session };
     } catch (err) {
       console.error(`❌ OPC UA connect failed for ${plc.name}: ${err.message}`);
-      return { success: false, error: err.message };
+
+      // Provide more helpful error messages
+      let errorMessage = err.message;
+      if (err.message.includes('ECONNRESET') || err.message.includes('Connection reset')) {
+        errorMessage = 'Connection reset by server. The server may require security (certificates) or not accept anonymous connections. Check server configuration.';
+      } else if (err.message.includes('BadSecurityModeRejected') || err.message.includes('BadSecurityPolicyRejected')) {
+        errorMessage = 'Server rejected security mode/policy. Try configuring server to accept None/None or provide certificates.';
+      } else if (err.message.includes('BadUserIdentityTokenRejected')) {
+        errorMessage = 'Server rejected authentication. Check username/password or configure server for anonymous access.';
+      } else if (err.message.includes('ENOTFOUND') || err.message.includes('ECONNREFUSED')) {
+        errorMessage = `Cannot reach server at ${endpoint}. Check IP address, port, and network/firewall.`;
+      }
+
+      return { success: false, error: errorMessage };
     }
   }
 

@@ -180,6 +180,7 @@ const PLCManagement = () => {
       name: '', description: '', protocol: 'SIMULATION',
       ipAddress: '192.168.1.100', port: 502, rack: 0,
       slot: 0, brand: 'OTHER', model: '', pollingRate: 1000,
+      opcuaUsername: '', opcuaPassword: '',
     };
   }
 
@@ -237,6 +238,7 @@ const PLCManagement = () => {
       name: plc.name, description: plc.description || '', protocol: plc.protocol,
       ipAddress: plc.ipAddress, port: plc.port, rack: plc.rack, slot: plc.slot,
       brand: plc.brand, model: plc.model || '', pollingRate: plc.pollingRate,
+      opcuaUsername: plc.opcuaUsername || '', opcuaPassword: plc.opcuaPassword || '',
     });
     setShowModal(true);
   };
@@ -647,6 +649,16 @@ const PLCManagement = () => {
             <FormField label="Polling Rate (ms)" name="pollingRate" type="number" value={formData.pollingRate} onChange={handleInputChange} />
           </div>
           <FormField label="Model" name="model" value={formData.model} onChange={handleInputChange} />
+
+          {/* OPC UA Authentication Fields - only show for OPC_UA protocol */}
+          {formData.protocol === 'OPC_UA' && (
+            <div className="grid grid-cols-2 gap-4 p-4 rounded-lg" style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}>
+              <p className="text-xs font-semibold text-center col-span-2 mb-2" style={{ color: C.muted }}>OPC UA Authentication (Optional)</p>
+              <FormField label="Username" name="opcuaUsername" value={formData.opcuaUsername || ''} onChange={handleInputChange} />
+              <FormField label="Password" name="opcuaPassword" type="password" value={formData.opcuaPassword || ''} onChange={handleInputChange} />
+            </div>
+          )}
+
           <div className="flex gap-3 pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
             <button type="button" onClick={() => setShowModal(false)}
               className="flex-1"

@@ -118,6 +118,7 @@ const createPLC = async (req, res) => {
     const {
       name, description, protocol, ipAddress, port,
       rack, slot, brand, model, pollingRate,
+      opcuaUsername, opcuaPassword,
     } = req.body;
 
     if (!name || !protocol) {
@@ -153,6 +154,8 @@ const createPLC = async (req, res) => {
       brand: brand || 'OTHER',
       model: model || '',
       pollingRate: pollingRate || 1000,
+      opcuaUsername: opcuaUsername || '',
+      opcuaPassword: opcuaPassword || '',
     });
 
     res.status(201).json({
@@ -435,6 +438,7 @@ const exportPLCsCSV = async (req, res) => {
     const headers = [
       'name', 'description', 'protocol', 'ipAddress', 'port',
       'rack', 'slot', 'brand', 'model', 'pollingRate', 'isActive',
+      'opcuaUsername', 'opcuaPassword',
     ];
 
     let csv = '';
@@ -460,6 +464,8 @@ const exportPLCsCSV = async (req, res) => {
         csvEscape(plc.model || ''),
         csvEscape(plc.pollingRate ?? 1000),
         csvEscape(plc.isActive ? 'true' : 'false'),
+        csvEscape(plc.opcuaUsername || ''),
+        csvEscape(plc.opcuaPassword || ''),
       ];
       csv += row.join(',') + '\n';
     });
@@ -481,6 +487,7 @@ const downloadPLCTemplate = async (req, res) => {
   const headers = [
     'name', 'description', 'protocol', 'ipAddress', 'port',
     'rack', 'slot', 'brand', 'model', 'pollingRate', 'isActive',
+    'opcuaUsername', 'opcuaPassword',
   ];
 
   const template = `# OnlineSCADA PLC Import Template
@@ -492,15 +499,17 @@ const downloadPLCTemplate = async (req, res) => {
 #   4. Valid brand values: SIEMENS, ALLEN_BRADLEY, SCHNEIDER, DELTA, MITSUBISHI, OMRON, OTHER
 #   5. Boolean fields (isActive): use true/false
 #   6. Default ports: MODBUS_TCP=502, S7=102, OPC_UA=4840, ETHERNET_IP=44818
-#   7. Delete comment lines (starting with #) before uploading (optional)
-#   8. Delete example rows below and add your own data
+#   7. OPC UA fields (opcuaUsername, opcuaPassword): optional, for secured servers
+#   8. Delete comment lines (starting with #) before uploading (optional)
+#   9. Delete example rows below and add your own data
 #
 # EXAMPLE ROWS (delete before importing your data):
 
 ${headers.join(',')}
-Main_PLC_01,Production line 1,S7,192.168.1.10,102,0,1,SIEMENS,S7-1500,1000,true
-Boiler_PLC,Boiler control system,MODBUS_TCP,192.168.1.20,502,0,1,SCHNEIDER,M340,1000,true
-Water_System,Water treatment PLC,MODBUS_TCP,192.168.1.30,502,0,1,ALLEN_BRADLEY,MicroLogix,2000,true
+Main_PLC_01,Production line 1,S7,192.168.1.10,102,0,1,SIEMENS,S7-1500,1000,true,,
+Boiler_PLC,Boiler control system,MODBUS_TCP,192.168.1.20,502,0,1,SCHNEIDER,M340,1000,true,,
+Water_System,Water treatment PLC,MODBUS_TCP,192.168.1.30,502,0,1,ALLEN_BRADLEY,MicroLogix,2000,true,,
+OPC_Server,OPC UA secured server,OPC_UA,192.168.1.40,4840,0,1,OTHER,,1000,true,opcuser,opcpass
 `;
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -621,6 +630,8 @@ const importPLCsCSV = async (req, res) => {
           model: (row.model || '').trim(),
           pollingRate: parseNum(row.pollingrate, 1000),
           isActive: parseBool(row.isactive),
+          opcuaUsername: (row.opcuausername || '').trim(),
+          opcuaPassword: (row.opcuapassword || '').trim(),
         };
 
         // ✅ Query scoped to company

@@ -42,6 +42,9 @@ const plcConnectionSchema = new mongoose.Schema(
     isActive:      { type: Boolean, default: true },
     isSimulation:  { type: Boolean, default: false },
     simulationPrefix: { type: String, default: '' },
+    // OPC UA specific fields
+    opcuaUsername: { type: String, default: '' },
+    opcuaPassword: { type: String, default: '' },
   },
   { timestamps: true }
 );
