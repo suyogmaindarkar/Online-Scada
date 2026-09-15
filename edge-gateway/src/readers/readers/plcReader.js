@@ -6,9 +6,9 @@
 // Handles polling, value change detection, and write commands.
 // ═══════════════════════════════════════════════════════════
 
-const S7Reader = require('./readers/s7Reader');
-const ModbusReader = require('./readers/modbusReader');
-const OPCUAReader = require('./readers/opcuaReader');
+const S7Reader = require('../s7Reader');
+const ModbusReader = require('../modbusReader');
+const OPCUAReader = require('../opcuaReader');
 
 class PLCReader {
     constructor(config, cloudBridge, verbose = false) {
