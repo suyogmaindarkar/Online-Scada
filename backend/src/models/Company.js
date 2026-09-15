@@ -24,7 +24,7 @@ const companySchema = new mongoose.Schema(
       trim: true,
     },
     contactPhone: { type: String, default: '' },
-    contactName:  { type: String, default: '' },
+    contactName: { type: String, default: '' },
 
     plan: {
       type: String,
@@ -32,11 +32,18 @@ const companySchema = new mongoose.Schema(
       default: 'trial',
     },
     limits: {
-      maxUsers:   { type: Number, default: 3   },
-      maxPLCs:    { type: Number, default: 1   },
-      maxTags:    { type: Number, default: 50  },
-      maxScreens: { type: Number, default: 5   },
-      maxAlarms:  { type: Number, default: 20  },
+      maxUsers: { type: Number, default: 3 },
+      maxPLCs: { type: Number, default: 1 },
+      maxTags: { type: Number, default: 50 },
+      maxScreens: { type: Number, default: 5 },
+      maxAlarms: { type: Number, default: 20 },
+      maxGateways: { type: Number, default: 1 },
+    },
+
+    // ─── Edge Gateway Feature Toggle ─────────────────────
+    edgeApiEnabled: {
+      type: Boolean,
+      default: true,
     },
 
     trialEndsAt: {
@@ -70,9 +77,9 @@ const companySchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    logoUrl:  { type: String, default: '' },
+    logoUrl: { type: String, default: '' },
     timezone: { type: String, default: 'UTC' },
-    country:  { type: String, default: '' },
+    country: { type: String, default: '' },
   },
   {
     timestamps: true,
@@ -83,10 +90,10 @@ const companySchema = new mongoose.Schema(
 companySchema.pre('save', async function () {
   if (this.isModified('plan')) {
     const planLimits = {
-      trial:      { maxUsers: 3,   maxPLCs: 1,   maxTags: 50,     maxScreens: 5,     maxAlarms: 20   },
-      starter:    { maxUsers: 5,   maxPLCs: 3,   maxTags: 500,    maxScreens: 20,    maxAlarms: 100  },
-      pro:        { maxUsers: 15,  maxPLCs: 10,  maxTags: 5000,   maxScreens: 100,   maxAlarms: 500  },
-      enterprise: { maxUsers: 999, maxPLCs: 999, maxTags: 999999, maxScreens: 99999, maxAlarms: 9999 },
+      trial: { maxUsers: 3, maxPLCs: 1, maxTags: 50, maxScreens: 5, maxAlarms: 20, maxGateways: 1 },
+      starter: { maxUsers: 5, maxPLCs: 3, maxTags: 500, maxScreens: 20, maxAlarms: 100, maxGateways: 2 },
+      pro: { maxUsers: 15, maxPLCs: 10, maxTags: 5000, maxScreens: 100, maxAlarms: 500, maxGateways: 5 },
+      enterprise: { maxUsers: 999, maxPLCs: 999, maxTags: 999999, maxScreens: 99999, maxAlarms: 9999, maxGateways: 999 },
     };
     if (planLimits[this.plan]) {
       this.limits = planLimits[this.plan];

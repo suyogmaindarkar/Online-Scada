@@ -3,14 +3,18 @@
 //
 // Runs automatically on first server boot (if no super admin exists)
 // OR manually via migration script
+//
+// Phase A Update: Now also creates a default Edge Gateway
+//                 with API key for the demo company
 // ═══════════════════════════════════════════════════════════
 
-const Company    = require('../models/Company');
+const Company = require('../models/Company');
 const SuperAdmin = require('../models/SuperAdmin');
-const User       = require('../models/User');
-const Settings   = require('../models/Settings');
+const User = require('../models/User');
+const Settings = require('../models/Settings');
 const PLCConnection = require('../models/PLCConnection');
-const Tag        = require('../models/Tag');
+const Tag = require('../models/Tag');
+const EdgeGateway = require('../models/EdgeGateway');
 
 // ═══════════════════════════════════════════════════════════
 // SEED SUPER ADMIN (you — Suyog)
@@ -24,7 +28,7 @@ async function seedSuperAdmin() {
 
   const superAdmin = await SuperAdmin.create({
     username: 'suyog',
-    email:    'suyog@onlinescada.in',
+    email: 'suyog@onlinescada.in',
     password: 'ChangeMe@2026',    // ⚠️ CHANGE THIS IMMEDIATELY AFTER FIRST LOGIN
     fullName: 'Suyog Maindarkar',
   });
@@ -45,6 +49,7 @@ async function seedSuperAdmin() {
 // ═══════════════════════════════════════════════════════════
 // SEED DEMO COMPANY (for testing)
 // Creates workspace "demo" with 4 users (one per role)
+// Phase A: Now also creates Edge Gateway + API Key
 // ═══════════════════════════════════════════════════════════
 async function seedDemoCompany(superAdmin) {
   const existing = await Company.findOne({ slug: 'demo' });
@@ -55,22 +60,22 @@ async function seedDemoCompany(superAdmin) {
 
   // ─── 1. Create demo company ───────────────────────────
   const company = await Company.create({
-    companyName:  'OnlineSCADA Demo Corp',
-    slug:         'demo',
+    companyName: 'OnlineSCADA Demo Corp',
+    slug: 'demo',
     contactEmail: 'demo@onlinescada.in',
-    contactName:  'Demo Administrator',
-    plan:         'pro', // gives more limits than trial
-    timezone:     'Asia/Kolkata',
-    country:      'India',
-    createdBy:    superAdmin._id,
+    contactName: 'Demo Administrator',
+    plan: 'pro',
+    timezone: 'Asia/Kolkata',
+    country: 'India',
+    createdBy: superAdmin._id,
   });
 
   // ─── 2. Create 4 demo users (one per role) ────────────
   const users = [
-    { username: 'admin',    email: 'admin@demo.com',    password: 'admin123',    fullName: 'Demo Admin',    role: 'admin',    avatarColor: '#2563EB' },
+    { username: 'admin', email: 'admin@demo.com', password: 'admin123', fullName: 'Demo Admin', role: 'admin', avatarColor: '#2563EB' },
     { username: 'engineer', email: 'engineer@demo.com', password: 'engineer123', fullName: 'Demo Engineer', role: 'engineer', avatarColor: '#16A34A' },
     { username: 'operator', email: 'operator@demo.com', password: 'operator123', fullName: 'Demo Operator', role: 'operator', avatarColor: '#F59E0B' },
-    { username: 'viewer',   email: 'viewer@demo.com',   password: 'viewer123',   fullName: 'Demo Viewer',   role: 'viewer',   avatarColor: '#9333EA' },
+    { username: 'viewer', email: 'viewer@demo.com', password: 'viewer123', fullName: 'Demo Viewer', role: 'viewer', avatarColor: '#9333EA' },
   ];
 
   for (const userData of users) {
@@ -82,47 +87,58 @@ async function seedDemoCompany(superAdmin) {
 
   // ─── 3. Create default settings ───────────────────────
   await Settings.create({
-    companyId:   company._id,
+    companyId: company._id,
     system: {
-      systemName:  'OnlineSCADA',
+      systemName: 'OnlineSCADA',
       companyName: company.companyName,
     },
   });
 
   // ─── 4. Create a demo Simulation PLC with 5 tags ──────
   const simPLC = await PLCConnection.create({
-    companyId:    company._id,
-    name:         'Demo Simulation PLC',
-    description:  'Auto-generated simulation with 5 demo tags',
-    protocol:     'SIMULATION',
-    ipAddress:    '10.0.0.100',
-    port:         502,
-    brand:        'SIMULATION',
-    model:        'Virtual PLC',
+    companyId: company._id,
+    name: 'Demo Simulation PLC',
+    description: 'Auto-generated simulation with 5 demo tags',
+    protocol: 'SIMULATION',
+    ipAddress: '10.0.0.100',
+    port: 502,
+    brand: 'SIMULATION',
+    model: 'Virtual PLC',
     isSimulation: true,
     simulationPrefix: 'SIM_',
-    pollingRate:  1000,
-    isActive:     true,
+    pollingRate: 1000,
+    isActive: true,
   });
 
   const demoTags = [
-    { tagName: 'SIM_TEMPERATURE', dataType: 'REAL', unit: '°C', minValue: 20, maxValue: 80,  simulationPattern: 'sine' },
-    { tagName: 'SIM_PRESSURE',    dataType: 'REAL', unit: 'bar', minValue: 0, maxValue: 10,  simulationPattern: 'walk' },
-    { tagName: 'SIM_LEVEL',       dataType: 'REAL', unit: '%',  minValue: 0, maxValue: 100, simulationPattern: 'ramp' },
-    { tagName: 'SIM_MOTOR_RUN',   dataType: 'BOOL', unit: '',   minValue: 0, maxValue: 1,   simulationPattern: 'toggle' },
-    { tagName: 'SIM_COUNTER',     dataType: 'INT',  unit: '',   minValue: 0, maxValue: 9999, simulationPattern: 'counter' },
+    { tagName: 'SIM_TEMPERATURE', dataType: 'REAL', unit: '°C', minValue: 20, maxValue: 80, simulationPattern: 'sine' },
+    { tagName: 'SIM_PRESSURE', dataType: 'REAL', unit: 'bar', minValue: 0, maxValue: 10, simulationPattern: 'walk' },
+    { tagName: 'SIM_LEVEL', dataType: 'REAL', unit: '%', minValue: 0, maxValue: 100, simulationPattern: 'ramp' },
+    { tagName: 'SIM_MOTOR_RUN', dataType: 'BOOL', unit: '', minValue: 0, maxValue: 1, simulationPattern: 'toggle' },
+    { tagName: 'SIM_COUNTER', dataType: 'INT', unit: '', minValue: 0, maxValue: 9999, simulationPattern: 'counter' },
   ];
 
   for (const tagData of demoTags) {
     await Tag.create({
       ...tagData,
-      companyId:       company._id,
-      plcConnection:   simPLC._id,
+      companyId: company._id,
+      plcConnection: simPLC._id,
       isSimulationTag: true,
-      currentValue:    0,
-      quality:         'GOOD',
+      currentValue: 0,
+      quality: 'GOOD',
     });
   }
+
+  // ─── 5. Create Edge Gateway + API Key ⭐ (Phase A) ────
+  const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
+
+  await EdgeGateway.create({
+    companyId: company._id,
+    name: 'Demo Factory Gateway',
+    apiKeyHash: hash,
+    apiKeyPrefix: prefix,
+    status: 'never_connected',
+  });
 
   console.log('\n╔══════════════════════════════════════════════════╗');
   console.log('║   🏢 DEMO COMPANY CREATED                       ║');
@@ -140,7 +156,8 @@ async function seedDemoCompany(superAdmin) {
   console.log('║   │ viewer     │ viewer@demo.com  │ viewer123 │ ║');
   console.log('║   └────────────┴──────────────────┴───────────┘ ║');
   console.log('║                                                  ║');
-  console.log('║   Bonus: 1 Simulation PLC + 5 demo tags created ║');
+  console.log('║   Bonus: 1 Simulation PLC + 5 demo tags         ║');
+  console.log(`║   Edge Gateway Key: ${prefix}...          ║`);
   console.log('╚══════════════════════════════════════════════════╝\n');
 
   return company;
@@ -156,7 +173,7 @@ async function seedDefaults() {
     return true;
   } catch (err) {
     console.error('❌ Seed error:', err.message);
-    console.error(err.stack);   // ✅ Show full stack trace
+    console.error(err.stack);
     return false;
   }
 }

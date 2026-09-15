@@ -3,6 +3,7 @@
 //
 // ✅ Hides menu items based on user role
 // ✅ Shows workspace name in header
+// ✅ Added Edge Gateways link to menu
 // ✅ "Switch User" button (keeps workspace, back to UserSelection)
 // ✅ "Switch Workspace" button (full logout)
 // ═══════════════════════════════════════════════════════════
@@ -14,30 +15,31 @@ import socketService from '../../services/socket';
 import {
   LayoutDashboard, Cpu, Tag, Palette, Monitor, Bell,
   TrendingUp, ChefHat, Users, Settings as SettingsIcon,
-  Zap, LogOut, User, FileText, Repeat, Shield, Wrench, Radio, Eye,
+  Zap, LogOut, User, FileText, Repeat, Shield, Wrench, Radio, Eye, Network
 } from 'lucide-react';
 
 // ─── Role display config ──────────────────────────────────
 const ROLE_CONFIG = {
-  admin:    { label: 'Administrator', icon: Shield,  color: '#DC2626', bg: '#FEE2E2' },
-  engineer: { label: 'Engineer',      icon: Wrench,  color: '#2563EB', bg: '#EEF6FF' },
-  operator: { label: 'Operator',      icon: Radio,   color: '#F59E0B', bg: '#FEF3C7' },
-  viewer:   { label: 'Viewer',        icon: Eye,     color: '#9333EA', bg: '#F3E8FF' },
+  admin: { label: 'Administrator', icon: Shield, color: '#DC2626', bg: '#FEE2E2' },
+  engineer: { label: 'Engineer', icon: Wrench, color: '#2563EB', bg: '#EEF6FF' },
+  operator: { label: 'Operator', icon: Radio, color: '#F59E0B', bg: '#FEF3C7' },
+  viewer: { label: 'Viewer', icon: Eye, color: '#9333EA', bg: '#F3E8FF' },
 };
 
 // ─── Menu items with role restrictions ────────────────────
 const MENU_ITEMS = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard',        roles: ['admin', 'engineer'] },
-  { path: '/plc',       icon: Cpu,             label: 'PLC Management',   roles: ['admin', 'engineer'] },
-  { path: '/tags',      icon: Tag,             label: 'Tag Management',   roles: ['admin', 'engineer'] },
-  { path: '/designer',  icon: Palette,         label: 'Graphic Designer', roles: ['admin', 'engineer'] },
-  { path: '/runtime',   icon: Monitor,         label: 'Runtime',          roles: ['admin', 'engineer', 'operator', 'viewer'] },
-  { path: '/alarms',    icon: Bell,            label: 'Alarms',           roles: ['admin', 'engineer', 'operator', 'viewer'] },
-  { path: '/trends',    icon: TrendingUp,      label: 'Trends',           roles: ['admin', 'engineer'] },
-  { path: '/recipes',   icon: ChefHat,         label: 'Recipes',          roles: ['admin', 'engineer'] },
-  { path: '/reports',   icon: FileText,        label: 'Reports',          roles: ['admin', 'engineer'] },
-  { path: '/users',     icon: Users,           label: 'Users',            roles: ['admin'] },
-  { path: '/settings',  icon: SettingsIcon,    label: 'Settings',         roles: ['admin'] },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'engineer'] },
+  { path: '/plc', icon: Cpu, label: 'PLC Management', roles: ['admin', 'engineer'] },
+  { path: '/tags', icon: Tag, label: 'Tag Management', roles: ['admin', 'engineer'] },
+  { path: '/edge-gateways', icon: Network, label: 'Edge Gateways', roles: ['admin', 'engineer'] }, // 🟢 Phase E Added!
+  { path: '/designer', icon: Palette, label: 'Graphic Designer', roles: ['admin', 'engineer'] },
+  { path: '/runtime', icon: Monitor, label: 'Runtime', roles: ['admin', 'engineer', 'operator', 'viewer'] },
+  { path: '/alarms', icon: Bell, label: 'Alarms', roles: ['admin', 'engineer', 'operator', 'viewer'] },
+  { path: '/trends', icon: TrendingUp, label: 'Trends', roles: ['admin', 'engineer'] },
+  { path: '/recipes', icon: ChefHat, label: 'Recipes', roles: ['admin', 'engineer'] },
+  { path: '/reports', icon: FileText, label: 'Reports', roles: ['admin', 'engineer'] },
+  { path: '/users', icon: Users, label: 'Users', roles: ['admin'] },
+  { path: '/settings', icon: SettingsIcon, label: 'Settings', roles: ['admin'] },
 ];
 
 const Sidebar = () => {

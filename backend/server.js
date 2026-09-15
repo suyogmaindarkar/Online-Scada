@@ -104,6 +104,7 @@ app.use('/api/super-admin/login', authLimiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/tags/write', writeLimiter);
 app.use('/api/signup', signupLimiter);
+app.use('/api/workspace/register', signupLimiter);
 
 // ═══════════════════════════════════════════════════════════
 // DATABASE CONNECTION + AUTO-SEED
@@ -132,6 +133,7 @@ app.use('/api/reports', require('./src/routes/reportRoutes'));
 app.use('/api/discovery', require('./src/routes/discoveryRoutes'));
 app.use('/api/leads', require('./src/routes/leadsRoutes'));
 app.use('/api/signup', require('./src/routes/signupRoutes'));
+app.use('/api/edge', require('./src/routes/edgeRoutes'));
 
 app.set('io', io);
 
@@ -150,12 +152,17 @@ app.get('/', (req, res) => {
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.get('/api/health', (req, res) => {
+  const edgeService = require('./src/services/edgeService');
   res.json({
     status: 'OK',
     server: 'OnlineSCADA Backend',
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     influxdb: typeof isInfluxAvailable === 'function' ? isInfluxAvailable() : 'unknown',
+    edge: {
+      initialized: edgeService.isInitialized,
+      onlineGateways: edgeService.gateways.size,
+    },
   });
 });
 
@@ -202,6 +209,11 @@ alarmEngine.init(io);
 const timeService = require('./src/services/timeService');
 timeService.init(io);
 
+// ─── Edge Gateway Service (Phase B) ───────────────────────
+const edgeService = require('./src/services/edgeService');
+const edgeNamespace = io.of('/edge');
+edgeService.init(edgeNamespace, io);
+
 initInflux();
 
 setTimeout(() => {
@@ -209,7 +221,7 @@ setTimeout(() => {
 }, 3000);
 
 // ═══════════════════════════════════════════════════════════
-// SOCKET.IO — MULTI-TENANT AUTHENTICATED
+// SOCKET.IO — MULTI-TENANT AUTHENTICATED (Browser Clients)
 // ═══════════════════════════════════════════════════════════
 io.use(async (socket, next) => {
   try {
@@ -259,23 +271,41 @@ io.on('connection', async (socket) => {
     role: socket.userRole,
   });
 
+  // ─── Send Initial Tags (from DB + Edge Cache) ──────────
   try {
     const Tag = require('./src/models/Tag');
     const tags = await Tag.find({
       companyId: socket.companyId,
       isActive: true,
     });
-    const initialData = tags.map((tag) => ({
-      tagName: tag.tagName,
-      value: tag.currentValue,
-      quality: tag.quality,
-      timestamp: tag.lastUpdated,
-    }));
+
+    // Merge DB values with edge cache (edge cache is fresher)
+    const edgeCache = edgeService.getTagCache(socket.companyId);
+
+    const initialData = tags.map((tag) => {
+      const cached = edgeCache[tag.tagName];
+      return {
+        tagName: tag.tagName,
+        value: cached ? cached.value : tag.currentValue,
+        quality: cached ? cached.quality : tag.quality,
+        timestamp: cached ? cached.timestamp : tag.lastUpdated,
+        source: cached ? 'edge' : 'db',
+      };
+    });
+
     socket.emit('initialTags', initialData);
+
+    // Also send edge gateway status for this company
+    const hasGateway = edgeService.hasActiveGateway(socket.companyId);
+    socket.emit('edgeStatus', {
+      hasActiveGateway: hasGateway,
+      gateways: edgeService.getCompanyGateways(socket.companyId),
+    });
   } catch (err) {
     console.error('Error sending initial tags:', err.message);
   }
 
+  // ─── Write Tag (Browser → Cloud → Edge/Sim) ────────────
   socket.on('writeTag', async (data) => {
     try {
       if (socket.userRole === 'viewer') {
@@ -294,6 +324,33 @@ io.on('connection', async (socket) => {
         return;
       }
 
+      // ─── Try Edge Gateway first (real PLC) ──────────────
+      const edgeForwarded = edgeService.forwardWriteCommand(
+        socket.companyId,
+        {
+          tagId: tag._id.toString(),
+          tagName: tag.tagName,
+          address: tag.plcAddress,
+          protocol: 'auto', // Gateway determines from its config
+          value: data.value,
+          dataType: tag.dataType,
+        },
+        socket.id
+      );
+
+      if (edgeForwarded) {
+        // Write command sent to edge gateway
+        // The gateway will send back edge:writeResult
+        // which edgeService will broadcast to all browsers
+        socket.emit('writeAck', {
+          tagName: data.tagName,
+          status: 'pending',
+          message: 'Write command sent to PLC via Edge Gateway',
+        });
+        return;
+      }
+
+      // ─── Fallback: Direct DB write (simulation mode) ────
       tag.currentValue = data.value;
       tag.lastUpdated = Date.now();
       await tag.save();
@@ -303,6 +360,7 @@ io.on('connection', async (socket) => {
         value: tag.currentValue,
         quality: tag.quality,
         timestamp: tag.lastUpdated,
+        source: 'local',
       }]);
     } catch (err) {
       socket.emit('error', { message: err.message });
@@ -330,6 +388,7 @@ process.on('SIGINT', async () => {
     plcManager.stopAll();
     alarmEngine.stop();
     timeService.stop();
+    edgeService.stop();
     await closeInflux();
   } catch (e) {
     console.error('Shutdown error:', e.message);
@@ -342,5 +401,6 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log('╔════════════════════════════════════════════════════════╗');
   console.log(`║  🚀 OnlineSCADA Server running on port ${PORT}            ║`);
+  console.log('║  🌐 Edge Gateway namespace: /edge                     ║');
   console.log('╚════════════════════════════════════════════════════════╝');
 });
