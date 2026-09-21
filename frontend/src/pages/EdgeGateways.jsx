@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// Edge Gateways Dashboard Page
+// Edge Gateways Dashboard Page (With Dual Download Buttons)
 // ═══════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from 'react';
 import {
     Network, CheckCircle, XCircle, RefreshCw, Key, Download, Trash2, Plus,
     HelpCircle, AlertTriangle, ShieldAlert, Cpu, HardDrive, Activity,
-    Copy, Info, Play, FileJson, Zap, FolderCheck
+    Play, FileJson, Zap, FolderArchive, ArrowRight
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -14,7 +14,6 @@ const C = {
     bg: '#F8FAFC',
     card: '#FFFFFF',
     cardSubtle: '#F8FAFC',
-    cardHover: '#EEF6FF',
     border: '#E5E7EB',
     heading: '#081B43',
     text: '#334155',
@@ -107,7 +106,7 @@ const EdgeGateways = () => {
             setShowKeyRevealModal({ name: created.name, rawKey: created.apiKey });
 
             fetchGateways();
-            showToast('Gateway created successfully');
+            showToast('Gateway profile generated successfully');
         } catch (err) {
             const msg = err.response?.data?.message || 'Failed to create gateway profile';
             showToast(msg, 'error');
@@ -185,7 +184,7 @@ const EdgeGateways = () => {
                             <button onClick={() => setShowCreateModal(true)}
                                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90 cursor-pointer"
                                 style={{ background: C.btnPrimary }}>
-                                <Plus size={14} /> Create Gateway
+                                <Plus size={14} /> Create Gateway Profile
                             </button>
                         )}
                     </div>
@@ -201,9 +200,9 @@ const EdgeGateways = () => {
                             <Zap size={20} style={{ color: C.brand }} />
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold" style={{ color: C.heading }}>How Factory Connection Works</h4>
+                            <h4 className="text-sm font-bold" style={{ color: C.heading }}>How Factory PLC Tunnels Work</h4>
                             <p className="text-xs mt-1 leading-relaxed" style={{ color: C.text }}>
-                                The <strong>OnlineSCADA Edge Gateway</strong> runs on any PC in your factory network. It reads data from your local PLCs (Siemens, Modbus, OPC-UA) and securely pushes live updates to your online dashboard. <strong>No router or firewall changes needed!</strong>
+                                The <strong>OnlineSCADA Edge Gateway</strong> runs silently on any PC inside your factory network. It reads data from your PLCs (Siemens S7, Modbus, OPC-UA) and streams live tag updates to this website. <strong>Zero router or firewall changes required!</strong>
                             </p>
                         </div>
                     </div>
@@ -211,14 +210,14 @@ const EdgeGateways = () => {
                     {loading ? (
                         <div className="py-20 text-center">
                             <RefreshCw size={40} className="animate-spin mx-auto mb-4" style={{ color: C.brand }} />
-                            <p style={{ color: C.muted }}>Loading gateways...</p>
+                            <p style={{ color: C.muted }}>Loading gateway profiles...</p>
                         </div>
                     ) : (gateways || []).length === 0 ? (
                         <div className="py-20 text-center rounded-2xl bg-white border" style={{ borderColor: C.border }}>
                             <Network size={48} className="mx-auto mb-4" style={{ color: C.subtle }} />
                             <h3 className="font-bold text-lg" style={{ color: C.heading }}>No Edge Gateways Configured</h3>
                             <p className="text-sm mt-1 mb-6 max-w-md mx-auto" style={{ color: C.muted }}>
-                                Create a gateway profile to connect your physical factory PLCs.
+                                Create a gateway profile to connect physical factory PLCs to your OnlineSCADA account.
                             </p>
                             {isAdmin && (
                                 <button onClick={() => setShowCreateModal(true)}
@@ -252,8 +251,8 @@ const EdgeGateways = () => {
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 py-3 border-t border-b text-xs mb-4 bg-slate-50" style={{ borderColor: C.border }}>
-                                            <div><p style={{ color: C.muted }}>API Prefix:</p><p className="font-mono font-bold">{gw.apiKeyPrefix}</p></div>
-                                            <div><p style={{ color: C.muted }}>Last Known IP:</p><p className="font-mono font-bold">{gw.ipAddress || '—'}</p></div>
+                                            <div><p style={{ color: C.muted }}>API Key Prefix:</p><p className="font-mono font-bold">{gw.apiKeyPrefix}</p></div>
+                                            <div><p style={{ color: C.muted }}>Factory IP:</p><p className="font-mono font-bold">{gw.ipAddress || '—'}</p></div>
                                         </div>
 
                                         {isOnline && gw.stats && (
@@ -291,7 +290,7 @@ const EdgeGateways = () => {
                 </div>
             </div>
 
-            {/* ─── MODAL: SETUP WIZARD ─── */}
+            {/* ─── MODAL: EASY SETUP GUIDE (WITH BOTH DOWNLOAD BUTTONS) ─── */}
             {showWizardModal && selectedGatewayForWizard && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div className="bg-white rounded-3xl p-8 w-full max-w-2xl mx-4 border flex flex-col max-h-[85vh] overflow-hidden shadow-2xl" style={{ borderColor: C.border }}>
@@ -299,64 +298,60 @@ const EdgeGateways = () => {
                         <div className="flex items-center justify-between mb-4 shrink-0">
                             <div className="flex items-center gap-2">
                                 <Network size={22} style={{ color: C.brand }} />
-                                <h3 className="font-bold text-lg" style={{ color: C.heading }}>Setup Guide: {selectedGatewayForWizard.name}</h3>
+                                <h3 className="font-bold text-lg" style={{ color: C.heading }}>Connect Factory PLCs (3 Easy Steps)</h3>
                             </div>
                             <button onClick={() => setShowWizardModal(false)} className="text-xl font-bold hover:text-slate-600 cursor-pointer" style={{ color: C.subtle }}>×</button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
 
-                            {/* Step 1 */}
-                            <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                            {/* STEP 1: DOWNLOAD GATEWAY APP ZIP */}
+                            <div className="flex gap-4 p-4 rounded-2xl bg-blue-50/60 border border-blue-200">
                                 <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
                                     1
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Download Configuration File</h4>
+                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Download Gateway Application (.zip)</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-                                        Click below to download your custom <strong>config.json</strong> file for this gateway.
+                                        Download the pre-packaged Gateway app ZIP file to the computer on your factory network.
                                     </p>
-                                    <button onClick={() => downloadConfig(selectedGatewayForWizard)}
-                                        className="flex items-center gap-1.5 mt-3 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all cursor-pointer">
-                                        <FileJson size={14} /> Download config.json
-                                    </button>
+                                    <a href="/OnlineSCADA-Gateway.zip" download
+                                        className="inline-flex items-center gap-2 mt-3 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-sm">
+                                        <FolderArchive size={16} /> Download Gateway App (.zip)
+                                    </a>
                                 </div>
                             </div>
 
-                            {/* Step 2 */}
+                            {/* STEP 2: DOWNLOAD CONFIG.JSON */}
                             <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
                                 <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
                                     2
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Paste Inside edge-gateway Folder</h4>
+                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Download Configuration File (config.json)</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-                                        Move the downloaded <strong>config.json</strong> file into your <strong>edge-gateway</strong> folder on the factory PC.
+                                        Download your personalized configuration file and place it inside the extracted Gateway folder.
                                     </p>
-                                    <div className="mt-3 p-3 rounded-xl bg-slate-900 text-slate-100 font-mono text-[11px] leading-relaxed">
-                                        <p className="text-slate-400">WebSCADA/</p>
-                                        <p className="text-slate-400"> └── edge-gateway/</p>
-                                        <p className="text-emerald-400 font-bold">      ├── config.json ◄── [PASTE HERE]</p>
-                                        <p className="text-slate-400">      ├── package.json</p>
-                                        <p className="text-slate-400">      └── start.bat</p>
-                                    </div>
+                                    <button onClick={() => downloadConfig(selectedGatewayForWizard)}
+                                        className="flex items-center gap-2 mt-3 px-4 py-2.5 rounded-xl text-xs font-bold text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 transition-all cursor-pointer shadow-sm">
+                                        <FileJson size={16} /> Download config.json
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Step 3 */}
+                            {/* STEP 3: RUN THE GATEWAY */}
                             <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
                                 <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
                                     3
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Run Gateway</h4>
+                                    <h4 className="text-sm font-bold" style={{ color: C.heading }}>Double-Click "Start-Gateway.bat"</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-                                        Open terminal inside the <code>edge-gateway</code> folder and run:
+                                        Extract <code>OnlineSCADA-Gateway.zip</code>, move <code>config.json</code> into that folder, and double-click <strong>Start-Gateway.bat</strong>. It connects to your PLCs automatically!
                                     </p>
-                                    <div className="mt-2 p-2.5 rounded-lg bg-slate-900 text-emerald-400 font-mono text-xs font-bold">
-                                        npm install && npm start
+                                    <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+                                        <Play size={14} /> Zero setup required!
                                     </div>
-                                    <p className="text-[11px] mt-2 text-slate-500">Or double-click <strong>start.bat</strong> on Windows.</p>
                                 </div>
                             </div>
 
