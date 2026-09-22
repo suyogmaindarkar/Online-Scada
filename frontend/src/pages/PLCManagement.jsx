@@ -171,6 +171,7 @@ const PLCManagement = () => {
     try {
       setDownloadingPackage(true);
       const res = await api.get(`/edge/${gateway._id}/download-package`, { responseType: 'blob' });
+
       const blob = new Blob([res.data], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -179,14 +180,24 @@ const PLCManagement = () => {
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast('✅ Ready-to-run gateway package downloaded! Extract and double-click Start-Gateway.bat', 'success', 8000);
-      loadGateway(); // Refresh to reflect new API key prefix
+      loadGateway();
     } catch (err) {
-      showToast('Package download failed. Make sure backend has edge-gateway-template folder.', 'error');
+      let msg = 'Package download failed';
+      try {
+        if (err.response?.data instanceof Blob) {
+          const text = await err.response.data.text();
+          const parsed = JSON.parse(text);
+          msg = parsed.message || msg;
+        } else if (err.response?.data?.message) {
+          msg = err.response.data.message;
+        }
+      } catch (parseErr) { }
+
+      showToast(`❌ ${msg}`, 'error', 6000);
     } finally {
       setDownloadingPackage(false);
     }
   };
-
   const handleQuickSimulation = async () => {
     try {
       setCreatingSim(true);
