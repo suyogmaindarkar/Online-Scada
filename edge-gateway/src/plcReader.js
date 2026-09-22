@@ -1,33 +1,13 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader — Protocol Dispatcher (Dynamic Auto-Resolver)
+// PLC Reader — Protocol Dispatcher
 // ═══════════════════════════════════════════════════════════
 
 const fs = require('fs');
 const path = require('path');
 
-// ─── Dynamic Module Resolver (Finds files anywhere in src/) ───
-function loadReaderModule(moduleName) {
-    const searchPaths = [
-        path.join(__dirname, 'readers', moduleName),
-        path.join(__dirname, moduleName),
-        path.join(__dirname, '..', moduleName),
-    ];
-
-    for (const p of searchPaths) {
-        if (fs.existsSync(p + '.js') || fs.existsSync(p)) {
-            try {
-                return require(p);
-            } catch (err) {
-                console.error(`❌ Failed loading ${moduleName} from ${p}:`, err.message);
-            }
-        }
-    }
-    return null;
-}
-
-const S7Reader = loadReaderModule('s7Reader');
-const ModbusReader = loadReaderModule('modbusReader');
-const OPCUAReader = loadReaderModule('opcuaReader');
+const S7Reader = require('./readers/s7Reader');
+const ModbusReader = require('./readers/modbusReader');
+const OPCUAReader = require('./readers/opcuaReader');
 
 class PLCReader {
     constructor(config, cloudBridge, verbose = false) {
