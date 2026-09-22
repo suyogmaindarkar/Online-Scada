@@ -1,6 +1,7 @@
 @echo off
-title Enable Auto-Start on Boot
+title Enable Auto-Start on Windows Boot
 cd /d "%~dp0"
+color 0A
 
 set "STARTUP_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "SHORTCUT=%STARTUP_DIR%\OnlineSCADA-EdgeGateway.vbs"
@@ -11,8 +12,8 @@ echo ========================================================
 echo   Auto-Start Enabled!
 echo ========================================================
 echo.
-echo OnlineSCADA Edge Gateway will now automatically run in the
-echo background whenever this factory PC turns on or reboots.
+echo OnlineSCADA Edge Gateway will now automatically launch in
+echo the background whenever this PC turns on or reboots.
 echo.
-echo Press any key to close...
+echo Press any key to exit...
 pause >nul
