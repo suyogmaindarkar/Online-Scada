@@ -1,12 +1,12 @@
 @echo off
-title Disable Auto-Start on Boot
+title Disable Auto-Start
 set "STARTUP_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "SHORTCUT=%STARTUP_DIR%\OnlineSCADA-EdgeGateway.vbs"
 
 if exist "%SHORTCUT%" (
     del /f /q "%SHORTCUT%"
-    echo Auto-Start removed successfully.
+    echo [ok] Auto-start removed. Gateway will not run on reboot.
 ) else (
-    echo Auto-Start was not enabled.
+    echo [i] Auto-start was already disabled.
 )
 pause
