@@ -28,9 +28,12 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
 
     if (tags.length === 0) continue;
 
-    let normalizedProtocol = plc.protocol.toLowerCase();
+    let normalizedProtocol = (plc.protocol || '').toLowerCase();
     if (normalizedProtocol === 'modbus_tcp' || normalizedProtocol === 'modbus_rtu') {
       normalizedProtocol = 'modbus';
+    }
+    if (normalizedProtocol === 'opc_ua' || normalizedProtocol === 'opc-ua') {
+      normalizedProtocol = 'opcua';
     }
 
     plcConfigArray.push({
@@ -230,17 +233,15 @@ const downloadGatewayConfig = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 🆕 DOWNLOAD READY-TO-RUN PACKAGE (ZIP with embedded config)
+// DOWNLOAD READY-TO-RUN PACKAGE (ZIP with embedded config)
 // ═══════════════════════════════════════════════════════════
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
 
-    // Rotate API key so user always gets fresh key in bundle
+    // Rotate API key so user always gets a fresh key in bundle
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
-
-    // Force disconnect any existing session (old key invalidated)
     forceDisconnectGatewaySocket(req, gateway._id);
 
     gateway.apiKeyHash = hash;
@@ -248,27 +249,35 @@ const downloadCompletePackage = async (req, res) => {
     gateway.status = 'never_connected';
     await gateway.save();
 
-    // Compile config with the fresh key
+    // Compile config with fresh key
     const configProfile = await compileGatewayConfig(req.companyId, gateway, rawKey);
 
-    // Locate template folder
-    const templateDir = path.join(__dirname, '..', '..', 'edge-gateway-template');
-    if (!fs.existsSync(templateDir)) {
+    // Search potential template locations
+    const candidateDirs = [
+      path.join(__dirname, '..', '..', 'edge-gateway-template'),
+      path.join(__dirname, '..', '..', '..', 'edge-gateway'),
+      path.join(process.cwd(), 'edge-gateway-template'),
+      path.join(process.cwd(), '..', 'edge-gateway'),
+    ];
+
+    let templateDir = candidateDirs.find((d) => fs.existsSync(d));
+
+    if (!templateDir) {
+      console.error('❌ Gateway template missing. Tested paths:', candidateDirs);
       return res.status(500).json({
         success: false,
-        message: 'Gateway template files missing on server. Contact support.',
+        message: 'Gateway template directory missing on server.',
       });
     }
 
-    // Build filename
+    console.log(`📦 Using template directory: ${templateDir}`);
+
     const companyName = String(req.company?.slug || 'company').replace(/[^a-z0-9\-]/gi, '');
     const filename = `OnlineSCADA-Gateway-${companyName}.zip`;
 
-    // Setup response headers for streaming ZIP
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
-    // Create ZIP archive
     const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {
@@ -280,15 +289,15 @@ const downloadCompletePackage = async (req, res) => {
 
     archive.pipe(res);
 
-    // 1. Add ALL template files
+    // 1. Add template files
     archive.directory(templateDir, false);
 
-    // 2. Add the pre-embedded config.json (with real API key + all PLCs)
+    // 2. Add config.json with embedded key and PLC configurations
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
 
     await archive.finalize();
 
-    console.log(`📦 Gateway package generated: ${filename} (${configProfile.plcs.length} PLCs)`);
+    console.log(`📦 Gateway package streamed: ${filename}`);
   } catch (error) {
     console.error('❌ downloadCompletePackage error:', error.message);
     if (!res.headersSent) {
