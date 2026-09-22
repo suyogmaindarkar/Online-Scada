@@ -1,14 +1,33 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader — Protocol Dispatcher
-//
-// Manages multiple PLC connections across different protocols.
-// Dispatches to protocol-specific readers (S7, Modbus, OPC-UA).
-// Handles polling, value change detection, and write commands.
+// PLC Reader — Protocol Dispatcher (Fail-Proof Import Version)
 // ═══════════════════════════════════════════════════════════
 
-const S7Reader = require('../s7Reader');
-const ModbusReader = require('../modbusReader');
-const OPCUAReader = require('../opcuaReader');
+// Smart Fallback Imports (Handles both src/ and src/readers/ structures)
+let S7Reader, ModbusReader, OPCUAReader;
+
+try {
+    S7Reader = require('./readers/s7Reader');
+} catch (e1) {
+    try { S7Reader = require('./s7Reader'); } catch (e2) {
+        console.warn('⚠️  S7Reader module not found');
+    }
+}
+
+try {
+    ModbusReader = require('./readers/modbusReader');
+} catch (e1) {
+    try { ModbusReader = require('./modbusReader'); } catch (e2) {
+        console.warn('⚠️  ModbusReader module not found');
+    }
+}
+
+try {
+    OPCUAReader = require('./readers/opcuaReader');
+} catch (e1) {
+    try { OPCUAReader = require('./opcuaReader'); } catch (e2) {
+        console.warn('⚠️  OPCUAReader module not found');
+    }
+}
 
 class PLCReader {
     constructor(config, cloudBridge, verbose = false) {
@@ -16,16 +35,10 @@ class PLCReader {
         this.cloudBridge = cloudBridge;
         this.verbose = verbose;
 
-        // Active reader instances: Map<plcId, ReaderInstance>
         this.readers = new Map();
-
-        // Polling intervals: Map<plcId, intervalId>
         this.intervals = new Map();
-
-        // Previous values for change detection: Map<tagId, lastValue>
         this.previousValues = new Map();
 
-        // Stats
         this.stats = {
             totalReads: 0,
             totalErrors: 0,
@@ -33,7 +46,6 @@ class PLCReader {
             _readsThisSecond: 0,
         };
 
-        // Stats calculator (runs every 1s)
         this.statsInterval = null;
     }
 
@@ -46,7 +58,6 @@ class PLCReader {
             return;
         }
 
-        // Start stats calculator
         this.statsInterval = setInterval(() => {
             this.stats.tagsReadPerSecond = this.stats._readsThisSecond;
             this.stats._readsThisSecond = 0;
@@ -69,15 +80,18 @@ class PLCReader {
 
             switch (protocol) {
                 case 's7':
+                    if (!S7Reader) throw new Error('S7Reader module is missing');
                     reader = new S7Reader(plcConfig, this.verbose);
                     break;
                 case 'modbus':
                 case 'modbus_tcp':
                 case 'modbus_rtu':
+                    if (!ModbusReader) throw new Error('ModbusReader module is missing');
                     reader = new ModbusReader(plcConfig, this.verbose);
                     break;
                 case 'opcua':
                 case 'opc_ua':
+                    if (!OPCUAReader) throw new Error('OPCUAReader module is missing');
                     reader = new OPCUAReader(plcConfig, this.verbose);
                     break;
                 default:
@@ -85,17 +99,14 @@ class PLCReader {
                     return;
             }
 
-            // Connect to PLC
             const connected = await reader.connect();
             if (!connected) {
                 console.error(`❌ Failed to connect to PLC ${plcId} at ${plcConfig.ip}:${plcConfig.port}`);
                 this.stats.totalErrors++;
-                // Still set up polling — reader will retry
             }
 
             this.readers.set(plcId, reader);
 
-            // Start polling loop
             const pollMs = plcConfig.pollIntervalMs || this.config.pollIntervalMs || 500;
             const intervalId = setInterval(() => {
                 this._pollPLC(plcId, plcConfig);
@@ -119,22 +130,18 @@ class PLCReader {
             const tags = plcConfig.tags || [];
             if (tags.length === 0) return;
 
-            // Read all tags from this PLC
             const values = await reader.readTags(tags);
-
             if (!values || values.length === 0) return;
 
             this.stats.totalReads += values.length;
             this.stats._readsThisSecond += values.length;
 
-            // Change detection + build batch
             const changedTags = [];
             const now = Date.now();
 
             for (const val of values) {
                 const prev = this.previousValues.get(val.tagId);
 
-                // Send if value changed OR if it's the first read OR every 10s for unchanged
                 const hasChanged = prev === undefined || prev.value !== val.value || prev.quality !== val.quality;
                 const stale = prev && (now - prev.timestamp > 10000);
 
@@ -155,7 +162,6 @@ class PLCReader {
                 }
             }
 
-            // Push changed values to cloud
             if (changedTags.length > 0) {
                 this.cloudBridge.sendTagValues(changedTags);
             }
@@ -169,32 +175,26 @@ class PLCReader {
 
     // ─── Handle Write Command from Cloud ────────────────────
     async handleWriteCommand(cmd) {
-        const { tagId, tagName, address, protocol, plcIp, value, dataType, requestSocketId } = cmd;
+        const { tagId, tagName, address, plcIp, value, dataType, requestSocketId } = cmd;
 
         if (this.verbose) {
             console.log(`✍️  Write request: ${tagName} (${address}) = ${value}`);
         }
 
-        // Find the reader that serves this tag
         let targetReader = null;
-        let targetPlcId = null;
 
         for (const [plcId, reader] of this.readers) {
             const plcConfig = this.config.plcs.find((p) => p.plcId === plcId);
             if (!plcConfig) continue;
 
-            // Match by PLC IP or protocol
             if (plcIp && plcConfig.ip === plcIp) {
                 targetReader = reader;
-                targetPlcId = plcId;
                 break;
             }
 
-            // Match by tag address
             const hasTag = plcConfig.tags.some((t) => t.tagId === tagId || t.address === address);
             if (hasTag) {
                 targetReader = reader;
-                targetPlcId = plcId;
                 break;
             }
         }
@@ -214,7 +214,6 @@ class PLCReader {
         try {
             await targetReader.writeTag(address, value, dataType);
 
-            // Update local cache
             this.previousValues.set(tagId, {
                 value,
                 quality: 'GOOD',
@@ -245,41 +244,26 @@ class PLCReader {
     // ─── Hot Reload Config ──────────────────────────────────
     async reload(newPlcConfigs) {
         console.log('🔄 Reloading PLC configuration...');
-
-        // Stop all existing readers
         this.stopAll();
-
-        // Update config
         this.config.plcs = newPlcConfigs;
-
-        // Restart
         await this.startAll();
         console.log('✅ Config reload complete');
     }
 
     // ─── Stop All ───────────────────────────────────────────
     stopAll() {
-        // Clear polling intervals
-        for (const [plcId, intervalId] of this.intervals) {
+        for (const [, intervalId] of this.intervals) {
             clearInterval(intervalId);
         }
         this.intervals.clear();
 
-        // Clear stats interval
         if (this.statsInterval) {
             clearInterval(this.statsInterval);
             this.statsInterval = null;
         }
 
-        // Disconnect all readers
         for (const [plcId, reader] of this.readers) {
-            try {
-                reader.disconnect();
-            } catch (err) {
-                if (this.verbose) {
-                    console.error(`⚠️  Error disconnecting PLC ${plcId}: ${err.message}`);
-                }
-            }
+            try { reader.disconnect(); } catch (err) { }
         }
         this.readers.clear();
         this.previousValues.clear();
@@ -287,7 +271,6 @@ class PLCReader {
         console.log('⏹️  All PLC readers stopped');
     }
 
-    // ─── Get Stats ──────────────────────────────────────────
     getStats() {
         return { ...this.stats };
     }
