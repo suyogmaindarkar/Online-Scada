@@ -1,11 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// OPC UA Service — Multi-Tenant Update
-//
-// ✅ FIXED: Tag lookup scoped by companyId
-// ✅ FIXED: Broadcasts to company room only
-// ✅ FIXED: Batch InfluxDB writes (was single per tag)
-// ✅ IMPROVED: Better error messages for wrong node IDs
-// ✅ IMPROVED: Detailed logging for debugging tag read issues
+// OPC UA Service — Multi-Tenant & Cloud Safe
 // ═══════════════════════════════════════════════════════════
 
 const {
@@ -15,11 +9,9 @@ const {
   SecurityPolicy,
   DataType,
   UserTokenType,
-  StatusCodes,
 } = require('node-opcua');
 
 const Tag = require('../models/Tag');
-const PLCConnection = require('../models/PLCConnection');
 const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
 
 const toInfluxValue = (value, dataType) => {
@@ -35,13 +27,13 @@ const toInfluxValue = (value, dataType) => {
 
 class OPCUAService {
   constructor() {
-    this.clients        = new Map();
-    this.sessions       = new Map();
-    this.intervals      = new Map();
-    this.tagCache       = new Map();
-    this.plcCompanyMap  = new Map(); // ✅ plcId → companyId
+    this.clients            = new Map();
+    this.sessions           = new Map();
+    this.intervals          = new Map();
+    this.tagCache           = new Map();
+    this.plcCompanyMap      = new Map();
     this.influxWriteCounter = new Map();
-    this.INFLUX_LOG_EVERY = 10;
+    this.INFLUX_LOG_EVERY   = 10;
   }
 
   buildEndpoint(plc) {
@@ -58,7 +50,6 @@ class OPCUAService {
       console.log(`🔌 Connecting to OPC UA: ${plc.name}`);
       console.log(`   Endpoint: ${endpoint}`);
 
-      // First, try to discover available endpoints to find the right security mode/policy
       let securityMode = MessageSecurityMode.None;
       let securityPolicy = SecurityPolicy.None;
       let discoveredEndpoint = endpoint;
@@ -72,50 +63,26 @@ class OPCUAService {
           connectionStrategy: { maxRetry: 0 },
           endpointMustExist: false,
         });
-        const endpoints = await tempClient.getEndpoints(endpoint);
+
+        // ✅ FIXED: Pass object to getEndpoints to avoid localeIds error
+        const endpoints = await tempClient.getEndpoints({ endpointUrl: endpoint });
         await tempClient.disconnect();
 
-        // Log available endpoints for debugging
-        console.log(`   Available endpoints:`);
-        endpoints.forEach((ep, i) => {
-          console.log(`     [${i}] ${ep.endpointUrl} | SecurityMode: ${ep.securityMode} | SecurityPolicy: ${ep.securityPolicyUri}`);
-        });
-
-        // Prefer None/None if available, otherwise try to find a compatible one
-        const noneEndpoint = endpoints.find(ep =>
-          ep.securityMode === MessageSecurityMode.None &&
-          ep.securityPolicyUri === SecurityPolicy.None
-        );
-
-        if (noneEndpoint) {
-          securityMode = MessageSecurityMode.None;
-          securityPolicy = SecurityPolicy.None;
-          discoveredEndpoint = noneEndpoint.endpointUrl;
-          console.log(`   ✅ Using discovered None/None endpoint: ${discoveredEndpoint}`);
-        } else {
-          // Try Basic256Sha256 with Sign or SignAndEncrypt if None not available
-          const secureEndpoint = endpoints.find(ep =>
-            ep.securityPolicyUri.includes('Basic256Sha256') &&
-            (ep.securityMode === MessageSecurityMode.Sign || ep.securityMode === MessageSecurityMode.SignAndEncrypt)
+        if (Array.isArray(endpoints) && endpoints.length > 0) {
+          const noneEndpoint = endpoints.find(ep =>
+            ep.securityMode === MessageSecurityMode.None &&
+            ep.securityPolicyUri === SecurityPolicy.None
           );
 
-          if (secureEndpoint) {
-            securityMode = secureEndpoint.securityMode;
-            securityPolicy = secureEndpoint.securityPolicyUri;
-            discoveredEndpoint = secureEndpoint.endpointUrl;
-            console.log(`   ⚠️  None/None not available, using secure endpoint: ${discoveredEndpoint} (${securityMode}/${securityPolicy})`);
-          } else {
-            // Fallback to first available endpoint
-            if (endpoints.length > 0) {
-              securityMode = endpoints[0].securityMode;
-              securityPolicy = endpoints[0].securityPolicyUri;
-              discoveredEndpoint = endpoints[0].endpointUrl;
-              console.log(`   ⚠️  Using first available endpoint: ${discoveredEndpoint} (${securityMode}/${securityPolicy})`);
-            }
+          if (noneEndpoint) {
+            securityMode = MessageSecurityMode.None;
+            securityPolicy = SecurityPolicy.None;
+            discoveredEndpoint = noneEndpoint.endpointUrl || endpoint;
+            console.log(`   ✅ Using None/None endpoint: ${discoveredEndpoint}`);
           }
         }
       } catch (discoveryErr) {
-        console.warn(`   ⚠️  Endpoint discovery failed, using default: ${discoveryErr.message}`);
+        console.warn(`   ⚠️  Endpoint discovery warning (using default): ${discoveryErr.message}`);
       }
 
       const client = OPCUAClient.create({
@@ -134,14 +101,9 @@ class OPCUAService {
         keepSessionAlive: true,
       });
 
-      client.on('backoff', (retry, delay) =>
-        console.log(`⏳ OPC UA backoff retry=${retry} delay=${delay}ms`)
-      );
-
       await client.connect(discoveredEndpoint);
       console.log(`✅ OPC UA transport connected to ${plc.name}`);
 
-      // Try anonymous first, then username/password if provided
       let userIdentityInfo = { type: UserTokenType.Anonymous };
       if (plc.opcuaUsername && plc.opcuaPassword) {
         userIdentityInfo = {
@@ -169,30 +131,13 @@ class OPCUAService {
         this._handleDisconnect(plcId);
       });
 
-      session.on('session_closed', () => {
-        console.warn(`⚠️  OPC UA session closed: ${plc.name}`);
-      });
-
       this.clients.set(plcId, client);
       this.sessions.set(plcId, session);
 
       return { success: true, client, session };
     } catch (err) {
       console.error(`❌ OPC UA connect failed for ${plc.name}: ${err.message}`);
-
-      // Provide more helpful error messages
-      let errorMessage = err.message;
-      if (err.message.includes('ECONNRESET') || err.message.includes('Connection reset')) {
-        errorMessage = 'Connection reset by server. The server may require security (certificates) or not accept anonymous connections. Check server configuration.';
-      } else if (err.message.includes('BadSecurityModeRejected') || err.message.includes('BadSecurityPolicyRejected')) {
-        errorMessage = 'Server rejected security mode/policy. Try configuring server to accept None/None or provide certificates.';
-      } else if (err.message.includes('BadUserIdentityTokenRejected')) {
-        errorMessage = 'Server rejected authentication. Check username/password or configure server for anonymous access.';
-      } else if (err.message.includes('ENOTFOUND') || err.message.includes('ECONNREFUSED')) {
-        errorMessage = `Cannot reach server at ${endpoint}. Check IP address, port, and network/firewall.`;
-      }
-
-      return { success: false, error: errorMessage };
+      return { success: false, error: err.message };
     }
   }
 
@@ -234,11 +179,9 @@ class OPCUAService {
     const companyId = plc.companyId.toString();
     const companyRoom = `company:${companyId}`;
 
-    // ✅ Store company mapping
     this.plcCompanyMap.set(plcId, companyId);
     this.influxWriteCounter.set(plcId, 0);
 
-    // ✅ Load tags SCOPED to this PLC's company
     const tags = await Tag.find({
       companyId:     plc.companyId,
       plcConnection: plc._id,
@@ -248,34 +191,17 @@ class OPCUAService {
     console.log(`📊 Loaded ${tags.length} OPC UA tags for ${plc.name}`);
 
     if (tags.length === 0) {
-      console.warn(`⚠️  No tags configured for ${plc.name}`);
       return { success: true, message: 'Connected but no tags' };
     }
 
-    // ✅ Validate each tag's node ID format
-    tags.forEach((tag) => {
-      const nodeId = tag.plcAddress;
-      console.log(`   ✓ ${tag.tagName} → ${nodeId}`);
-
-      // Warn about common mistakes
-      if (!nodeId) {
-        console.warn(`     ⚠️  EMPTY node ID — tag won't be read!`);
-      } else if (!nodeId.includes(';')) {
-        console.warn(`     ⚠️  Node ID missing semicolon. Expected format: ns=3;s="Block"."Var" or ns=2;i=1234`);
-      }
-    });
-
     this.tagCache.set(plcId, tags);
-
     const pollRate = plc.pollingRate || 1000;
-    console.log(`⏱️  OPC UA polling rate: ${pollRate}ms | Company room: ${companyRoom}`);
 
     let consecutiveFailures = 0;
     const MAX_FAILURES = 5;
 
     const intervalId = setInterval(async () => {
       try {
-        // ✅ Build read requests with validation
         const validTags = tags.filter(t => t.plcAddress && t.plcAddress.includes(';'));
         if (validTags.length === 0) return;
 
@@ -289,16 +215,13 @@ class OPCUAService {
           dataValues = await session.read(nodesToRead);
         } catch (readErr) {
           consecutiveFailures++;
-          console.error(`❌ OPC UA bulk read error (${consecutiveFailures}/${MAX_FAILURES}): ${readErr.message}`);
           if (consecutiveFailures >= MAX_FAILURES) {
-            console.warn(`⚠️  OPC UA ${plc.name}: too many failures, stopping`);
             this.stop(plc._id);
           }
           return;
         }
 
         consecutiveFailures = 0;
-
         const updates = [];
         const influxPoints = [];
 
@@ -306,39 +229,13 @@ class OPCUAService {
           const tag = validTags[i];
           const dv = dataValues[i];
 
-          // ✅ Detailed status check with helpful error messages
-          if (!dv || !dv.statusCode) {
-            console.warn(`   ⚠️  ${tag.tagName}: No data value returned`);
-            continue;
-          }
-
-          if (dv.statusCode.value !== 0) {
-            // Only log errors occasionally to avoid spam
-            if (consecutiveFailures === 0) {
-              const statusName = dv.statusCode.name || `0x${dv.statusCode.value.toString(16)}`;
-              console.warn(`   ⚠️  ${tag.tagName}: Read failed — status=${statusName}`);
-
-              // ✅ Helpful hints for common errors
-              if (dv.statusCode.value === 0x80730000 || statusName === 'BadNodeIdUnknown') {
-                console.warn(`     💡 Node ID "${tag.plcAddress}" does not exist on the OPC UA server`);
-                console.warn(`     💡 Check the correct namespace (ns=?) and path in UAExpert or TIA Portal`);
-              }
-              if (dv.statusCode.value === 0x80010000 || statusName === 'BadNodeIdInvalid') {
-                console.warn(`     💡 Node ID format is invalid. Expected: ns=3;s="DBName"."VarName"`);
-              }
-            }
-            continue;
-          }
+          if (!dv || !dv.statusCode || dv.statusCode.value !== 0) continue;
 
           let value = dv.value.value;
           if (typeof value === 'bigint') value = Number(value);
 
           try {
-            // ✅ FIXED: Lookup tag scoped by companyId
-            const freshTag = await Tag.findOne({
-              _id: tag._id,
-              companyId: companyId,
-            });
+            const freshTag = await Tag.findOne({ _id: tag._id, companyId: companyId });
             if (!freshTag) continue;
 
             freshTag.currentValue = value;
@@ -353,7 +250,6 @@ class OPCUAService {
               timestamp: freshTag.lastUpdated,
             });
 
-            // ✅ Collect for batch InfluxDB write
             if (freshTag.enableLogging) {
               const influxValue = toInfluxValue(value, freshTag.dataType);
               if (influxValue !== null) {
@@ -367,36 +263,21 @@ class OPCUAService {
                 });
               }
             }
-          } catch (tagErr) {
-            console.error(`❌ Tag update error: ${tagErr.message}`);
-          }
+          } catch (tagErr) {}
         }
 
-        // ✅ FIXED: Broadcast ONLY to this company's room
         if (io && updates.length > 0) {
           io.to(companyRoom).emit('tagsUpdate', updates);
         }
 
-        // ✅ FIXED: Batch InfluxDB write (was single per tag)
         if (influxPoints.length > 0 && isInfluxAvailable()) {
           try {
-            const success = await writeMultipleTagValues(influxPoints);
-            if (success) {
-              const counter = (this.influxWriteCounter.get(plcId) || 0) + 1;
-              this.influxWriteCounter.set(plcId, counter);
-              if (counter % this.INFLUX_LOG_EVERY === 0) {
-                console.log(`📈 [${plc.name}] OPC UA: Logged ${influxPoints.length} values (${counter} batches)`);
-              }
-            }
-          } catch (influxErr) {
-            // Silent
-          }
+            await writeMultipleTagValues(influxPoints);
+          } catch (influxErr) {}
         }
       } catch (err) {
         consecutiveFailures++;
-        console.error(`❌ OPC UA poll error (${consecutiveFailures}/${MAX_FAILURES}): ${err.message}`);
         if (consecutiveFailures >= MAX_FAILURES) {
-          console.warn(`⚠️  OPC UA ${plc.name}: too many errors, stopping`);
           this.stop(plc._id);
         }
       }
@@ -431,11 +312,9 @@ class OPCUAService {
     });
 
     if (statusCode.value !== 0) {
-      const statusName = statusCode.name || `0x${statusCode.value.toString(16)}`;
-      throw new Error(`OPC UA write failed: ${statusName} — check if tag "${tag.tagName}" (${tag.plcAddress}) is writable`);
+      throw new Error(`OPC UA write failed for tag "${tag.tagName}"`);
     }
 
-    console.log(`✅ OPC UA Write: ${tag.tagName} = ${value}`);
     return true;
   }
 
@@ -455,7 +334,6 @@ class OPCUAService {
     if (this.clients.has(id)) {
       try { await this.clients.get(id).disconnect(); } catch (e) {}
       this.clients.delete(id);
-      console.log(`⏹️  OPC UA disconnected: ${id}`);
     }
 
     this.tagCache.delete(id);

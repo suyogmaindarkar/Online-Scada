@@ -1,347 +1,180 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Manager - Central orchestrator with auto-reconnect
+// PLC Manager — Central PLC Polling Orchestrator
+//
+// Automatically manages PLC connection services (S7, Modbus,
+// OPC-UA, Simulation). Detects private IPs in Cloud environment
+// and defers polling to Edge Gateways.
 // ═══════════════════════════════════════════════════════════
 
-const simulationService = require('./simulationService');
-const modbusService = require('./modbusService');
-const s7Service = require('./s7Service');
-const opcuaService = require('./opcuaService');
 const PLCConnection = require('../models/PLCConnection');
 
-// ─── Reconnection settings ─────────────────────────────────────────────────
-const RECONNECT_CONFIG = {
-  enabled: true,
-  initialDelay: 2000,
-  maxDelay: 30000,
-  backoffMultiplier: 2,
-  maxAttempts: Infinity,
-  healthCheckInterval: 10000,
+// Check if IP address is a private factory IP
+const isPrivateIP = (ip) => {
+  if (!ip) return false;
+  const cleanIp = ip.replace(/^opc\.tcp:\/\//, '').split(':')[0].trim();
+
+  if (cleanIp === 'localhost' || cleanIp === '127.0.0.1') return true;
+
+  const parts = cleanIp.split('.').map(Number);
+  if (parts.length !== 4) return false;
+
+  // 10.0.0.0 - 10.255.255.255
+  if (parts[0] === 10) return true;
+  // 172.16.0.0 - 172.31.255.255
+  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+  // 192.168.0.0 - 192.168.255.255
+  if (parts[0] === 192 && parts[1] === 168) return true;
+
+  return false;
+};
+
+// Check if running on Render/Cloud server
+const isCloudEnvironment = () => {
+  return process.env.RENDER || process.env.NODE_ENV === 'production';
 };
 
 class PLCManager {
   constructor() {
     this.io = null;
-    this.plcState = new Map();    // plcId -> { status, attempts, ... }
-    this.retryTimers = new Map(); // plcId -> setTimeout ID
-    this.healthCheckTimer = null;
-
-    // ✅ T010: Track in-progress connection attempts to prevent duplicates
-    this.connectingSet = new Set(); // plcId -> currently attempting connection
+    this.activeServices = new Map(); // plcId -> protocol
   }
 
   init(io) {
     this.io = io;
-    console.log('📡 PLC Manager initialized');
-    this.startHealthMonitor();
+    console.log('🔌 PLCManager initialized');
   }
 
-  getService(protocol) {
-    switch (protocol) {
-      case 'SIMULATION':  return simulationService;
-      case 'MODBUS_TCP':
-      case 'MODBUS_RTU':  return modbusService;
-      case 'S7':          return s7Service;
-      case 'OPC_UA':      return opcuaService;
-      default:
-        throw new Error(`Unsupported protocol: ${protocol}`);
+  async startAll() {
+    try {
+      const plcs = await PLCConnection.find({ isActive: true });
+      console.log(`🔌 Starting ${plcs.length} active PLC connection(s)...`);
+
+      for (const plc of plcs) {
+        try {
+          await this.start(plc._id);
+        } catch (err) {
+          console.warn(`⚠️ Could not auto-start PLC [${plc.name}]: ${err.message}`);
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error starting active PLCs:', err.message);
     }
   }
 
   async start(plcId) {
     const plc = await PLCConnection.findById(plcId);
-    if (!plc) throw new Error('PLC not found');
-    if (!plc.isActive) throw new Error('PLC is disabled');
-    return this._startWithReconnect(plc);
-  }
+    if (!plc) throw new Error(`PLC with ID ${plcId} not found`);
 
-  // ─── Internal: Start with auto-reconnect logic ─────────────────────────
-  async _startWithReconnect(plc) {
     const id = plc._id.toString();
 
-    // ✅ T010: Prevent duplicate simultaneous connection attempts
-    if (this.connectingSet.has(id)) {
-      console.log(`⏳ ${plc.name} — connection already in progress, skipping duplicate`);
-      return { success: false, message: 'Connection already in progress' };
+    // ─── 1. SIMULATION PLC ─────────────────────────────
+    if (plc.protocol === 'SIMULATION' || plc.isSimulation) {
+      const simulationService = require('./simulationService');
+      const result = await simulationService.start(plc, this.io);
+      this.activeServices.set(id, 'SIMULATION');
+      return result;
     }
 
-    // ✅ T010: Also skip if already connected and service is running
-    const currentState = this.plcState.get(id);
-    if (currentState?.status === 'connected') {
-      try {
-        const service = this.getService(plc.protocol);
-        if (service.isRunning(id)) {
-          console.log(`✅ ${plc.name} — already connected and running, skipping`);
-          return { success: true, message: 'Already running' };
-        }
-      } catch {
-        // Protocol error — allow reconnect
-      }
-    }
-
-    // Cancel any pending retry before new attempt
-    this._cancelRetry(id);
-
-    // Mark as connecting
-    this.connectingSet.add(id);
-
-    try {
-      const service = this.getService(plc.protocol);
-      await service.start(plc, this.io);
-
-      // ✅ Connection successful — reset state
-      this.plcState.set(id, {
-        status: 'connected',
-        attempts: 0,
-        lastConnected: Date.now(),
-        lastError: null,
-        protocol: plc.protocol,
-        name: plc.name,
-      });
-
-      plc.isConnected = true;
-      plc.lastConnected = Date.now();
-      await plc.save();
-
-      this._broadcastStatus(plc, 'connected', null);
-      console.log(`✅ ${plc.name} — connected`);
-      return { success: true, message: `PLC ${plc.name} started` };
-
-    } catch (error) {
-      // ❌ Connection failed — schedule retry
-      const state = this.plcState.get(id) || {
-        attempts: 0,
-        protocol: plc.protocol,
-        name: plc.name,
+    // ─── 2. PRIVATE IP IN CLOUD (DEFER TO EDGE GATEWAY) ─
+    if (isCloudEnvironment() && isPrivateIP(plc.ipAddress)) {
+      console.log(`🌐 PLC [${plc.name}] (${plc.ipAddress}) is on a private network.`);
+      console.log(`   └─ Deferred to Edge Gateway (no direct TCP from Cloud server).`);
+      return {
+        success: true,
+        deferred: true,
+        message: 'PLC is on a private network. Data is streamed via Edge Gateway.',
       };
-
-      state.status = 'reconnecting';
-      state.attempts += 1;
-      state.lastError = error.message;
-      state.protocol = plc.protocol;
-      state.name = plc.name;
-      this.plcState.set(id, state);
-
-      plc.isConnected = false;
-      await plc.save();
-
-      const delay = this._getRetryDelay(state.attempts);
-
-      console.warn(`⚠️  ${plc.name} — connect failed (attempt ${state.attempts}): ${error.message}`);
-      console.warn(`   Retrying in ${delay / 1000}s...`);
-
-      this._broadcastStatus(plc, 'reconnecting', {
-        attempts: state.attempts,
-        nextRetryIn: delay,
-        error: error.message,
-      });
-
-      if (RECONNECT_CONFIG.enabled && state.attempts < RECONNECT_CONFIG.maxAttempts) {
-        this._scheduleRetry(id, delay);
-      }
-
-      throw error;
-    } finally {
-      // ✅ T010: Always clear the connecting flag when done
-      this.connectingSet.delete(id);
     }
-  }
 
-  // ─── Schedule automatic retry ──────────────────────────────────────────
-  _scheduleRetry(plcId, delay) {
-    this._cancelRetry(plcId);
-
-    const timer = setTimeout(async () => {
-      try {
-        const plc = await PLCConnection.findById(plcId);
-        if (!plc || !plc.isActive) {
-          console.log(`⏸  Skipping reconnect for ${plcId} — PLC no longer active`);
-          this._cleanupState(plcId);
-          return;
-        }
-        console.log(`🔄 Retrying connection to ${plc.name}...`);
-        await this._startWithReconnect(plc);
-      } catch (err) {
-        // Error handled in _startWithReconnect (schedules next retry)
-      }
-    }, delay);
-
-    this.retryTimers.set(plcId, timer);
-  }
-
-  _cancelRetry(plcId) {
-    const id = plcId.toString();
-    if (this.retryTimers.has(id)) {
-      clearTimeout(this.retryTimers.get(id));
-      this.retryTimers.delete(id);
+    // ─── 3. LOCAL DEV / PUBLIC IP (DIRECT TCP) ────────
+    let service;
+    switch (plc.protocol) {
+      case 'S7':
+        service = require('./s7Service');
+        break;
+      case 'MODBUS_TCP':
+      case 'MODBUS_RTU':
+        service = require('./modbusService');
+        break;
+      case 'OPC_UA':
+      case 'OPC-UA':
+        service = require('./opcuaService');
+        break;
+      default:
+        throw new Error(`Unsupported protocol: ${plc.protocol}`);
     }
-  }
 
-  _cleanupState(plcId) {
-    const id = plcId.toString();
-    this._cancelRetry(id);
-    this.plcState.delete(id);
-    this.connectingSet.delete(id);
-  }
-
-  // ─── Exponential backoff: 2s → 4s → 8s → 16s → 30s max ──────────────
-  _getRetryDelay(attempts) {
-    const delay = RECONNECT_CONFIG.initialDelay *
-      Math.pow(RECONNECT_CONFIG.backoffMultiplier, attempts - 1);
-    return Math.min(delay, RECONNECT_CONFIG.maxDelay);
-  }
-
-  // ─── Broadcast status to all connected clients ─────────────────────────
-  _broadcastStatus(plc, status, extra = null) {
-    if (!this.io) return;
-    this.io.emit('plcStatus', {
-      plcId: plc._id.toString(),
-      name: plc.name,
-      protocol: plc.protocol,
-      status,
-      isConnected: status === 'connected',
-      ...(extra || {}),
-      timestamp: Date.now(),
-    });
-  }
-
-  // ─── Health Monitor — periodic check ──────────────────────────────────
-  startHealthMonitor() {
-    if (this.healthCheckTimer) return;
-
-    this.healthCheckTimer = setInterval(async () => {
-      try {
-        for (const [id, state] of this.plcState.entries()) {
-          if (state.status !== 'connected') continue;
-
-          // ✅ T010: Skip if already attempting reconnect
-          if (this.connectingSet.has(id)) continue;
-
-          const service = this.getService(state.protocol);
-          const isRunning = service.isRunning(id);
-
-          if (!isRunning) {
-            console.warn(`⚠️  ${state.name} — service stopped unexpectedly, attempting reconnect`);
-            const plc = await PLCConnection.findById(id);
-            if (plc && plc.isActive) {
-              state.status = 'reconnecting';
-              state.attempts = 0;
-              this.plcState.set(id, state);
-              try {
-                await this._startWithReconnect(plc);
-              } catch (err) {
-                // Handled internally
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Health monitor error:', err.message);
-      }
-    }, RECONNECT_CONFIG.healthCheckInterval);
-  }
-
-  stopHealthMonitor() {
-    if (this.healthCheckTimer) {
-      clearInterval(this.healthCheckTimer);
-      this.healthCheckTimer = null;
-    }
-  }
-
-  // ─── Stop PLC (manual, no retry) ──────────────────────────────────────
-  async stop(plcId) {
-    const plc = await PLCConnection.findById(plcId);
-    if (!plc) throw new Error('PLC not found');
-
-    const id = plc._id.toString();
-    this._cancelRetry(id);
-    this.plcState.delete(id);
-    this.connectingSet.delete(id);
-
-    const service = this.getService(plc.protocol);
-    await service.stop(plc._id);
-
-    plc.isConnected = false;
-    await plc.save();
-
-    this._broadcastStatus(plc, 'disconnected');
-    console.log(`⏹️  ${plc.name} — stopped manually`);
-    return { success: true, message: `PLC ${plc.name} stopped` };
-  }
-
-  isRunning(plcId, protocol) {
-    try {
-      const service = this.getService(protocol);
-      return service.isRunning(plcId);
-    } catch {
-      return false;
-    }
-  }
-
-  getStatus(plcId) {
-    const id = plcId.toString();
-    const state = this.plcState.get(id);
-    if (!state) return { status: 'disconnected', attempts: 0 };
-    return {
-      status: state.status,
-      attempts: state.attempts,
-      lastConnected: state.lastConnected,
-      lastError: state.lastError,
-    };
-  }
-
-  getAllStatuses() {
-    const result = {};
-    for (const [id, state] of this.plcState.entries()) {
-      result[id] = { ...state };
-    }
+    const result = await service.start(plc, this.io);
+    this.activeServices.set(id, plc.protocol);
     return result;
   }
 
-  async writeTag(tag, value) {
-    try {
-      const plc = await PLCConnection.findById(tag.plcConnection);
-      if (!plc) throw new Error('PLC not found');
-      const service = this.getService(plc.protocol);
-      if (plc.protocol === 'SIMULATION') return { success: true, simulated: true };
-      if (service.writeTag) await service.writeTag(plc._id, tag, value);
-      return { success: true };
-    } catch (error) {
-      console.error(`❌ Write tag failed:`, error.message);
-      throw error;
+  async stop(plcId) {
+    const id = plcId.toString();
+    const plc = await PLCConnection.findById(plcId);
+    if (!plc) return false;
+
+    if (plc.protocol === 'SIMULATION' || plc.isSimulation) {
+      const simulationService = require('./simulationService');
+      simulationService.stop(id);
+      this.activeServices.delete(id);
+      return true;
     }
+
+    let service;
+    switch (plc.protocol) {
+      case 'S7':
+        service = require('./s7Service');
+        break;
+      case 'MODBUS_TCP':
+      case 'MODBUS_RTU':
+        service = require('./modbusService');
+        break;
+      case 'OPC_UA':
+      case 'OPC-UA':
+        service = require('./opcuaService');
+        break;
+      default:
+        return false;
+    }
+
+    await service.stop(id);
+    this.activeServices.delete(id);
+    return true;
   }
 
-  // ─── Auto-start all active PLCs on server boot ─────────────────────────
-  async startAll() {
-    try {
-      const plcs = await PLCConnection.find({ isActive: true });
-      for (const plc of plcs) {
-        try {
-          await this.start(plc._id);
-        } catch (err) {
-          console.warn(`⚠️  Initial start failed for ${plc.name}, will auto-retry`);
-        }
-      }
-      console.log(`✅ Auto-started ${plcs.length} PLCs (auto-reconnect enabled)`);
-    } catch (error) {
-      console.error('❌ Failed to auto-start PLCs:', error.message);
+  isRunning(plcId, protocol) {
+    const id = plcId.toString();
+    if (protocol === 'SIMULATION') {
+      const simulationService = require('./simulationService');
+      return simulationService.isRunning(id);
     }
+    if (protocol === 'S7') {
+      const s7Service = require('./s7Service');
+      return s7Service.isRunning(id);
+    }
+    if (protocol === 'MODBUS_TCP' || protocol === 'MODBUS_RTU') {
+      const modbusService = require('./modbusService');
+      return modbusService.isRunning(id);
+    }
+    if (protocol === 'OPC_UA' || protocol === 'OPC-UA') {
+      const opcuaService = require('./opcuaService');
+      return opcuaService.isRunning(id);
+    }
+    return this.activeServices.has(id);
   }
 
-  // ─── Stop all PLCs and cleanup ─────────────────────────────────────────
   stopAll() {
-    for (const timer of this.retryTimers.values()) clearTimeout(timer);
-    this.retryTimers.clear();
-    this.plcState.clear();
-    this.connectingSet.clear();
-    this.stopHealthMonitor();
-
-    simulationService.stopAll();
-    modbusService.stopAll();
-    s7Service.stopAll();
-    opcuaService.stopAll();
-
-    console.log('⏹️  All PLCs stopped');
+    try {
+      require('./simulationService').stopAll();
+      require('./s7Service').stopAll();
+      require('./modbusService').stopAll();
+      require('./opcuaService').stopAll();
+      this.activeServices.clear();
+      console.log('⏹️  All PLC services stopped');
+    } catch (e) {
+      console.error('Error stopping all PLCs:', e.message);
+    }
   }
 }
 
