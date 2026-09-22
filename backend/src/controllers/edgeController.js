@@ -10,12 +10,24 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
 
-// ─── Safe Archiver Resolver (Prevents 'archiver is not a function') ───
-const getArchiver = () => {
-  if (typeof archiverPkg === 'function') return archiverPkg;
-  if (archiverPkg && typeof archiverPkg.default === 'function') return archiverPkg.default;
-  if (archiverPkg && typeof archiverPkg.create === 'function') return archiverPkg.create;
-  return archiverPkg;
+// ─── Safe Archiver Factory (Supports archiver v5/v6/v7/v8/ESM/CJS) ───
+const createArchive = (format = 'zip', options = {}) => {
+  if (typeof archiverPkg === 'function') {
+    return archiverPkg(format, options);
+  }
+  if (archiverPkg && typeof archiverPkg.default === 'function') {
+    return archiverPkg.default(format, options);
+  }
+  if (archiverPkg && typeof archiverPkg.create === 'function') {
+    return archiverPkg.create(format, options);
+  }
+  if (format === 'zip' && archiverPkg && typeof archiverPkg.ZipArchive === 'function') {
+    return new archiverPkg.ZipArchive(options);
+  }
+  if (archiverPkg && typeof archiverPkg.Archiver === 'function') {
+    return new archiverPkg.Archiver(format, options);
+  }
+  throw new Error('Unable to initialize archiver stream');
 };
 
 // ─── Compile config profile ─────────────────────────
@@ -267,8 +279,7 @@ const downloadCompletePackage = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
     // ✅ Safe Archiver Initialization
-    const archiver = getArchiver();
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = createArchive('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {
       console.error('❌ Archiver stream error:', err.message);
