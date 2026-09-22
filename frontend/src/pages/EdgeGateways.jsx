@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// Edge Gateways Dashboard Page (With Dual Download Buttons)
+// Edge Gateways Dashboard Page (Auto-Embed Key Feature)
 // ═══════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from 'react';
 import {
     Network, CheckCircle, XCircle, RefreshCw, Key, Download, Trash2, Plus,
     HelpCircle, AlertTriangle, ShieldAlert, Cpu, HardDrive, Activity,
-    Play, FileJson, Zap, FolderArchive, ArrowRight
+    Play, FileJson, Zap, FolderArchive
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -48,7 +48,7 @@ const EdgeGateways = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showWizardModal, setShowWizardModal] = useState(false);
     const [selectedGatewayForWizard, setSelectedGatewayForWizard] = useState(null);
-    const [showKeyRevealModal, setShowKeyRevealModal] = useState(null);
+    const [showKeyRevealModal, setShowKeyRevealModal] = useState(null); // { gatewayId, name, rawKey }
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [rotateConfirmId, setRotateConfirmId] = useState(null);
     const [newGatewayName, setNewGatewayName] = useState('');
@@ -103,7 +103,7 @@ const EdgeGateways = () => {
 
             setShowCreateModal(false);
             setNewGatewayName('');
-            setShowKeyRevealModal({ name: created.name, rawKey: created.apiKey });
+            setShowKeyRevealModal({ gatewayId: created._id, name: created.name, rawKey: created.apiKey });
 
             fetchGateways();
             showToast('Gateway profile generated successfully');
@@ -120,7 +120,7 @@ const EdgeGateways = () => {
             const res = await api.post(`/edge/${id}/regenerate-key`);
             const updated = res.data.data;
             setRotateConfirmId(null);
-            setShowKeyRevealModal({ name: updated.name, rawKey: updated.apiKey });
+            setShowKeyRevealModal({ gatewayId: updated._id, name: updated.name, rawKey: updated.apiKey });
             fetchGateways();
             showToast('API Key rotated successfully.');
         } catch (err) {
@@ -139,10 +139,10 @@ const EdgeGateways = () => {
         }
     };
 
-    const downloadConfig = async (gateway, rawKey = null) => {
+    const downloadConfig = async (gatewayId, rawKey = null) => {
         try {
             const query = rawKey ? `?apiKey=${rawKey}` : '';
-            const res = await api.get(`/edge/${gateway._id}/config${query}`);
+            const res = await api.get(`/edge/${gatewayId}/config${query}`);
             const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -272,7 +272,7 @@ const EdgeGateways = () => {
                                                 style={{ background: C.btnPrimary }}>
                                                 <HelpCircle size={15} /> Easy Setup Guide
                                             </button>
-                                            <button onClick={() => downloadConfig(gw)} className="p-2.5 rounded-xl border hover:bg-slate-50 cursor-pointer flex items-center gap-1 text-xs font-medium" style={{ color: C.text }} title="Download config.json">
+                                            <button onClick={() => downloadConfig(gw._id)} className="p-2.5 rounded-xl border hover:bg-slate-50 cursor-pointer flex items-center gap-1 text-xs font-medium" style={{ color: C.text }} title="Download config.json">
                                                 <FileJson size={15} /> Config
                                             </button>
                                             {isAdmin && (
@@ -290,7 +290,7 @@ const EdgeGateways = () => {
                 </div>
             </div>
 
-            {/* ─── MODAL: EASY SETUP GUIDE (WITH BOTH DOWNLOAD BUTTONS) ─── */}
+            {/* ─── MODAL: EASY SETUP GUIDE ─── */}
             {showWizardModal && selectedGatewayForWizard && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div className="bg-white rounded-3xl p-8 w-full max-w-2xl mx-4 border flex flex-col max-h-[85vh] overflow-hidden shadow-2xl" style={{ borderColor: C.border }}>
@@ -305,11 +305,9 @@ const EdgeGateways = () => {
 
                         <div className="flex-1 overflow-y-auto pr-2 space-y-4">
 
-                            {/* STEP 1: DOWNLOAD GATEWAY APP ZIP */}
+                            {/* STEP 1 */}
                             <div className="flex gap-4 p-4 rounded-2xl bg-blue-50/60 border border-blue-200">
-                                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                                    1
-                                </div>
+                                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">1</div>
                                 <div className="flex-1">
                                     <h4 className="text-sm font-bold" style={{ color: C.heading }}>Download Gateway Application (.zip)</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
@@ -322,36 +320,29 @@ const EdgeGateways = () => {
                                 </div>
                             </div>
 
-                            {/* STEP 2: DOWNLOAD CONFIG.JSON */}
+                            {/* STEP 2 */}
                             <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                                    2
-                                </div>
+                                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">2</div>
                                 <div className="flex-1">
                                     <h4 className="text-sm font-bold" style={{ color: C.heading }}>Download Configuration File (config.json)</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-                                        Download your personalized configuration file and place it inside the extracted Gateway folder.
+                                        Download your custom configuration file and place it inside the extracted Gateway folder.
                                     </p>
-                                    <button onClick={() => downloadConfig(selectedGatewayForWizard)}
+                                    <button onClick={() => downloadConfig(selectedGatewayForWizard._id)}
                                         className="flex items-center gap-2 mt-3 px-4 py-2.5 rounded-xl text-xs font-bold text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 transition-all cursor-pointer shadow-sm">
                                         <FileJson size={16} /> Download config.json
                                     </button>
                                 </div>
                             </div>
 
-                            {/* STEP 3: RUN THE GATEWAY */}
+                            {/* STEP 3 */}
                             <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                                    3
-                                </div>
+                                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shrink-0">3</div>
                                 <div className="flex-1">
                                     <h4 className="text-sm font-bold" style={{ color: C.heading }}>Double-Click "Start-Gateway.bat"</h4>
                                     <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
                                         Extract <code>OnlineSCADA-Gateway.zip</code>, move <code>config.json</code> into that folder, and double-click <strong>Start-Gateway.bat</strong>. It connects to your PLCs automatically!
                                     </p>
-                                    <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
-                                        <Play size={14} /> Zero setup required!
-                                    </div>
                                 </div>
                             </div>
 
@@ -366,7 +357,42 @@ const EdgeGateways = () => {
                 </div>
             )}
 
-            {/* ─── OTHER MODALS ─── */}
+            {/* ─── MODAL: KEY REVEAL + DIRECT CONFIG DOWNLOAD ─── */}
+            {showKeyRevealModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-lg mx-4 border shadow-2xl" style={{ borderColor: C.border }}>
+                        <div className="flex items-center gap-3 mb-4 text-amber-600">
+                            <ShieldAlert size={28} />
+                            <div>
+                                <h3 className="font-bold text-lg" style={{ color: C.heading }}>Gateway Key Generated!</h3>
+                                <p className="text-xs text-slate-500">Gateway: {showKeyRevealModal.name}</p>
+                            </div>
+                        </div>
+
+                        <p className="text-xs mb-3 text-slate-600 leading-relaxed">
+                            Your secret key connects this gateway securely to the cloud. Click below to download a pre-configured <strong>config.json</strong> file that has this key pre-embedded!
+                        </p>
+
+                        <div className="rounded-xl p-3 font-mono text-xs flex gap-3 mb-4 bg-amber-50 border border-amber-200 text-amber-800 break-all font-bold">
+                            {showKeyRevealModal.rawKey}
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => downloadConfig(showKeyRevealModal.gatewayId, showKeyRevealModal.rawKey)}
+                                className="flex-1 py-3 px-4 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+                                <Download size={16} /> Download config.json (Key Embedded)
+                            </button>
+                        </div>
+
+                        <button onClick={() => setShowKeyRevealModal(null)} className="w-full mt-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 cursor-pointer">
+                            Done / Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* OTHER MODALS */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <form onSubmit={handleCreateGateway} className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 border">
@@ -380,19 +406,6 @@ const EdgeGateways = () => {
                             <button type="submit" disabled={createLoading} className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600">{createLoading ? 'Generating...' : 'Create'}</button>
                         </div>
                     </form>
-                </div>
-            )}
-
-            {showKeyRevealModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-lg mx-4">
-                        <div className="flex items-center gap-3 mb-4 text-amber-600"><ShieldAlert size={28} /><div><h3 className="font-bold text-lg">Secure Gateway Key</h3></div></div>
-                        <p className="text-xs mb-3 text-slate-600">Save this secret key securely. It connects your gateway to the cloud:</p>
-                        <div className="rounded-xl p-4 font-mono text-sm flex gap-3 mb-4 bg-amber-50 border border-amber-200 text-amber-700">
-                            <span className="flex-1 break-all font-bold">{showKeyRevealModal.rawKey}</span>
-                        </div>
-                        <button onClick={() => setShowKeyRevealModal(null)} className="w-full py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600">I Have Saved the Key</button>
-                    </div>
                 </div>
             )}
 
