@@ -56,9 +56,9 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
   }
 
   // Fallback API host URL
-  const cloudUrl = process.env.VITE_API_URL 
-    ? process.env.VITE_API_URL.replace(/^http/, 'ws') // Replace http/https with ws/wss
-    : 'wss://onlinescada-backend.onrender.com';
+  const cloudUrl = process.env.VITE_API_URL
+    ? process.env.VITE_API_URL.replace(/^http/, 'ws')
+    : 'https://onlinescada-api.onrender.com'; // 👈 Fixed URL
 
   return {
     cloudUrl,
@@ -98,8 +98,8 @@ const getGateways = async (req, res) => {
 
     // Enforce live status updates from memory
     const activeGateways = gateways.map((gw) => {
-      const isLiveOnline = edgeService.hasActiveGateway(req.companyId) && 
-                          edgeService.gateways.has(gw._id.toString());
+      const isLiveOnline = edgeService.hasActiveGateway(req.companyId) &&
+        edgeService.gateways.has(gw._id.toString());
       return {
         ...gw.toObject(),
         status: isLiveOnline ? 'online' : (gw.status === 'never_connected' ? 'never_connected' : 'offline'),
