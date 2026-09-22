@@ -4,11 +4,19 @@
 
 const path = require('path');
 const fs = require('fs');
-const archiver = require('archiver');
+const archiverPkg = require('archiver');
 const EdgeGateway = require('../models/EdgeGateway');
 const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
+
+// ─── Safe Archiver Resolver (Prevents 'archiver is not a function') ───
+const getArchiver = () => {
+  if (typeof archiverPkg === 'function') return archiverPkg;
+  if (archiverPkg && typeof archiverPkg.default === 'function') return archiverPkg.default;
+  if (archiverPkg && typeof archiverPkg.create === 'function') return archiverPkg.create;
+  return archiverPkg;
+};
 
 // ─── Compile config profile ─────────────────────────
 const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
@@ -233,14 +241,14 @@ const downloadGatewayConfig = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 🆕 DOWNLOAD READY-TO-RUN PACKAGE (100% Fail-Proof Generator)
+// 🆕 DOWNLOAD READY-TO-RUN PACKAGE (Safe Archiver Initialization)
 // ═══════════════════════════════════════════════════════════
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!gateway) return res.status(404).json({ success: false, message: 'Gateway profile not found' });
 
-    // Rotate API key so user always gets fresh key in bundle
+    // Rotate API key so user always gets a fresh key in bundle
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
 
@@ -258,6 +266,8 @@ const downloadCompletePackage = async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
+    // ✅ Safe Archiver Initialization
+    const archiver = getArchiver();
     const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {
@@ -284,8 +294,7 @@ const downloadCompletePackage = async (req, res) => {
       console.log(`📦 Bundling from disk template directory: ${templateDir}`);
       archive.directory(templateDir, false);
     } else {
-      console.warn('⚠️  Template dir not on disk — using in-memory fallbacks to construct ZIP!');
-      // 🛠️ IN-MEMORY FALLBACK INJECTION (GUARANTEES ZIP IS CREATED EVEN IF GIT DIDN'T PUSH TEMPLATE)
+      console.warn('⚠️ Template dir not on disk — using in-memory fallbacks to construct ZIP!');
       archive.append(getFallbackPackageJson(), { name: 'package.json' });
       archive.append(getFallbackStartBat(), { name: 'Start-Gateway.bat' });
       archive.append(getFallbackRunBgVbs(), { name: 'Run-In-Background.vbs' });
@@ -330,7 +339,7 @@ const deleteGateway = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// IN-MEMORY FALLBACK FILE STRINGS (Zero-Failure Guarantee)
+// IN-MEMORY FALLBACK FILE STRINGS
 // ═══════════════════════════════════════════════════════════
 function getFallbackPackageJson() {
   return JSON.stringify({
