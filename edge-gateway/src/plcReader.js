@@ -1,33 +1,33 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader — Protocol Dispatcher (Fail-Proof Import Version)
+// PLC Reader — Protocol Dispatcher (Dynamic Auto-Resolver)
 // ═══════════════════════════════════════════════════════════
 
-// Smart Fallback Imports (Handles both src/ and src/readers/ structures)
-let S7Reader, ModbusReader, OPCUAReader;
+const fs = require('fs');
+const path = require('path');
 
-try {
-    S7Reader = require('./readers/s7Reader');
-} catch (e1) {
-    try { S7Reader = require('./s7Reader'); } catch (e2) {
-        console.warn('⚠️  S7Reader module not found');
+// ─── Dynamic Module Resolver (Finds files anywhere in src/) ───
+function loadReaderModule(moduleName) {
+    const searchPaths = [
+        path.join(__dirname, 'readers', moduleName),
+        path.join(__dirname, moduleName),
+        path.join(__dirname, '..', moduleName),
+    ];
+
+    for (const p of searchPaths) {
+        if (fs.existsSync(p + '.js') || fs.existsSync(p)) {
+            try {
+                return require(p);
+            } catch (err) {
+                console.error(`❌ Failed loading ${moduleName} from ${p}:`, err.message);
+            }
+        }
     }
+    return null;
 }
 
-try {
-    ModbusReader = require('./readers/modbusReader');
-} catch (e1) {
-    try { ModbusReader = require('./modbusReader'); } catch (e2) {
-        console.warn('⚠️  ModbusReader module not found');
-    }
-}
-
-try {
-    OPCUAReader = require('./readers/opcuaReader');
-} catch (e1) {
-    try { OPCUAReader = require('./opcuaReader'); } catch (e2) {
-        console.warn('⚠️  OPCUAReader module not found');
-    }
-}
+const S7Reader = loadReaderModule('s7Reader');
+const ModbusReader = loadReaderModule('modbusReader');
+const OPCUAReader = loadReaderModule('opcuaReader');
 
 class PLCReader {
     constructor(config, cloudBridge, verbose = false) {
@@ -80,18 +80,18 @@ class PLCReader {
 
             switch (protocol) {
                 case 's7':
-                    if (!S7Reader) throw new Error('S7Reader module is missing');
+                    if (!S7Reader) throw new Error('S7Reader file not found. Ensure s7Reader.js exists.');
                     reader = new S7Reader(plcConfig, this.verbose);
                     break;
                 case 'modbus':
                 case 'modbus_tcp':
                 case 'modbus_rtu':
-                    if (!ModbusReader) throw new Error('ModbusReader module is missing');
+                    if (!ModbusReader) throw new Error('ModbusReader file not found. Ensure modbusReader.js exists.');
                     reader = new ModbusReader(plcConfig, this.verbose);
                     break;
                 case 'opcua':
                 case 'opc_ua':
-                    if (!OPCUAReader) throw new Error('OPCUAReader module is missing');
+                    if (!OPCUAReader) throw new Error('OPCUAReader file not found. Ensure opcuaReader.js exists.');
                     reader = new OPCUAReader(plcConfig, this.verbose);
                     break;
                 default:
@@ -262,7 +262,7 @@ class PLCReader {
             this.statsInterval = null;
         }
 
-        for (const [plcId, reader] of this.readers) {
+        for (const [, reader] of this.readers) {
             try { reader.disconnect(); } catch (err) { }
         }
         this.readers.clear();
