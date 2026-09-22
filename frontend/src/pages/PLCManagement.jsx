@@ -391,6 +391,9 @@ const PLCManagement = () => {
 
   const isGatewayOnline = gateway?.status === 'online';
   const nonSimPlcCount = plcs.filter(p => !p.isSimulation).length;
+  const csvLineCount = importCsvText
+    ? Math.max(0, importCsvText.split('\n').filter(l => l.trim() && !l.startsWith('#')).length - 1)
+    : 0;
 
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
