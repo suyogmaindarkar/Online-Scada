@@ -92,10 +92,18 @@ async function main() {
         plcReader.handleWriteCommand(cmd);
     });
 
-    // Wire up: cloud config updates → hot reload
-    cloudBridge.onConfigUpdate((newConfig) => {
-        console.log('🔄 Received config update from cloud — reloading PLC connections...');
-        plcReader.reload(newConfig.plcs);
+    // Wire up: cloud config updates → hot reload PLCs + tags
+    cloudBridge.onConfigUpdate((payload) => {
+        const newPlcs = payload?.plcs;
+        if (!Array.isArray(newPlcs)) {
+            console.warn('⚠️  Config update missing plcs array — ignored');
+            return;
+        }
+        console.log(`🔄 Hot-reloading ${newPlcs.length} PLC connection(s)...`);
+        config.plcs = newPlcs; // keep in-memory config in sync
+        plcReader.reload(newPlcs).catch((err) => {
+            console.error('❌ Hot reload failed:', err.message);
+        });
     });
 
     // ─── Graceful Shutdown ──────────────────────────────────

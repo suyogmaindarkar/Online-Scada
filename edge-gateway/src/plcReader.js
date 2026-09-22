@@ -221,13 +221,13 @@ class PLCReader {
         }
     }
 
-    // ─── Hot Reload Config ──────────────────────────────────
     async reload(newPlcConfigs) {
         console.log('🔄 Reloading PLC configuration...');
         this.stopAll();
-        this.config.plcs = newPlcConfigs;
+        this.previousValues.clear(); // force re-send of all tag values after reload
+        this.config.plcs = newPlcConfigs || [];
         await this.startAll();
-        console.log('✅ Config reload complete');
+        console.log(`✅ Config reload complete — ${this.config.plcs.length} PLC(s)`);
     }
 
     // ─── Stop All ───────────────────────────────────────────

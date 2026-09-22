@@ -93,6 +93,12 @@ class OPCUAReader {
                     value = this._extractValue(dv.value, t.dataType);
                 }
 
+                // Debug log for troubleshooting (first few)
+                if (this.verbose || value === null) {
+                    const sc = dv?.statusCode?.name || dv?.statusCode?.toString?.() || '?';
+                    console.log(`   OPC ${t.tagName} [${t.address}] → value=${value} quality=${isGood ? 'GOOD' : sc}`);
+                }
+
                 return {
                     tagId: t.tagId,
                     tagName: t.tagName,
@@ -147,23 +153,29 @@ class OPCUAReader {
     _extractValue(variant, dataType) {
         if (!variant || variant.value === undefined || variant.value === null) return null;
 
-        const raw = variant.value;
+        let raw = variant.value;
 
-        switch (dataType) {
+        // node-opcua may return BigInt for Int32/UInt32/Int64
+        if (typeof raw === 'bigint') {
+            raw = Number(raw);
+        }
+
+        switch ((dataType || '').toUpperCase()) {
             case 'BOOL':
                 return Boolean(raw);
             case 'REAL':
-                return parseFloat(Number(raw).toFixed(4));
+                return parseFloat(Number(raw).toFixed(6));
             case 'INT':
-            case 'DINT':
             case 'WORD':
-            case 'DWORD':
             case 'BYTE':
+                return Math.round(Number(raw));
+            case 'DINT':
+            case 'DWORD':
                 return Math.round(Number(raw));
             case 'STRING':
                 return String(raw);
             default:
-                return raw;
+                return typeof raw === 'number' ? raw : Number(raw);
         }
     }
 

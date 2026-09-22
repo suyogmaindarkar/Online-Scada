@@ -31,7 +31,7 @@ const MENU_ITEMS = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'engineer'] },
   { path: '/plc', icon: Cpu, label: 'PLC Management', roles: ['admin', 'engineer'] },
   { path: '/tags', icon: Tag, label: 'Tag Management', roles: ['admin', 'engineer'] },
-  // { path: '/edge-gateways', icon: Network, label: 'Edge Gateways', roles: ['admin', 'engineer'] }, // 🟢 Phase E Added!
+  { path: '/edge-gateways', icon: Network, label: 'Edge Gateways', roles: ['admin', 'engineer'] }, // 🟢 Phase E Added!
   { path: '/designer', icon: Palette, label: 'Graphic Designer', roles: ['admin', 'engineer'] },
   { path: '/runtime', icon: Monitor, label: 'Runtime', roles: ['admin', 'engineer', 'operator', 'viewer'] },
   { path: '/alarms', icon: Bell, label: 'Alarms', roles: ['admin', 'engineer', 'operator', 'viewer'] },

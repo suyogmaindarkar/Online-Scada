@@ -33,7 +33,7 @@ import Recipes from './pages/Recipes';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
-//import EdgeGateways from './pages/EdgeGateways'; // 🟢 Phase E Added!
+import EdgeGateways from './pages/EdgeGateways'; // 🟢 Phase E Added!
 
 // ─── Role hierarchy ─────────────────────────────────────
 const ROLE_ADMIN_ONLY = ['admin'];
@@ -71,7 +71,7 @@ function App() {
                       element={<ProtectedRoute allowedRoles={ROLE_ENGINEER}><MainLayout><PLCManagement /></MainLayout></ProtectedRoute>} />
                     <Route path="/tags"
                       element={<ProtectedRoute allowedRoles={ROLE_ENGINEER}><MainLayout><TagManagement /></MainLayout></ProtectedRoute>} />
-                   // <Route path="/edge-gateways"
+                    <Route path="/edge-gateways"
                       element={<ProtectedRoute allowedRoles={ROLE_ENGINEER}><MainLayout><EdgeGateways /></MainLayout></ProtectedRoute>} /> {/* 🟢 Phase E Route */}
                     <Route path="/designer"
                       element={<ProtectedRoute allowedRoles={ROLE_ENGINEER}><MainLayout><GraphicDesigner /></MainLayout></ProtectedRoute>} />

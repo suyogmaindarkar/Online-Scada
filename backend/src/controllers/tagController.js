@@ -8,7 +8,7 @@
 
 const Tag = require('../models/Tag');
 const PLCConnection = require('../models/PLCConnection');
-
+const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
 // ─────────────────────────────────────────────────────────
 // CSV UTILITIES (unchanged)
 // ─────────────────────────────────────────────────────────
@@ -151,6 +151,12 @@ const createTag = async (req, res) => {
       enableAlarm: enableAlarm || false,
     });
 
+    // Notify Edge Gateway to hot-reload new tags
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
+
     res.status(201).json({
       success: true,
       message: 'Tag created successfully',
@@ -219,6 +225,12 @@ const updateTag = async (req, res) => {
 
     if (!tag) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
 
+    // Notify Edge Gateway to hot-reload new tags
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
+
     res.json({ success: true, message: 'Tag updated successfully', data: tag });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -232,6 +244,13 @@ const deleteTag = async (req, res) => {
   try {
     const tag = await Tag.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
     if (!tag) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
+
+    // Notify Edge Gateway to hot-reload new tags
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
+
     res.json({ success: true, message: 'Tag deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -371,6 +390,12 @@ const bulkCreateTags = async (req, res) => {
         results.failed.push({ tagName: tagData.tagName, error: error.message });
       }
     }
+
+    // Notify Edge Gateway to hot-reload new tags
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.status(201).json({
       success: true,
@@ -649,6 +674,12 @@ const importTagsCSV = async (req, res) => {
     }
 
     console.log(`✅ Tag import complete [${req.companySlug}]: ${results.created.length}c/${results.updated.length}u/${results.skipped.length}s/${results.failed.length}f`);
+
+    // Notify Edge Gateway to hot-reload new tags
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.json({
       success: true,

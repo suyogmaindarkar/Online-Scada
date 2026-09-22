@@ -12,6 +12,7 @@ const simulationService = require('../services/simulationService');
 const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService'); // 🟢 Edge Integration
+const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
 
 // ─── Helper: Check if PLC has fresh data from Edge (last 15s) ───
 const isPlcLiveFromEdge = async (plc, companyId) => {
@@ -172,10 +173,10 @@ const createPLC = async (req, res) => {
     });
 
     // Notify Edge Gateway of config change
-    const io = req.app.get('io');
-    if (io) {
-      io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
-    }
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.status(201).json({ success: true, message: 'PLC created successfully', data: plc });
   } catch (error) {
@@ -282,8 +283,10 @@ const updatePLC = async (req, res) => {
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
 
     // Notify Edge Gateway
-    const io = req.app.get('io');
-    if (io) io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.json({ success: true, message: 'PLC updated successfully', data: plc });
   } catch (error) {
@@ -313,8 +316,10 @@ const deletePLC = async (req, res) => {
     await PLCConnection.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
 
     // Notify Edge Gateway
-    const io = req.app.get('io');
-    if (io) io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.json({ success: true, message: plc.isSimulation ? `Simulation PLC deleted` : 'PLC deleted successfully' });
   } catch (error) {
@@ -370,8 +375,10 @@ const startPLC = async (req, res) => {
     const result = await plcManager.start(req.params.id);
 
     if (result?.deferred) {
-      const io = req.app.get('io');
-      if (io) io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
+      try {
+        const io = req.app.get('io');
+        await broadcastConfigUpdate(io, req.companyId);
+      } catch (e) {}
       return res.json({ success: true, message: `PLC is active. Data streams via Edge Gateway.`, deferred: true });
     }
 
@@ -392,8 +399,10 @@ const stopPLC = async (req, res) => {
 
     const result = await plcManager.stop(req.params.id);
 
-    const io = req.app.get('io');
-    if (io) io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.json({ success: true, message: `PLC "${plc.name}" stopped.` });
   } catch (error) {
@@ -503,8 +512,10 @@ const importPLCsCSV = async (req, res) => {
       } catch (err) { results.failed.push({ row: rowNum, name: rowRaw.name || '?', error: err.message }); }
     }
 
-    const io = req.app.get('io');
-    if (io) io.of('/edge').to(`edge:company:${req.companyId}`).emit('edge:configUpdate', { timestamp: Date.now() });
+    try {
+      const io = req.app.get('io');
+      await broadcastConfigUpdate(io, req.companyId);
+    } catch (e) {}
 
     res.json({ success: true, message: `Import complete: ${results.created.length} created`, data: results });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
