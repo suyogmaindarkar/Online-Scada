@@ -10,24 +10,12 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
 
-// ─── Safe Archiver Factory (Supports archiver v5/v6/v7/v8/ESM/CJS) ───
-const createArchive = (format = 'zip', options = {}) => {
-  if (typeof archiverPkg === 'function') {
-    return archiverPkg(format, options);
-  }
-  if (archiverPkg && typeof archiverPkg.default === 'function') {
-    return archiverPkg.default(format, options);
-  }
-  if (archiverPkg && typeof archiverPkg.create === 'function') {
-    return archiverPkg.create(format, options);
-  }
-  if (format === 'zip' && archiverPkg && typeof archiverPkg.ZipArchive === 'function') {
-    return new archiverPkg.ZipArchive(options);
-  }
-  if (archiverPkg && typeof archiverPkg.Archiver === 'function') {
-    return new archiverPkg.Archiver(format, options);
-  }
-  throw new Error('Unable to initialize archiver stream');
+// ─── Safe Archiver Resolver ─────────────────────────
+const getArchiver = () => {
+  if (typeof archiverPkg === 'function') return archiverPkg;
+  if (archiverPkg && typeof archiverPkg.default === 'function') return archiverPkg.default;
+  if (archiverPkg && typeof archiverPkg.create === 'function') return archiverPkg.create;
+  return archiverPkg;
 };
 
 // ─── Compile config profile ─────────────────────────
@@ -98,7 +86,7 @@ const forceDisconnectGatewaySocket = (req, gatewayId) => {
       const socket = io.of('/edge').sockets.get(gatewayInfo.socketId);
       if (socket) socket.disconnect(true);
     }
-  } catch (err) { }
+  } catch (err) {}
 };
 
 // ─── GET ALL GATEWAYS ───────────────────────────────
@@ -253,23 +241,21 @@ const downloadGatewayConfig = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 🆕 DOWNLOAD READY-TO-RUN PACKAGE (Safe Archiver Initialization)
+// DOWNLOAD READY-TO-RUN PACKAGE
 // ═══════════════════════════════════════════════════════════
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!gateway) return res.status(404).json({ success: false, message: 'Gateway profile not found' });
 
-    // Rotate API key so user always gets a fresh key in bundle
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
-
+    
     gateway.apiKeyHash = hash;
     gateway.apiKeyPrefix = prefix;
     gateway.status = 'never_connected';
     await gateway.save();
 
-    // Compile config with fresh key
     const configProfile = await compileGatewayConfig(req.companyId, gateway, rawKey);
 
     const companyName = String(req.company?.slug || 'company').replace(/[^a-z0-9\-]/gi, '');
@@ -278,8 +264,8 @@ const downloadCompletePackage = async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
-    // ✅ Safe Archiver Initialization
-    const archive = createArchive('zip', { zlib: { level: 9 } });
+    const archiver = getArchiver();
+    const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {
       console.error('❌ Archiver stream error:', err.message);
@@ -290,7 +276,6 @@ const downloadCompletePackage = async (req, res) => {
 
     archive.pipe(res);
 
-    // Candidate template directories
     const candidateDirs = [
       path.join(__dirname, '..', '..', 'edge-gateway-template'),
       path.join(__dirname, '..', '..', 'edge-gateway'),
@@ -321,7 +306,7 @@ const downloadCompletePackage = async (req, res) => {
       archive.append(getFallbackOpcuaReaderJs(), { name: 'src/readers/opcuaReader.js' });
     }
 
-    // Always append the fresh config.json
+    // Append pre-configured config.json
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
 
     await archive.finalize();
@@ -350,7 +335,7 @@ const deleteGateway = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// IN-MEMORY FALLBACK FILE STRINGS
+// IN-MEMORY FALLBACK STRINGS (Checks socket.io-client specifically!)
 // ═══════════════════════════════════════════════════════════
 function getFallbackPackageJson() {
   return JSON.stringify({
@@ -394,12 +379,13 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-if not exist "node_modules" (
-    echo [i] First-time setup: Installing required modules...
+:: Checks specifically for required module socket.io-client (not just empty node_modules)
+if not exist "node_modules\\socket.io-client" (
+    echo [i] First-time setup: Installing required modules (socket.io-client, nodes7, modbus-serial, node-opcua)...
     call npm install --omit=dev --no-audit --no-fund
     if %ERRORLEVEL% neq 0 (
         color 0C
-        echo [x] Failed to install modules.
+        echo [x] Failed to install modules. Please check internet connection.
         pause
         exit /b 1
     )
@@ -437,7 +423,7 @@ color 0A
 set "STARTUP_DIR=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
 set "SHORTCUT=%STARTUP_DIR%\\OnlineSCADA-EdgeGateway.vbs"
 copy /y "Run-In-Background.vbs" "%SHORTCUT%" >nul
-echo [ok] Auto-Start Enabled!
+echo [ok] Auto-Start Enabled! The Gateway will run on every Windows boot.
 pause
 `;
 }
@@ -447,6 +433,7 @@ function getFallbackDisableAutoStart() {
 set "STARTUP_DIR=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
 set "SHORTCUT=%STARTUP_DIR%\\OnlineSCADA-EdgeGateway.vbs"
 if exist "%SHORTCUT%" del /f /q "%SHORTCUT%"
+echo [ok] Auto-Start Disabled.
 pause
 `;
 }
@@ -454,7 +441,9 @@ pause
 function getFallbackReadme() {
   return `OnlineSCADA Edge Gateway
 ========================
-Double-click Start-Gateway.bat to run!
+1. Extract this ZIP.
+2. Double-click Start-Gateway.bat to run!
+3. (Optional) Double-click Enable-AutoStart.bat to make it run on Windows boot.
 `;
 }
 
