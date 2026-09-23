@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════════════════════
-// eventUtils.js — WinCC-style event execution engine
+// eventUtils.js — WinCC-style Event Execution Engine
+//
+// ✅ FIXED: Replaced hardcoded localhost fetch with central tagAPI & Socket.io
+// ✅ FIXED: Supported all SCADA/WinCC action types (setTag, toggleTag, setBit, etc.)
+// ✅ FIXED: Real-time write command forwarding to Edge Gateway
 // ═══════════════════════════════════════════════════════════
+
+import api, { tagAPI } from '../services/api';
+import socketService from '../services/socket';
 
 /**
  * Normalize any event value into a flat array of action objects.
- * Handles:
- *   - null / undefined  → []
- *   - single action obj → [action]
- *   - array of actions  → as-is
- *   - legacy string     → [{type: 'showMessage', message: str}]
  */
 export function normalizeActions(eventValue) {
   if (!eventValue) return [];
@@ -22,19 +24,6 @@ export function normalizeActions(eventValue) {
 
 /**
  * Execute a single action object given a runtime context.
- *
- * context shape:
- *  {
- *    liveValues,        // { tagName: value }
- *    navigate,          // react-router navigate fn
- *    showToast,         // (message, type) => void
- *    showConfirm,       // ({ title, message, onConfirm }) => void
- *    currentElement,    // the element that fired the event
- *    allElements,       // all elements on current screen
- *    changeScreen,      // (screenName: string) => void
- *    openPopup,         // (popupName: string) => void
- *    closePopup,        // () => void
- *  }
  */
 async function executeAction(action, context) {
   if (!action || !action.type) return;
@@ -55,7 +44,9 @@ async function executeAction(action, context) {
 
     // ── Navigation ─────────────────────────────────────────
     case 'changeScreen':
-    case 'navigate': {
+    case 'navigate':
+    case 'CHANGE_SCREEN':
+    case 'NAVIGATE': {
       const target = action.screenName || action.target || action.screen;
       if (!target) {
         console.warn('[eventUtils] changeScreen: no screenName specified');
@@ -71,7 +62,8 @@ async function executeAction(action, context) {
 
     // ── Popups ─────────────────────────────────────────────
     case 'openPopup':
-    case 'showPopup': {
+    case 'showPopup':
+    case 'OPEN_POPUP': {
       const popupName = action.popupName || action.screenName || action.target;
       if (!popupName) {
         console.warn('[eventUtils] openPopup: no popupName specified');
@@ -79,65 +71,120 @@ async function executeAction(action, context) {
       }
       if (openPopup) {
         openPopup(popupName);
-      } else {
-        console.warn('[eventUtils] openPopup: context.openPopup not provided');
       }
       break;
     }
 
     case 'closePopup':
-    case 'hidePopup': {
+    case 'hidePopup':
+    case 'CLOSE_POPUP': {
       if (closePopup) {
         closePopup();
-      } else {
-        console.warn('[eventUtils] closePopup: context.closePopup not provided');
       }
       break;
     }
 
-    // ── Tag write ──────────────────────────────────────────
+    // ── Tag Write ──────────────────────────────────────────
     case 'writeTag':
-    case 'setTag': {
-      const tagName = action.tagName || action.tag;
-      const value   = action.value;
+    case 'setTag':
+    case 'setValue':
+    case 'WRITE_TAG':
+    case 'SET_TAG':
+    case 'WRITE_VALUE':
+    case 'SET_VALUE': {
+      const tagName = action.tagName || action.tag || action.targetTag;
+      let value = action.value;
+      if (value === undefined) value = action.targetValue;
+
       if (!tagName) {
-        console.warn('[eventUtils] writeTag: no tagName specified');
+        console.warn('[eventUtils] writeTag: no tagName specified in action', action);
         return;
       }
+
       try {
-        const token = localStorage.getItem('token');
-        await fetch('http://localhost:5000/api/tags/write', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ tagName, value }),
-        });
+        // 1. Send via central REST API
+        await tagAPI.writeValue(tagName, value);
+        // 2. Emit via Socket.io for instant live update
+        socketService.emit('writeTag', { tagName, value });
       } catch (err) {
         console.error('[eventUtils] writeTag failed:', err);
+        if (showToast) showToast(`Write failed: ${err.message || 'Error'}`, 'error');
       }
       break;
     }
 
-    // ── Toggle tag ─────────────────────────────────────────
-    case 'toggleTag': {
-      const tagName = action.tagName || action.tag;
+    // ── Toggle Tag ─────────────────────────────────────────
+    case 'toggleTag':
+    case 'toggleValue':
+    case 'TOGGLE_TAG':
+    case 'TOGGLE_VALUE': {
+      const tagName = action.tagName || action.tag || action.targetTag;
       if (!tagName) return;
+
       const current = liveValues[tagName];
-      const newVal  = !current;
+      const newVal = !current;
+
       try {
-        const token = localStorage.getItem('token');
-        await fetch('http://localhost:5000/api/tags/write', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ tagName, value: newVal }),
-        });
+        await tagAPI.writeValue(tagName, newVal);
+        socketService.emit('writeTag', { tagName, value: newVal });
       } catch (err) {
         console.error('[eventUtils] toggleTag failed:', err);
+        if (showToast) showToast(`Toggle failed: ${err.message || 'Error'}`, 'error');
+      }
+      break;
+    }
+
+    // ── Bit Operations ─────────────────────────────────────
+    case 'setBit':
+    case 'SET_BIT': {
+      const tagName = action.tagName || action.tag || action.targetTag;
+      const bitIndex = action.bitIndex ?? action.bit ?? 0;
+      if (!tagName) return;
+
+      const current = Number(liveValues[tagName] || 0);
+      const newVal = current | (1 << bitIndex);
+
+      try {
+        await tagAPI.writeValue(tagName, newVal);
+        socketService.emit('writeTag', { tagName, value: newVal });
+      } catch (err) {
+        console.error('[eventUtils] setBit failed:', err);
+      }
+      break;
+    }
+
+    case 'resetBit':
+    case 'RESET_BIT': {
+      const tagName = action.tagName || action.tag || action.targetTag;
+      const bitIndex = action.bitIndex ?? action.bit ?? 0;
+      if (!tagName) return;
+
+      const current = Number(liveValues[tagName] || 0);
+      const newVal = current & ~(1 << bitIndex);
+
+      try {
+        await tagAPI.writeValue(tagName, newVal);
+        socketService.emit('writeTag', { tagName, value: newVal });
+      } catch (err) {
+        console.error('[eventUtils] resetBit failed:', err);
+      }
+      break;
+    }
+
+    case 'toggleBit':
+    case 'TOGGLE_BIT': {
+      const tagName = action.tagName || action.tag || action.targetTag;
+      const bitIndex = action.bitIndex ?? action.bit ?? 0;
+      if (!tagName) return;
+
+      const current = Number(liveValues[tagName] || 0);
+      const newVal = current ^ (1 << bitIndex);
+
+      try {
+        await tagAPI.writeValue(tagName, newVal);
+        socketService.emit('writeTag', { tagName, value: newVal });
+      } catch (err) {
+        console.error('[eventUtils] toggleBit failed:', err);
       }
       break;
     }
@@ -145,7 +192,7 @@ async function executeAction(action, context) {
     // ── Notifications ──────────────────────────────────────
     case 'showMessage':
     case 'showToast': {
-      const msg  = action.message || action.text || 'Event fired';
+      const msg = action.message || action.text || 'Event fired';
       const type = action.messageType || action.toastType || 'info';
       if (showToast) showToast(msg, type);
       else alert(msg);
@@ -157,8 +204,8 @@ async function executeAction(action, context) {
       const msg = action.message || action.text || 'Are you sure?';
       if (showConfirm) {
         showConfirm({
-          title:     action.title || 'Confirm',
-          message:   msg,
+          title: action.title || 'Confirm',
+          message: msg,
           onConfirm: async () => {
             if (action.onConfirmActions) {
               for (const a of normalizeActions(action.onConfirmActions)) {
@@ -179,25 +226,15 @@ async function executeAction(action, context) {
       break;
     }
 
-    // ── Visibility toggles ─────────────────────────────────
-    case 'showElement':
-    case 'hideElement':
-    case 'toggleElement': {
-      // These work on design-time data — runtime visibility is controlled
-      // by bindings, so these are advisory only (no-op in pure runtime)
-      console.debug(`[eventUtils] ${action.type} — target: ${action.elementId}`);
-      break;
-    }
-
-    // ── Script / eval (sandboxed) ──────────────────────────
+    // ── Script Execution ──────────────────────────────────
     case 'script':
     case 'eval': {
       const code = action.code || action.script;
       if (!code) return;
       try {
         // eslint-disable-next-line no-new-func
-        const fn = new Function('liveValues', 'context', code);
-        await fn(liveValues, context);
+        const fn = new Function('liveValues', 'context', 'tagAPI', 'socketService', code);
+        await fn(liveValues, context, tagAPI, socketService);
       } catch (err) {
         console.error('[eventUtils] script error:', err);
         if (showToast) showToast(`Script error: ${err.message}`, 'error');
@@ -205,22 +242,20 @@ async function executeAction(action, context) {
       break;
     }
 
-    // ── Open external URL ──────────────────────────────────
+    // ── External URL ──────────────────────────────────────
     case 'openUrl':
     case 'navigate_url': {
-      const url    = action.url || action.href;
+      const url = action.url || action.href;
       const target = action.target || '_blank';
       if (url) window.open(url, target);
       break;
     }
 
-    // ── Print / export ─────────────────────────────────────
     case 'print': {
       window.print();
       break;
     }
 
-    // ── No-op / unknown ────────────────────────────────────
     default: {
       console.debug(`[eventUtils] Unknown action type: "${action.type}"`, action);
       break;
@@ -230,7 +265,6 @@ async function executeAction(action, context) {
 
 /**
  * Execute an event value (single action or array) sequentially.
- * All actions run in order; if one throws, the rest still run.
  */
 export async function executeEvent(eventValue, context) {
   const actions = normalizeActions(eventValue);

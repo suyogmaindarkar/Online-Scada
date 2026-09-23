@@ -1,10 +1,18 @@
+// ═══════════════════════════════════════════════════════════
+// Runtime Canvas — SCADA/HMI Runtime Display
+//
+// ✅ FIXED: Element click & tap handlers properly execute events + actions
+// ✅ FIXED: Socket.io real-time write emitted for all shape interactions
+// ═══════════════════════════════════════════════════════════
+
 import {
   Stage, Layer, Rect, Circle, Line, Text,
   Group, RegularPolygon, Ellipse, Arc, Path,
 } from 'react-konva';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Konva from 'konva';
 import { tagAPI } from '../../services/api';
+import socketService from '../../services/socket';
 import { resolveElementBindings } from '../../utils/bindingUtils';
 import { executeEvent, normalizeActions } from '../../utils/eventUtils';
 import { writeInteractiveValue, valuesEqual, parseOptions } from '../../utils/interactiveUtils';
@@ -63,12 +71,12 @@ const RuntimeCanvas = ({
   const runEvent = async (element, eventName) => {
     const eventValue = element?.events?.[eventName];
     const actions = normalizeActions(eventValue);
-    if (actions.length === 0) return;
 
+    // Also execute element direct action if event is not specified
     const context = {
       liveValues,
       navigate,
-      showToast: (msg, type) => toast.showToast(msg, type),
+      showToast: (msg, type) => toast?.showToast ? toast.showToast(msg, type) : alert(msg),
       showConfirm: ({ title, message, onConfirm }) => {
         if (window.confirm(message)) onConfirm();
       },
@@ -76,22 +84,21 @@ const RuntimeCanvas = ({
       allElements: elements,
       changeScreen: (screenName) => {
         if (onChangeScreen) onChangeScreen(screenName);
-        else console.warn('[RuntimeCanvas] onChangeScreen not provided');
       },
       openPopup: (popupName) => {
         if (onOpenPopup) onOpenPopup(popupName);
-        else console.warn('[RuntimeCanvas] onOpenPopup not provided');
       },
       closePopup: () => {
         if (onClosePopup) onClosePopup();
-        else console.warn('[RuntimeCanvas] onClosePopup not provided');
       },
     };
 
-    try {
-      await executeEvent(eventValue, context);
-    } catch (err) {
-      console.error(`Event ${eventName} failed:`, err);
+    if (actions.length > 0) {
+      try {
+        await executeEvent(eventValue, context);
+      } catch (err) {
+        console.error(`Event ${eventName} failed:`, err);
+      }
     }
   };
 
@@ -120,10 +127,16 @@ const RuntimeCanvas = ({
     const targetTag = el.action?.targetTag;
     if (!targetTag) return;
     try {
-      if (type === 'Momentary') await tagAPI.writeValue(targetTag, true);
-      else if (type === 'Toggle') await tagAPI.writeValue(targetTag, !liveValues[targetTag]);
-      else if (type === 'SetOnce') await tagAPI.writeValue(targetTag, el.action.targetValue ?? true);
-      else if (type === 'Reset') await tagAPI.writeValue(targetTag, false);
+      let valToWrite;
+      if (type === 'Momentary') valToWrite = true;
+      else if (type === 'Toggle') valToWrite = !liveValues[targetTag];
+      else if (type === 'SetOnce') valToWrite = el.action.targetValue ?? true;
+      else if (type === 'Reset') valToWrite = false;
+
+      if (valToWrite !== undefined) {
+        await tagAPI.writeValue(targetTag, valToWrite);
+        socketService.emit('writeTag', { tagName: targetTag, value: valToWrite });
+      }
     } catch (err) { console.error('Button press failed:', err); }
   };
 
@@ -131,24 +144,30 @@ const RuntimeCanvas = ({
     setPressedButtons((prev) => ({ ...prev, [el.id]: false }));
     const type = el.buttonType || 'Momentary';
     if (type === 'Momentary' && el.action?.targetTag) {
-      try { await tagAPI.writeValue(el.action.targetTag, false); }
-      catch (err) { console.error('Button release failed:', err); }
+      try {
+        await tagAPI.writeValue(el.action.targetTag, false);
+        socketService.emit('writeTag', { tagName: el.action.targetTag, value: false });
+      } catch (err) { console.error('Button release failed:', err); }
     }
   };
 
   const handleCheckBoxClick = async (el) => {
     if (!el.checkBoxTargetTag) { toast.warning('CheckBox has no target tag'); return; }
-    await writeInteractiveValue({ targetTag: el.checkBoxTargetTag, value: !liveValues[el.checkBoxTargetTag], tags, requireConfirm: !!el.checkBoxRequireConfirm, confirmMessage: el.checkBoxConfirmMessage || `Set ${el.checkBoxTargetTag}?`, showToast: (msg, type) => toast.showToast(msg, type) });
+    const val = !liveValues[el.checkBoxTargetTag];
+    await writeInteractiveValue({ targetTag: el.checkBoxTargetTag, value: val, tags, requireConfirm: !!el.checkBoxRequireConfirm, confirmMessage: el.checkBoxConfirmMessage || `Set ${el.checkBoxTargetTag}?`, showToast: (msg, type) => toast.showToast(msg, type) });
+    socketService.emit('writeTag', { tagName: el.checkBoxTargetTag, value: val });
   };
 
   const handleRadioButtonClick = async (el) => {
     if (!el.radioTargetTag) { toast.warning('RadioButton has no target tag'); return; }
     await writeInteractiveValue({ targetTag: el.radioTargetTag, value: el.radioValue, tags, requireConfirm: !!el.radioRequireConfirm, confirmMessage: `Set ${el.radioTargetTag} to "${el.radioValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
+    socketService.emit('writeTag', { tagName: el.radioTargetTag, value: el.radioValue });
   };
 
   const handleListBoxItemClick = async (el, optionValue) => {
     if (!el.listTargetTag) { toast.warning('ListBox has no target tag'); return; }
     await writeInteractiveValue({ targetTag: el.listTargetTag, value: optionValue, tags, requireConfirm: !!el.listRequireConfirm, confirmMessage: `Select "${optionValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
+    socketService.emit('writeTag', { tagName: el.listTargetTag, value: optionValue });
   };
 
   const getElementScreenPos = (el) => {
@@ -179,6 +198,7 @@ const RuntimeCanvas = ({
     const requireConfirm = isIoField ? !!el.ioRequireConfirm : !!el.comboRequireConfirm;
     setOverlay(null);
     await writeInteractiveValue({ targetTag, value, tags, requireConfirm, confirmMessage: `Set ${targetTag} to "${value}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
+    socketService.emit('writeTag', { tagName: targetTag, value });
   };
 
   const renderElement = (originalEl, overlayHandlers = {}) => {
@@ -237,16 +257,32 @@ const RuntimeCanvas = ({
       x: el.x, y: el.y, draggable: false,
       onClick: async (e) => {
         e.cancelBubble = true;
-        await runEvent(el, 'onClick');
-        if (el.type === 'button' && el.action?.targetTag && !el.events?.onClick) {
+        if (el.events?.onClick) {
+          await runEvent(el, 'onClick');
+        }
+        if (el.action?.targetTag) {
           try {
             let value = el.action.targetValue;
             if (value === undefined || value === '') value = !liveValue;
             await tagAPI.writeValue(el.action.targetTag, value);
-          } catch (err) { console.error('Button action failed:', err); }
+            socketService.emit('writeTag', { tagName: el.action.targetTag, value });
+          } catch (err) { console.error('Element action failed:', err); }
         }
       },
-      onTap: async (e) => { e.cancelBubble = true; await runEvent(el, 'onClick'); },
+      onTap: async (e) => {
+        e.cancelBubble = true;
+        if (el.events?.onClick) {
+          await runEvent(el, 'onClick');
+        }
+        if (el.action?.targetTag) {
+          try {
+            let value = el.action.targetValue;
+            if (value === undefined || value === '') value = !liveValue;
+            await tagAPI.writeValue(el.action.targetTag, value);
+            socketService.emit('writeTag', { tagName: el.action.targetTag, value });
+          } catch (err) { console.error('Element action failed:', err); }
+        }
+      },
       onDblClick: async (e) => { e.cancelBubble = true; await runEvent(el, 'onDoubleClick'); },
       onDblTap: async (e) => { e.cancelBubble = true; await runEvent(el, 'onDoubleClick'); },
       onMouseDown: async (e) => {
@@ -579,18 +615,10 @@ const RuntimeCanvas = ({
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// RUNTIME SVG SYMBOL — ✅ FIXED:
-//   • Tag binding (symbolTint boolMap/rangeMap) now applies live
-//   • Auto tintStrength = 1 when tint color present (core fix)
-//   • clearCache() before re-cache for live tint updates
-//   • Also honors dynamicBindings.fill as tint source
-// ═══════════════════════════════════════════════════════════
 const RuntimeSvgSymbol = ({ el, commonProps }) => {
   const [image, status] = useImage(el.svgPath);
   const imageRef = useRef(null);
 
-  // ── Resolve tint color from multiple sources ──
   let tintColor = null;
   if (typeof el.symbolTint === 'string' && el.symbolTint.startsWith('#')) {
     tintColor = el.symbolTint;
@@ -600,13 +628,11 @@ const RuntimeSvgSymbol = ({ el, commonProps }) => {
     tintColor = '#ef4444';
   }
 
-  // Also honor a dynamically-bound fill for color animation on SVGs
   if (!tintColor && typeof el.fill === 'string' && el.fill.startsWith('#')) {
     const colorBound = el.dynamicBindings?.symbolTint || el.dynamicBindings?.fill;
     if (colorBound) tintColor = el.fill;
   }
 
-  // ── Tint strength: explicit wins, else auto-full when tint present ──
   let tintStrength;
   if (el.symbolTintStrength !== undefined && el.symbolTintStrength !== null && el.symbolTintStrength !== '') {
     tintStrength = Math.max(0, Math.min(1, Number(el.symbolTintStrength) || 0));
@@ -621,8 +647,7 @@ const RuntimeSvgSymbol = ({ el, commonProps }) => {
     if (!imageRef.current || !image) return;
     const node = imageRef.current;
 
-    // ✅ Clear stale cache before re-caching so tint updates live
-    try { node.clearCache(); } catch {}
+    try { node.clearCache(); } catch { }
     node.cache();
 
     const filters = [];
@@ -669,10 +694,6 @@ const RuntimeSvgSymbol = ({ el, commonProps }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════
-
 function normalizeColor(color) {
   if (!color || typeof color !== 'string') return color;
   const trimmed = color.trim();
@@ -715,7 +736,7 @@ function formatClockText(date, el) {
   let dateStr = '';
   switch (dateFormat) { case 'DD/MM/YYYY': dateStr = `${day}/${month}/${year}`; break; case 'MM/DD/YYYY': dateStr = `${month}/${day}/${year}`; break; case 'YYYY-MM-DD': dateStr = `${year}-${month}-${day}`; break; case 'Long': dateStr = `${monthNamesLong[date.getMonth()]} ${day}, ${year}`; break; case 'Short': dateStr = `${monthNamesShort[date.getMonth()]} ${day}, ${year}`; break; default: dateStr = `${day}/${month}/${year}`; }
   let tzStr = '';
-  if (el.clockShowTimezone) { try { const m = date.toString().match(/\(([^)]+)\)/); tzStr = m ? ` ${m[1].split(' ').map(w => w[0]).join('')}` : ''; } catch {} }
+  if (el.clockShowTimezone) { try { const m = date.toString().match(/\(([^)]+)\)/); tzStr = m ? ` ${m[1].split(' ').map(w => w[0]).join('')}` : ''; } catch { } }
   switch (displayMode) { case 'timeOnly': return timeStr + tzStr; case 'dateOnly': return dateStr; case 'longFormat': return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`; default: return `${timeStr}${tzStr}  ·  ${dateStr}`; }
 }
 
