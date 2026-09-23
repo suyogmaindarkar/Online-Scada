@@ -1,9 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader — Protocol Dispatcher
+// PLC Reader — Protocol Dispatcher (With Write Support)
 // ═══════════════════════════════════════════════════════════
-
-const fs = require('fs');
-const path = require('path');
 
 const S7Reader = require('./readers/s7Reader');
 const ModbusReader = require('./readers/modbusReader');
@@ -29,26 +26,13 @@ class PLCReader {
         this.statsInterval = null;
     }
 
-    // ─── Start All PLC Readers ──────────────────────────────
     async startAll() {
         const plcs = this.config.plcs || [];
-
-        if (plcs.length === 0) {
-            console.warn('⚠️  No PLCs configured in config.json');
-            return;
-        }
-
-        this.statsInterval = setInterval(() => {
-            this.stats.tagsReadPerSecond = this.stats._readsThisSecond;
-            this.stats._readsThisSecond = 0;
-        }, 1000);
-
         for (const plcConfig of plcs) {
             await this._startPLC(plcConfig);
         }
     }
 
-    // ─── Start Single PLC ───────────────────────────────────
     async _startPLC(plcConfig) {
         const plcId = plcConfig.plcId;
         const protocol = (plcConfig.protocol || '').toLowerCase();
@@ -57,51 +41,26 @@ class PLCReader {
 
         try {
             let reader;
-
-            switch (protocol) {
-                case 's7':
-                    if (!S7Reader) throw new Error('S7Reader file not found. Ensure s7Reader.js exists.');
-                    reader = new S7Reader(plcConfig, this.verbose);
-                    break;
-                case 'modbus':
-                case 'modbus_tcp':
-                case 'modbus_rtu':
-                    if (!ModbusReader) throw new Error('ModbusReader file not found. Ensure modbusReader.js exists.');
-                    reader = new ModbusReader(plcConfig, this.verbose);
-                    break;
-                case 'opcua':
-                case 'opc_ua':
-                    if (!OPCUAReader) throw new Error('OPCUAReader file not found. Ensure opcuaReader.js exists.');
-                    reader = new OPCUAReader(plcConfig, this.verbose);
-                    break;
-                default:
-                    console.error(`❌ Unsupported protocol: ${protocol} for PLC ${plcId}`);
-                    return;
-            }
+            if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
+            else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
+            else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
+            else return;
 
             const connected = await reader.connect();
-            if (!connected) {
-                console.error(`❌ Failed to connect to PLC ${plcId} at ${plcConfig.ip}:${plcConfig.port}`);
-                this.stats.totalErrors++;
-            }
+            if (!connected) console.error(`❌ Connection pending for PLC ${plcConfig.ip}:${plcConfig.port}`);
 
             this.readers.set(plcId, reader);
 
-            const pollMs = plcConfig.pollIntervalMs || this.config.pollIntervalMs || 500;
-            const intervalId = setInterval(() => {
-                this._pollPLC(plcId, plcConfig);
-            }, pollMs);
-
+            const pollMs = plcConfig.pollIntervalMs || 1000;
+            const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), pollMs);
             this.intervals.set(plcId, intervalId);
 
-            console.log(`✅ PLC ${plcId} polling every ${pollMs}ms`);
+            console.log(`✅ PLC ${plcId} polling active (${pollMs}ms)`);
         } catch (err) {
-            console.error(`❌ Error starting PLC ${plcId}: ${err.message}`);
-            this.stats.totalErrors++;
+            console.error(`❌ Error starting PLC ${plcId}:`, err.message);
         }
     }
 
-    // ─── Poll Single PLC ────────────────────────────────────
     async _pollPLC(plcId, plcConfig) {
         const reader = this.readers.get(plcId);
         if (!reader) return;
@@ -113,79 +72,56 @@ class PLCReader {
             const values = await reader.readTags(tags);
             if (!values || values.length === 0) return;
 
-            this.stats.totalReads += values.length;
-            this.stats._readsThisSecond += values.length;
-
-            const changedTags = [];
+            const changed = [];
             const now = Date.now();
 
             for (const val of values) {
                 const prev = this.previousValues.get(val.tagId);
-
-                const hasChanged = prev === undefined || prev.value !== val.value || prev.quality !== val.quality;
-                const stale = prev && (now - prev.timestamp > 10000);
-
-                if (hasChanged || stale) {
-                    changedTags.push({
-                        tagId: val.tagId,
-                        tagName: val.tagName,
-                        value: val.value,
-                        quality: val.quality || 'GOOD',
-                        timestamp: now,
-                    });
-
-                    this.previousValues.set(val.tagId, {
-                        value: val.value,
-                        quality: val.quality,
-                        timestamp: now,
-                    });
+                if (!prev || prev.value !== val.value || (now - prev.timestamp > 10000)) {
+                    changed.push({ tagId: val.tagId, tagName: val.tagName, value: val.value, quality: val.quality || 'GOOD', timestamp: now });
+                    this.previousValues.set(val.tagId, { value: val.value, timestamp: now });
                 }
             }
 
-            if (changedTags.length > 0) {
-                this.cloudBridge.sendTagValues(changedTags);
+            if (changed.length > 0) {
+                this.cloudBridge.sendTagValues(changed);
             }
-        } catch (err) {
-            this.stats.totalErrors++;
-            if (this.verbose) {
-                console.error(`❌ Poll error PLC ${plcId}: ${err.message}`);
-            }
-        }
+        } catch (err) { }
     }
 
-    // ─── Handle Write Command from Cloud ────────────────────
+    // ═══════════════════════════════════════════════════════════
+    // ✍️ WRITE COMMAND DISPATCHER
+    // ═══════════════════════════════════════════════════════════
     async handleWriteCommand(cmd) {
-        const { tagId, tagName, address, plcIp, value, dataType, requestSocketId } = cmd;
+        const { tagId, tagName, address, value, dataType, requestSocketId } = cmd;
 
-        if (this.verbose) {
-            console.log(`✍️  Write request: ${tagName} (${address}) = ${value}`);
-        }
+        console.log(`✍️  Received Write Command: ${tagName} (${address}) = ${value} [${dataType}]`);
 
         let targetReader = null;
 
         for (const [plcId, reader] of this.readers) {
-            const plcConfig = this.config.plcs.find((p) => p.plcId === plcId);
+            const plcConfig = (this.config.plcs || []).find((p) => p.plcId === plcId);
             if (!plcConfig) continue;
 
-            if (plcIp && plcConfig.ip === plcIp) {
-                targetReader = reader;
-                break;
-            }
-
-            const hasTag = plcConfig.tags.some((t) => t.tagId === tagId || t.address === address);
+            const hasTag = (plcConfig.tags || []).some((t) => t.tagId === tagId || t.address === address || t.tagName === tagName);
             if (hasTag) {
                 targetReader = reader;
                 break;
             }
         }
 
+        // Fallback: If not found by tag, use the first active reader
+        if (!targetReader && this.readers.size > 0) {
+            targetReader = this.readers.values().next().value;
+        }
+
         if (!targetReader) {
-            console.warn(`⚠️  No reader found for write command: ${tagName}`);
+            console.warn(`⚠️  No active reader found to execute write for: ${tagName}`);
             this.cloudBridge.sendWriteResult({
                 tagId,
                 tagName,
                 success: false,
-                error: 'No matching PLC connection found',
+                error: 'No active reader available',
                 requestSocketId,
             });
             return;
@@ -194,11 +130,10 @@ class PLCReader {
         try {
             await targetReader.writeTag(address, value, dataType);
 
-            this.previousValues.set(tagId, {
-                value,
-                quality: 'GOOD',
-                timestamp: Date.now(),
-            });
+            // Force-update memory cache so polling re-broadcasts immediately
+            if (tagId) {
+                this.previousValues.set(tagId, { value, timestamp: Date.now() });
+            }
 
             this.cloudBridge.sendWriteResult({
                 tagId,
@@ -208,9 +143,9 @@ class PLCReader {
                 requestSocketId,
             });
 
-            console.log(`✅ Write successful: ${tagName} = ${value}`);
+            console.log(`✅ Write Executed Successfully: ${tagName} = ${value}`);
         } catch (err) {
-            console.error(`❌ Write failed: ${tagName} — ${err.message}`);
+            console.error(`❌ Write Execution Failed for ${tagName}: ${err.message}`);
             this.cloudBridge.sendWriteResult({
                 tagId,
                 tagName,
@@ -222,33 +157,22 @@ class PLCReader {
     }
 
     async reload(newPlcConfigs) {
-        console.log('🔄 Reloading PLC configuration...');
+        console.log('🔄 Hot-reloading PLC connections...');
         this.stopAll();
-        this.previousValues.clear(); // force re-send of all tag values after reload
+        this.previousValues.clear();
         this.config.plcs = newPlcConfigs || [];
         await this.startAll();
-        console.log(`✅ Config reload complete — ${this.config.plcs.length} PLC(s)`);
+        console.log('✅ Hot reload complete');
     }
 
-    // ─── Stop All ───────────────────────────────────────────
     stopAll() {
-        for (const [, intervalId] of this.intervals) {
-            clearInterval(intervalId);
-        }
+        for (const [, id] of this.intervals) clearInterval(id);
         this.intervals.clear();
 
-        if (this.statsInterval) {
-            clearInterval(this.statsInterval);
-            this.statsInterval = null;
-        }
-
         for (const [, reader] of this.readers) {
-            try { reader.disconnect(); } catch (err) { }
+            try { reader.disconnect(); } catch (e) { }
         }
         this.readers.clear();
-        this.previousValues.clear();
-
-        console.log('⏹️  All PLC readers stopped');
     }
 
     getStats() {

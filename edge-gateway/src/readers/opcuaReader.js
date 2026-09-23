@@ -1,13 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// OPC-UA Reader — via node-opcua
-//
-// Connects to OPC-UA servers and reads/writes node values.
-// Supports anonymous and username/password authentication.
-//
-// Address Format: Standard OPC-UA NodeId strings
-//   "ns=2;s=Temperature"
-//   "ns=2;i=1234"
-//   "i=2258" (Server ServerStatus)
+// OPC-UA Reader — Robust Read & Write
 // ═══════════════════════════════════════════════════════════
 
 const opcua = require('node-opcua');
@@ -22,17 +14,13 @@ class OPCUAReader {
         this.reconnectTimer = null;
     }
 
-    // ─── Connect ────────────────────────────────────────────
-    connect() {
+    async connect() {
         return new Promise(async (resolve) => {
             try {
                 const endpointUrl = `opc.tcp://${this.config.ip}:${this.config.port || 4840}`;
 
                 this.client = opcua.OPCUAClient.create({
-                    connectionStrategy: {
-                        initialDelay: 1000,
-                        maxRetry: 3,
-                    },
+                    connectionStrategy: { initialDelay: 1000, maxRetry: 3 },
                     securityMode: opcua.MessageSecurityMode.None,
                     securityPolicy: opcua.SecurityPolicy.None,
                     endpointMustExist: false,
@@ -40,7 +28,6 @@ class OPCUAReader {
 
                 await this.client.connect(endpointUrl);
 
-                // Build session options
                 const sessionOptions = {};
                 if (this.config.opcuaUsername && this.config.opcuaPassword) {
                     sessionOptions.userIdentityInfo = {
@@ -56,7 +43,7 @@ class OPCUAReader {
                 console.log(`✅ OPC-UA connected to ${endpointUrl}`);
                 resolve(true);
             } catch (err) {
-                console.error(`❌ OPC-UA connection failed to ${this.config.ip}: ${err.message}`);
+                console.error(`❌ OPC-UA connect error: ${err.message}`);
                 this.isConnected = false;
                 this._scheduleReconnect();
                 resolve(false);
@@ -64,15 +51,9 @@ class OPCUAReader {
         });
     }
 
-    // ─── Read Tags ──────────────────────────────────────────
     async readTags(tags) {
         if (!this.isConnected || !this.session) {
-            return tags.map((t) => ({
-                tagId: t.tagId,
-                tagName: t.tagName,
-                value: null,
-                quality: 'BAD',
-            }));
+            return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         }
 
         try {
@@ -85,18 +66,10 @@ class OPCUAReader {
 
             return tags.map((t, i) => {
                 const dv = dataValues[i];
-                const statusCode = dv?.statusCode;
-                const isGood = statusCode && statusCode.isGood();
-
+                const isGood = dv?.statusCode && dv.statusCode.isGood();
                 let value = null;
                 if (isGood && dv.value) {
                     value = this._extractValue(dv.value, t.dataType);
-                }
-
-                // Debug log for troubleshooting (first few)
-                if (this.verbose || value === null) {
-                    const sc = dv?.statusCode?.name || dv?.statusCode?.toString?.() || '?';
-                    console.log(`   OPC ${t.tagName} [${t.address}] → value=${value} quality=${isGood ? 'GOOD' : sc}`);
                 }
 
                 return {
@@ -107,93 +80,78 @@ class OPCUAReader {
                 };
             });
         } catch (err) {
-            if (this.verbose) {
-                console.error(`❌ OPC-UA read error: ${err.message}`);
-            }
-
-            // Check if session died
             if (err.message.includes('session') || err.message.includes('closed')) {
                 this.isConnected = false;
                 this._scheduleReconnect();
             }
-
-            return tags.map((t) => ({
-                tagId: t.tagId,
-                tagName: t.tagName,
-                value: null,
-                quality: 'BAD',
-            }));
+            return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         }
     }
 
-    // ─── Write Tag ──────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════
+    // ✍️ ENHANCED WRITE TAG METHOD
+    // ═══════════════════════════════════════════════════════════
     async writeTag(address, value, dataType) {
         if (!this.isConnected || !this.session) {
-            throw new Error('OPC-UA not connected');
+            throw new Error('OPC-UA session not active');
         }
 
-        const opcuaValue = this._toOPCUAValue(value, dataType);
+        const opcuaVariant = this._toOPCUAValue(value, dataType);
 
         const nodesToWrite = [{
             nodeId: address,
             attributeId: opcua.AttributeIds.Value,
             value: {
-                value: opcuaValue,
+                value: opcuaVariant,
             },
         }];
 
         const results = await this.session.write(nodesToWrite);
 
         if (results[0] && !results[0].isGood()) {
-            throw new Error(`OPC-UA write failed: ${results[0].toString()}`);
+            const statusName = results[0].name || results[0].toString();
+            throw new Error(`OPC-UA write rejected by server: ${statusName}`);
         }
+
+        console.log(`✅ OPC-UA Write OK: ${address} = ${value} (${dataType})`);
+        return true;
     }
 
-    // ─── Extract Value from OPC-UA Variant ──────────────────
     _extractValue(variant, dataType) {
         if (!variant || variant.value === undefined || variant.value === null) return null;
-
         let raw = variant.value;
-
-        // node-opcua may return BigInt for Int32/UInt32/Int64
-        if (typeof raw === 'bigint') {
-            raw = Number(raw);
-        }
+        if (typeof raw === 'bigint') raw = Number(raw);
 
         switch ((dataType || '').toUpperCase()) {
-            case 'BOOL':
-                return Boolean(raw);
-            case 'REAL':
-                return parseFloat(Number(raw).toFixed(6));
-            case 'INT':
-            case 'WORD':
-            case 'BYTE':
-                return Math.round(Number(raw));
-            case 'DINT':
-            case 'DWORD':
-                return Math.round(Number(raw));
-            case 'STRING':
-                return String(raw);
-            default:
-                return typeof raw === 'number' ? raw : Number(raw);
+            case 'BOOL': return Boolean(raw);
+            case 'REAL': return parseFloat(Number(raw).toFixed(6));
+            case 'INT': case 'WORD': case 'BYTE': return Math.round(Number(raw));
+            case 'DINT': case 'DWORD': return Math.round(Number(raw));
+            case 'STRING': return String(raw);
+            default: return typeof raw === 'number' ? raw : Number(raw);
         }
     }
 
-    // ─── Convert to OPC-UA Variant ──────────────────────────
     _toOPCUAValue(value, dataType) {
-        switch (dataType) {
-            case 'BOOL':
-                return new opcua.Variant({ dataType: opcua.DataType.Boolean, value: Boolean(value) });
+        const dt = (dataType || '').toUpperCase();
+
+        switch (dt) {
+            case 'BOOL': {
+                const boolVal = (value === true || value === 'true' || value === 1 || value === '1');
+                return new opcua.Variant({ dataType: opcua.DataType.Boolean, value: boolVal });
+            }
             case 'REAL':
                 return new opcua.Variant({ dataType: opcua.DataType.Float, value: parseFloat(value) });
             case 'INT':
-                return new opcua.Variant({ dataType: opcua.DataType.Int16, value: Math.round(value) });
+                return new opcua.Variant({ dataType: opcua.DataType.Int16, value: Math.round(Number(value)) });
             case 'DINT':
-                return new opcua.Variant({ dataType: opcua.DataType.Int32, value: Math.round(value) });
+                return new opcua.Variant({ dataType: opcua.DataType.Int32, value: Math.round(Number(value)) });
             case 'WORD':
-                return new opcua.Variant({ dataType: opcua.DataType.UInt16, value: Math.round(value) });
+                return new opcua.Variant({ dataType: opcua.DataType.UInt16, value: Math.round(Number(value)) });
             case 'DWORD':
-                return new opcua.Variant({ dataType: opcua.DataType.UInt32, value: Math.round(value) });
+                return new opcua.Variant({ dataType: opcua.DataType.UInt32, value: Math.round(Number(value)) });
+            case 'BYTE':
+                return new opcua.Variant({ dataType: opcua.DataType.Byte, value: Math.round(Number(value)) });
             case 'STRING':
                 return new opcua.Variant({ dataType: opcua.DataType.String, value: String(value) });
             default:
@@ -201,40 +159,21 @@ class OPCUAReader {
         }
     }
 
-    // ─── Reconnect ──────────────────────────────────────────
     _scheduleReconnect() {
         if (this.reconnectTimer) return;
         this.reconnectTimer = setTimeout(async () => {
             this.reconnectTimer = null;
             if (!this.isConnected) {
-                if (this.verbose) console.log(`🔄 OPC-UA reconnecting to ${this.config.ip}...`);
                 this.disconnect();
                 await this.connect();
             }
-        }, 10000); // OPC-UA reconnects slower
+        }, 5000);
     }
 
-    // ─── Disconnect ─────────────────────────────────────────
     disconnect() {
-        if (this.reconnectTimer) {
-            clearTimeout(this.reconnectTimer);
-            this.reconnectTimer = null;
-        }
-
-        if (this.session) {
-            try {
-                this.session.close(() => { });
-            } catch { }
-            this.session = null;
-        }
-
-        if (this.client) {
-            try {
-                this.client.disconnect(() => { });
-            } catch { }
-            this.client = null;
-        }
-
+        if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+        if (this.session) try { this.session.close(() => { }); } catch { }
+        if (this.client) try { this.client.disconnect(() => { }); } catch { }
         this.isConnected = false;
     }
 }

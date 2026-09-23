@@ -155,7 +155,7 @@ const createTag = async (req, res) => {
     try {
       const io = req.app.get('io');
       await broadcastConfigUpdate(io, req.companyId);
-    } catch (e) {}
+    } catch (e) { }
 
     res.status(201).json({
       success: true,
@@ -229,7 +229,7 @@ const updateTag = async (req, res) => {
     try {
       const io = req.app.get('io');
       await broadcastConfigUpdate(io, req.companyId);
-    } catch (e) {}
+    } catch (e) { }
 
     res.json({ success: true, message: 'Tag updated successfully', data: tag });
   } catch (error) {
@@ -249,7 +249,7 @@ const deleteTag = async (req, res) => {
     try {
       const io = req.app.get('io');
       await broadcastConfigUpdate(io, req.companyId);
-    } catch (e) {}
+    } catch (e) { }
 
     res.json({ success: true, message: 'Tag deleted successfully' });
   } catch (error) {
@@ -260,78 +260,84 @@ const deleteTag = async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // WRITE VALUE TO TAG (scoped)
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// WRITE TAG VALUE (REST API & Event Actions)
+// ═══════════════════════════════════════════════════════════
 const writeTagValue = async (req, res) => {
   try {
-    const { tagName, value } = req.body;
+    const { tagName, tagId, value } = req.body;
 
-    if (!tagName || value === undefined) {
-      return res.status(400).json({ success: false, message: 'Tag name and value are required' });
+    if ((!tagName && !tagId) || value === undefined) {
+      return res.status(400).json({ success: false, message: 'tagName or tagId and value are required' });
     }
 
-    // ✅ Scoped lookup
-    const tag = await Tag.findOne({ companyId: req.companyId, tagName: tagName.toUpperCase() })
-      .populate('plcConnection');
+    const query = { companyId: req.companyId };
+    if (tagId) query._id = tagId;
+    else if (tagName) query.tagName = tagName;
+
+    const tag = await Tag.findOne(query);
     if (!tag) {
-      return res.status(404).json({ success: false, message: `Tag "${tagName}" not found in this workspace` });
+      return res.status(404).json({ success: false, message: `Tag "${tagName || tagId}" not found in workspace` });
     }
 
-    if (tag.accessType === 'READ') {
-      return res.status(403).json({ success: false, message: 'Tag is read-only' });
+    if (tag.accessType === 'READ_ONLY') {
+      return res.status(403).json({ success: false, message: `Tag "${tag.tagName}" is read-only` });
     }
 
-    // ✅ Role check — operators/viewers can write to tags
-    // But viewers can only read — block them
-    if (req.user.role === 'viewer') {
-      return res.status(403).json({ success: false, message: 'Viewers cannot write to tags' });
-    }
+    // ─── 1. Forward to Edge Gateway if active ─────────────
+    const edgeService = require('../services/edgeService');
+    const hasEdge = edgeService.hasActiveGateway(String(req.companyId));
 
-    let normalizedValue = value;
-    if (tag.dataType === 'BOOL') {
-      normalizedValue = typeof value === 'string' ? value === 'true' || value === '1' : Boolean(value);
-    } else if (['INT', 'DINT', 'REAL', 'WORD', 'DWORD', 'BYTE'].includes(tag.dataType)) {
-      normalizedValue = Number(value);
-      if (isNaN(normalizedValue)) {
-        return res.status(400).json({
-          success: false,
-          message: `Value "${value}" is not a valid number for ${tag.dataType}`,
+    if (hasEdge && !tag.isSimulationTag) {
+      const forwarded = edgeService.forwardWriteCommand(
+        req.companyId,
+        {
+          tagId: tag._id.toString(),
+          tagName: tag.tagName,
+          address: tag.plcAddress,
+          value,
+          dataType: tag.dataType,
+        },
+        null
+      );
+
+      if (forwarded) {
+        return res.json({
+          success: true,
+          message: `Write command for "${tag.tagName}" sent to Edge Gateway`,
+          forwarded: true,
         });
       }
     }
 
-    console.log(`📝 Write [${req.companySlug}] ${req.user.username}: ${tag.tagName} = ${normalizedValue}`);
+    // ─── 2. Fallback: Write via plcManager ────────────────
+    const plcManager = require('../services/plcManager');
+    await plcManager.writeTag(tag.plcConnection, tag, value);
 
-    if (tag.plcConnection && tag.plcAddress) {
-      try {
-        const plcManager = require('../services/plcManager');
-        await plcManager.writeTag(tag, normalizedValue);
-      } catch (plcErr) {
-        return res.status(500).json({ success: false, message: `PLC write failed: ${plcErr.message}` });
-      }
-    }
-
-    tag.currentValue = normalizedValue;
+    tag.currentValue = value;
     tag.lastUpdated = Date.now();
     await tag.save();
 
+    // Broadcast update
     const io = req.app.get('io');
     if (io) {
-      io.emit('tagsUpdate', [{
+      io.to(`company:${req.companyId}`).emit('tagsUpdate', [{
         tagName: tag.tagName,
         value: tag.currentValue,
         quality: tag.quality,
         timestamp: tag.lastUpdated,
-        companyId: tag.companyId, // ✅ Include so runtime can filter (future)
+        source: 'write',
       }]);
     }
 
     res.json({
       success: true,
-      message: 'Tag value written successfully',
-      data: { tagName: tag.tagName, value: tag.currentValue, timestamp: tag.lastUpdated },
+      message: `Tag "${tag.tagName}" written to ${value}`,
+      data: { tagName: tag.tagName, value },
     });
   } catch (error) {
     console.error('❌ writeTagValue error:', error.message);
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -395,7 +401,7 @@ const bulkCreateTags = async (req, res) => {
     try {
       const io = req.app.get('io');
       await broadcastConfigUpdate(io, req.companyId);
-    } catch (e) {}
+    } catch (e) { }
 
     res.status(201).json({
       success: true,
@@ -679,7 +685,7 @@ const importTagsCSV = async (req, res) => {
     try {
       const io = req.app.get('io');
       await broadcastConfigUpdate(io, req.companyId);
-    } catch (e) {}
+    } catch (e) { }
 
     res.json({
       success: true,

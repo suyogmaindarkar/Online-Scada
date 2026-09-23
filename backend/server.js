@@ -306,6 +306,7 @@ io.on('connection', async (socket) => {
   }
 
   // ─── Write Tag (Browser → Cloud → Edge/Sim) ────────────
+    // ─── Write Tag (Browser Event / HMI Event Actions) ───────
   socket.on('writeTag', async (data) => {
     try {
       if (socket.userRole === 'viewer') {
@@ -314,61 +315,70 @@ io.on('connection', async (socket) => {
       }
 
       const Tag = require('./src/models/Tag');
-      const tag = await Tag.findOne({
-        companyId: socket.companyId,
-        tagName: data.tagName,
-      });
+      const query = { companyId: socket.companyId };
+      
+      if (data.tagId) query._id = data.tagId;
+      else if (data.tagName) query.tagName = data.tagName;
+      else return;
+
+      const tag = await Tag.findOne(query);
 
       if (!tag) {
-        socket.emit('error', { message: `Tag "${data.tagName}" not found in your workspace` });
+        socket.emit('error', { message: `Tag "${data.tagName || data.tagId}" not found in workspace` });
         return;
       }
 
-      // ─── Try Edge Gateway first (real PLC) ──────────────
-      const edgeForwarded = edgeService.forwardWriteCommand(
-        socket.companyId,
-        {
-          tagId: tag._id.toString(),
-          tagName: tag.tagName,
-          address: tag.plcAddress,
-          protocol: 'auto', // Gateway determines from its config
-          value: data.value,
-          dataType: tag.dataType,
-        },
-        socket.id
-      );
-
-      if (edgeForwarded) {
-        // Write command sent to edge gateway
-        // The gateway will send back edge:writeResult
-        // which edgeService will broadcast to all browsers
-        socket.emit('writeAck', {
-          tagName: data.tagName,
-          status: 'pending',
-          message: 'Write command sent to PLC via Edge Gateway',
-        });
+      if (tag.accessType === 'READ_ONLY') {
+        socket.emit('error', { message: `Tag "${tag.tagName}" is read-only` });
         return;
       }
 
-      // ─── Fallback: Direct DB write (simulation mode) ────
+      // ─── 1. Forward to Edge Gateway ────────────────────
+      const edgeService = require('./src/services/edgeService');
+      const hasEdge = edgeService.hasActiveGateway(socket.companyId);
+
+      if (hasEdge && !tag.isSimulationTag) {
+        const edgeForwarded = edgeService.forwardWriteCommand(
+          socket.companyId,
+          {
+            tagId: tag._id.toString(),
+            tagName: tag.tagName,
+            address: tag.plcAddress,
+            value: data.value,
+            dataType: tag.dataType,
+          },
+          socket.id
+        );
+
+        if (edgeForwarded) {
+          socket.emit('writeAck', {
+            tagName: tag.tagName,
+            status: 'pending',
+            message: 'Write command sent to PLC via Edge Gateway',
+          });
+          return;
+        }
+      }
+
+      // ─── 2. Fallback: Write via plcManager ──────────────
+      const plcManager = require('./src/services/plcManager');
+      await plcManager.writeTag(tag.plcConnection, tag, data.value);
+
       tag.currentValue = data.value;
       tag.lastUpdated = Date.now();
       await tag.save();
 
-      io.to(companyRoom).emit('tagsUpdate', [{
+      io.to(`company:${socket.companyId}`).emit('tagsUpdate', [{
         tagName: tag.tagName,
         value: tag.currentValue,
         quality: tag.quality,
         timestamp: tag.lastUpdated,
-        source: 'local',
+        source: 'socket-write',
       }]);
     } catch (err) {
+      console.error('❌ socket writeTag error:', err.message);
       socket.emit('error', { message: err.message });
     }
-  });
-
-  socket.on('disconnect', (reason) => {
-    console.log(`❌ Socket disconnected: ${socket.id} | company=${socket.companyId} | reason=${reason}`);
   });
 });
 
