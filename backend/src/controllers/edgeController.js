@@ -88,7 +88,7 @@ const forceDisconnectGatewaySocket = (req, gatewayId) => {
       const socket = io.of('/edge').sockets.get(gatewayInfo.socketId);
       if (socket) socket.disconnect(true);
     }
-  } catch (err) {}
+  } catch (err) { }
 };
 
 // ─── GET ALL GATEWAYS (AUTO-PROVISIONS IF 0 EXIST) ───
@@ -266,7 +266,7 @@ const downloadCompletePackage = async (req, res) => {
 
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
-    
+
     gateway.apiKeyHash = hash;
     gateway.apiKeyPrefix = prefix;
     gateway.status = 'never_connected';
@@ -385,12 +385,29 @@ if not exist "config.json" (
     exit /b 1
 )
 
+:: Check for System Node or Local Portable Node
 where node >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo [x] ERROR: Node.js is not installed on this PC! Download from https://nodejs.org
-    pause
-    exit /b 1
+if %ERRORLEVEL% equ 0 (
+    set "NODE_CMD=node"
+) else if exist "bin\\node.exe" (
+    set "NODE_CMD=bin\\node.exe"
+) else (
+    echo [i] Node.js is not installed on this PC.
+    echo [i] Auto-downloading standalone Node.js runtime (one-time setup)...
+    echo.
+    mkdir bin >nul 2>nul
+    powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v18.20.0/win-x64/node.exe' -OutFile 'bin\\node.exe' }"
+    
+    if exist "bin\\node.exe" (
+        set "NODE_CMD=bin\\node.exe"
+        echo [ok] Standalone Node.js runtime downloaded!
+        echo.
+    ) else (
+        color 0C
+        echo [x] Auto-download failed. Please install Node.js from https://nodejs.org
+        pause
+        exit /b 1
+    )
 )
 
 if not exist "node_modules\\socket.io-client" (
@@ -408,7 +425,7 @@ if not exist "node_modules\\socket.io-client" (
 
 echo [ok] Launching OnlineSCADA Gateway Engine...
 echo.
-node src\\index.js
+%NODE_CMD% src\\index.js
 
 if %ERRORLEVEL% neq 0 (
     color 0C
