@@ -10,23 +10,13 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
 
-// ─── Safe Archiver Factory (Supports archiver v5/v6/v7/v8/ESM/CJS) ───
+// ─── Safe Archiver Factory ─────────────────────────
 const createArchive = (format = 'zip', options = {}) => {
-  if (typeof archiverPkg === 'function') {
-    return archiverPkg(format, options);
-  }
-  if (archiverPkg && typeof archiverPkg.default === 'function') {
-    return archiverPkg.default(format, options);
-  }
-  if (archiverPkg && typeof archiverPkg.create === 'function') {
-    return archiverPkg.create(format, options);
-  }
-  if (format === 'zip' && archiverPkg && typeof archiverPkg.ZipArchive === 'function') {
-    return new archiverPkg.ZipArchive(options);
-  }
-  if (archiverPkg && typeof archiverPkg.Archiver === 'function') {
-    return new archiverPkg.Archiver(format, options);
-  }
+  if (typeof archiverPkg === 'function') return archiverPkg(format, options);
+  if (archiverPkg && typeof archiverPkg.default === 'function') return archiverPkg.default(format, options);
+  if (archiverPkg && typeof archiverPkg.create === 'function') return archiverPkg.create(format, options);
+  if (format === 'zip' && archiverPkg && typeof archiverPkg.ZipArchive === 'function') return new archiverPkg.ZipArchive(options);
+  if (archiverPkg && typeof archiverPkg.Archiver === 'function') return new archiverPkg.Archiver(format, options);
   throw new Error('Unable to initialize archiver stream');
 };
 
@@ -253,14 +243,13 @@ const downloadGatewayConfig = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 🆕 DOWNLOAD READY-TO-RUN PACKAGE (Supports archiver v8.0+)
+// DOWNLOAD READY-TO-RUN PACKAGE (EXPLICIT MODULE INSTALL)
 // ═══════════════════════════════════════════════════════════
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!gateway) return res.status(404).json({ success: false, message: 'Gateway profile not found' });
 
-    // Rotate API key so user always gets a fresh key in bundle
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
 
@@ -277,7 +266,6 @@ const downloadCompletePackage = async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
-    // ✅ Use createArchive factory function (archiver v8 compatible)
     const archive = createArchive('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {
@@ -289,7 +277,6 @@ const downloadCompletePackage = async (req, res) => {
 
     archive.pipe(res);
 
-    // Candidate template directories
     const candidateDirs = [
       path.join(__dirname, '..', '..', 'edge-gateway-template'),
       path.join(__dirname, '..', '..', 'edge-gateway'),
@@ -320,7 +307,6 @@ const downloadCompletePackage = async (req, res) => {
       archive.append(getFallbackOpcuaReaderJs(), { name: 'src/readers/opcuaReader.js' });
     }
 
-    // Always append pre-configured config.json
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
 
     await archive.finalize();
@@ -359,10 +345,10 @@ function getFallbackPackageJson() {
     "main": "src/index.js",
     "scripts": { "start": "node src/index.js" },
     "dependencies": {
-      "socket.io-client": "^4.7.5",
-      "nodes7": "^0.3.14",
-      "modbus-serial": "^8.0.17",
-      "node-opcua": "^2.130.0"
+      "socket.io-client": "4.7.5",
+      "nodes7": "0.3.14",
+      "modbus-serial": "8.0.17",
+      "node-opcua": "2.130.0"
     }
   }, null, 2);
 }
@@ -393,9 +379,10 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+:: Explicitly verify socket.io-client folder exists in node_modules
 if not exist "node_modules\\socket.io-client" (
     echo [i] First-time setup: Installing required modules (socket.io-client, nodes7, modbus-serial, node-opcua)...
-    call npm install --omit=dev --no-audit --no-fund
+    call npm install socket.io-client nodes7 modbus-serial node-opcua --no-audit --no-fund
     if %ERRORLEVEL% neq 0 (
         color 0C
         echo [x] Failed to install modules. Please check internet connection.
