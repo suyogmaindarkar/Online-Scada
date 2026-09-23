@@ -164,14 +164,35 @@ const PLCManagement = () => {
   };
 
   const handleDownloadCompletePackage = async () => {
-    if (!gateway) {
-      showToast('No gateway profile found. Contact support.', 'error');
-      return;
-    }
     try {
       setDownloadingPackage(true);
-      const res = await api.get(`/edge/${gateway._id}/download-package`, { responseType: 'blob' });
+      let targetGateway = gateway;
 
+      // 🟢 AUTO-PROVISION: If account has 0 gateways, create one on the fly!
+      if (!targetGateway) {
+        try {
+          const createRes = await api.post('/edge', { name: 'Default Gateway' });
+          targetGateway = createRes.data?.data;
+          setGateway(targetGateway);
+        } catch (createErr) {
+          console.warn('Auto-create gateway warning:', createErr);
+        }
+      }
+
+      // Re-fetch gateway if still missing
+      if (!targetGateway) {
+        const fetchRes = await api.get('/edge');
+        const list = fetchRes?.data?.data || [];
+        targetGateway = list[0];
+        setGateway(targetGateway);
+      }
+
+      if (!targetGateway || !targetGateway._id) {
+        showToast('Could not initialize gateway profile. Try again.', 'error');
+        return;
+      }
+
+      const res = await api.get(`/edge/${targetGateway._id}/download-package`, { responseType: 'blob' });
       const blob = new Blob([res.data], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -192,7 +213,6 @@ const PLCManagement = () => {
           msg = err.response.data.message;
         }
       } catch (parseErr) { }
-
       showToast(`❌ ${msg}`, 'error', 6000);
     } finally {
       setDownloadingPackage(false);

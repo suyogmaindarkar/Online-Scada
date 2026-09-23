@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Edge Gateway Controller — Multi-Tenant CRUD + Self-Generating ZIP
+// Edge Gateway Controller — Multi-Tenant CRUD + Self-Healing ZIP
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
@@ -88,13 +88,27 @@ const forceDisconnectGatewaySocket = (req, gatewayId) => {
       const socket = io.of('/edge').sockets.get(gatewayInfo.socketId);
       if (socket) socket.disconnect(true);
     }
-  } catch (err) { }
+  } catch (err) {}
 };
 
-// ─── GET ALL GATEWAYS ───────────────────────────────
+// ─── GET ALL GATEWAYS (AUTO-PROVISIONS IF 0 EXIST) ───
 const getGateways = async (req, res) => {
   try {
-    const gateways = await EdgeGateway.find({ companyId: req.companyId }).sort({ createdAt: -1 });
+    let gateways = await EdgeGateway.find({ companyId: req.companyId }).sort({ createdAt: -1 });
+
+    // 🟢 AUTO-HEAL: If company account has no gateway profile yet, create one automatically!
+    if (gateways.length === 0) {
+      const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
+      const autoGateway = await EdgeGateway.create({
+        companyId: req.companyId,
+        name: 'Default Gateway',
+        apiKeyHash: hash,
+        apiKeyPrefix: prefix,
+        status: 'never_connected',
+      });
+      gateways = [autoGateway];
+    }
+
     const activeGateways = gateways.map((gw) => {
       const isLiveOnline = edgeService.hasActiveGateway(req.companyId) && edgeService.gateways.has(gw._id.toString());
       return {
@@ -243,7 +257,7 @@ const downloadGatewayConfig = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════
-// DOWNLOAD READY-TO-RUN PACKAGE (EXPLICIT MODULE INSTALL)
+// DOWNLOAD READY-TO-RUN PACKAGE
 // ═══════════════════════════════════════════════════════════
 const downloadCompletePackage = async (req, res) => {
   try {
@@ -252,7 +266,7 @@ const downloadCompletePackage = async (req, res) => {
 
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
-
+    
     gateway.apiKeyHash = hash;
     gateway.apiKeyPrefix = prefix;
     gateway.status = 'never_connected';
@@ -379,7 +393,6 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-:: Explicitly verify socket.io-client folder exists in node_modules
 if not exist "node_modules\\socket.io-client" (
     echo [i] First-time setup: Installing required modules (socket.io-client, nodes7, modbus-serial, node-opcua)...
     call npm install socket.io-client nodes7 modbus-serial node-opcua --no-audit --no-fund
