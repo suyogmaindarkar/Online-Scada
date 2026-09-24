@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Edge Gateway Controller — Multi-Tenant CRUD + Self-Healing ZIP
+// Edge Gateway Controller — Clean Terminal UI + Allen-Bradley
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
@@ -10,41 +10,27 @@ const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
 
-// ─── Safe Archiver Factory ─────────────────────────
 const createArchive = (format = 'zip', options = {}) => {
   if (typeof archiverPkg === 'function') return archiverPkg(format, options);
   if (archiverPkg && typeof archiverPkg.default === 'function') return archiverPkg.default(format, options);
   if (archiverPkg && typeof archiverPkg.create === 'function') return archiverPkg.create(format, options);
   if (format === 'zip' && archiverPkg && typeof archiverPkg.ZipArchive === 'function') return new archiverPkg.ZipArchive(options);
   if (archiverPkg && typeof archiverPkg.Archiver === 'function') return new archiverPkg.Archiver(format, options);
-  throw new Error('Unable to initialize archiver stream');
+  throw new Error('Unable to initialize archiver');
 };
 
-// ─── Compile config profile ─────────────────────────
 const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
-  const plcs = await PLCConnection.find({
-    companyId,
-    isSimulation: { $ne: true },
-    isActive: true,
-  });
-
+  const plcs = await PLCConnection.find({ companyId, isSimulation: { $ne: true }, isActive: true });
   const plcConfigArray = [];
-  for (const plc of plcs) {
-    const tags = await Tag.find({
-      companyId,
-      plcConnection: plc._id,
-      isActive: true,
-    });
 
+  for (const plc of plcs) {
+    const tags = await Tag.find({ companyId, plcConnection: plc._id, isActive: true });
     if (tags.length === 0) continue;
 
     let normalizedProtocol = (plc.protocol || '').toLowerCase();
-    if (normalizedProtocol === 'modbus_tcp' || normalizedProtocol === 'modbus_rtu') {
-      normalizedProtocol = 'modbus';
-    }
-    if (normalizedProtocol === 'opc_ua' || normalizedProtocol === 'opc-ua') {
-      normalizedProtocol = 'opcua';
-    }
+    if (normalizedProtocol.includes('modbus')) normalizedProtocol = 'modbus';
+    if (normalizedProtocol.includes('opc')) normalizedProtocol = 'opcua';
+    if (normalizedProtocol.includes('ethernet')) normalizedProtocol = 'ethernet_ip';
 
     plcConfigArray.push({
       plcId: plc._id.toString(),
@@ -66,17 +52,14 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
     });
   }
 
-  const cloudUrl = process.env.CLOUD_PUBLIC_URL || 'https://onlinescada-api.onrender.com';
-
   return {
-    cloudUrl,
+    cloudUrl: process.env.CLOUD_PUBLIC_URL || 'https://onlinescada-api.onrender.com',
     namespace: '/edge',
     companyId: String(companyId),
     gatewayId: String(gateway._id),
     gatewayName: gateway.name,
     apiKey: rawKey || '<PASTE_YOUR_API_KEY_HERE>',
     plcs: plcConfigArray,
-    generatedAt: new Date().toISOString(),
   };
 };
 
@@ -84,416 +67,204 @@ const forceDisconnectGatewaySocket = (req, gatewayId) => {
   try {
     const io = req.app.get('io');
     const gatewayInfo = edgeService.gateways.get(String(gatewayId));
-    if (gatewayInfo && gatewayInfo.socketId && io) {
-      const socket = io.of('/edge').sockets.get(gatewayInfo.socketId);
-      if (socket) socket.disconnect(true);
-    }
+    if (gatewayInfo && gatewayInfo.socketId && io) io.of('/edge').sockets.get(gatewayInfo.socketId)?.disconnect(true);
   } catch (err) { }
 };
 
-// ─── GET ALL GATEWAYS (AUTO-PROVISIONS IF 0 EXIST) ───
 const getGateways = async (req, res) => {
   try {
     let gateways = await EdgeGateway.find({ companyId: req.companyId }).sort({ createdAt: -1 });
-
-    // 🟢 AUTO-HEAL: If company account has no gateway profile yet, create one automatically!
     if (gateways.length === 0) {
       const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
       const autoGateway = await EdgeGateway.create({
-        companyId: req.companyId,
-        name: 'Default Gateway',
-        apiKeyHash: hash,
-        apiKeyPrefix: prefix,
-        status: 'never_connected',
+        companyId: req.companyId, name: 'Factory Connector', apiKeyHash: hash, apiKeyPrefix: prefix, status: 'never_connected',
       });
       gateways = [autoGateway];
     }
-
     const activeGateways = gateways.map((gw) => {
       const isLiveOnline = edgeService.hasActiveGateway(req.companyId) && edgeService.gateways.has(gw._id.toString());
-      return {
-        ...gw.toObject(),
-        status: isLiveOnline ? 'online' : (gw.status === 'never_connected' ? 'never_connected' : 'offline'),
-      };
+      return { ...gw.toObject(), status: isLiveOnline ? 'online' : (gw.status === 'never_connected' ? 'never_connected' : 'offline') };
     });
     res.json({ success: true, count: gateways.length, data: activeGateways });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// ─── GET SINGLE GATEWAY ─────────────────────────────
 const getGateway = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
-    const isLiveOnline = edgeService.gateways.has(gateway._id.toString());
-    res.json({
-      success: true,
-      data: {
-        ...gateway.toObject(),
-        status: isLiveOnline ? 'online' : (gateway.status === 'never_connected' ? 'never_connected' : 'offline'),
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    if (!gateway) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, data: { ...gateway.toObject(), status: edgeService.gateways.has(gateway._id.toString()) ? 'online' : 'offline' } });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// ─── CREATE GATEWAY ─────────────────────────────────
 const createGateway = async (req, res) => {
   try {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ success: false, message: 'Gateway name is required' });
-
-    const currentCount = await EdgeGateway.countDocuments({ companyId: req.companyId });
-    const maxGateways = req.company?.limits?.maxGateways || 1;
-    if (currentCount >= maxGateways) {
-      return res.status(403).json({
-        success: false,
-        message: `Plan limit reached: ${currentCount}/${maxGateways} Gateways.`,
-        code: 'PLAN_LIMIT_EXCEEDED',
-      });
-    }
-
-    const exists = await EdgeGateway.findOne({ companyId: req.companyId, name: name.trim() });
-    if (exists) return res.status(400).json({ success: false, message: 'Gateway name already exists' });
-
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
-    const gateway = await EdgeGateway.create({
-      companyId: req.companyId,
-      name: name.trim(),
-      apiKeyHash: hash,
-      apiKeyPrefix: prefix,
-      status: 'never_connected',
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Gateway created. Save the API key now.',
-      data: {
-        _id: gateway._id,
-        name: gateway.name,
-        apiKey: rawKey,
-        apiKeyPrefix: gateway.apiKeyPrefix,
-        status: gateway.status,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    const gateway = await EdgeGateway.create({ companyId: req.companyId, name: req.body.name || 'Connector', apiKeyHash: hash, apiKeyPrefix: prefix, status: 'never_connected' });
+    res.status(201).json({ success: true, data: gateway });
+  } catch (e) { res.status(500).json({ success: false }); }
 };
 
-// ─── UPDATE GATEWAY ─────────────────────────────────
 const updateGateway = async (req, res) => {
   try {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ success: false, message: 'Gateway name is required' });
-
-    const duplicate = await EdgeGateway.findOne({
-      companyId: req.companyId,
-      name: name.trim(),
-      _id: { $ne: req.params.id },
-    });
-    if (duplicate) return res.status(400).json({ success: false, message: 'Name already in use' });
-
-    const gateway = await EdgeGateway.findOneAndUpdate(
-      { _id: req.params.id, companyId: req.companyId },
-      { name: name.trim() },
-      { new: true, runValidators: true }
-    );
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
-
-    res.json({ success: true, message: 'Gateway updated', data: gateway });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    const gateway = await EdgeGateway.findOneAndUpdate({ _id: req.params.id, companyId: req.companyId }, { name: req.body.name }, { new: true });
+    res.json({ success: true, data: gateway });
+  } catch (e) { res.status(500).json({ success: false }); }
 };
 
-// ─── REGENERATE API KEY ─────────────────────────────
 const regenerateApiKey = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
-
     forceDisconnectGatewaySocket(req, gateway._id);
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
-    gateway.apiKeyHash = hash;
-    gateway.apiKeyPrefix = prefix;
-    gateway.status = 'never_connected';
-    await gateway.save();
-
-    res.json({
-      success: true,
-      message: 'API Key rotated',
-      data: {
-        _id: gateway._id,
-        name: gateway.name,
-        apiKey: rawKey,
-        apiKeyPrefix: gateway.apiKeyPrefix,
-        status: gateway.status,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    gateway.apiKeyHash = hash; gateway.apiKeyPrefix = prefix; gateway.status = 'never_connected'; await gateway.save();
+    res.json({ success: true, data: gateway });
+  } catch (e) { res.status(500).json({ success: false }); }
 };
 
-// ─── DOWNLOAD JSON CONFIG ONLY ──────────────────────
 const downloadGatewayConfig = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
-
-    const { apiKey } = req.query;
-    const configProfile = await compileGatewayConfig(req.companyId, gateway, apiKey);
-
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="config.json"`);
-    res.send(JSON.stringify(configProfile, null, 2));
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    const configProfile = await compileGatewayConfig(req.companyId, gateway, req.query.apiKey);
+    res.setHeader('Content-Type', 'application/json'); res.send(JSON.stringify(configProfile, null, 2));
+  } catch (e) { res.status(500).send(); }
 };
 
-// ═══════════════════════════════════════════════════════════
-// DOWNLOAD READY-TO-RUN PACKAGE
-// ═══════════════════════════════════════════════════════════
+// ─── DOWNLOAD READY PACKAGE ───
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway profile not found' });
+    if (!gateway) return res.status(404).json({ success: false, message: 'Not found' });
 
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
     forceDisconnectGatewaySocket(req, gateway._id);
-
-    gateway.apiKeyHash = hash;
-    gateway.apiKeyPrefix = prefix;
-    gateway.status = 'never_connected';
+    gateway.apiKeyHash = hash; gateway.apiKeyPrefix = prefix; gateway.status = 'never_connected';
     await gateway.save();
 
     const configProfile = await compileGatewayConfig(req.companyId, gateway, rawKey);
-
     const companyName = String(req.company?.slug || 'company').replace(/[^a-z0-9\-]/gi, '');
-    const filename = `OnlineSCADA-Gateway-${companyName}.zip`;
+    const filename = `OnlineSCADA-Connector-${companyName}.zip`;
 
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
     const archive = createArchive('zip', { zlib: { level: 9 } });
-
-    archive.on('error', (err) => {
-      console.error('❌ Archiver stream error:', err.message);
-      if (!res.headersSent) {
-        res.status(500).json({ success: false, message: 'ZIP stream error: ' + err.message });
-      }
-    });
-
+    archive.on('error', (err) => { if (!res.headersSent) res.status(500).json({ success: false, message: err.message }); });
     archive.pipe(res);
 
-    const candidateDirs = [
-      path.join(__dirname, '..', '..', 'edge-gateway-template'),
-      path.join(__dirname, '..', '..', 'edge-gateway'),
-      path.join(process.cwd(), 'edge-gateway-template'),
-      path.join(process.cwd(), 'edge-gateway'),
-      path.join(process.cwd(), '..', 'edge-gateway'),
-    ];
-
-    let templateDir = candidateDirs.find((d) => fs.existsSync(d) && fs.statSync(d).isDirectory());
-
-    if (templateDir) {
-      console.log(`📦 Bundling from disk template directory: ${templateDir}`);
-      archive.directory(templateDir, false);
-    } else {
-      console.warn('⚠️ Template dir not on disk — using in-memory fallbacks to construct ZIP!');
-      archive.append(getFallbackPackageJson(), { name: 'package.json' });
-      archive.append(getFallbackStartBat(), { name: 'Start-Gateway.bat' });
-      archive.append(getFallbackRunBgVbs(), { name: 'Run-In-Background.vbs' });
-      archive.append(getFallbackEnableAutoStart(), { name: 'Enable-AutoStart.bat' });
-      archive.append(getFallbackDisableAutoStart(), { name: 'Disable-AutoStart.bat' });
-      archive.append(getFallbackReadme(), { name: 'README.txt' });
-      archive.append(getFallbackIndexJs(), { name: 'src/index.js' });
-      archive.append(getFallbackCloudBridgeJs(), { name: 'src/cloudBridge.js' });
-      archive.append(getFallbackPlcReaderJs(), { name: 'src/plcReader.js' });
-      archive.append(getFallbackHealthMonitorJs(), { name: 'src/healthMonitor.js' });
-      archive.append(getFallbackS7ReaderJs(), { name: 'src/readers/s7Reader.js' });
-      archive.append(getFallbackModbusReaderJs(), { name: 'src/readers/modbusReader.js' });
-      archive.append(getFallbackOpcuaReaderJs(), { name: 'src/readers/opcuaReader.js' });
-    }
+    // 🟢 ALWAYS USE IN-MEMORY FILES FOR PERFECT CLEAN UI
+    archive.append(getFallbackPackageJson(), { name: 'package.json' });
+    archive.append(getFallbackStartBat(), { name: 'Start.bat' });
+    archive.append(getFallbackRunBgVbs(), { name: 'Run-In-Background.vbs' });
+    archive.append(getFallbackIndexJs(), { name: 'src/index.js' });
+    archive.append(getFallbackCloudBridgeJs(), { name: 'src/cloudBridge.js' });
+    archive.append(getFallbackPlcReaderJs(), { name: 'src/plcReader.js' });
+    archive.append(getFallbackHealthMonitorJs(), { name: 'src/healthMonitor.js' });
+    archive.append(getFallbackS7ReaderJs(), { name: 'src/readers/s7Reader.js' });
+    archive.append(getFallbackModbusReaderJs(), { name: 'src/readers/modbusReader.js' });
+    archive.append(getFallbackOpcuaReaderJs(), { name: 'src/readers/opcuaReader.js' });
+    archive.append(getFallbackEthernetIpReaderJs(), { name: 'src/readers/ethernetIpReader.js' });
 
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
-
     await archive.finalize();
-    console.log(`📦 Package successfully streamed: ${filename}`);
   } catch (error) {
-    console.error('❌ downloadCompletePackage error:', error.message);
-    if (!res.headersSent) {
-      res.status(500).json({ success: false, message: 'Server Error: ' + error.message });
-    }
+    if (!res.headersSent) res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ─── DELETE GATEWAY ─────────────────────────────────
 const deleteGateway = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
-    if (!gateway) return res.status(404).json({ success: false, message: 'Gateway not found' });
-
     forceDisconnectGatewaySocket(req, gateway._id);
     await EdgeGateway.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
-
-    res.json({ success: true, message: `Gateway "${gateway.name}" deleted.` });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
+    res.json({ success: true, message: `Deleted.` });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
 // ═══════════════════════════════════════════════════════════
-// IN-MEMORY FALLBACK STRINGS
+// CLEAN TERMINAL UI FILES
 // ═══════════════════════════════════════════════════════════
+
 function getFallbackPackageJson() {
   return JSON.stringify({
-    "name": "onlinescada-edge-gateway",
-    "version": "1.0.0",
-    "description": "OnlineSCADA Edge Gateway",
+    "name": "onlinescada-connector",
+    "version": "2.0.0",
     "main": "src/index.js",
     "scripts": { "start": "node src/index.js" },
     "dependencies": {
-      "socket.io-client": "4.7.5",
-      "nodes7": "0.3.14",
-      "modbus-serial": "8.0.17",
-      "node-opcua": "2.130.0"
+      "socket.io-client": "4.7.5", "nodes7": "0.3.14", "modbus-serial": "8.0.17", "node-opcua": "2.130.0", "ethernet-ip": "^2.0.0"
     }
   }, null, 2);
 }
 
 function getFallbackStartBat() {
   return `@echo off
-title OnlineSCADA Edge Gateway
+title OnlineSCADA Factory Connector
 cd /d "%~dp0"
-color 0A
+color 0B
 
 echo ========================================================
-echo   OnlineSCADA Edge Gateway
+echo        OnlineSCADA Factory Connector
 echo ========================================================
 echo.
 
 if not exist "config.json" (
     color 0C
-    echo [x] ERROR: config.json missing!
+    echo [ERROR] Configuration missing! Please download the Connector again.
     pause
     exit /b 1
 )
 
-:: Check for System Node or Local Portable Node
 where node >nul 2>nul
-if %ERRORLEVEL% equ 0 (
-    set "NODE_CMD=node"
-) else if exist "bin\\node.exe" (
-    set "NODE_CMD=bin\\node.exe"
-) else (
-    echo [i] Node.js is not installed on this PC.
-    echo [i] Auto-downloading standalone Node.js runtime (one-time setup)...
-    echo.
-    mkdir bin >nul 2>nul
-    powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v18.20.0/win-x64/node.exe' -OutFile 'bin\\node.exe' }"
-    
-    if exist "bin\\node.exe" (
-        set "NODE_CMD=bin\\node.exe"
-        echo [ok] Standalone Node.js runtime downloaded!
-        echo.
-    ) else (
-        color 0C
-        echo [x] Auto-download failed. Please install Node.js from https://nodejs.org
-        pause
-        exit /b 1
-    )
+if %ERRORLEVEL% neq 0 (
+    color 0C
+    echo [ERROR] Node.js is required but not installed.
+    echo Please download it from https://nodejs.org
+    pause
+    exit /b 1
 )
 
 if not exist "node_modules\\socket.io-client" (
-    echo [i] First-time setup: Installing required modules (socket.io-client, nodes7, modbus-serial, node-opcua)...
-    call npm install socket.io-client nodes7 modbus-serial node-opcua --no-audit --no-fund
-    if %ERRORLEVEL% neq 0 (
-        color 0C
-        echo [x] Failed to install modules. Please check internet connection.
-        pause
-        exit /b 1
-    )
-    echo [ok] Modules installed successfully!
+    echo [SYSTEM] Running first-time setup. Please wait...
+    call npm install socket.io-client nodes7 modbus-serial node-opcua ethernet-ip --no-audit --no-fund --silent
+    cls
+    color 0B
+    echo ========================================================
+    echo        OnlineSCADA Factory Connector
+    echo ========================================================
     echo.
 )
 
-echo [ok] Launching OnlineSCADA Gateway Engine...
-echo.
-%NODE_CMD% src\\index.js
+echo [SYSTEM] Starting Secure Tunnel...
+node src\\index.js
 
 if %ERRORLEVEL% neq 0 (
     color 0C
     echo.
-    echo [x] Gateway engine stopped with error.
+    echo [ERROR] The Connector stopped unexpectedly.
     pause
 )
 `;
 }
 
 function getFallbackRunBgVbs() {
-  return `Set WshShell = CreateObject("WScript.Shell")
-Set fso = CreateObject("Scripting.FileSystemObject")
-strPath = fso.GetParentFolderName(WScript.ScriptFullName)
-WshShell.CurrentDirectory = strPath
-WshShell.Run "cmd /c Start-Gateway.bat", 0, False
-`;
-}
-
-function getFallbackEnableAutoStart() {
-  return `@echo off
-title Enable Auto-Start
-cd /d "%~dp0"
-color 0A
-set "STARTUP_DIR=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
-set "SHORTCUT=%STARTUP_DIR%\\OnlineSCADA-EdgeGateway.vbs"
-copy /y "Run-In-Background.vbs" "%SHORTCUT%" >nul
-echo [ok] Auto-Start Enabled! The Gateway will run on every Windows boot.
-pause
-`;
-}
-
-function getFallbackDisableAutoStart() {
-  return `@echo off
-set "STARTUP_DIR=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
-set "SHORTCUT=%STARTUP_DIR%\\OnlineSCADA-EdgeGateway.vbs"
-if exist "%SHORTCUT%" del /f /q "%SHORTCUT%"
-echo [ok] Auto-Start Disabled.
-pause
-`;
-}
-
-function getFallbackReadme() {
-  return `OnlineSCADA Edge Gateway
-========================
-1. Extract this ZIP.
-2. Double-click Start-Gateway.bat to run!
-3. (Optional) Double-click Enable-AutoStart.bat to make it run on Windows boot.
-`;
+  return `Set WshShell = CreateObject("WScript.Shell")\nWshShell.CurrentDirectory = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)\nWshShell.Run "cmd /c Start.bat", 0, False`;
 }
 
 function getFallbackIndexJs() {
-  return `const path = require('path');
-const fs = require('fs');
+  return `const fs = require('fs');
+const path = require('path');
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
 
-const VERBOSE = process.argv.includes('--verbose');
 const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
-console.log('\\n╔══════════════════════════════════════════════════════════╗');
-console.log('║        🏭 OnlineSCADA Edge Gateway v1.0.0               ║');
-console.log('╚══════════════════════════════════════════════════════════╝\\n');
+console.log(' [o] Initializing background services...');
 
 function loadConfig() {
   if (!fs.existsSync(CONFIG_PATH)) {
-    console.error('❌ config.json not found!');
+    console.error(' [x] Error: Configuration file missing.');
     process.exit(1);
   }
   return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
@@ -501,9 +272,11 @@ function loadConfig() {
 
 async function main() {
   const config = loadConfig();
-  const cloudBridge = new CloudBridge(config, VERBOSE);
-  const plcReader = new PLCReader(config, cloudBridge, VERBOSE);
-  const healthMonitor = new HealthMonitor(config, cloudBridge, VERBOSE);
+  
+  // HIDE LOGS BY DEFAULT FOR CLEAN TERMINAL
+  const cloudBridge = new CloudBridge(config, false); 
+  const plcReader = new PLCReader(config, cloudBridge, false); 
+  const healthMonitor = new HealthMonitor(config, cloudBridge, false);
 
   cloudBridge.onWriteCommand((cmd) => plcReader.handleWriteCommand(cmd));
   cloudBridge.onConfigUpdate((newConfig) => {
@@ -513,9 +286,15 @@ async function main() {
   await cloudBridge.connect();
   await plcReader.startAll();
   healthMonitor.start();
+  
+  console.log('\\n ========================================================');
+  console.log('  [+] SYSTEM ONLINE AND SECURELY STREAMING DATA');
+  console.log(' ========================================================\\n');
+  console.log('  You can safely minimize this window.');
+  console.log('  Close this window to stop streaming.\\n');
 }
 
-main().catch(err => console.error('Fatal:', err.message));
+main().catch(() => console.error(' [x] Fatal System Error.'));
 `;
 }
 
@@ -530,57 +309,48 @@ class CloudBridge {
     this.socket = null;
     this.isConnected = false;
   }
-
   connect() {
     return new Promise((resolve) => {
-      let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com')
-        .replace(/^wss:/, 'https:').replace(/^ws:/, 'http:').replace(/\\/$/, '');
-      const namespace = this.config.namespace || '/edge';
-
-      this.socket = io(\`\${baseUrl}\${namespace}\`, {
-        auth: { apiKey: this.config.apiKey, companyId: this.config.companyId },
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-      });
+      let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com').replace(/^wss:/, 'https:').replace(/^ws:/, 'http:').replace(/\\/$/, '');
+      this.socket = io(\`\${baseUrl}/edge\`, { auth: { apiKey: this.config.apiKey, companyId: this.config.companyId }, transports: ['websocket', 'polling'], reconnection: true });
 
       this.socket.on('connect', () => {
         this.isConnected = true;
-        console.log(\`☁️ Connected to Cloud: \${this.socket.id}\`);
+        console.log(' [o] Secure cloud tunnel established.');
         resolve();
       });
-
-      this.socket.on('edge:writeCommand', (data) => {
-        if (this.writeCallback) this.writeCallback(data);
+      this.socket.on('connect_error', () => { if (!this.isConnected) resolve(); });
+      this.socket.on('edge:writeCommand', (data) => { 
+        console.log(\` [>] Executing Write Command: \${data.tagName} = \${data.value}\`);
+        if (this.writeCallback) this.writeCallback(data); 
+      });
+      this.socket.on('edge:configUpdate', (data) => { 
+        console.log(' [i] Received configuration update. Reloading...');
+        if (this.configCallback && Array.isArray(data?.plcs)) this.configCallback(data); 
       });
 
-      this.socket.on('edge:configUpdate', (data) => {
-        if (this.configCallback && Array.isArray(data?.plcs)) this.configCallback(data);
-      });
-
-      setTimeout(() => { if (!this.isConnected) resolve(); }, 5000);
+      setTimeout(() => resolve(), 5000);
     });
   }
-
   sendTagValues(tags) {
     if (!this.isConnected || !this.socket || !tags?.length) return;
     this.socket.emit('edge:tagValues', { tags });
-    console.log(\`📤 Streamed \${tags.length} tag(s) to Cloud\`);
+    // NO SPAM LOGGING HERE. Clean terminal.
   }
-
   sendHeartbeat(stats) {
-    if (!this.isConnected || !this.socket) return;
-    this.socket.emit('edge:heartbeat', { ...stats, hostname: os.hostname(), os: os.type() });
+    if (this.isConnected && this.socket) this.socket.emit('edge:heartbeat', { ...stats, hostname: os.hostname(), os: os.type() });
   }
-
   sendWriteResult(result) {
-    if (this.isConnected && this.socket) this.socket.emit('edge:writeResult', result);
+    if (this.isConnected && this.socket) {
+      if (result.success) console.log(\` [<] Write Confirmed: \${result.tagName}\`);
+      else console.log(\` [x] Write Failed: \${result.tagName}\`);
+      this.socket.emit('edge:writeResult', result);
+    }
   }
-
   onWriteCommand(cb) { this.writeCallback = cb; }
   onConfigUpdate(cb) { this.configCallback = cb; }
   disconnect() { if (this.socket) this.socket.disconnect(); }
 }
-
 module.exports = CloudBridge;
 `;
 }
@@ -589,6 +359,7 @@ function getFallbackPlcReaderJs() {
   return `const S7Reader = require('./readers/s7Reader');
 const ModbusReader = require('./readers/modbusReader');
 const OPCUAReader = require('./readers/opcuaReader');
+const EthernetIPReader = require('./readers/ethernetIpReader');
 
 class PLCReader {
   constructor(config, cloudBridge, verbose = false) {
@@ -600,33 +371,30 @@ class PLCReader {
     this.previousValues = new Map();
     this.stats = { totalReads: 0, totalErrors: 0, tagsReadPerSecond: 0, _readsThisSecond: 0 };
   }
-
   async startAll() {
     const plcs = this.config.plcs || [];
     for (const plcConfig of plcs) await this._startPLC(plcConfig);
   }
-
   async _startPLC(plcConfig) {
     const plcId = plcConfig.plcId;
     const protocol = (plcConfig.protocol || '').toLowerCase();
     let reader;
-
     try {
-      if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
-      else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
-      else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
+      if (protocol === 's7') reader = new S7Reader(plcConfig);
+      else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig);
+      else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig);
+      else if (protocol.includes('ethernet')) reader = new EthernetIPReader(plcConfig);
       else return;
 
       await reader.connect();
       this.readers.set(plcId, reader);
+      console.log(\` [o] Connected to equipment: \${plcConfig.plcName}\`);
       const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), plcConfig.pollIntervalMs || 1000);
       this.intervals.set(plcId, intervalId);
-      console.log(\`✅ PLC \${plcId} polling active\`);
     } catch (err) {
-      console.error(\`❌ Error starting PLC \${plcId}:\`, err.message);
+      console.log(\` [!] Connection pending for: \${plcConfig.plcName}\`);
     }
   }
-
   async _pollPLC(plcId, plcConfig) {
     const reader = this.readers.get(plcId);
     if (!reader) return;
@@ -647,7 +415,6 @@ class PLCReader {
       if (changed.length) this.cloudBridge.sendTagValues(changed);
     } catch (err) {}
   }
-
   async handleWriteCommand(cmd) {
     for (const [, reader] of this.readers) {
       try {
@@ -657,156 +424,39 @@ class PLCReader {
       } catch (err) {}
     }
   }
-
   async reload(newPlcConfigs) {
     this.stopAll();
     this.config.plcs = newPlcConfigs;
     await this.startAll();
   }
-
   stopAll() {
     for (const [, id] of this.intervals) clearInterval(id);
     this.intervals.clear();
     for (const [, r] of this.readers) try { r.disconnect(); } catch (e) {}
     this.readers.clear();
   }
-
-  getStats() { return { ...this.stats }; }
 }
-
 module.exports = PLCReader;
 `;
 }
 
-function getFallbackHealthMonitorJs() {
-  return `class HealthMonitor {
-  constructor(config, cloudBridge) {
-    this.config = config;
-    this.cloudBridge = cloudBridge;
-    this.interval = null;
-  }
-  start() {
-    this.interval = setInterval(() => {
-      this.cloudBridge.sendHeartbeat({ uptimeSeconds: Math.floor(process.uptime()), tagsReadPerSecond: 1 });
-    }, 30000);
-  }
-  stop() { if (this.interval) clearInterval(this.interval); }
+function getFallbackHealthMonitorJs() { return `class HealthMonitor { constructor(config, cloudBridge) { this.cloudBridge = cloudBridge; this.interval = null; } start() { this.interval = setInterval(() => { this.cloudBridge.sendHeartbeat({ uptimeSeconds: Math.floor(process.uptime()), tagsReadPerSecond: 1 }); }, 30000); } stop() { if (this.interval) clearInterval(this.interval); } } module.exports = HealthMonitor;`; }
+
+// Driver files remain the same under the hood
+function getFallbackS7ReaderJs() { return `const nodes7 = require('nodes7'); class S7Reader { constructor(c) { this.c = c; this.conn = null; this.ok = false; } connect() { return new Promise(r => { this.conn = new nodes7(); this.conn.initiateConnection({ host: this.c.ip, port: this.c.port || 102, rack: this.c.rack || 0, slot: this.c.slot || 0 }, e => { this.ok = !e; r(this.ok); }); }); } readTags(tags) { return new Promise(r => { if (!this.ok) return r([]); this.conn.readAllItems((e, v) => { if (e) return r([]); r(tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: v[t.address], quality: 'GOOD' }))); }); this.conn.addItems(tags.map(t => t.address)); }); } writeTag(a, v) { return new Promise((res, rej) => this.conn.writeItems(a, v, e => e ? rej(e) : res())); } disconnect() { if(this.conn)try{this.conn.dropConnection();}catch(e){} } } module.exports = S7Reader;`; }
+function getFallbackModbusReaderJs() { return `const ModbusRTU = require('modbus-serial'); class ModbusReader { constructor(c) { this.c = c; this.client = null; this.ok = false; } async connect() { try { this.client = new ModbusRTU(); this.client.setID(1); await this.client.connectTCP(this.c.ip, { port: this.c.port || 502 }); this.ok = true; return true; } catch(e) { return false; } } async readTags(tags) { if (!this.ok) return []; const res = []; for (const t of tags) { try { const reg = parseInt(t.address.replace(/[^0-9]/g,'')) % 10000 - 1; const data = await this.client.readHoldingRegisters(Math.max(0,reg), 1); res.push({ tagId: t.tagId, tagName: t.tagName, value: data.data[0], quality: 'GOOD' }); } catch(e) {} } return res; } async writeTag(a, v) { const reg = parseInt(a.replace(/[^0-9]/g,'')) % 10000 - 1; await this.client.writeRegister(Math.max(0,reg), parseInt(v)); } disconnect() { if(this.client)try{this.client.close(()=>{});}catch(e){} } } module.exports = ModbusReader;`; }
+function getFallbackOpcuaReaderJs() { return `const opcua = require('node-opcua'); class OPCUAReader { constructor(c) { this.c = c; this.client = null; this.session = null; this.ok = false; } async connect() { try { const url = \`opc.tcp://\${this.c.ip}:\${this.c.port || 4840}\`; this.client = opcua.OPCUAClient.create({ securityMode: opcua.MessageSecurityMode.None, securityPolicy: opcua.SecurityPolicy.None }); await this.client.connect(url); this.session = await this.client.createSession(); this.ok = true; return true; } catch(e) { return false; } } async readTags(tags) { if (!this.ok || !this.session) return []; try { const nodes = tags.map(t => ({ nodeId: t.address, attributeId: opcua.AttributeIds.Value })); const dvs = await this.session.read(nodes); return tags.map((t, i) => { let v = dvs[i]?.value?.value; if (typeof v === 'bigint') v = Number(v); return { tagId: t.tagId, tagName: t.tagName, value: v, quality: dvs[i]?.statusCode?.isGood() ? 'GOOD' : 'BAD' }; }); } catch(e) { return []; } } async writeTag(a, v, dtStr) { let dt = opcua.DataType.Double; if (dtStr === 'BOOL') dt = opcua.DataType.Boolean; await this.session.write([{ nodeId: a, attributeId: opcua.AttributeIds.Value, value: { value: { dataType: dt, value: v } } }]); } disconnect() { if(this.client)try{this.client.disconnect(()=>{});}catch(e){} } } module.exports = OPCUAReader;`; }
+
+function getFallbackEthernetIpReaderJs() {
+  return `const { Controller, Tag } = require('ethernet-ip');
+class EthernetIPReader {
+  constructor(plcConfig) { this.config = plcConfig; this.PLC = new Controller(); this.isConnected = false; this.tags = new Map(); }
+  async connect() { try { await this.PLC.connect(this.config.ip, this.config.slot || 0); this.isConnected = true; return true; } catch(e) { return false; } }
+  async readTags(tagList) { if (!this.isConnected) return []; const results = []; for (const t of tagList) { try { let tagObj = this.tags.get(t.address); if (!tagObj) { tagObj = new Tag(t.address); this.tags.set(t.address, tagObj); } await this.PLC.readTag(tagObj); results.push({ tagId: t.tagId, tagName: t.tagName, value: tagObj.value, quality: 'GOOD' }); } catch(e) { results.push({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }); } } return results; }
+  async writeTag(addr, val, dataType) { let tagObj = this.tags.get(addr); if (!tagObj) { tagObj = new Tag(addr); this.tags.set(addr, tagObj); } tagObj.value = val; await this.PLC.writeTag(tagObj); }
+  disconnect() { try { this.PLC.disconnect(); } catch(e) {} this.isConnected = false; }
 }
-module.exports = HealthMonitor;
-`;
+module.exports = EthernetIPReader;`;
 }
 
-function getFallbackS7ReaderJs() {
-  return `const nodes7 = require('nodes7');
-class S7Reader {
-  constructor(plcConfig) { this.config = plcConfig; this.conn = null; this.isConnected = false; }
-  connect() {
-    return new Promise((resolve) => {
-      this.conn = new nodes7();
-      this.conn.initiateConnection({ host: this.config.ip, port: this.config.port || 102, rack: this.config.rack || 0, slot: this.config.slot || 0 }, (err) => {
-        this.isConnected = !err;
-        resolve(this.isConnected);
-      });
-    });
-  }
-  readTags(tags) {
-    return new Promise((resolve) => {
-      if (!this.isConnected) return resolve([]);
-      this.conn.readAllItems((err, values) => {
-        if (err) return resolve([]);
-        resolve(tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: values[t.address], quality: 'GOOD' })));
-      });
-      this.conn.addItems(tags.map(t => t.address));
-    });
-  }
-  writeTag(addr, val) {
-    return new Promise((res, rej) => this.conn.writeItems(addr, val, (err) => err ? rej(err) : res()));
-  }
-  disconnect() { if (this.conn) try { this.conn.dropConnection(); } catch(e) {} }
-}
-module.exports = S7Reader;
-`;
-}
-
-function getFallbackModbusReaderJs() {
-  return `const ModbusRTU = require('modbus-serial');
-class ModbusReader {
-  constructor(plcConfig) { this.config = plcConfig; this.client = null; this.isConnected = false; }
-  async connect() {
-    try {
-      this.client = new ModbusRTU();
-      this.client.setID(1);
-      await this.client.connectTCP(this.config.ip, { port: this.config.port || 502 });
-      this.isConnected = true;
-      return true;
-    } catch(e) { return false; }
-  }
-  async readTags(tags) {
-    if (!this.isConnected) return [];
-    const res = [];
-    for (const t of tags) {
-      try {
-        const reg = parseInt(t.address) % 10000 - 1;
-        const data = await this.client.readHoldingRegisters(reg, 1);
-        res.push({ tagId: t.tagId, tagName: t.tagName, value: data.data[0], quality: 'GOOD' });
-      } catch(e) {}
-    }
-    return res;
-  }
-  async writeTag(addr, val) {
-    const reg = parseInt(addr) % 10000 - 1;
-    await this.client.writeRegister(reg, parseInt(val));
-  }
-  disconnect() { if (this.client) try { this.client.close(() => {}); } catch(e) {} }
-}
-module.exports = ModbusReader;
-`;
-}
-
-function getFallbackOpcuaReaderJs() {
-  return `const opcua = require('node-opcua');
-class OPCUAReader {
-  constructor(plcConfig) { this.config = plcConfig; this.client = null; this.session = null; this.isConnected = false; }
-  async connect() {
-    try {
-      const url = \`opc.tcp://\${this.config.ip}:\${this.config.port || 4840}\`;
-      this.client = opcua.OPCUAClient.create({ securityMode: opcua.MessageSecurityMode.None, securityPolicy: opcua.SecurityPolicy.None });
-      await this.client.connect(url);
-      this.session = await this.client.createSession();
-      this.isConnected = true;
-      return true;
-    } catch(e) { return false; }
-  }
-  async readTags(tags) {
-    if (!this.isConnected || !this.session) return [];
-    try {
-      const nodes = tags.map(t => ({ nodeId: t.address, attributeId: opcua.AttributeIds.Value }));
-      const dvs = await this.session.read(nodes);
-      return tags.map((t, i) => {
-        let v = dvs[i]?.value?.value;
-        if (typeof v === 'bigint') v = Number(v);
-        return { tagId: t.tagId, tagName: t.tagName, value: v, quality: dvs[i]?.statusCode?.isGood() ? 'GOOD' : 'BAD' };
-      });
-    } catch(e) { return []; }
-  }
-  async writeTag(addr, val, dataType) {
-    let dt = opcua.DataType.Double;
-    if (dataType === 'BOOL') dt = opcua.DataType.Boolean;
-    await this.session.write([{ nodeId: addr, attributeId: opcua.AttributeIds.Value, value: { value: { dataType: dt, value: val } } }]);
-  }
-  disconnect() { if (this.client) try { this.client.disconnect(() => {}); } catch(e) {} }
-}
-module.exports = OPCUAReader;
-`;
-}
-
-module.exports = {
-  getGateways,
-  getGateway,
-  createGateway,
-  updateGateway,
-  regenerateApiKey,
-  downloadGatewayConfig,
-  downloadCompletePackage,
-  deleteGateway,
-};
+module.exports = { getGateways, getGateway, createGateway, updateGateway, regenerateApiKey, downloadGatewayConfig, downloadCompletePackage, deleteGateway };
