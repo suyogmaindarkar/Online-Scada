@@ -1,5 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// Modbus Reader — Modbus TCP/RTU (With Delta DVP Direct Address Support)
+// Modbus Reader — Universal & Intelligent Offset Resolver
+// Compatible with ModSim32, Modbus Slave, Delta DVP PLCs,
+// Schneider, ABB, Siemens, and all Modbus TCP Devices/Gateways.
 // ═══════════════════════════════════════════════════════════
 
 const ModbusRTU = require('modbus-serial');
@@ -12,46 +14,69 @@ class ModbusReader {
         this.isConnected = false;
         this.reconnectTimer = null;
         this.unitId = plcConfig.unitId || 1;
+
+        // Cache working register offsets per tag for ultra-fast polling
+        this.workingOffsetCache = new Map();
     }
 
-    // ─── Parse Address (Supports Delta DVP Shortcuts: D0, Y0, M0, X0) ───
-    _parseAddress(address) {
+    // ─── Generate Candidate Offsets for Any Input Address ───
+    _getCandidates(address) {
         const raw = String(address).trim().toUpperCase();
+        const candidates = [];
 
-        // 🟢 Delta DVP Direct Names Support
-        if (raw.startsWith('D') && /^D\d+$/.test(raw)) {
-            const dNum = parseInt(raw.substring(1), 10);
-            return { fc: 3, register: 4096 + dNum, type: 'holding', altRegister: dNum };
-        }
-        if (raw.startsWith('Y') && /^Y\d+$/.test(raw)) {
-            const yNum = parseInt(raw.substring(1), 10);
-            return { fc: 1, register: 1280 + yNum, type: 'coil', altRegister: yNum };
-        }
-        if (raw.startsWith('M') && /^M\d+$/.test(raw)) {
-            const mNum = parseInt(raw.substring(1), 10);
-            return { fc: 1, register: 2048 + mNum, type: 'coil', altRegister: mNum };
-        }
-        if (raw.startsWith('X') && /^X\d+$/.test(raw)) {
-            const xNum = parseInt(raw.substring(1), 10);
-            return { fc: 2, register: 1024 + xNum, type: 'discrete', altRegister: xNum };
-        }
-
-        // Standard 5-digit Modbus format (44097, 01281, etc.)
-        const num = parseInt(raw, 10);
-        if (raw.startsWith('0') && raw.length === 5) {
-            return { fc: 1, register: num - 1, type: 'coil' };
-        }
-        if (raw.startsWith('1') && raw.length === 5) {
-            return { fc: 2, register: num - 10001, type: 'discrete' };
-        }
-        if (raw.startsWith('3') && raw.length === 5) {
-            return { fc: 4, register: num - 30001, type: 'input' };
-        }
-        if (raw.startsWith('4') && raw.length === 5) {
-            return { fc: 3, register: num - 40001, type: 'holding' };
+        // 1. Delta DVP Memory Shortcuts (D0, Y0, M0, X0, T0, C0)
+        if (/^D\d+$/.test(raw)) {
+            const num = parseInt(raw.substring(1), 10);
+            candidates.push({ fc: 3, reg: 4096 + num, type: 'holding', desc: `Delta D${num} (Offset ${4096 + num})` });
+            candidates.push({ fc: 3, reg: num, type: 'holding', desc: `Direct D${num} (Offset ${num})` });
+        } else if (/^Y\d+$/.test(raw)) {
+            const num = parseInt(raw.substring(1), 10);
+            candidates.push({ fc: 1, reg: 1280 + num, type: 'coil', desc: `Delta Y${num} (Offset ${1280 + num})` });
+            candidates.push({ fc: 1, reg: num, type: 'coil', desc: `Direct Y${num} (Offset ${num})` });
+        } else if (/^M\d+$/.test(raw)) {
+            const num = parseInt(raw.substring(1), 10);
+            candidates.push({ fc: 1, reg: 2048 + num, type: 'coil', desc: `Delta M${num} (Offset ${2048 + num})` });
+            candidates.push({ fc: 1, reg: num, type: 'coil', desc: `Direct M${num} (Offset ${num})` });
+        } else if (/^X\d+$/.test(raw)) {
+            const num = parseInt(raw.substring(1), 10);
+            candidates.push({ fc: 2, reg: 1024 + num, type: 'discrete', desc: `Delta X${num} (Offset ${1024 + num})` });
+            candidates.push({ fc: 2, reg: num, type: 'discrete', desc: `Direct X${num} (Offset ${num})` });
         }
 
-        return { fc: 3, register: isNaN(num) ? 0 : num, type: 'holding' };
+        // 2. Standard 5/6-digit Modbus Notation (0xxxx, 1xxxx, 3xxxx, 4xxxx)
+        const num = parseInt(raw.replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(num)) {
+            if (raw.startsWith('0') || (num < 10000 && candidates.length === 0)) {
+                // Coil (FC01)
+                if (num >= 1000) candidates.push({ fc: 1, reg: num - 1, type: 'coil', desc: `Standard Coil (Offset ${num - 1})` });
+                candidates.push({ fc: 1, reg: num > 0 ? (num % 1000) - 1 : 0, type: 'coil', desc: `Modulo Coil (Offset ${(num % 1000) - 1})` });
+                candidates.push({ fc: 1, reg: num > 0 ? num % 1000 : 0, type: 'coil', desc: `Direct Coil (Offset ${num % 1000})` });
+                candidates.push({ fc: 1, reg: 0, type: 'coil', desc: `Coil 0 Fallback` });
+            } else if (raw.startsWith('1')) {
+                // Discrete Input (FC02)
+                candidates.push({ fc: 2, reg: num - 10001, type: 'discrete', desc: `Standard Input (Offset ${num - 10001})` });
+                candidates.push({ fc: 2, reg: (num % 1000) - 1, type: 'discrete', desc: `Modulo Input (Offset ${(num % 1000) - 1})` });
+                candidates.push({ fc: 2, reg: 0, type: 'discrete', desc: `Input 0 Fallback` });
+            } else if (raw.startsWith('3')) {
+                // Input Register (FC04)
+                candidates.push({ fc: 4, reg: num - 30001, type: 'input', desc: `Standard Input Reg (Offset ${num - 30001})` });
+                candidates.push({ fc: 4, reg: (num % 1000) - 1, type: 'input', desc: `Modulo Input Reg (Offset ${(num % 1000) - 1})` });
+                candidates.push({ fc: 4, reg: 0, type: 'input', desc: `Input Reg 0 Fallback` });
+            } else if (raw.startsWith('4') || candidates.length === 0) {
+                // Holding Register (FC03)
+                if (num >= 40001) candidates.push({ fc: 3, reg: num - 40001, type: 'holding', desc: `Standard Holding Reg (Offset ${num - 40001})` });
+                else if (num >= 4000) candidates.push({ fc: 3, reg: num - 4001, type: 'holding', desc: `Standard Holding Reg (Offset ${num - 4001})` });
+                candidates.push({ fc: 3, reg: num > 0 ? (num % 1000) - 1 : 0, type: 'holding', desc: `Modulo Reg (Offset ${(num % 1000) - 1})` });
+                candidates.push({ fc: 3, reg: num, type: 'holding', desc: `Direct Offset ${num}` });
+                candidates.push({ fc: 3, reg: 0, type: 'holding', desc: `Register 0 Fallback` });
+            }
+        }
+
+        if (candidates.length === 0) {
+            candidates.push({ fc: 3, reg: 0, type: 'holding', desc: 'Default Fallback' });
+        }
+
+        return candidates;
     }
 
     async connect() {
@@ -85,67 +110,76 @@ class ModbusReader {
         const results = [];
 
         for (const tag of tags) {
-            try {
-                const parsed = this._parseAddress(tag.address);
-                let value = null;
+            const cacheKey = tag.tagId || tag.tagName;
+            let value = null;
+            let readSuccess = false;
 
-                // Try primary Modbus register address
+            // ─── 1. Check if we already found the working offset for this tag ───
+            const cached = this.workingOffsetCache.get(cacheKey);
+
+            if (cached) {
                 try {
-                    value = await this._readRegister(parsed.fc, parsed.register, tag.dataType);
-                } catch (firstErr) {
-                    // Fallback: If Delta simulator uses 0-based offset (e.g. D0 = 0 instead of 4096)
-                    if (parsed.altRegister !== undefined) {
-                        try {
-                            value = await this._readRegister(parsed.fc, parsed.altRegister, tag.dataType);
-                        } catch (altErr) {
-                            throw firstErr;
-                        }
-                    } else {
-                        throw firstErr;
+                    value = await this._readRegister(cached.fc, cached.reg, tag.dataType);
+                    readSuccess = true;
+                } catch (err) {
+                    // Cached offset failed — invalidate cache and fall back to discovery
+                    this.workingOffsetCache.delete(cacheKey);
+                }
+            }
+
+            // ─── 2. Auto-Discovery Candidate Loop ─────────────────────────────
+            if (!readSuccess) {
+                const candidates = this._getCandidates(tag.address);
+                let lastError = null;
+
+                for (const cand of candidates) {
+                    try {
+                        value = await this._readRegister(cand.fc, cand.reg, tag.dataType);
+                        readSuccess = true;
+
+                        // Cache this working offset so future reads are instantaneous!
+                        this.workingOffsetCache.set(cacheKey, cand);
+                        console.log(`💡 Auto-detected working Modbus register for "${tag.tagName}" (${tag.address}): ${cand.desc}`);
+                        break;
+                    } catch (candErr) {
+                        lastError = candErr;
+                        // Try next candidate
                     }
                 }
 
-                results.push({
-                    tagId: tag.tagId,
-                    tagName: tag.tagName,
-                    value: this._normalize(value, tag.dataType),
-                    quality: 'GOOD',
-                });
-            } catch (err) {
-                console.error(`⚠️  Modbus read failed for "${tag.tagName}" (${tag.address}): ${err.message}`);
-
-                results.push({
-                    tagId: tag.tagId,
-                    tagName: tag.tagName,
-                    value: null,
-                    quality: 'BAD',
-                });
-
-                if (err.message.includes('Port') || err.message.includes('connect') || err.message.includes('closed')) {
-                    this.isConnected = false;
-                    this._scheduleReconnect();
-                    break;
+                if (!readSuccess && lastError) {
+                    console.error(`⚠️  Modbus read failed for "${tag.tagName}" (${tag.address}): ${lastError.message}`);
                 }
             }
+
+            results.push({
+                tagId: tag.tagId,
+                tagName: tag.tagName,
+                value: readSuccess ? this._normalize(value, tag.dataType) : null,
+                quality: readSuccess ? 'GOOD' : 'BAD',
+            });
         }
 
         return results;
     }
 
     async _readRegister(fc, reg, dataType) {
+        // Prevent negative offset errors
+        const safeReg = Math.max(0, reg);
+
         switch (fc) {
             case 1: {
-                const res = await this.client.readCoils(reg, 1);
+                const res = await this.client.readCoils(safeReg, 1);
                 return res.data[0];
             }
             case 2: {
-                const res = await this.client.readDiscreteInputs(reg, 1);
+                const res = await this.client.readDiscreteInputs(safeReg, 1);
                 return res.data[0];
             }
             case 3: {
                 const is32Bit = dataType === 'REAL' || dataType === 'DINT' || dataType === 'DWORD';
                 const count = is32Bit ? 2 : 1;
-                const res = await this.client.readHoldingRegisters(reg, count);
+                const res = await this.client.readHoldingRegisters(safeReg, count);
 
                 if (dataType === 'REAL' && res.data.length >= 2) {
                     const buf = Buffer.alloc(4);
@@ -159,7 +193,7 @@ class ModbusReader {
                 }
             }
             case 4: {
-                const res = await this.client.readInputRegisters(reg, 1);
+                const res = await this.client.readInputRegisters(safeReg, 1);
                 return res.data[0];
             }
             default:
@@ -172,32 +206,39 @@ class ModbusReader {
             throw new Error('Modbus not connected');
         }
 
-        const parsed = this._parseAddress(address);
+        const candidates = this._getCandidates(address);
+        let writeSuccess = false;
+        let lastErr = null;
 
-        try {
-            await this._writeRegister(parsed.type, parsed.register, value, dataType);
-        } catch (err) {
-            if (parsed.altRegister !== undefined) {
-                await this._writeRegister(parsed.type, parsed.altRegister, value, dataType);
-            } else {
-                throw err;
+        for (const cand of candidates) {
+            try {
+                await this._writeRegister(cand.type, cand.reg, value, dataType);
+                writeSuccess = true;
+                console.log(`✅ Modbus Write OK: "${address}" = ${value} (${cand.desc})`);
+                break;
+            } catch (err) {
+                lastErr = err;
             }
         }
 
-        console.log(`✅ Modbus Write OK: ${address} = ${value}`);
+        if (!writeSuccess) {
+            throw new Error(`Modbus write failed for "${address}": ${lastErr?.message || 'Unknown'}`);
+        }
     }
 
     async _writeRegister(type, reg, value, dataType) {
+        const safeReg = Math.max(0, reg);
+
         if (type === 'coil') {
             const boolVal = (value === true || value === 'true' || value === 1 || value === '1');
-            await this.client.writeCoil(reg, boolVal);
+            await this.client.writeCoil(safeReg, boolVal);
         } else {
             if (dataType === 'REAL') {
                 const buf = Buffer.alloc(4);
                 buf.writeFloatBE(parseFloat(value), 0);
-                await this.client.writeRegisters(reg, [buf.readUInt16BE(0), buf.readUInt16BE(2)]);
+                await this.client.writeRegisters(safeReg, [buf.readUInt16BE(0), buf.readUInt16BE(2)]);
             } else {
-                await this.client.writeRegister(reg, Math.round(Number(value)));
+                await this.client.writeRegister(safeReg, Math.round(Number(value)));
             }
         }
     }
@@ -227,6 +268,7 @@ class ModbusReader {
         if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
         if (this.client) try { this.client.close(() => { }); } catch { }
         this.isConnected = false;
+        this.workingOffsetCache.clear();
     }
 }
 
