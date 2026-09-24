@@ -1,16 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// Modbus Reader — Modbus TCP/RTU via modbus-serial
-//
-// Supports: FC01 (Coils), FC02 (Discrete Inputs),
-//           FC03 (Holding Registers), FC04 (Input Registers),
-//           FC05 (Write Single Coil), FC06 (Write Single Register),
-//           FC16 (Write Multiple Registers)
-//
-// Address Format:
-//   "00001" or "0xxxx" → Coils (FC01/FC05)
-//   "10001" or "1xxxx" → Discrete Inputs (FC02)
-//   "40001" or "4xxxx" → Holding Registers (FC03/FC06/FC16)
-//   "30001" or "3xxxx" → Input Registers (FC04)
+// Modbus Reader — Modbus TCP/RTU (With Delta DVP Direct Address Support)
 // ═══════════════════════════════════════════════════════════
 
 const ModbusRTU = require('modbus-serial');
@@ -25,45 +14,62 @@ class ModbusReader {
         this.unitId = plcConfig.unitId || 1;
     }
 
-    // ─── Parse Modbus Address ───────────────────────────────
+    // ─── Parse Address (Supports Delta DVP Shortcuts: D0, Y0, M0, X0) ───
     _parseAddress(address) {
-        const addr = String(address).trim();
-        const num = parseInt(addr, 10);
+        const raw = String(address).trim().toUpperCase();
 
-        if (addr.startsWith('0') && addr.length === 5) {
+        // 🟢 Delta DVP Direct Names Support
+        if (raw.startsWith('D') && /^D\d+$/.test(raw)) {
+            const dNum = parseInt(raw.substring(1), 10);
+            return { fc: 3, register: 4096 + dNum, type: 'holding', altRegister: dNum };
+        }
+        if (raw.startsWith('Y') && /^Y\d+$/.test(raw)) {
+            const yNum = parseInt(raw.substring(1), 10);
+            return { fc: 1, register: 1280 + yNum, type: 'coil', altRegister: yNum };
+        }
+        if (raw.startsWith('M') && /^M\d+$/.test(raw)) {
+            const mNum = parseInt(raw.substring(1), 10);
+            return { fc: 1, register: 2048 + mNum, type: 'coil', altRegister: mNum };
+        }
+        if (raw.startsWith('X') && /^X\d+$/.test(raw)) {
+            const xNum = parseInt(raw.substring(1), 10);
+            return { fc: 2, register: 1024 + xNum, type: 'discrete', altRegister: xNum };
+        }
+
+        // Standard 5-digit Modbus format (44097, 01281, etc.)
+        const num = parseInt(raw, 10);
+        if (raw.startsWith('0') && raw.length === 5) {
             return { fc: 1, register: num - 1, type: 'coil' };
         }
-        if (addr.startsWith('1') && addr.length === 5) {
+        if (raw.startsWith('1') && raw.length === 5) {
             return { fc: 2, register: num - 10001, type: 'discrete' };
         }
-        if (addr.startsWith('3') && addr.length === 5) {
+        if (raw.startsWith('3') && raw.length === 5) {
             return { fc: 4, register: num - 30001, type: 'input' };
         }
-        if (addr.startsWith('4') && addr.length === 5) {
+        if (raw.startsWith('4') && raw.length === 5) {
             return { fc: 3, register: num - 40001, type: 'holding' };
         }
 
-        // Fallback: treat as holding register
         return { fc: 3, register: isNaN(num) ? 0 : num, type: 'holding' };
     }
 
-    // ─── Connect ────────────────────────────────────────────
-    connect() {
+    async connect() {
         return new Promise(async (resolve) => {
             try {
                 this.client = new ModbusRTU();
                 this.client.setID(this.unitId);
-                this.client.setTimeout(5000);
+                this.client.setTimeout(3000);
 
                 await this.client.connectTCP(this.config.ip, {
                     port: this.config.port || 502,
                 });
 
                 this.isConnected = true;
-                console.log(`✅ Modbus TCP connected to ${this.config.ip}:${this.config.port || 502} (Unit ${this.unitId})`);
+                console.log(`✅ Modbus TCP connected to ${this.config.ip}:${this.config.port || 502} (Unit ID ${this.unitId})`);
                 resolve(true);
             } catch (err) {
-                console.error(`❌ Modbus connection failed to ${this.config.ip}: ${err.message}`);
+                console.error(`❌ Modbus connect error to ${this.config.ip}:${this.config.port}: ${err.message}`);
                 this.isConnected = false;
                 this._scheduleReconnect();
                 resolve(false);
@@ -71,15 +77,9 @@ class ModbusReader {
         });
     }
 
-    // ─── Read Tags ──────────────────────────────────────────
     async readTags(tags) {
         if (!this.isConnected || !this.client) {
-            return tags.map((t) => ({
-                tagId: t.tagId,
-                tagName: t.tagName,
-                value: null,
-                quality: 'BAD',
-            }));
+            return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         }
 
         const results = [];
@@ -88,42 +88,20 @@ class ModbusReader {
             try {
                 const parsed = this._parseAddress(tag.address);
                 let value = null;
-                let quality = 'GOOD';
 
-                switch (parsed.fc) {
-                    case 1: { // Coil
-                        const res = await this.client.readCoils(parsed.register, 1);
-                        value = res.data[0];
-                        break;
-                    }
-                    case 2: { // Discrete Input
-                        const res = await this.client.readDiscreteInputs(parsed.register, 1);
-                        value = res.data[0];
-                        break;
-                    }
-                    case 3: { // Holding Register
-                        const res = await this.client.readHoldingRegisters(parsed.register, tag.dataType === 'REAL' ? 2 : 1);
-                        if (tag.dataType === 'REAL' && res.data.length >= 2) {
-                            const buf = Buffer.alloc(4);
-                            buf.writeUInt16BE(res.data[0], 0);
-                            buf.writeUInt16BE(res.data[1], 2);
-                            value = buf.readFloatBE(0);
-                        } else {
-                            value = res.data[0];
+                // Try primary Modbus register address
+                try {
+                    value = await this._readRegister(parsed.fc, parsed.register, tag.dataType);
+                } catch (firstErr) {
+                    // Fallback: If Delta simulator uses 0-based offset (e.g. D0 = 0 instead of 4096)
+                    if (parsed.altRegister !== undefined) {
+                        try {
+                            value = await this._readRegister(parsed.fc, parsed.altRegister, tag.dataType);
+                        } catch (altErr) {
+                            throw firstErr;
                         }
-                        break;
-                    }
-                    case 4: { // Input Register
-                        const res = await this.client.readInputRegisters(parsed.register, tag.dataType === 'REAL' ? 2 : 1);
-                        if (tag.dataType === 'REAL' && res.data.length >= 2) {
-                            const buf = Buffer.alloc(4);
-                            buf.writeUInt16BE(res.data[0], 0);
-                            buf.writeUInt16BE(res.data[1], 2);
-                            value = buf.readFloatBE(0);
-                        } else {
-                            value = res.data[0];
-                        }
-                        break;
+                    } else {
+                        throw firstErr;
                     }
                 }
 
@@ -131,12 +109,11 @@ class ModbusReader {
                     tagId: tag.tagId,
                     tagName: tag.tagName,
                     value: this._normalize(value, tag.dataType),
-                    quality,
+                    quality: 'GOOD',
                 });
             } catch (err) {
-                if (this.verbose) {
-                    console.error(`❌ Modbus read error ${tag.tagName}: ${err.message}`);
-                }
+                console.error(`⚠️  Modbus read failed for "${tag.tagName}" (${tag.address}): ${err.message}`);
+
                 results.push({
                     tagId: tag.tagId,
                     tagName: tag.tagName,
@@ -144,8 +121,7 @@ class ModbusReader {
                     quality: 'BAD',
                 });
 
-                // If we get a connection error, mark disconnected
-                if (err.message.includes('Port') || err.message.includes('connect')) {
+                if (err.message.includes('Port') || err.message.includes('connect') || err.message.includes('closed')) {
                     this.isConnected = false;
                     this._scheduleReconnect();
                     break;
@@ -156,7 +132,41 @@ class ModbusReader {
         return results;
     }
 
-    // ─── Write Tag ──────────────────────────────────────────
+    async _readRegister(fc, reg, dataType) {
+        switch (fc) {
+            case 1: {
+                const res = await this.client.readCoils(reg, 1);
+                return res.data[0];
+            }
+            case 2: {
+                const res = await this.client.readDiscreteInputs(reg, 1);
+                return res.data[0];
+            }
+            case 3: {
+                const is32Bit = dataType === 'REAL' || dataType === 'DINT' || dataType === 'DWORD';
+                const count = is32Bit ? 2 : 1;
+                const res = await this.client.readHoldingRegisters(reg, count);
+
+                if (dataType === 'REAL' && res.data.length >= 2) {
+                    const buf = Buffer.alloc(4);
+                    buf.writeUInt16BE(res.data[0], 0);
+                    buf.writeUInt16BE(res.data[1], 2);
+                    return buf.readFloatBE(0);
+                } else if ((dataType === 'DINT' || dataType === 'DWORD') && res.data.length >= 2) {
+                    return (res.data[0] << 16) | res.data[1];
+                } else {
+                    return res.data[0];
+                }
+            }
+            case 4: {
+                const res = await this.client.readInputRegisters(reg, 1);
+                return res.data[0];
+            }
+            default:
+                throw new Error(`Unsupported Function Code: ${fc}`);
+        }
+    }
+
     async writeTag(address, value, dataType) {
         if (!this.isConnected || !this.client) {
             throw new Error('Modbus not connected');
@@ -164,31 +174,37 @@ class ModbusReader {
 
         const parsed = this._parseAddress(address);
 
-        switch (parsed.type) {
-            case 'coil':
-                await this.client.writeCoil(parsed.register, Boolean(value));
-                break;
-            case 'holding':
-                if (dataType === 'REAL') {
-                    const buf = Buffer.alloc(4);
-                    buf.writeFloatBE(parseFloat(value), 0);
-                    await this.client.writeRegisters(parsed.register, [
-                        buf.readUInt16BE(0),
-                        buf.readUInt16BE(2),
-                    ]);
-                } else {
-                    await this.client.writeRegister(parsed.register, Math.round(Number(value)));
-                }
-                break;
-            default:
-                throw new Error(`Cannot write to ${parsed.type} registers`);
+        try {
+            await this._writeRegister(parsed.type, parsed.register, value, dataType);
+        } catch (err) {
+            if (parsed.altRegister !== undefined) {
+                await this._writeRegister(parsed.type, parsed.altRegister, value, dataType);
+            } else {
+                throw err;
+            }
+        }
+
+        console.log(`✅ Modbus Write OK: ${address} = ${value}`);
+    }
+
+    async _writeRegister(type, reg, value, dataType) {
+        if (type === 'coil') {
+            const boolVal = (value === true || value === 'true' || value === 1 || value === '1');
+            await this.client.writeCoil(reg, boolVal);
+        } else {
+            if (dataType === 'REAL') {
+                const buf = Buffer.alloc(4);
+                buf.writeFloatBE(parseFloat(value), 0);
+                await this.client.writeRegisters(reg, [buf.readUInt16BE(0), buf.readUInt16BE(2)]);
+            } else {
+                await this.client.writeRegister(reg, Math.round(Number(value)));
+            }
         }
     }
 
-    // ─── Normalize Value ────────────────────────────────────
     _normalize(value, dataType) {
         if (value === null || value === undefined) return null;
-        switch (dataType) {
+        switch ((dataType || '').toUpperCase()) {
             case 'BOOL': return Boolean(value);
             case 'REAL': return parseFloat(Number(value).toFixed(4));
             case 'INT': case 'WORD': case 'DINT': case 'DWORD': case 'BYTE':
@@ -197,30 +213,19 @@ class ModbusReader {
         }
     }
 
-    // ─── Reconnect ──────────────────────────────────────────
     _scheduleReconnect() {
         if (this.reconnectTimer) return;
         this.reconnectTimer = setTimeout(async () => {
             this.reconnectTimer = null;
             if (!this.isConnected) {
-                if (this.verbose) console.log(`🔄 Modbus reconnecting to ${this.config.ip}...`);
                 await this.connect();
             }
         }, 5000);
     }
 
-    // ─── Disconnect ─────────────────────────────────────────
     disconnect() {
-        if (this.reconnectTimer) {
-            clearTimeout(this.reconnectTimer);
-            this.reconnectTimer = null;
-        }
-        if (this.client) {
-            try {
-                this.client.close(() => { });
-            } catch { }
-            this.client = null;
-        }
+        if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+        if (this.client) try { this.client.close(() => { }); } catch { }
         this.isConnected = false;
     }
 }
