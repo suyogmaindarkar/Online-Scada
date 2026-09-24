@@ -116,8 +116,8 @@ const PLCManagement = () => {
     <div className="space-y-4 font-sans text-slate-800">
 
       <div className="p-5 rounded-2xl bg-white border shadow-sm flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold" style={{ color: C.heading }}>Equipment Connections</h1><p className="text-sm text-slate-500">Manage PLCs and link your factory to the cloud</p></div>
-        <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
+        <div><h1 className="text-2xl font-bold" style={{ color: C.heading }}>PLC Connections</h1><p className="text-sm text-slate-500">Manage PLCs and link your factory to the cloud</p></div>
+        <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add PLC</ActionButton>
       </div>
 
       {/* ═══ FACTORY CONNECTOR ═══ */}
@@ -155,8 +155,8 @@ const PLCManagement = () => {
           <div className="py-16 text-center">
             <Cpu className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <h3 className="text-xl font-bold text-slate-800">No Equipment Added</h3>
-            <p className="text-sm text-slate-500 mb-6">Click "Add Equipment" to connect your first machine.</p>
-            <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
+            <p className="text-sm text-slate-500 mb-6">Click "Add PLC" to connect your first machine.</p>
+            <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add PLC</ActionButton>
           </div>
         ) : (
           <table className="w-full text-left">
@@ -181,7 +181,7 @@ const PLCManagement = () => {
         )}
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingPLC ? 'Edit Equipment' : 'Add Equipment'} size="lg">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingPLC ? 'Edit Equipment' : 'Add PLC'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-semibold mb-1">Machine Name *</label><input required name="name" value={formData.name} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50" /></div>
