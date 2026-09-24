@@ -15,7 +15,7 @@ import socketService from '../../services/socket';
 import {
   LayoutDashboard, Cpu, Tag, Palette, Monitor, Bell,
   TrendingUp, ChefHat, Users, Settings as SettingsIcon,
-  Zap, LogOut, User, FileText, Repeat, Shield, Wrench, Radio, Eye, Network
+  Zap, LogOut, User, FileText, Repeat, Shield, Wrench, Radio, Eye, Network, HelpCircle
 } from 'lucide-react';
 
 // ─── Role display config ──────────────────────────────────
@@ -39,6 +39,7 @@ const MENU_ITEMS = [
   { path: '/reports', icon: FileText, label: 'Reports', roles: ['admin', 'engineer'] },
   { path: '/users', icon: Users, label: 'Users', roles: ['admin'] },
   { path: '/settings', icon: SettingsIcon, label: 'Settings', roles: ['admin'] },
+  { path: '/help', icon: HelpCircle, label: 'Help', roles: ['admin', 'engineer', 'operator', 'viewer'] },
 ];
 
 const Sidebar = () => {

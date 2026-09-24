@@ -12,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import SuperAdminProtectedRoute from './components/superAdmin/SuperAdminProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import ChatBot from './components/chatbot/ChatBot';
-
+import Help from './pages/Help';
 // Workspace auth pages
 import WorkspaceLogin from './pages/WorkspaceLogin';
 import UserSelection from './pages/UserSelection';
@@ -95,6 +95,10 @@ function App() {
                     {/* ═══════ ROOT + CATCH-ALL ═══════ */}
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    {/* ═══════ HELP — All Roles ═══════ */}
+                    <Route path="/help"
+                      element={<ProtectedRoute allowedRoles={ROLE_ALL}><MainLayout><Help /></MainLayout></ProtectedRoute>} />
+
                   </Routes>
 
                   {/* Chatbot — only for workspace users, NOT super admin */}
