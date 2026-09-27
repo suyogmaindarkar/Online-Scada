@@ -15,7 +15,7 @@ import {
   Download, Upload, FileText, Search, Radar, Signal, SignalHigh, SignalLow,
   CheckCircle2, ShieldCheck, Microscope, RefreshCw, ChevronDown, ChevronUp,
   Zap, Package, Hash, Tag, Server, Settings2, CheckCircle, Network, FolderArchive,
-  Info, Key, MapPin, Monitor, Lightbulb, Hexagon, Box, Layers, Timer, CheckCircle as Check
+  Info, Key, MapPin, Monitor, Lightbulb, Hexagon, Box, Layers, Timer, AlertCircle
 } from 'lucide-react';
 
 const C = {
@@ -233,7 +233,7 @@ const PLCManagement = () => {
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-bold text-base text-slate-900">Factory Connector Link</h3>
                 <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: isGatewayOnline ? '#DCFCE7' : '#FEF3C7', color: isGatewayOnline ? '#15803D' : '#B45309' }}>
-                  {isGatewayOnline ? <Check size={12} strokeWidth={3} /> : <AlertCircle size={12} strokeWidth={3} />}
+                  {isGatewayOnline ? <CheckCircle size={12} strokeWidth={3} /> : <AlertCircle size={12} strokeWidth={3} />}
                   {isGatewayOnline ? 'System is Online & Connected' : nonSimPlcCount === 0 ? 'Waiting for Equipment' : 'Offline - Setup Required'}
                 </span>
               </div>
