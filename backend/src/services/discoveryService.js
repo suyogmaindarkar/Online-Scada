@@ -9,21 +9,6 @@ exports.initiateScan = async (companyId, options) => {
         devices: [],
         startTime: Date.now()
     });
-
-    // Attempt to route the command to the /edge namespace room for this company
-    // This supports standard Express architectures where IO is bound globally
-    let edgeNamespace = null;
-    if (global.edgeIo) {
-        edgeNamespace = global.edgeIo;
-    } else if (global.io) {
-        edgeNamespace = global.io.of('/edge');
-    }
-
-    if (edgeNamespace) {
-        edgeNamespace.to(`company:${companyId}`).emit('edge:startDiscovery', options);
-    } else {
-        console.warn('[WARNING] Socket.io namespace not found globally. Discovery command dropped.');
-    }
 };
 
 exports.getStatus = (companyId) => {
