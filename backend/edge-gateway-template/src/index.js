@@ -1,9 +1,10 @@
 // ═══════════════════════════════════════════════════════════
-// OnlineSCADA Factory Connector — Fixed Screen SCADA Dashboard
+// OnlineSCADA Factory Connector — SCADA Dashboard & Network Scan
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
@@ -36,12 +37,9 @@ async function main() {
         }
     };
 
-    // Intercept console outputs so third-party library warnings never break the terminal layout
     console.log = (...args) => {
         const txt = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
-        if (!txt.includes('node-opcua') && !txt.includes('verify')) {
-            state.addLog(txt.substring(0, 65));
-        }
+        if (!txt.includes('node-opcua') && !txt.includes('verify')) state.addLog(txt.substring(0, 65));
     };
     console.error = (...args) => {
         const txt = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
@@ -59,7 +57,6 @@ async function main() {
         const boxTop = '┌' + '─'.repeat(w + 2) + '┐';
         const boxMid = '├' + '─'.repeat(w + 2) + '┤';
         const boxBot = '└' + '─'.repeat(w + 2) + '┘';
-
         const row = (txt = '') => {
             const clean = txt.replace(/\x1b\[[0-9;]*m/g, '');
             const pad = Math.max(0, w - clean.length);
@@ -67,10 +64,8 @@ async function main() {
         };
 
         let buf = '';
-        if (isFirstRender) {
-            buf += '\x1b[2J'; // Clear screen once on startup
-        }
-        buf += '\x1b[H'; // Reset cursor to top-left (0,0) without scrollback spam
+        if (isFirstRender) buf += '\x1b[2J';
+        buf += '\x1b[H';
 
         buf += boxTop + '\n';
         buf += row('\x1b[1m\x1b[36m                       O N L I N E S C A D A\x1b[0m') + '\n';
@@ -148,6 +143,46 @@ async function main() {
             plcReader.reload(newConfig.plcs);
             renderDashboard();
         }
+    });
+
+    // ─── Restore Network Discovery Scanner ───
+    cloudBridge.onStartDiscovery(async (options) => {
+        state.addLog(`Network scan started: ${options.startIP} to ${options.endIP}`);
+        cloudBridge.reportDiscovery('started', []);
+
+        const results = [];
+        const targetPorts = { 102: 'S7', 502: 'MODBUS_TCP', 4840: 'OPC_UA', 44818: 'ETHERNET_IP' };
+
+        try {
+            const base = options.startIP.substring(0, options.startIP.lastIndexOf('.'));
+            const start = parseInt(options.startIP.split('.').pop());
+            const end = parseInt(options.endIP.split('.').pop());
+
+            for (let i = start; i <= end; i++) {
+                const ip = `${base}.${i}`;
+                for (const [portStr, proto] of Object.entries(targetPorts)) {
+                    const port = parseInt(portStr);
+                    await new Promise((resolve) => {
+                        const socket = new net.Socket();
+                        socket.setTimeout(400);
+                        socket.on('connect', () => {
+                            results.push({ ip, port, protocol: proto });
+                            state.addLog(`Discovered ${proto} at ${ip}:${port}`);
+                            socket.destroy();
+                            resolve();
+                        });
+                        socket.on('timeout', () => { socket.destroy(); resolve(); });
+                        socket.on('error', () => resolve());
+                        socket.connect(port, ip);
+                    });
+                }
+            }
+        } catch (err) {
+            state.addLog(`Scan failed: ${err.message}`);
+        }
+
+        cloudBridge.reportDiscovery('completed', results);
+        state.addLog(`Scan complete. Found ${results.length} device(s).`);
     });
 
     setInterval(() => {
