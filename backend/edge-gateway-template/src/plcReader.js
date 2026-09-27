@@ -1,5 +1,8 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader — Protocol Dispatcher (With Write Support)
+// PLC Reader — Protocol Dispatcher
+// With Dashboard Status Reporting
+//
+// PLC communication logic remains unchanged.
 // ═══════════════════════════════════════════════════════════
 
 const S7Reader = require('./readers/s7Reader');
@@ -28,6 +31,7 @@ class PLCReader {
 
     async startAll() {
         const plcs = this.config.plcs || [];
+
         for (const plcConfig of plcs) {
             await this._startPLC(plcConfig);
         }
@@ -35,104 +39,295 @@ class PLCReader {
 
     async _startPLC(plcConfig) {
         const plcId = plcConfig.plcId;
-        const protocol = (plcConfig.protocol || '').toLowerCase();
-
-        console.log(`🏭 Starting PLC: ${plcConfig.ip}:${plcConfig.port} (${protocol}) — ${plcConfig.tags?.length || 0} tags`);
+        const protocol =
+            (plcConfig.protocol || '').toLowerCase();
 
         try {
             let reader;
-            if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
-            else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
-            else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
-            else return;
 
-            const connected = await reader.connect();
-            if (!connected) console.error(`❌ Connection pending for PLC ${plcConfig.ip}:${plcConfig.port}`);
+            if (protocol === 's7') {
+                reader = new S7Reader(
+                    plcConfig,
+                    this.verbose
+                );
+            } else if (protocol.includes('modbus')) {
+                reader = new ModbusReader(
+                    plcConfig,
+                    this.verbose
+                );
+            } else if (protocol.includes('opc')) {
+                reader = new OPCUAReader(
+                    plcConfig,
+                    this.verbose
+                );
+            } else {
+                return;
+            }
 
-            this.readers.set(plcId, reader);
+            const connected =
+                await reader.connect();
 
-            const pollMs = plcConfig.pollIntervalMs || 1000;
-            const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), pollMs);
-            this.intervals.set(plcId, intervalId);
+            this.readers.set(
+                plcId,
+                reader
+            );
 
-            console.log(`✅ PLC ${plcId} polling active (${pollMs}ms)`);
+            const pollMs =
+                plcConfig.pollIntervalMs || 1000;
+
+            const intervalId =
+                setInterval(
+                    () =>
+                        this._pollPLC(
+                            plcId,
+                            plcConfig
+                        ),
+                    pollMs
+                );
+
+            this.intervals.set(
+                plcId,
+                intervalId
+            );
+
+            if (this.verbose) {
+                console.log(
+                    `PLC ${plcId} polling active (${pollMs}ms)`
+                );
+            }
+
         } catch (err) {
-            console.error(`❌ Error starting PLC ${plcId}:`, err.message);
+            if (this.verbose) {
+                console.error(
+                    `Error starting PLC ${plcId}:`,
+                    err.message
+                );
+            }
         }
     }
 
     async _pollPLC(plcId, plcConfig) {
-        const reader = this.readers.get(plcId);
+        const reader =
+            this.readers.get(plcId);
+
         if (!reader) return;
 
         try {
-            const tags = plcConfig.tags || [];
+            const tags =
+                plcConfig.tags || [];
+
             if (tags.length === 0) return;
 
-            const values = await reader.readTags(tags);
-            if (!values || values.length === 0) return;
+            const values =
+                await reader.readTags(tags);
+
+            if (!values || values.length === 0) {
+                return;
+            }
 
             const changed = [];
             const now = Date.now();
 
             for (const val of values) {
-                const prev = this.previousValues.get(val.tagId);
-                if (!prev || prev.value !== val.value || (now - prev.timestamp > 10000)) {
-                    changed.push({ tagId: val.tagId, tagName: val.tagName, value: val.value, quality: val.quality || 'GOOD', timestamp: now });
-                    this.previousValues.set(val.tagId, { value: val.value, timestamp: now });
+                const prev =
+                    this.previousValues.get(
+                        val.tagId
+                    );
+
+                if (
+                    !prev ||
+                    prev.value !== val.value ||
+                    (now - prev.timestamp > 10000)
+                ) {
+                    changed.push({
+                        tagId: val.tagId,
+                        tagName: val.tagName,
+                        value: val.value,
+                        quality:
+                            val.quality || 'GOOD',
+                        timestamp: now
+                    });
+
+                    this.previousValues.set(
+                        val.tagId,
+                        {
+                            value: val.value,
+                            timestamp: now
+                        }
+                    );
                 }
             }
 
             if (changed.length > 0) {
-                this.cloudBridge.sendTagValues(changed);
+                this.cloudBridge.sendTagValues(
+                    changed
+                );
             }
-        } catch (err) { }
+
+        } catch (err) {
+            // Existing behavior preserved.
+        }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // ✍️ WRITE COMMAND DISPATCHER
-    // ═══════════════════════════════════════════════════════════
-    async handleWriteCommand(cmd) {
-        const { tagId, tagName, address, value, dataType, requestSocketId } = cmd;
+    // ═══════════════════════════════════════════════════════
+    // READ-ONLY DASHBOARD STATUS
+    // ═══════════════════════════════════════════════════════
 
-        console.log(`✍️  Received Write Command: ${tagName} (${address}) = ${value} [${dataType}]`);
+    getStatus() {
+        const plcs =
+            this.config.plcs || [];
+
+        const devices = plcs.map((plc) => {
+
+            const reader =
+                this.readers.get(
+                    plc.plcId
+                );
+
+            const protocol =
+                (plc.protocol || 'UNKNOWN')
+                    .toUpperCase();
+
+            const connected =
+                reader
+                    ? reader.isConnected !== false
+                    : false;
+
+            return {
+                id: plc.plcId,
+                name:
+                    plc.name ||
+                    plc.plcName ||
+                    plc.deviceName ||
+                    plc.plcId ||
+                    'Industrial Device',
+
+                protocol,
+
+                connected,
+
+                tags:
+                    Array.isArray(plc.tags)
+                        ? plc.tags.length
+                        : 0
+            };
+        });
+
+        const totalTags =
+            devices.reduce(
+                (sum, device) =>
+                    sum + device.tags,
+                0
+            );
+
+        const connectedDevices =
+            devices.filter(
+                d => d.connected
+            ).length;
+
+        return {
+            devices,
+            totalTags,
+
+            // Dashboard deliberately shows
+            // configured/readable tag count,
+            // never individual values.
+            readingTags:
+                connectedDevices > 0
+                    ? totalTags
+                    : 0,
+
+            connectedDevices,
+
+            totalDevices:
+                devices.length
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // WRITE COMMAND DISPATCHER
+    // ═══════════════════════════════════════════════════════
+
+    async handleWriteCommand(cmd) {
+
+        const {
+            tagId,
+            tagName,
+            address,
+            value,
+            dataType,
+            requestSocketId
+        } = cmd;
 
         let targetReader = null;
 
         for (const [plcId, reader] of this.readers) {
-            const plcConfig = (this.config.plcs || []).find((p) => p.plcId === plcId);
+
+            const plcConfig =
+                (this.config.plcs || [])
+                    .find(
+                        (p) =>
+                            p.plcId === plcId
+                    );
+
             if (!plcConfig) continue;
 
-            const hasTag = (plcConfig.tags || []).some((t) => t.tagId === tagId || t.address === address || t.tagName === tagName);
+            const hasTag =
+                (plcConfig.tags || [])
+                    .some(
+                        (t) =>
+                            t.tagId === tagId ||
+                            t.address === address ||
+                            t.tagName === tagName
+                    );
+
             if (hasTag) {
                 targetReader = reader;
                 break;
             }
         }
 
-        // Fallback: If not found by tag, use the first active reader
-        if (!targetReader && this.readers.size > 0) {
-            targetReader = this.readers.values().next().value;
+        if (
+            !targetReader &&
+            this.readers.size > 0
+        ) {
+            targetReader =
+                this.readers
+                    .values()
+                    .next()
+                    .value;
         }
 
         if (!targetReader) {
-            console.warn(`⚠️  No active reader found to execute write for: ${tagName}`);
+
             this.cloudBridge.sendWriteResult({
                 tagId,
                 tagName,
                 success: false,
-                error: 'No active reader available',
+                error:
+                    'No active reader available',
                 requestSocketId,
             });
+
             return;
         }
 
         try {
-            await targetReader.writeTag(address, value, dataType);
 
-            // Force-update memory cache so polling re-broadcasts immediately
+            await targetReader.writeTag(
+                address,
+                value,
+                dataType
+            );
+
             if (tagId) {
-                this.previousValues.set(tagId, { value, timestamp: Date.now() });
+                this.previousValues.set(
+                    tagId,
+                    {
+                        value,
+                        timestamp: Date.now()
+                    }
+                );
             }
 
             this.cloudBridge.sendWriteResult({
@@ -143,9 +338,8 @@ class PLCReader {
                 requestSocketId,
             });
 
-            console.log(`✅ Write Executed Successfully: ${tagName} = ${value}`);
         } catch (err) {
-            console.error(`❌ Write Execution Failed for ${tagName}: ${err.message}`);
+
             this.cloudBridge.sendWriteResult({
                 tagId,
                 tagName,
@@ -157,26 +351,56 @@ class PLCReader {
     }
 
     async reload(newPlcConfigs) {
-        console.log('🔄 Hot-reloading PLC connections...');
+
+        if (this.verbose) {
+            console.log(
+                'Hot-reloading PLC connections...'
+            );
+        }
+
         this.stopAll();
+
         this.previousValues.clear();
-        this.config.plcs = newPlcConfigs || [];
+
+        this.config.plcs =
+            newPlcConfigs || [];
+
         await this.startAll();
-        console.log('✅ Hot reload complete');
+
+        if (this.verbose) {
+            console.log(
+                'Hot reload complete'
+            );
+        }
     }
 
     stopAll() {
-        for (const [, id] of this.intervals) clearInterval(id);
+
+        for (
+            const [, id]
+            of this.intervals
+        ) {
+            clearInterval(id);
+        }
+
         this.intervals.clear();
 
-        for (const [, reader] of this.readers) {
-            try { reader.disconnect(); } catch (e) { }
+        for (
+            const [, reader]
+            of this.readers
+        ) {
+            try {
+                reader.disconnect();
+            } catch (e) { }
         }
+
         this.readers.clear();
     }
 
     getStats() {
-        return { ...this.stats };
+        return {
+            ...this.stats
+        };
     }
 }
 
