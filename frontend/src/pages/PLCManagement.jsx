@@ -3,13 +3,12 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
-import { plcAPI, discoveryAPI } from '../services/api';
+import { plcAPI } from '../services/api';
 import api from '../services/api';
 import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
-import { ImportResults } from './TagManagement';
 import {
   Plus, Edit2, Trash2, Play, Pause, Cpu, Wifi, WifiOff, Loader2, Sparkles,
   Download, Upload, FileText, Search, Radar, Signal, SignalHigh, SignalLow,
@@ -52,15 +51,8 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
   );
 };
 
-const CONF_MAP = {
-  high: { color: C.success, bg: '#DCFCE7', icon: SignalHigh, label: 'High Confidence' },
-  medium: { color: C.warning, bg: '#FEF3C7', icon: Signal, label: 'Medium Confidence' },
-  low: { color: C.subtle, bg: '#F1F5F9', icon: SignalLow, label: 'Low Confidence' },
-};
-
 const PHASE_LABELS = {
-  idle: 'Idle', pinging: 'Phase 1: Pinging hosts...', probing: 'Phase 1: Probing ports...',
-  identifying: 'Phase 1: Identifying...', deep_probing: 'Phase 2: Deep identification...',
+  idle: 'Idle', pinging: 'Phase 1: Preparing scan...', probing: 'Phase 2: Port checking across local subnet...',
   done: 'Scan complete', cancelled: 'Cancelled',
 };
 
@@ -73,29 +65,16 @@ const PLCManagement = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [creatingSim, setCreatingSim] = useState(false);
 
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importCsvText, setImportCsvText] = useState('');
-  const [importMode, setImportMode] = useState('create');
-  const [importing, setImporting] = useState(false);
-  const [importResults, setImportResults] = useState(null);
-  const [exporting, setExporting] = useState(false);
-  const [testingPLC, setTestingPLC] = useState(null);
-  const fileInputRef = useRef(null);
-
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanPhase, setScanPhase] = useState('idle');
   const [scanResults, setScanResults] = useState(null);
-  const [networks, setNetworks] = useState([]);
-  const [selectedNetwork, setSelectedNetwork] = useState(0);
   const [customRange, setCustomRange] = useState({ startIP: '', endIP: '' });
-  const [useCustomRange, setUseCustomRange] = useState(false);
   const [useDeepProbe, setUseDeepProbe] = useState(true);
-  const [probingIP, setProbingIP] = useState(null);
-  const [expandedDevices, setExpandedDevices] = useState({});
 
   const [gateway, setGateway] = useState(null);
   const [downloadingPackage, setDownloadingPackage] = useState(false);
+  const [testingPLC, setTestingPLC] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502,
@@ -110,11 +89,28 @@ const PLCManagement = () => {
     return () => { socketService.off('plcStatus', handlePlcStatus); clearInterval(statusInterval); };
   }, []);
 
+  // Poll for Discovery Progress via HTTP to circumvent complex socket namespace routing
   useEffect(() => {
     if (!scanning) return;
     const interval = setInterval(async () => {
-      try { const res = await discoveryAPI.getProgress(); if (res.data?.phase) setScanPhase(res.data.phase); } catch { }
-    }, 1000);
+      try {
+        const res = await api.get('/discovery/status');
+        if (res.data) {
+          setScanPhase(res.data.phase);
+          if (res.data.devices) {
+            setScanResults({
+              scannedIPs: res.data.scannedIPs,
+              aliveHosts: res.data.aliveHosts,
+              devices: res.data.devices
+            });
+          }
+          if (res.data.phase === 'done') {
+            setScanning(false);
+            showToast('Network scan complete', 'success');
+          }
+        }
+      } catch { }
+    }, 1500);
     return () => clearInterval(interval);
   }, [scanning]);
 
@@ -141,13 +137,7 @@ const PLCManagement = () => {
       loadGateway();
     } catch (err) {
       let msg = 'Package download failed';
-      try {
-        if (err.response?.data instanceof Blob) {
-          const text = await err.response.data.text();
-          const parsed = JSON.parse(text);
-          msg = parsed.message || msg;
-        } else if (err.response?.data?.message) msg = err.response.data.message;
-      } catch (parseErr) { }
+      try { if (err.response?.data?.message) msg = err.response.data.message; } catch (e) { }
       showToast(`Error: ${msg}`, 'error', 6000);
     } finally { setDownloadingPackage(false); }
   };
@@ -158,11 +148,12 @@ const PLCManagement = () => {
       const res = await plcAPI.quickSimulation();
       showToast(`${res.data?.data?.name || 'Simulation PLC'} created with demo tags`, 'success', 5000);
       await loadPLCs();
-    } catch (err) { showToast(err.response?.data?.message || 'Creation failed', 'error'); } finally { setCreatingSim(false); }
+    } catch (err) { showToast('Creation failed', 'error'); } finally { setCreatingSim(false); }
   };
 
   const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
   const handleOpenEdit = (plc) => { setEditingPLC(plc); setFormData({ ...plc }); setShowModal(true); };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -171,6 +162,7 @@ const PLCManagement = () => {
       showToast('Equipment saved', 'success'); setShowModal(false); loadPLCs(); loadGateway();
     } catch (err) { showToast('Operation failed', 'error'); }
   };
+
   const handleDelete = async () => { try { await plcAPI.delete(deleteId); setDeleteId(null); loadPLCs(); showToast('Deleted successfully', 'success'); } catch (err) { showToast('Delete failed', 'error'); } };
 
   const handleStartStop = async (plc) => {
@@ -192,40 +184,60 @@ const PLCManagement = () => {
 
   const handleInputChange = (e) => { const { name, value, type } = e.target; setFormData({ ...formData, [name]: type === 'number' ? parseInt(value) : value }); };
 
-  // Handlers for Import/Export/Scan omitted for brevity but remain fully functional
-  const handleExportCSV = async () => { /* Export logic */ };
-  const handleDownloadTemplate = async () => { /* Template logic */ };
-  const handleFileSelect = (e) => { /* File select */ };
-  const handleOpenImport = () => { setShowImportModal(true); };
-  const handleCloseImport = () => { setShowImportModal(false); };
-  const handleImportSubmit = async () => { /* Import submit */ };
-  const handleOpenDiscovery = async () => { setShowDiscoveryModal(true); };
-  const handleStartScan = async () => { /* Scan logic */ };
-  const handleReprobe = async (device) => { /* Reprobe logic */ };
-  const handleAddDiscovered = (device) => { /* Add logic */ };
-  const toggleExpanded = (ip) => { setExpandedDevices(prev => ({ ...prev, [ip]: !prev[ip] })); };
+  const handleStartScan = async () => {
+    setScanning(true);
+    setScanPhase('pinging');
+    setScanResults(null);
+    try {
+      await api.post('/discovery/start', {
+        startIP: customRange.startIP,
+        endIP: customRange.endIP,
+        deepProbe: useDeepProbe
+      });
+      showToast('Scan instruction pushed to Factory Connector', 'info');
+    } catch (err) {
+      setScanning(false);
+      setScanPhase('idle');
+      showToast('Failed to initiate scan', 'error');
+    }
+  };
+
+  const handleAddDiscovered = (dev) => {
+    setShowDiscoveryModal(false);
+    setEditingPLC(null);
+    setFormData({
+      name: `${dev.vendorName} - ${dev.ip}`,
+      description: 'Auto-discovered equipment',
+      protocol: dev.protocol,
+      ipAddress: dev.ip,
+      port: dev.port,
+      rack: 0,
+      slot: 0,
+      brand: 'OTHER',
+      pollingRate: 1000,
+      opcuaUsername: '',
+      opcuaPassword: ''
+    });
+    setShowModal(true);
+  };
 
   const isGatewayOnline = gateway?.status === 'online';
   const nonSimPlcCount = plcs.filter(p => !p.isSimulation).length;
 
   return (
     <div className="space-y-4 font-sans text-slate-800 pb-10">
-
       {/* ═══ HEADER ═══ */}
       <div className="p-5 rounded-2xl bg-white border shadow-sm flex items-center justify-between flex-wrap gap-4">
         <div><h1 className="text-2xl font-bold text-slate-900">Equipment Connections</h1><p className="text-sm text-slate-500 mt-1">Manage PLCs and link your factory to the cloud</p></div>
         <div className="flex items-center gap-2 flex-wrap">
-          <ActionButton variant="teal" icon={Radar} onClick={handleOpenDiscovery}>Discover</ActionButton>
+          <ActionButton variant="teal" icon={Radar} onClick={() => setShowDiscoveryModal(true)} disabled={!isGatewayOnline} title={!isGatewayOnline ? "Connector must be online to scan local network" : ""}>Discover</ActionButton>
           <ActionButton variant="purple" icon={Sparkles} onClick={handleQuickSimulation} disabled={creatingSim} loading={creatingSim}>Simulate</ActionButton>
           <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
         </div>
       </div>
 
       {/* ═══ FACTORY CONNECTOR ═══ */}
-      <div className="p-5 rounded-2xl transition-colors duration-300" style={{
-        background: isGatewayOnline ? '#F0FDF4' : '#FEF9C3',
-        border: `1.5px solid ${isGatewayOnline ? '#86EFAC' : '#FDE68A'}`,
-      }}>
+      <div className="p-5 rounded-2xl transition-colors duration-300" style={{ background: isGatewayOnline ? '#F0FDF4' : '#FEF9C3', border: `1.5px solid ${isGatewayOnline ? '#86EFAC' : '#FDE68A'}`, }}>
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div className="flex items-start gap-4 flex-1">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: isGatewayOnline ? '#10B981' : '#F59E0B' }}><Server size={22} /></div>
@@ -303,8 +315,8 @@ const PLCManagement = () => {
         )}
       </div>
 
+      {/* ═══════════ EQUIPMENT MODAL ═══════════ */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingPLC ? 'Edit Equipment' : 'Add Equipment'} size="lg">
-        {/* Same form as before... */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-semibold mb-1">Machine Name *</label><input required name="name" value={formData.name} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
@@ -334,30 +346,44 @@ const PLCManagement = () => {
 
       <ConfirmDialog isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Remove Equipment?" message="Are you sure you want to delete this machine?" confirmText="Delete" confirmColor="red" icon="warning" />
 
-      {/* ═══════════ DISCOVERY MODAL (EMOJI-FREE) ═══════════ */}
+      {/* ═══════════ DISCOVERY MODAL ═══════════ */}
       <Modal isOpen={showDiscoveryModal} onClose={() => { setShowDiscoveryModal(false); setScanning(false); setScanResults(null); }} title="Discover Equipment on Network" size="xl">
         <div className="space-y-4">
-          <div className="flex items-center gap-4 flex-wrap bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={useDeepProbe} onChange={e => setUseDeepProbe(e.target.checked)} className="accent-teal-600 w-4 h-4" />
-              <span className="text-sm font-bold text-slate-800">Deep Identification Scan</span>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+            <p className="text-sm text-slate-600">The Factory Connector will rapidly probe local IPs for active industrial machines (Siemens, Modbus, OPC-UA, Ethernet/IP).</p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Start IP (Optional)</label>
+                <input placeholder="e.g. 192.168.1.1" value={customRange.startIP} onChange={e => setCustomRange({ ...customRange, startIP: e.target.value })} disabled={scanning} className="w-full p-2 text-sm border rounded bg-white outline-none focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">End IP (Optional)</label>
+                <input placeholder="e.g. 192.168.1.254" value={customRange.endIP} onChange={e => setCustomRange({ ...customRange, endIP: e.target.value })} disabled={scanning} className="w-full p-2 text-sm border rounded bg-white outline-none focus:border-blue-500" />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer pt-2">
+              <input type="checkbox" checked={useDeepProbe} onChange={e => setUseDeepProbe(e.target.checked)} disabled={scanning} className="accent-teal-600 w-4 h-4" />
+              <span className="text-sm font-bold text-slate-800">Use Deep Hardware Identification</span>
             </label>
-            <p className="text-xs text-slate-500">Scans all IPs and probes ports to accurately identify Siemens, Modbus, and OPC-UA devices automatically.</p>
           </div>
 
           {!scanResults && (
             <button onClick={handleStartScan} disabled={scanning} className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all flex justify-center items-center gap-2 ${scanning ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
-              {scanning ? <><Loader2 size={18} className="animate-spin" /> Scanning Network (may take 60s)...</> : <><Radar size={18} /> Start Network Scan</>}
+              {scanning ? <><Loader2 size={18} className="animate-spin" /> {PHASE_LABELS[scanPhase] || 'Scanning...'}</> : <><Radar size={18} /> Start Network Scan</>}
             </button>
           )}
 
           {scanResults && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-4 gap-3">
+            <div className="space-y-4 animate-in fade-in zoom-in duration-300">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="bg-slate-50 border rounded-lg p-3 text-center"><p className="text-xl font-bold text-slate-800">{scanResults.scannedIPs}</p><p className="text-xs text-slate-500 font-semibold uppercase mt-1">IPs Scanned</p></div>
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center"><p className="text-xl font-bold text-blue-700">{scanResults.aliveHosts}</p><p className="text-xs text-blue-600 font-semibold uppercase mt-1">Hosts Alive</p></div>
-                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center"><p className="text-xl font-bold text-emerald-700">{scanResults.devices?.length || 0}</p><p className="text-xs text-emerald-600 font-semibold uppercase mt-1">Devices Found</p></div>
-                <div className="bg-purple-50 border border-purple-100 rounded-lg p-3 text-center"><p className="text-xl font-bold text-purple-700">{scanResults.devices?.filter(d => d.verified).length || 0}</p><p className="text-xs text-purple-600 font-semibold uppercase mt-1">Verified</p></div>
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center"><p className="text-xl font-bold text-emerald-700">{scanResults.devices?.length || 0}</p><p className="text-xs text-emerald-600 font-semibold uppercase mt-1">Machines Found</p></div>
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center flex flex-col items-center justify-center">
+                  {scanning ? <Loader2 size={24} className="animate-spin text-blue-500" /> : <CheckCircle size={24} className="text-blue-500" />}
+                  <p className="text-xs text-blue-600 font-semibold uppercase mt-1">{scanning ? 'Scanning...' : 'Complete'}</p>
+                </div>
               </div>
 
               <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
@@ -368,12 +394,11 @@ const PLCManagement = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-mono text-sm font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{dev.ip}</span>
                           <span className="font-bold text-slate-800">{dev.vendorName}</span>
-                          {dev.verified && <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><CheckCircle2 size={12} /> VERIFIED</span>}
+                          {dev.verified && <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><CheckCircle2 size={12} /> PORT: {dev.port}</span>}
                         </div>
                         {dev.deepInfo && (
-                          <div className="text-xs text-slate-600 mt-2 space-y-1">
-                            {dev.deepInfo.model && <p><span className="font-semibold">Model:</span> {dev.deepInfo.model}</p>}
-                            {dev.deepInfo.firmware && <p><span className="font-semibold">Firmware:</span> {dev.deepInfo.firmware}</p>}
+                          <div className="text-xs text-slate-500 mt-2">
+                            <p className="flex items-center gap-1"><Info size={12} /> {dev.deepInfo.model}</p>
                           </div>
                         )}
                       </div>

@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Background with your brand gradient -->
-  <rect width="100" height="100" rx="20" fill="#2563EB" />
-  
-  <!-- Zap icon in white -->
-  <path d="M52.5 15 L22.5 57.5 H50 L47.5 85 L77.5 42.5 H50 L52.5 15 Z" fill="#FFFFFF" />
-</svg>

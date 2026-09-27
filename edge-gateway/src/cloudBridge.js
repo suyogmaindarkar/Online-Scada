@@ -13,6 +13,7 @@ class CloudBridge {
         this.isConnected = false;
         this.writeCallback = null;
         this.configCallback = null;
+        this.discoveryCallback = null;
     }
 
     connect() {
@@ -25,7 +26,7 @@ class CloudBridge {
             const namespace = this.config.namespace || '/edge';
             const fullTarget = `${baseUrl}${namespace}`;
 
-            console.log(`☁️  Targeting Cloud URL: ${fullTarget}`);
+            console.log(`[o] Targeting Cloud Infrastructure...`);
 
             this.socket = io(fullTarget, {
                 auth: {
@@ -42,47 +43,51 @@ class CloudBridge {
 
             this.socket.on('connect', () => {
                 this.isConnected = true;
-                console.log(`☁️  Connected to Cloud Server! (Socket ID: ${this.socket.id})`);
+                console.log(`[+] Connected to Cloud Server! (Session: ${this.socket.id})`);
                 resolve();
             });
 
             this.socket.on('edge:welcome', (data) => {
-                console.log(`☁️  Cloud Auth Verified! (${data.message || 'Connected'})`);
+                console.log(`[+] Cloud Auth Verified! (${data.message || 'Secure tunnel active'})`);
             });
 
             this.socket.on('disconnect', (reason) => {
                 this.isConnected = false;
-                console.log(`☁️  Disconnected from Cloud: ${reason}`);
+                console.log(`[x] Disconnected from Cloud: ${reason}`);
             });
 
             this.socket.on('connect_error', (err) => {
-                console.error(`❌ Cloud Connection Failed: ${err.message}`);
+                console.error(`[ERROR] Cloud Connection Failed: ${err.message}`);
                 if (err.message.includes('AUTH_INVALID') || err.message.includes('AUTH_')) {
-                    console.error(`💡 Fix: Download a fresh Ready Package from PLC Management (new API key).`);
+                    console.error(`[!] Fix: Download a fresh Connector Package (new API key).`);
                 }
                 if (!this.isConnected) resolve();
             });
 
             this.socket.on('edge:writeCommand', (data) => {
-                console.log(`📥 Write command: ${data.tagName} = ${data.value}`);
+                console.log(`[in] Write command: ${data.tagName} = ${data.value}`);
                 if (this.writeCallback) this.writeCallback(data);
+            });
+
+            this.socket.on('edge:startDiscovery', (config) => {
+                console.log(`[o] Network Discovery scan requested by cloud`);
+                if (this.discoveryCallback) this.discoveryCallback(config);
             });
 
             // ─── FULL CONFIG HOT-RELOAD ─────────────────────────
             this.socket.on('edge:configUpdate', (data) => {
                 const plcCount = data?.plcs?.length || 0;
                 const tagCount = (data?.plcs || []).reduce((n, p) => n + (p.tags?.length || 0), 0);
-                console.log(`📥 Config update from cloud: ${plcCount} PLC(s), ${tagCount} tag(s) — hot reloading...`);
+                console.log(`[in] Config update from cloud: ${plcCount} Machine(s), ${tagCount} tag(s) — hot reloading...`);
                 if (this.configCallback && Array.isArray(data?.plcs)) {
                     this.configCallback(data);
                 } else if (this.configCallback) {
-                    // Fallback: empty payload — still notify
                     this.configCallback({ plcs: this.config.plcs || [] });
                 }
             });
 
             this.socket.on('edge:heartbeatAck', () => {
-                if (this.verbose) console.log(`💓 Heartbeat acknowledged`);
+                if (this.verbose) console.log(`[+] Heartbeat acknowledged`);
             });
 
             setTimeout(() => {
@@ -91,14 +96,49 @@ class CloudBridge {
         });
     }
 
+    async reportDiscovery(phase, results) {
+        try {
+            let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com')
+                .replace(/^wss?:/, 'https:')
+                .replace(/\/$/, '');
+
+            const url = `${baseUrl}/api/discovery/edge-report`;
+            const payload = JSON.stringify({
+                companyId: this.config.companyId,
+                apiKey: this.config.apiKey,
+                phase,
+                results
+            });
+
+            const http = url.startsWith('https') ? require('https') : require('http');
+            const reqUrl = new URL(url);
+            const options = {
+                hostname: reqUrl.hostname,
+                port: reqUrl.port,
+                path: reqUrl.pathname,
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+            };
+
+            return new Promise((resolve, reject) => {
+                const req = http.request(options, (res) => { resolve(); });
+                req.on('error', reject);
+                req.write(payload);
+                req.end();
+            });
+        } catch (err) {
+            console.error(`[ERROR] Failed to report discovery status: ${err.message}`);
+        }
+    }
+
     sendTagValues(tags) {
         if (!this.isConnected || !this.socket) return;
         if (!tags || tags.length === 0) return;
 
         this.socket.emit('edge:tagValues', { tags });
-        // Always log so user can see data is flowing
         const sample = tags.slice(0, 3).map((t) => `${t.tagName}=${t.value}`).join(', ');
-        console.log(`📤 Streamed ${tags.length} tag(s): ${sample}${tags.length > 3 ? '...' : ''}`);
+        // We removed terminal spam rules, but keep this brief
+        if (this.verbose) console.log(`[out] Streamed ${tags.length} tag(s): ${sample}${tags.length > 3 ? '...' : ''}`);
     }
 
     sendHeartbeat(stats) {
@@ -126,13 +166,9 @@ class CloudBridge {
         this.socket.emit('edge:error', { message, timestamp: Date.now() });
     }
 
-    onWriteCommand(callback) {
-        this.writeCallback = callback;
-    }
-
-    onConfigUpdate(callback) {
-        this.configCallback = callback;
-    }
+    onWriteCommand(callback) { this.writeCallback = callback; }
+    onConfigUpdate(callback) { this.configCallback = callback; }
+    onStartDiscovery(callback) { this.discoveryCallback = callback; }
 
     disconnect() {
         if (this.socket) {

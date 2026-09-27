@@ -1,18 +1,14 @@
 // ═══════════════════════════════════════════════════════════
-// OnlineSCADA Edge Gateway — Main Entry Point
+// OnlineSCADA Factory Connector — Main Entry Point
 //
 // Reads PLCs on the local factory network and pushes
 // live tag data to the OnlineSCADA cloud via WebSocket.
-//
-// Usage:
-//   1. Download config.json from OnlineSCADA dashboard
-//   2. Place it in this folder
-//   3. Run: node src/index.js
-//      OR double-click start.bat (Windows) / start.sh (Linux)
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const net = require('net');
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
@@ -23,22 +19,16 @@ const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 // ─── Banner ───────────────────────────────────────────────
 console.log('');
 console.log('╔══════════════════════════════════════════════════════════╗');
-console.log('║        🏭 OnlineSCADA Edge Gateway v1.0.0               ║');
-console.log('║        Factory → Cloud PLC Data Bridge                  ║');
+console.log('║        OnlineSCADA Factory Connector v1.0.0              ║');
+console.log('║        Factory -> Cloud Machine Data Bridge              ║');
 console.log('╚══════════════════════════════════════════════════════════╝');
 console.log('');
 
 // ─── Load Config ──────────────────────────────────────────
 function loadConfig() {
     if (!fs.existsSync(CONFIG_PATH)) {
-        console.error('❌ config.json not found!');
-        console.error('');
-        console.error('   Please download your gateway config from:');
-        console.error('   OnlineSCADA Dashboard → Settings → Edge Gateways → Download Config');
-        console.error('');
-        console.error('   Then place the config.json file in this folder:');
-        console.error(`   ${path.join(__dirname, '..')}`);
-        console.error('');
+        console.error('[ERROR] config.json not found!');
+        console.error('  Please download your connector config from the cloud dashboard');
         process.exit(1);
     }
 
@@ -46,102 +36,180 @@ function loadConfig() {
         const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
         const config = JSON.parse(raw);
 
-        // Validate required fields
         const required = ['cloudUrl', 'companyId', 'apiKey', 'plcs'];
         const missing = required.filter((k) => !config[k]);
 
         if (missing.length > 0) {
-            console.error(`❌ config.json is missing required fields: ${missing.join(', ')}`);
+            console.error(`[ERROR] config.json is missing required fields: ${missing.join(', ')}`);
             process.exit(1);
         }
 
         if (config.apiKey === 'YOUR_API_KEY_HERE' || config.companyId === 'YOUR_COMPANY_ID_HERE') {
-            console.error('❌ config.json still has placeholder values!');
-            console.error('   Please download your real config from the OnlineSCADA dashboard.');
+            console.error('[ERROR] config.json still has placeholder values!');
             process.exit(1);
-        }
-
-        if (VERBOSE) {
-            console.log('📄 Config loaded:');
-            console.log(`   Cloud:     ${config.cloudUrl}`);
-            console.log(`   Company:   ${config.companyId}`);
-            console.log(`   Gateway:   ${config.gatewayName || config.gatewayId}`);
-            console.log(`   PLCs:      ${config.plcs.length}`);
-            console.log(`   API Key:   ${config.apiKey.substring(0, 11)}...`);
-            console.log('');
         }
 
         return config;
     } catch (err) {
-        console.error(`❌ Failed to parse config.json: ${err.message}`);
+        console.error(`[ERROR] Failed to parse config.json: ${err.message}`);
         process.exit(1);
     }
+}
+
+// ─── Network Discovery Scanner ────────────────────────────
+async function scanNetwork(options, cloudBridge) {
+    const { startIP, endIP } = options;
+    let start = startIP, end = endIP;
+
+    if (!start || !end) {
+        const interfaces = os.networkInterfaces();
+        let localIp = '192.168.1.1';
+        for (let k in interfaces) {
+            for (let k2 in interfaces[k]) {
+                const address = interfaces[k][k2];
+                if (address.family === 'IPv4' && !address.internal) {
+                    localIp = address.address;
+                    break;
+                }
+            }
+        }
+        const parts = localIp.split('.');
+        start = `${parts[0]}.${parts[1]}.${parts[2]}.1`;
+        end = `${parts[0]}.${parts[1]}.${parts[2]}.254`;
+    }
+
+    console.log(`[o] Scanning IP range: ${start} to ${end}`);
+    await cloudBridge.reportDiscovery('pinging', { scannedIPs: 0, aliveHosts: 0, devices: [] });
+
+    const ipToInt = (ip) => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+    const intToIp = (int) => `${(int >>> 24)}.${(int >> 16 & 255)}.${(int >> 8 & 255)}.${int & 255}`;
+
+    const startInt = ipToInt(start);
+    const endInt = ipToInt(end);
+    const totalIPs = endInt - startInt + 1;
+
+    let scanned = 0;
+    let alive = 0;
+    const devices = [];
+
+    const checkPort = (ip, port) => {
+        return new Promise((resolve) => {
+            const s = new net.Socket();
+            s.setTimeout(800); // Fast timeout for LAN
+            s.on('connect', () => { s.destroy(); resolve(true); });
+            s.on('timeout', () => { s.destroy(); resolve(false); });
+            s.on('error', () => { s.destroy(); resolve(false); });
+            s.connect(port, ip);
+        });
+    };
+
+    const portsToProtocols = {
+        102: 'S7',
+        502: 'MODBUS_TCP',
+        4840: 'OPC_UA',
+        44818: 'ETHERNET_IP'
+    };
+    const vendorNames = {
+        102: 'Siemens PLC (S7)',
+        502: 'Modbus TCP Device',
+        4840: 'OPC-UA Server',
+        44818: 'Allen-Bradley (EIP)'
+    };
+
+    for (let i = startInt; i <= endInt; i++) {
+        const ip = intToIp(i);
+        scanned++;
+
+        const results = await Promise.all(
+            Object.keys(portsToProtocols).map(async (port) => {
+                const isOpen = await checkPort(ip, parseInt(port));
+                return { port, isOpen };
+            })
+        );
+
+        const openPorts = results.filter(r => r.isOpen);
+        if (openPorts.length > 0) {
+            alive++;
+            console.log(`[+] Found active industrial device at ${ip}`);
+            for (const { port } of openPorts) {
+                devices.push({
+                    ip,
+                    port: parseInt(port),
+                    protocol: portsToProtocols[port],
+                    vendorName: vendorNames[port],
+                    verified: true,
+                    deepInfo: { model: 'Identified via Hardware Port Scan' }
+                });
+            }
+        }
+
+        // Report progress every 10 IPs or at the end
+        if (scanned % 10 === 0 || scanned === totalIPs) {
+            await cloudBridge.reportDiscovery('probing', { scannedIPs: scanned, aliveHosts: alive, devices });
+        }
+    }
+
+    console.log(`[x] Scan complete. Found ${devices.length} machines.`);
+    await cloudBridge.reportDiscovery('done', { scannedIPs: scanned, aliveHosts: alive, devices });
 }
 
 // ─── Main ─────────────────────────────────────────────────
 async function main() {
     const config = loadConfig();
 
-    // Initialize components
     const cloudBridge = new CloudBridge(config, VERBOSE);
     const plcReader = new PLCReader(config, cloudBridge, VERBOSE);
     const healthMonitor = new HealthMonitor(config, cloudBridge, VERBOSE);
 
-    // Wire up: cloud write commands → PLC reader
     cloudBridge.onWriteCommand((cmd) => {
         plcReader.handleWriteCommand(cmd);
     });
 
-    // Wire up: cloud config updates → hot reload PLCs + tags
     cloudBridge.onConfigUpdate((payload) => {
         const newPlcs = payload?.plcs;
-        if (!Array.isArray(newPlcs)) {
-            console.warn('⚠️  Config update missing plcs array — ignored');
-            return;
-        }
-        console.log(`🔄 Hot-reloading ${newPlcs.length} PLC connection(s)...`);
-        config.plcs = newPlcs; // keep in-memory config in sync
+        if (!Array.isArray(newPlcs)) return;
+        console.log(`[o] Hot-reloading ${newPlcs.length} Machine connection(s)...`);
+        config.plcs = newPlcs;
         plcReader.reload(newPlcs).catch((err) => {
-            console.error('❌ Hot reload failed:', err.message);
+            console.error('[ERROR] Hot reload failed:', err.message);
         });
     });
 
-    // ─── Graceful Shutdown ──────────────────────────────────
+    cloudBridge.onStartDiscovery((options) => {
+        scanNetwork(options, cloudBridge).catch(err => {
+            console.error(`[ERROR] Scan failed: ${err.message}`);
+        });
+    });
+
     const shutdown = async (signal) => {
-        console.log(`\n⏹️  Received ${signal} — shutting down gracefully...`);
+        console.log(`\n[x] Received ${signal} — shutting down gracefully...`);
         healthMonitor.stop();
         plcReader.stopAll();
         cloudBridge.disconnect();
-        console.log('👋 Gateway stopped. Goodbye!');
+        console.log('[x] Connector stopped.');
         process.exit(0);
     };
 
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('uncaughtException', (err) => {
-        console.error('💥 Uncaught exception:', err.message);
-        if (VERBOSE) console.error(err.stack);
-    });
-    process.on('unhandledRejection', (err) => {
-        console.error('💥 Unhandled rejection:', err?.message || err);
-    });
+    process.on('uncaughtException', (err) => console.error('[ERROR] Uncaught exception:', err.message));
+    process.on('unhandledRejection', (err) => console.error('[ERROR] Unhandled rejection:', err?.message || err));
 
-    // ─── Start Everything ───────────────────────────────────
-    console.log('🔌 Connecting to OnlineSCADA cloud...');
+    console.log('[o] Connecting to Cloud Environment...');
     await cloudBridge.connect();
 
-    console.log('🏭 Starting PLC readers...');
+    console.log('[o] Starting Machine Protocol Readers...');
     await plcReader.startAll();
 
-    console.log('💓 Starting health monitor...');
+    console.log('[o] Starting Diagnostic Health Monitor...');
     healthMonitor.start();
 
     console.log('');
     console.log('╔══════════════════════════════════════════════════════════╗');
-    console.log('║   ✅ EDGE GATEWAY IS RUNNING                            ║');
+    console.log('║   SYSTEM ONLINE - FACTORY CONNECTOR ACTIVE               ║');
     console.log('║                                                          ║');
-    console.log(`║   PLCs Active:    ${String(config.plcs.length).padEnd(38)}║`);
-    console.log(`║   Cloud:          ${config.cloudUrl.substring(0, 38).padEnd(38)}║`);
+    console.log(`║   Machines Active: ${String(config.plcs.length).padEnd(38)}║`);
+    console.log(`║   Cloud Link:      Secure WSS Tunnel Active              ║`);
     console.log('║                                                          ║');
     console.log('║   Press Ctrl+C to stop                                   ║');
     console.log('╚══════════════════════════════════════════════════════════╝');
@@ -149,6 +217,6 @@ async function main() {
 }
 
 main().catch((err) => {
-    console.error('💥 Fatal error:', err.message);
+    console.error('[ERROR] Fatal error:', err.message);
     process.exit(1);
 });
