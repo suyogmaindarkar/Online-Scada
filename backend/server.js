@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
-
+const discoveryRoutes = require('./src/routes/discoveryRoutes');
 const { initInflux, closeInflux, isInfluxAvailable } = require('./src/services/influxService');
 const trendRoutes = require('./src/routes/trendRoutes');
 const connectDB = require('./src/config/database');
@@ -105,7 +105,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/tags/write', writeLimiter);
 app.use('/api/signup', signupLimiter);
 app.use('/api/workspace/register', signupLimiter);
-
+app.use('/api/discovery', discoveryRoutes);
 // ═══════════════════════════════════════════════════════════
 // DATABASE CONNECTION + AUTO-SEED
 // ═══════════════════════════════════════════════════════════
@@ -306,7 +306,7 @@ io.on('connection', async (socket) => {
   }
 
   // ─── Write Tag (Browser → Cloud → Edge/Sim) ────────────
-    // ─── Write Tag (Browser Event / HMI Event Actions) ───────
+  // ─── Write Tag (Browser Event / HMI Event Actions) ───────
   socket.on('writeTag', async (data) => {
     try {
       if (socket.userRole === 'viewer') {
@@ -316,7 +316,7 @@ io.on('connection', async (socket) => {
 
       const Tag = require('./src/models/Tag');
       const query = { companyId: socket.companyId };
-      
+
       if (data.tagId) query._id = data.tagId;
       else if (data.tagName) query.tagName = data.tagName;
       else return;
