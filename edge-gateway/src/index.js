@@ -1,240 +1,190 @@
 // ═══════════════════════════════════════════════════════════
-// OnlineSCADA Factory Connector — Main Entry Point
-//
-// Reads PLCs on the local factory network and pushes
-// live tag data to the OnlineSCADA cloud via WebSocket.
+// OnlineSCADA Factory Connector — SCADA Dashboard Engine v2.2
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
-const net = require('net');
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
 
-const VERBOSE = process.argv.includes('--verbose');
 const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
-// ─── Banner ───────────────────────────────────────────────
-console.log('');
-console.log('╔══════════════════════════════════════════════════════════╗');
-console.log('║        OnlineSCADA Factory Connector v2.0.0              ║');
-console.log('║        Factory -> Cloud Machine Data Bridge              ║');
-console.log('╚══════════════════════════════════════════════════════════╝');
-console.log('');
-
-// ─── Load Config ──────────────────────────────────────────
 function loadConfig() {
     if (!fs.existsSync(CONFIG_PATH)) {
-        console.error('[ERROR] config.json not found!');
-        console.error('  Please download your connector config from the cloud dashboard');
+        console.error('[ERROR] config.json missing in workspace.');
         process.exit(1);
     }
-
-    try {
-        const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
-        const config = JSON.parse(raw);
-
-        const required = ['cloudUrl', 'companyId', 'apiKey', 'plcs'];
-        const missing = required.filter((k) => !config[k]);
-
-        if (missing.length > 0) {
-            console.error(`[ERROR] config.json is missing required fields: ${missing.join(', ')}`);
-            process.exit(1);
-        }
-
-        return config;
-    } catch (err) {
-        console.error(`[ERROR] Failed to parse config.json: ${err.message}`);
-        process.exit(1);
-    }
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
 }
 
-// ─── High-Speed Multi-Subnet Discovery Scanner ────────────
-async function scanNetwork(options, cloudBridge) {
-    const { startIP, endIP } = options;
-    let rangesToScan = [];
-
-    // 1. Determine Subnets to Scan
-    if (startIP && endIP) {
-        rangesToScan.push({ start: startIP, end: endIP });
-    } else {
-        const interfaces = os.networkInterfaces();
-        for (const name of Object.keys(interfaces)) {
-            // Skip common virtual/hyper-v/WSL adapters to avoid false IPs
-            if (name.toLowerCase().includes('wsl') || name.toLowerCase().includes('veth')) continue;
-
-            for (const iface of interfaces[name]) {
-                if (iface.family === 'IPv4' && !iface.internal) {
-                    const parts = iface.address.split('.');
-                    rangesToScan.push({
-                        start: `${parts[0]}.${parts[1]}.${parts[2]}.1`,
-                        end: `${parts[0]}.${parts[1]}.${parts[2]}.254`
-                    });
-                }
-            }
-        }
-    }
-
-    // Deduplicate ranges in case of multiple IPs on one subnet
-    rangesToScan = rangesToScan.filter((v, i, a) => a.findIndex(t => (t.start === v.start)) === i);
-
-    if (rangesToScan.length === 0) {
-        console.log('[x] No physical IPv4 networks found to scan.');
-        await cloudBridge.reportDiscovery('done', { scannedIPs: 0, aliveHosts: 0, devices: [] });
-        return;
-    }
-
-    console.log(`[o] Commencing hardware scan across ${rangesToScan.length} subnet(s)...`);
-    await cloudBridge.reportDiscovery('pinging', { scannedIPs: 0, aliveHosts: 0, devices: [] });
-
-    const ipToInt = (ip) => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
-    const intToIp = (int) => `${(int >>> 24)}.${(int >> 16 & 255)}.${(int >> 8 & 255)}.${int & 255}`;
-
-    let scanned = 0;
-    let alive = 0;
-    const devices = [];
-
-    const checkPort = (ip, port) => {
-        return new Promise((resolve) => {
-            const s = new net.Socket();
-            s.setTimeout(500); // 500ms timeout for ultra-fast LAN sweeps
-            s.on('connect', () => { s.destroy(); resolve(true); });
-            s.on('timeout', () => { s.destroy(); resolve(false); });
-            s.on('error', () => { s.destroy(); resolve(false); });
-            s.connect(port, ip);
-        });
-    };
-
-    const portsToProtocols = {
-        102: 'S7',
-        502: 'MODBUS_TCP',
-        4840: 'OPC_UA',
-        44818: 'ETHERNET_IP'
-    };
-    const vendorNames = {
-        102: 'Siemens PLC (S7)',
-        502: 'Modbus TCP Device',
-        4840: 'OPC-UA Server',
-        44818: 'Allen-Bradley (EIP)'
-    };
-
-    // 2. High-Speed Concurrent Batch Processing
-    for (const range of rangesToScan) {
-        console.log(`[o] Sweeping IP Range: ${range.start} -> ${range.end}`);
-        const startInt = ipToInt(range.start);
-        const endInt = ipToInt(range.end);
-
-        const ipsToScan = [];
-        for (let i = startInt; i <= endInt; i++) {
-            ipsToScan.push(intToIp(i));
-        }
-
-        const BATCH_SIZE = 40; // Scan 40 IPs simultaneously
-        for (let i = 0; i < ipsToScan.length; i += BATCH_SIZE) {
-            const batch = ipsToScan.slice(i, i + BATCH_SIZE);
-
-            await Promise.all(batch.map(async (ip) => {
-                const results = await Promise.all(
-                    Object.keys(portsToProtocols).map(async (port) => {
-                        const isOpen = await checkPort(ip, parseInt(port));
-                        return { port, isOpen };
-                    })
-                );
-
-                scanned++;
-                const openPorts = results.filter(r => r.isOpen);
-
-                if (openPorts.length > 0) {
-                    alive++;
-                    console.log(`[+] Found active industrial machine at ${ip}`);
-                    for (const { port } of openPorts) {
-                        devices.push({
-                            ip,
-                            port: parseInt(port),
-                            protocol: portsToProtocols[port],
-                            vendorName: vendorNames[port],
-                            verified: true,
-                            deepInfo: { model: 'Identified via Hardware Port Scan' }
-                        });
-                    }
-                }
-            }));
-
-            // Stream progress back to the cloud UI
-            await cloudBridge.reportDiscovery('probing', { scannedIPs: scanned, aliveHosts: alive, devices });
-        }
-    }
-
-    console.log(`[x] Scan complete. Found ${devices.length} valid machines.`);
-    await cloudBridge.reportDiscovery('done', { scannedIPs: scanned, aliveHosts: alive, devices });
-}
-
-// ─── Main ─────────────────────────────────────────────────
 async function main() {
-    const config = loadConfig();
+    let config = loadConfig();
 
-    const cloudBridge = new CloudBridge(config, VERBOSE);
-    const plcReader = new PLCReader(config, cloudBridge, VERBOSE);
-    const healthMonitor = new HealthMonitor(config, cloudBridge, VERBOSE);
+    // Application State Tracker
+    const state = {
+        cloudConnected: false,
+        gatewayHealth: 'HEALTHY',
+        machines: config.plcs || [],
+        dataEngineStatus: 'WAITING',
+        machineLayerStatus: 'Waiting',
+        dataAcqStatus: 'Waiting',
+        logs: [
+            'OnlineSCADA Edge Gateway is ready',
+            'Starting gateway diagnostic monitor',
+            'Initializing secure WebSocket tunnel...'
+        ]
+    };
+
+    function addLog(msg) {
+        state.logs.unshift(msg);
+        if (state.logs.length > 5) state.logs.pop();
+        redrawDashboard();
+    }
+
+    function redrawDashboard() {
+        console.clear();
+
+        const w = 76; // Standard terminal width layout
+        const cCyan = '\x1b[36m';
+        const cGreen = '\x1b[32m';
+        const cYellow = '\x1b[33m';
+        const cWhite = '\x1b[37m';
+        const cGray = '\x1b[90m';
+        const cBold = '\x1b[1m';
+        const cReset = '\x1b[0m';
+
+        const line = (txt = '', align = 'left') => {
+            const cleanTxt = txt.replace(/\x1b\[[0-9;]*m/g, '');
+            const padLen = Math.max(0, w - cleanTxt.length);
+            if (align === 'right') return cCyan + '║ ' + cReset + ' '.repeat(padLen) + txt + cCyan + ' ║' + cReset;
+            if (align === 'center') {
+                const leftPad = Math.floor(padLen / 2);
+                const rightPad = padLen - leftPad;
+                return cCyan + '║ ' + cReset + ' '.repeat(leftPad) + txt + ' '.repeat(rightPad) + cCyan + ' ║' + cReset;
+            }
+            return cCyan + '║ ' + cReset + txt + ' '.repeat(padLen) + cCyan + ' ║' + cReset;
+        };
+
+        const divider = () => cCyan + '╠' + '═'.repeat(w + 2) + '╣' + cReset;
+
+        console.log(cCyan + '╔' + '═'.repeat(w + 2) + '╗' + cReset);
+        console.log(line(`${cBold}${cCyan}O N L I N E S C A D A${cReset} Cloud Data Bridge`, 'center'));
+        console.log(line(`${cGray}Industrial Edge Gateway  •  Factory → Cloud Data Bridge${cReset}`, 'center'));
+        console.log(cCyan + '╠' + '═'.repeat(w + 2) + '╣' + cReset);
+
+        // System Header Block
+        const cloudStatusStr = state.cloudConnected ? `${cGreen}● ONLINE${cReset}` : `${cYellow}● CONNECTING${cReset}`;
+        console.log(line(`${cBold}ONLINE SCADA${cReset}${' '.repeat(42)}${cloudStatusStr}`));
+        console.log(line(`${cGray}Secure Industrial Connectivity${cReset}${' '.repeat(38)}Gateway v2.2.0`));
+        console.log(divider());
+
+        // Status Metrics Block
+        const tunnelStr = state.cloudConnected ? `${cGreen}● CONNECTED${cReset} Secure tunnel active` : `${cYellow}● WAITING${cReset} Connecting to cloud...`;
+        const healthStr = `${cGreen}● HEALTHY${cReset} Diagnostic monitor active`;
+        const machineCount = state.machines.length;
+        const totalTags = state.machines.reduce((acc, m) => acc + (m.tags?.length || 0), 0);
+
+        console.log(line(`CLOUD CONNECTION${' '.repeat(20)}${tunnelStr}`));
+        console.log(line(`GATEWAY HEALTH${' '.repeat(22)}${healthStr}`));
+        console.log(line(`MACHINES${' '.repeat(30)}${cBold}${machineCount}${cReset} Configured machines`));
+        console.log(line(`TAGS${' '.repeat(32)}${cBold}${totalTags}${cReset} Tags configured`));
+        console.log(divider());
+
+        // Machine Status Table Header
+        console.log(line(`${cCyan}► MACHINE STATUS${cReset}`));
+        console.log(line(`${cGray}DEVICE                  PROTOCOL        STATUS          TAGS${cReset}`));
+        console.log(cCyan + '╟' + '─'.repeat(w + 2) + '╢' + cReset);
+
+        if (state.machines.length === 0) {
+            console.log(line(`${cGray}No machine connections configured.${cReset}`));
+        } else {
+            state.machines.forEach(m => {
+                const devName = (m.plcName || 'Machine').padEnd(23).substring(0, 23);
+                const proto = (m.protocol || 'UNKNOWN').toUpperCase().padEnd(15).substring(0, 15);
+                const stat = state.cloudConnected ? `${cGreen}ONLINE${cReset}` : `${cYellow}WAITING${cReset}`;
+                const tagsLen = String(m.tags?.length || 0).padEnd(6);
+                console.log(line(`${cWhite}${devName}${cReset} ${cGray}${proto}${cReset} ${stat}${' '.repeat(8)}${tagsLen}`));
+            });
+        }
+        console.log(divider());
+
+        // Data Engine Status
+        const engineCol = state.dataEngineStatus === 'ACTIVE' ? cGreen : cYellow;
+        console.log(line(`DATA ENGINE ${engineCol}● ${state.dataEngineStatus}${cReset}  ${totalTags} tags configured for acquisition`));
+        console.log(divider());
+
+        // Connection Status Block
+        console.log(line(`${cCyan}► CONNECTION STATUS${cReset}`));
+        const cServ = state.cloudConnected ? `${cGreen}● Connected${cReset}` : `${cYellow}● Connecting...${cReset}`;
+        const mLayer = state.machines.length > 0 ? `${cGreen}● Active${cReset}` : `${cYellow}● Waiting${cReset}`;
+        const dAcq = totalTags > 0 ? `${cGreen}● Polling${cReset}` : `${cYellow}● Waiting${cReset}`;
+
+        console.log(line(`Cloud service${' '.repeat(21)}${cServ}`));
+        console.log(line(`Machine layer${' '.repeat(21)}${mLayer}`));
+        console.log(line(`Data acquisition${' '.repeat(18)}${dAcq}`));
+        console.log(divider());
+
+        // Latest Activity Log Block
+        console.log(line(`${cCyan}► LATEST ACTIVITY${cReset}`));
+        state.logs.slice(0, 4).forEach(lg => {
+            console.log(line(`› ${cGray}${lg}${cReset}`));
+        });
+
+        console.log(cCyan + '╚' + '═'.repeat(w + 2) + '╝' + cReset);
+        console.log(`${cCyan}OnlineSCADA${cReset} Industrial Cloud SCADA${' '.repeat(34)}Ctrl + C ${cYellow}Stop Gateway${cReset}`);
+    }
+
+    // Initialize Bridge & Readers
+    const cloudBridge = new CloudBridge(config, false);
+    const plcReader = new PLCReader(config, cloudBridge, false);
+    const healthMonitor = new HealthMonitor(config, cloudBridge, false);
 
     cloudBridge.onWriteCommand((cmd) => {
+        addLog(`Write command -> Tag: ${cmd.tagName} = ${cmd.value}`);
         plcReader.handleWriteCommand(cmd);
     });
 
-    cloudBridge.onConfigUpdate((payload) => {
-        const newPlcs = payload?.plcs;
-        if (!Array.isArray(newPlcs)) return;
-        console.log(`[o] Hot-reloading ${newPlcs.length} Machine connection(s)...`);
-        config.plcs = newPlcs;
-        plcReader.reload(newPlcs).catch((err) => {
-            console.error('[ERROR] Hot reload failed:', err.message);
-        });
+    cloudBridge.onConfigUpdate((newConfig) => {
+        if (Array.isArray(newConfig?.plcs)) {
+            state.machines = newConfig.plcs;
+            state.dataEngineStatus = 'ACTIVE';
+            state.machineLayerStatus = 'Active';
+            state.dataAcqStatus = 'Polling';
+            addLog(`Hot-reloaded ${newConfig.plcs.length} machine connection(s)`);
+            plcReader.reload(newConfig.plcs);
+            redrawDashboard();
+        }
     });
 
-    cloudBridge.onStartDiscovery((options) => {
-        scanNetwork(options, cloudBridge).catch(err => {
-            console.error(`[ERROR] Scan failed: ${err.message}`);
-        });
-    });
+    // Handle connection state callbacks
+    setInterval(() => {
+        const isOnline = cloudBridge.isConnected;
+        if (state.cloudConnected !== isOnline) {
+            state.cloudConnected = isOnline;
+            if (isOnline) {
+                state.dataEngineStatus = 'ACTIVE';
+                addLog('Secure WebSocket tunnel established');
+            } else {
+                state.dataEngineStatus = 'WAITING';
+                addLog('Connection lost - reconnecting...');
+            }
+            redrawDashboard();
+        }
+    }, 1000);
 
-    const shutdown = async (signal) => {
-        console.log(`\n[x] Received ${signal} — shutting down gracefully...`);
-        healthMonitor.stop();
-        plcReader.stopAll();
-        cloudBridge.disconnect();
-        console.log('[x] Connector stopped.');
-        process.exit(0);
-    };
+    redrawDashboard();
 
-    process.on('SIGINT', () => shutdown('SIGINT'));
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('uncaughtException', (err) => console.error('[ERROR] Uncaught exception:', err.message));
-    process.on('unhandledRejection', (err) => console.error('[ERROR] Unhandled rejection:', err?.message || err));
-
-    console.log('[o] Connecting to Cloud Environment...');
     await cloudBridge.connect();
-
-    console.log('[o] Starting Machine Protocol Readers...');
     await plcReader.startAll();
-
-    console.log('[o] Starting Diagnostic Health Monitor...');
     healthMonitor.start();
 
-    console.log('');
-    console.log('╔══════════════════════════════════════════════════════════╗');
-    console.log('║   SYSTEM ONLINE - FACTORY CONNECTOR ACTIVE               ║');
-    console.log('║                                                          ║');
-    console.log(`║   Machines Active: ${String(config.plcs.length).padEnd(38)}║`);
-    console.log(`║   Cloud Link:      Secure WSS Tunnel Active              ║`);
-    console.log('║                                                          ║');
-    console.log('║   Press Ctrl+C to stop                                   ║');
-    console.log('╚══════════════════════════════════════════════════════════╝');
-    console.log('');
+    state.cloudConnected = true;
+    state.dataEngineStatus = 'ACTIVE';
+    addLog('OnlineSCADA Factory Connector is online');
+    redrawDashboard();
 }
 
 main().catch((err) => {
-    console.error('[ERROR] Fatal error:', err.message);
-    process.exit(1);
+    console.error('\x1b[31m[CRITICAL ERROR] Gateway engine halted:', err.message, '\x1b[0m');
 });

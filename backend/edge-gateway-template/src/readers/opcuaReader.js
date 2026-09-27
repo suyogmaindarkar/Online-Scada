@@ -1,8 +1,13 @@
 // ═══════════════════════════════════════════════════════════
-// OPC-UA Reader — Robust Type Casting & Read/Write Handler
+// OPC-UA Reader — Silent Logger & Robust Type Casting
 // ═══════════════════════════════════════════════════════════
 
 const opcua = require('node-opcua');
+
+// Silence node-opcua internal warning spam (certificates, clock skew warnings)
+if (opcua.Logger && opcua.LogLevel) {
+    opcua.Logger.level = opcua.LogLevel.Error;
+}
 
 class OPCUAReader {
     constructor(plcConfig) {
@@ -43,7 +48,6 @@ class OPCUAReader {
                 const dv = dataValues[index];
                 let val = dv?.value?.value;
 
-                // Handle BigInt conversion safely
                 if (typeof val === 'bigint') {
                     val = Number(val);
                 }
@@ -67,10 +71,8 @@ class OPCUAReader {
 
         let opcuaDataType = opcua.DataType.Double;
         let processedValue = value;
-
         const upperType = (dataTypeStr || '').toUpperCase();
 
-        // Robust case-insensitive type mapping & casting
         if (upperType === 'BOOL' || upperType === 'BOOLEAN') {
             opcuaDataType = opcua.DataType.Boolean;
             if (typeof processedValue === 'string') {
@@ -108,8 +110,8 @@ class OPCUAReader {
     disconnect() {
         if (this.client) {
             try {
-                this.client.disconnect(() => {});
-            } catch (e) {}
+                this.client.disconnect(() => { });
+            } catch (e) { }
         }
         this.isConnected = false;
     }

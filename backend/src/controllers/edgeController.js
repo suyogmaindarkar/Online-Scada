@@ -20,15 +20,11 @@ const createArchive = (format = 'zip', options = {}) => {
 };
 
 const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
-  // Fix 1: Removed restrictive 'isActive' filters that could accidentally block PLCs
   const plcs = await PLCConnection.find({ companyId, isSimulation: { $ne: true } });
   const plcConfigArray = [];
 
   for (const plc of plcs) {
     const tags = await Tag.find({ companyId, plcConnection: plc._id });
-
-    // Fix 2: We no longer skip PLCs with 0 tags. 
-    // We send them anyway so the Gateway can establish a connection and report "ONLINE" status!
 
     let normalizedProtocol = (plc.protocol || '').toLowerCase();
     if (normalizedProtocol.includes('modbus')) normalizedProtocol = 'modbus';
@@ -49,7 +45,6 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
       tags: tags.map((t) => ({
         tagId: t._id.toString(),
         tagName: t.tagName,
-        // Fix 3: Bulletproof schema mapping. Covers every common database field name.
         address: t.address || t.plcAddress || t.register || t.nodeId || '',
         dataType: t.dataType || 'INT',
       })),
@@ -134,7 +129,7 @@ const downloadGatewayConfig = async (req, res) => {
   } catch (e) { res.status(500).send(); }
 };
 
-// ─── DOWNLOAD READY PACKAGE (DYNAMIC FILE COMPILER) ───
+// ─── DOWNLOAD READY PACKAGE (DYNAMIC TEMPLATE COMPILER) ───
 const downloadCompletePackage = async (req, res) => {
   try {
     const gateway = await EdgeGateway.findOne({ _id: req.params.id, companyId: req.companyId });
@@ -157,7 +152,7 @@ const downloadCompletePackage = async (req, res) => {
     archive.pipe(res);
 
     const templateDir = path.join(__dirname, '../../edge-gateway-template');
-
+    
     if (!fs.existsSync(templateDir)) {
       throw new Error(`Template directory not found on server at: ${templateDir}`);
     }
@@ -165,7 +160,7 @@ const downloadCompletePackage = async (req, res) => {
     const filesToInclude = [
       'package.json', 'Start.bat', 'Run-In-Background.vbs', 'README.txt',
       'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/healthMonitor.js',
-      'src/readers/s7Reader.js', 'src/readers/modbusReader.js',
+      'src/readers/s7Reader.js', 'src/readers/modbusReader.js', 
       'src/readers/opcuaReader.js', 'src/readers/ethernetIpReader.js'
     ];
 
@@ -179,7 +174,7 @@ const downloadCompletePackage = async (req, res) => {
     }
 
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
-
+    
     await archive.finalize();
   } catch (error) {
     if (!res.headersSent) res.status(500).json({ success: false, message: error.message });

@@ -1,1496 +1,190 @@
-
 // ═══════════════════════════════════════════════════════════
-// OnlineSCADA Edge Gateway
-// Main Entry Point + Single-Screen SCADA Terminal UI
-//
-// IMPORTANT:
-// Gateway communication / PLC / cloud / discovery logic
-// remains unchanged. Only terminal presentation is changed.
+// OnlineSCADA Factory Connector — SCADA Dashboard Engine v2.2
 // ═══════════════════════════════════════════════════════════
 
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
-const net = require('net');
-
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
 
-const VERBOSE = process.argv.includes('--verbose');
 const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
-// ═══════════════════════════════════════════════════════════
-// TERMINAL COLORS
-// ═══════════════════════════════════════════════════════════
-
-const UI = {
-    reset: '\x1b[0m',
-    bold: '\x1b[1m',
-    dim: '\x1b[2m',
-
-    cyan: '\x1b[36m',
-    brightCyan: '\x1b[96m',
-
-    green: '\x1b[32m',
-    brightGreen: '\x1b[92m',
-
-    yellow: '\x1b[33m',
-    brightYellow: '\x1b[93m',
-
-    red: '\x1b[31m',
-    brightRed: '\x1b[91m',
-
-    blue: '\x1b[34m',
-    brightBlue: '\x1b[94m',
-
-    white: '\x1b[37m',
-    brightWhite: '\x1b[97m',
-
-    gray: '\x1b[90m',
-
-    clearScreen: '\x1b[2J\x1b[H',
-    cursorHome: '\x1b[H',
-    hideCursor: '\x1b[?25l',
-    showCursor: '\x1b[?25h',
-
-    clearLine: '\x1b[2K'
-};
-
-const UI_WIDTH = 118;
-const UI_HEIGHT = 31;
-
-// ═══════════════════════════════════════════════════════════
-// DASHBOARD STATE
-// ═══════════════════════════════════════════════════════════
-
-const dashboard = {
-
-    state: 'STARTING',
-
-    cloud: false,
-    health: false,
-
-    devices: [],
-
-    totalTags: 0,
-    readingTags: 0,
-
-    discovery: {
-        active: false,
-        phase: '',
-        scanned: 0,
-        alive: 0,
-        devices: 0
-    },
-
-    activity: [
-        'Gateway initializing...'
-    ],
-
-    rendered: false,
-    timer: null,
-
-
-    // Render dashboard
-    // -------------------------------------------------------
-
-    render() {
-
-        const width = getTerminalWidth();
-
-        const lines = [];
-
-        lines.push('');
-        lines.push(
-            center(
-                `${UI.bold}${UI.brightCyan}O N L I N E S C A D A${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push(
-            center(
-                `${UI.gray}Industrial Edge Gateway${UI.reset}  ${UI.dim}•${UI.reset}  ${UI.white} Factory → Cloud Data Bridge${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push('');
-
-        lines.push(boxTop(width));
-
-        lines.push(
-            row(
-                `${UI.bold}${UI.brightWhite}ONLINE SCADA${UI.reset} `,
-                `${stateDot(this.state)} ${UI.bold}${this.state}${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push(
-            row(
-                `${UI.gray}Secure Industrial Connectivity${UI.reset} `,
-                `${UI.gray}Gateway v2.0.0${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // MAIN STATUS
-        // ---------------------------------------------------
-
-        lines.push(
-            cardLine(
-                'CLOUD CONNECTION',
-                this.cloud
-                    ? `${UI.brightGreen}● CONNECTED${UI.reset} `
-                    : `${UI.brightYellow}● CONNECTING${UI.reset} `,
-                this.cloud
-                    ? 'Secure tunnel active'
-                    : 'Waiting for cloud',
-                width
-            )
-        );
-
-        lines.push(
-            cardLine(
-                'GATEWAY HEALTH',
-                this.health
-                    ? `${UI.brightGreen}● HEALTHY${UI.reset} `
-                    : `${UI.brightYellow}● STARTING${UI.reset} `,
-                this.health
-                    ? 'Diagnostic monitor active'
-                    : 'Initializing diagnostics',
-                width
-            )
-        );
-
-        lines.push(
-            cardLine(
-                'MACHINES',
-                `${UI.brightCyan}${this.devices.length}${UI.reset} `,
-                'Configured machines',
-                width
-            )
-        );
-
-        lines.push(
-            cardLine(
-                'TAGS',
-                `${UI.brightMagenta}${this.readingTags}${UI.reset} `,
-                'Tags configured',
-                width
-            )
-        );
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // MACHINE STATUS
-        // ---------------------------------------------------
-
-        lines.push(
-            sectionTitle(
-                'MACHINE STATUS',
-                width
-            )
-        );
-
-        lines.push(
-            contentLine(
-                `${UI.gray}${pad('DEVICE', 30)}${pad('PROTOCOL', 18)}${pad('STATUS', 20)}${pad('TAGS', 12)}${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push(
-            contentLine(
-                `${UI.gray}${'─'.repeat(Math.min(92, width - 10))}${UI.reset} `,
-                width
-            )
-        );
-
-        if (this.devices.length === 0) {
-
-            lines.push(
-                contentLine(
-                    `${UI.gray}No machine connections configured.${UI.reset} `,
-                    width
-                )
-            );
-
-        } else {
-
-            for (const device of this.devices.slice(0, 8)) {
-
-                const status =
-                    device.connected
-                        ? `${UI.brightGreen}● ONLINE${UI.reset} `
-                        : `${UI.brightYellow}● CONNECTING${UI.reset} `;
-
-                lines.push(
-                    contentLine(
-                        `${pad(clean(device.name), 30)} ` +
-                        `${pad(clean(device.protocol), 18)} ` +
-                        `${padAnsi(status, 20)} ` +
-                        `${pad(String(device.tags), 12)} `,
-                        width
-                    )
-                );
-            }
-
-            if (this.devices.length > 8) {
-
-                lines.push(
-                    contentLine(
-                        `${UI.gray} + ${this.devices.length - 8} more machine(s)${UI.reset} `,
-                        width
-                    )
-                );
-            }
-        }
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // DATA ENGINE
-        // ---------------------------------------------------
-
-        const tagStatus =
-            this.readingTags > 0
-                ? `${UI.brightGreen}● READING${UI.reset} `
-                : `${UI.brightYellow}● WAITING${UI.reset} `;
-
-        lines.push(
-            contentLine(
-                `${UI.bold}${UI.brightWhite}DATA ENGINE${UI.reset} ` +
-                `${tagStatus} ` +
-                `${UI.gray}${this.readingTags} tags configured for acquisition${UI.reset}`,
-                width
-            )
-        );
-
-        // ---------------------------------------------------
-        // DISCOVERY
-        // ---------------------------------------------------
-
-        if (this.discovery.active) {
-
-            lines.push(
-                contentLine(
-                    `${UI.brightYellow}● NETWORK DISCOVERY${UI.reset} ` +
-                    `${UI.white}${this.discovery.phase}${UI.reset} ` +
-                    `${UI.gray} ` +
-                    `Scanned: ${this.discovery.scanned} ` +
-                    `Active: ${this.discovery.alive} ` +
-                    `Devices: ${this.discovery.devices} ` +
-                    `${UI.reset} `,
-                    width
-                )
-            );
-        }
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // CONNECTION SUMMARY
-        // ---------------------------------------------------
-
-        lines.push(
-            sectionTitle(
-                'CONNECTION STATUS',
-                width
-            )
-        );
-
-        lines.push(
-            contentLine(
-                `${UI.gray}Cloud service${UI.reset}       ${this.cloud
-                    ? UI.brightGreen + '● Connected' + UI.reset
-                    : UI.brightYellow + '● Connecting' + UI.reset
-                } `,
-                width
-            )
-        );
-
-        lines.push(
-            contentLine(
-                `${UI.gray}Machine layer${UI.reset}       ${this.devices.filter(d => d.connected).length > 0
-                    ? UI.brightGreen + '● Active' + UI.reset
-                    : UI.brightYellow + '● Waiting' + UI.reset
-                } `,
-                width
-            )
-        );
-
-        lines.push(
-            contentLine(
-                `${UI.gray}Data acquisition${UI.reset}   ${this.readingTags > 0
-                    ? UI.brightGreen + '● Active' + UI.reset
-                    : UI.brightYellow + '● Waiting' + UI.reset
-                } `,
-                width
-            )
-        );
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // ACTIVITY
-        // ---------------------------------------------------
-
-        lines.push(
-            sectionTitle(
-                'LATEST ACTIVITY',
-                width
-            )
-        );
-
-        const recent =
-            this.activity.slice(-3);
-
-        for (const message of recent) {
-
-            lines.push(
-                contentLine(
-                    `${UI.gray}›${UI.reset} ${message} `,
-                    width
-                )
-            );
-        }
-
-        lines.push(boxDivider(width));
-
-        // ---------------------------------------------------
-        // FOOTER
-        // ---------------------------------------------------
-
-        lines.push(
-            row(
-                `${UI.brightCyan}OnlineSCADA${UI.reset}  ${UI.gray}Industrial Cloud SCADA${UI.reset} `,
-                `${UI.gray} Ctrl + C${UI.reset} ${UI.white}Stop Gateway${UI.reset} `,
-                width
-            )
-        );
-
-        lines.push(boxBottom(width));
-
-        // Keep fixed height.
-        while (lines.length < UI_HEIGHT) {
-            lines.push('');
-        }
-
-        return lines.slice(0, UI_HEIGHT);
-    },
-
-    // -------------------------------------------------------
-    // Draw once / update in place
-    // -------------------------------------------------------
-
-    draw() {
-
-        try {
-
-            updateDashboardState();
-
-            const lines =
-                this.render();
-
-            // First render:
-            // clear terminal exactly once.
-            if (!this.rendered) {
-
-                process.stdout.write(
-                    UI.clearScreen
-                );
-
-                process.stdout.write(
-                    UI.hideCursor
-                );
-
-                this.rendered = true;
-            }
-
-            // IMPORTANT:
-            // Return to the top-left and overwrite the
-            // existing dashboard instead of appending.
-            process.stdout.write(
-                UI.cursorHome
-            );
-
-            process.stdout.write(
-                lines.join('\n')
-            );
-
-        } catch (err) {
-            // UI must never stop gateway operation.
-        }
-    }
-};
-
-// ═══════════════════════════════════════════════════════════
-// TERMINAL HELPERS
-// ═══════════════════════════════════════════════════════════
-
-function getTerminalWidth() {
-
-    const width =
-        process.stdout.columns || 120;
-
-    return Math.max(
-        90,
-        Math.min(
-            width,
-            UI_WIDTH
-        )
-    );
-}
-
-function stripAnsi(value) {
-
-    return String(value)
-        .replace(
-            /\x1b\[[0-9;]*m/g,
-            ''
-        );
-}
-
-function visibleLength(value) {
-
-    return stripAnsi(value).length;
-}
-
-function pad(value, length) {
-
-    const text =
-        String(value);
-
-    const missing =
-        Math.max(
-            0,
-            length -
-            visibleLength(text)
-        );
-
-    return (
-        text +
-        ' '.repeat(missing)
-    );
-}
-
-function padAnsi(value, length) {
-
-    return pad(
-        value,
-        length
-    );
-}
-
-function clean(value) {
-
-    return String(value || '')
-        .replace(/\r/g, '')
-        .replace(/\n/g, '')
-        .slice(0, 28);
-}
-
-function center(value, width) {
-
-    const visible =
-        visibleLength(value);
-
-    const left =
-        Math.max(
-            0,
-            Math.floor(
-                (width - visible) / 2
-            )
-        );
-
-    return (
-        ' '.repeat(left) +
-        value
-    );
-}
-
-function boxTop(width) {
-
-    return (
-        `${UI.cyan}╔` +
-        '═'.repeat(width - 2) +
-        `╗${UI.reset} `
-    );
-}
-
-function boxBottom(width) {
-
-    return (
-        `${UI.cyan}╚` +
-        '═'.repeat(width - 2) +
-        `╝${UI.reset} `
-    );
-}
-
-function boxDivider(width) {
-
-    return (
-        `${UI.cyan}╠` +
-        '═'.repeat(width - 2) +
-        `╣${UI.reset} `
-    );
-}
-
-function row(left, right, width) {
-
-    const inner =
-        width - 4;
-
-    const available =
-        inner -
-        visibleLength(left) -
-        visibleLength(right);
-
-    return (
-        `${UI.cyan}║${UI.reset} ` +
-        left +
-        ' '.repeat(
-            Math.max(
-                1,
-                available
-            )
-        ) +
-        right +
-        `  ${UI.cyan}║${UI.reset} `
-    );
-}
-
-function contentLine(
-    content,
-    width
-) {
-
-    const inner =
-        width - 4;
-
-    const text =
-        String(content);
-
-    const visible =
-        visibleLength(text);
-
-    let clipped = text;
-
-    if (visible > inner) {
-        clipped =
-            stripAnsi(text)
-                .slice(0, inner);
-    }
-
-    return (
-        `${UI.cyan}║${UI.reset} ` +
-        clipped +
-        ' '.repeat(
-            Math.max(
-                0,
-                inner -
-                visibleLength(clipped)
-            )
-        ) +
-        `  ${UI.cyan}║${UI.reset} `
-    );
-}
-
-function sectionTitle(
-    title,
-    width
-) {
-
-    return contentLine(
-        `${UI.bold}${UI.brightCyan}▸ ${title}${UI.reset} `,
-        width
-    );
-}
-
-function cardLine(
-    title,
-    value,
-    subtitle,
-    width
-) {
-
-    const left =
-        `${UI.bold}${UI.brightWhite}${title}${UI.reset} `;
-
-    const right =
-        `${value}  ${UI.gray}${subtitle}${UI.reset} `;
-
-    return row(
-        left,
-        right,
-        width
-    );
-}
-
-function stateDot(state) {
-
-    if (state === 'ONLINE') {
-        return `${UI.brightGreen}●${UI.reset} `;
-    }
-
-    if (state === 'DEGRADED') {
-        return `${UI.brightYellow}●${UI.reset} `;
-    }
-
-    if (state === 'ERROR') {
-        return `${UI.brightRed}●${UI.reset} `;
-    }
-
-    if (state === 'STOPPING') {
-        return `${UI.brightYellow}●${UI.reset} `;
-    }
-
-    return `${UI.brightCyan}●${UI.reset} `;
-}
-
-function addActivity(message) {
-
-    const text =
-        String(message)
-            .replace(
-                /\x1b\[[0-9;]*m/g,
-                ''
-            )
-            .replace(
-                /\r?\n/g,
-                ' '
-            )
-            .trim();
-
-    if (!text) {
-        return;
-    }
-
-    dashboard.activity.push(
-        text.slice(0, 110)
-    );
-
-    if (
-        dashboard.activity.length > 20
-    ) {
-        dashboard.activity.shift();
-    }
-
-    dashboard.draw();
-}
-
-// ═══════════════════════════════════════════════════════════
-// DASHBOARD STATE UPDATE
-// ═══════════════════════════════════════════════════════════
-
-function updateDashboardState() {
-
-    if (global.cloudBridge) {
-
-        dashboard.cloud =
-            !!global.cloudBridge.isConnected;
-    }
-
-    if (global.healthMonitor) {
-
-        dashboard.health =
-            !!global.healthMonitor.isRunning;
-    }
-
-    if (global.plcReader) {
-
-        const status =
-            global.plcReader.getStatus();
-
-        dashboard.devices =
-            status.devices;
-
-        dashboard.totalTags =
-            status.totalTags;
-
-        dashboard.readingTags =
-            status.readingTags;
-    }
-
-    if (
-        dashboard.cloud &&
-        dashboard.health
-    ) {
-
-        dashboard.state =
-            'ONLINE';
-
-    } else if (
-        dashboard.cloud
-    ) {
-
-        dashboard.state =
-            'DEGRADED';
-
-    } else {
-
-        dashboard.state =
-            'STARTING';
-    }
-}
-
-// ═══════════════════════════════════════════════════════════
-// START DASHBOARD
-// ═══════════════════════════════════════════════════════════
-
-function startDashboard() {
-
-    if (dashboard.timer) {
-        return;
-    }
-
-    dashboard.draw();
-
-    dashboard.timer =
-        setInterval(
-            () => {
-                dashboard.draw();
-            },
-            1000
-        );
-}
-
-// ═══════════════════════════════════════════════════════════
-// LOAD CONFIG
-// ═══════════════════════════════════════════════════════════
-
 function loadConfig() {
-
-    if (
-        !fs.existsSync(
-            CONFIG_PATH
-        )
-    ) {
-        throw new Error(
-            'config.json not found'
-        );
+    if (!fs.existsSync(CONFIG_PATH)) {
+        console.error('[ERROR] config.json missing in workspace.');
+        process.exit(1);
     }
-
-    try {
-
-        const raw =
-            fs.readFileSync(
-                CONFIG_PATH,
-                'utf-8'
-            );
-
-        const config =
-            JSON.parse(raw);
-
-        const required = [
-            'cloudUrl',
-            'companyId',
-            'apiKey',
-            'plcs'
-        ];
-
-        const missing =
-            required.filter(
-                (k) => !config[k]
-            );
-
-        if (
-            missing.length > 0
-        ) {
-            throw new Error(
-                `config.json is missing required fields: ${missing.join(', ')} `
-            );
-        }
-
-        return config;
-
-    } catch (err) {
-
-        throw new Error(
-            `Failed to load configuration: ${err.message} `
-        );
-    }
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
 }
-
-// ═══════════════════════════════════════════════════════════
-// NETWORK DISCOVERY
-// ═══════════════════════════════════════════════════════════
-
-async function scanNetwork(
-    options,
-    cloudBridge
-) {
-
-    const {
-        startIP,
-        endIP
-    } = options;
-
-    let rangesToScan = [];
-
-    if (
-        startIP &&
-        endIP
-    ) {
-
-        rangesToScan.push({
-            start: startIP,
-            end: endIP
-        });
-
-    } else {
-
-        const interfaces =
-            os.networkInterfaces();
-
-        for (
-            const name
-            of Object.keys(interfaces)
-        ) {
-
-            if (
-                name
-                    .toLowerCase()
-                    .includes('wsl') ||
-                name
-                    .toLowerCase()
-                    .includes('veth')
-            ) {
-                continue;
-            }
-
-            for (
-                const iface
-                of interfaces[name]
-            ) {
-
-                if (
-                    iface.family === 'IPv4' &&
-                    !iface.internal
-                ) {
-
-                    const parts =
-                        iface.address.split('.');
-
-                    rangesToScan.push({
-                        start:
-                            `${parts[0]}.${parts[1]}.${parts[2]} .1`,
-
-                        end:
-                            `${parts[0]}.${parts[1]}.${parts[2]} .254`
-                    });
-                }
-            }
-        }
-    }
-
-    rangesToScan =
-        rangesToScan.filter(
-            (v, i, a) =>
-                a.findIndex(
-                    t =>
-                        t.start ===
-                        v.start
-                ) === i
-        );
-
-    if (
-        rangesToScan.length === 0
-    ) {
-
-        dashboard.discovery.active =
-            false;
-
-        dashboard.discovery.phase =
-            'No physical IPv4 networks found';
-
-        dashboard.draw();
-
-        await cloudBridge.reportDiscovery(
-            'done',
-            {
-                scannedIPs: 0,
-                aliveHosts: 0,
-                devices: []
-            }
-        );
-        return;
-    }
-
-    dashboard.discovery.active =
-        true;
-
-    dashboard.discovery.phase =
-        'SCANNING NETWORK';
-
-    dashboard.discovery.scanned =
-        0;
-
-    dashboard.discovery.alive =
-        0;
-
-    dashboard.discovery.devices =
-        0;
-
-    dashboard.draw();
-
-    await cloudBridge.reportDiscovery(
-        'pinging',
-        {
-            scannedIPs: 0,
-            aliveHosts: 0,
-            devices: []
-        }
-    );
-
-    const ipToInt =
-        (ip) =>
-            ip
-                .split('.')
-                .reduce(
-                    (acc, octet) =>
-                        (acc << 8) +
-                        parseInt(octet),
-                    0
-                );
-
-    const intToIp =
-        (int) =>
-            `${int >>> 24}.${(int >> 16) & 255}.${(int >> 8) & 255}.${int & 255} `;
-
-    let scanned = 0;
-    let alive = 0;
-
-    const devices = [];
-
-    const checkPort =
-        (ip, port) => {
-
-            return new Promise(
-                (resolve) => {
-
-                    const s =
-                        new net.Socket();
-
-                    s.setTimeout(500);
-
-                    s.on(
-                        'connect',
-                        () => {
-                            s.destroy();
-                            resolve(true);
-                        }
-                    );
-
-                    s.on(
-                        'timeout',
-                        () => {
-                            s.destroy();
-                            resolve(false);
-                        }
-                    );
-
-                    s.on(
-                        'error',
-                        () => {
-                            s.destroy();
-                            resolve(false);
-                        }
-                    );
-
-                    s.connect(
-                        port,
-                        ip
-                    );
-                }
-            );
-        };
-
-    const portsToProtocols = {
-        102: 'S7',
-        502: 'MODBUS_TCP',
-        4840: 'OPC_UA',
-        44818: 'ETHERNET_IP'
-    };
-
-    const vendorNames = {
-        102: 'Siemens PLC (S7)',
-        502: 'Modbus TCP Device',
-        4840: 'OPC-UA Server',
-        44818: 'Allen-Bradley (EIP)'
-    };
-
-    for (
-        const range
-        of rangesToScan
-    ) {
-
-        const startInt =
-            ipToInt(
-                range.start
-            );
-
-        const endInt =
-            ipToInt(
-                range.end
-            );
-
-        const ipsToScan = [];
-
-        for (
-            let i = startInt;
-            i <= endInt;
-            i++
-        ) {
-
-            ipsToScan.push(
-                intToIp(i)
-            );
-        }
-
-        const BATCH_SIZE = 40;
-
-        for (
-            let i = 0;
-            i < ipsToScan.length;
-            i += BATCH_SIZE
-        ) {
-
-            const batch =
-                ipsToScan.slice(
-                    i,
-                    i + BATCH_SIZE
-                );
-
-            await Promise.all(
-                batch.map(
-                    async (ip) => {
-
-                        const results =
-                            await Promise.all(
-                                Object.keys(
-                                    portsToProtocols
-                                ).map(
-                                    async (port) => {
-
-                                        const isOpen =
-                                            await checkPort(
-                                                ip,
-                                                parseInt(
-                                                    port
-                                                )
-                                            );
-
-                                        return {
-                                            port,
-                                            isOpen
-                                        };
-                                    }
-                                )
-                            );
-
-                        scanned++;
-
-                        const openPorts =
-                            results.filter(
-                                r =>
-                                    r.isOpen
-                            );
-
-                        if (
-                            openPorts.length > 0
-                        ) {
-
-                            alive++;
-
-                            for (
-                                const {
-                                    port
-                                }
-                                of openPorts
-                            ) {
-
-                                devices.push({
-                                    ip,
-                                    port:
-                                        parseInt(
-                                            port
-                                        ),
-
-                                    protocol:
-                                        portsToProtocols[
-                                        port
-                                        ],
-
-                                    vendorName:
-                                        vendorNames[
-                                        port
-                                        ],
-
-                                    verified:
-                                        true,
-
-                                    deepInfo: {
-                                        model:
-                                            'Identified via Hardware Port Scan'
-                                    }
-                                });
-                            }
-                        }
-                    }
-                )
-            );
-
-            dashboard.discovery.scanned =
-                scanned;
-
-            dashboard.discovery.alive =
-                alive;
-
-            dashboard.discovery.devices =
-                devices.length;
-
-            await cloudBridge.reportDiscovery(
-                'probing',
-                {
-                    scannedIPs:
-                        scanned,
-
-                    aliveHosts:
-                        alive,
-
-                    devices
-                }
-            );
-
-            dashboard.draw();
-        }
-    }
-
-    dashboard.discovery.phase =
-        'SCAN COMPLETE';
-
-    dashboard.discovery.scanned =
-        scanned;
-
-    dashboard.discovery.alive =
-        alive;
-
-    dashboard.discovery.devices =
-        devices.length;
-
-    await cloudBridge.reportDiscovery(
-        'done',
-        {
-            scannedIPs:
-                scanned,
-
-            aliveHosts:
-                alive,
-
-            devices
-        }
-    );
-
-    dashboard.draw();
-
-    setTimeout(
-        () => {
-
-            dashboard.discovery.active =
-                false;
-
-            dashboard.draw();
-
-        },
-        3000
-    );
-}
-
-// ═══════════════════════════════════════════════════════════
-// MAIN
-// ═══════════════════════════════════════════════════════════
 
 async function main() {
+    let config = loadConfig();
 
-    let config;
+    // Application State Tracker
+    const state = {
+        cloudConnected: false,
+        gatewayHealth: 'HEALTHY',
+        machines: config.plcs || [],
+        dataEngineStatus: 'WAITING',
+        machineLayerStatus: 'Waiting',
+        dataAcqStatus: 'Waiting',
+        logs: [
+            'OnlineSCADA Edge Gateway is ready',
+            'Starting gateway diagnostic monitor',
+            'Initializing secure WebSocket tunnel...'
+        ]
+    };
 
-    try {
-
-        config =
-            loadConfig();
-
-    } catch (err) {
-
-        process.stdout.write(
-            UI.showCursor
-        );
-
-        console.error('');
-        console.error(
-            'OnlineSCADA Gateway Error'
-        );
-
-        console.error(
-            err.message
-        );
-
-        console.error('');
-
-        process.exit(1);
+    function addLog(msg) {
+        state.logs.unshift(msg);
+        if (state.logs.length > 5) state.logs.pop();
+        redrawDashboard();
     }
 
-    const cloudBridge =
-        new CloudBridge(
-            config,
-            VERBOSE
-        );
+    function redrawDashboard() {
+        console.clear();
 
-    const plcReader =
-        new PLCReader(
-            config,
-            cloudBridge,
-            VERBOSE
-        );
+        const w = 76; // Standard terminal width layout
+        const cCyan = '\x1b[36m';
+        const cGreen = '\x1b[32m';
+        const cYellow = '\x1b[33m';
+        const cWhite = '\x1b[37m';
+        const cGray = '\x1b[90m';
+        const cBold = '\x1b[1m';
+        const cReset = '\x1b[0m';
 
-    const healthMonitor =
-        new HealthMonitor(
-            config,
-            cloudBridge,
-            VERBOSE
-        );
-
-    global.cloudBridge =
-        cloudBridge;
-
-    global.plcReader =
-        plcReader;
-
-    global.healthMonitor =
-        healthMonitor;
-
-    // Start single dashboard.
-    startDashboard();
-
-    addActivity(
-        'Loading OnlineSCADA gateway configuration'
-    );
-
-    cloudBridge.onWriteCommand(
-        (cmd) => {
-
-            addActivity(
-                `Write command received for ${cmd.tagName || 'tag'}`
-            );
-
-            plcReader.handleWriteCommand(
-                cmd
-            );
-        }
-    );
-
-    cloudBridge.onConfigUpdate(
-        (payload) => {
-
-            const newPlcs =
-                payload?.plcs;
-
-            if (
-                !Array.isArray(
-                    newPlcs
-                )
-            ) {
-                return;
+        const line = (txt = '', align = 'left') => {
+            const cleanTxt = txt.replace(/\x1b\[[0-9;]*m/g, '');
+            const padLen = Math.max(0, w - cleanTxt.length);
+            if (align === 'right') return cCyan + '║ ' + cReset + ' '.repeat(padLen) + txt + cCyan + ' ║' + cReset;
+            if (align === 'center') {
+                const leftPad = Math.floor(padLen / 2);
+                const rightPad = padLen - leftPad;
+                return cCyan + '║ ' + cReset + ' '.repeat(leftPad) + txt + ' '.repeat(rightPad) + cCyan + ' ║' + cReset;
             }
-
-            addActivity(
-                `Cloud configuration updated • ${newPlcs.length} machine(s)`
-            );
-
-            config.plcs =
-                newPlcs;
-
-            plcReader
-                .reload(
-                    newPlcs
-                )
-                .catch(
-                    (err) => {
-
-                        addActivity(
-                            `Hot reload failed • ${err.message} `
-                        );
-                    }
-                );
-        }
-    );
-
-    cloudBridge.onStartDiscovery(
-        (options) => {
-
-            addActivity(
-                'Network discovery requested by OnlineSCADA'
-            );
-
-            scanNetwork(
-                options,
-                cloudBridge
-            ).catch(
-                err => {
-
-                    addActivity(
-                        `Discovery failed • ${err.message} `
-                    );
-                }
-            );
-        }
-    );
-
-    const shutdown =
-        async (signal) => {
-
-            dashboard.state =
-                'STOPPING';
-
-            dashboard.draw();
-
-            addActivity(
-                `Gateway shutdown requested(${signal})`
-            );
-
-            healthMonitor.stop();
-
-            plcReader.stopAll();
-
-            cloudBridge.disconnect();
-
-            if (
-                dashboard.timer
-            ) {
-
-                clearInterval(
-                    dashboard.timer
-                );
-
-                dashboard.timer =
-                    null;
-            }
-
-            process.stdout.write(
-                UI.showCursor
-            );
-
-            process.stdout.write(
-                '\n'
-            );
-
-            process.exit(0);
+            return cCyan + '║ ' + cReset + txt + ' '.repeat(padLen) + cCyan + ' ║' + cReset;
         };
 
-    process.on(
-        'SIGINT',
-        () => shutdown('SIGINT')
-    );
+        const divider = () => cCyan + '╠' + '═'.repeat(w + 2) + '╣' + cReset;
 
-    process.on(
-        'SIGTERM',
-        () => shutdown('SIGTERM')
-    );
+        console.log(cCyan + '╔' + '═'.repeat(w + 2) + '╗' + cReset);
+        console.log(line(`${cBold}${cCyan}O N L I N E S C A D A${cReset} Cloud Data Bridge`, 'center'));
+        console.log(line(`${cGray}Industrial Edge Gateway  •  Factory → Cloud Data Bridge${cReset}`, 'center'));
+        console.log(cCyan + '╠' + '═'.repeat(w + 2) + '╣' + cReset);
 
-    process.on(
-        'uncaughtException',
-        (err) => {
+        // System Header Block
+        const cloudStatusStr = state.cloudConnected ? `${cGreen}● ONLINE${cReset}` : `${cYellow}● CONNECTING${cReset}`;
+        console.log(line(`${cBold}ONLINE SCADA${cReset}${' '.repeat(42)}${cloudStatusStr}`));
+        console.log(line(`${cGray}Secure Industrial Connectivity${cReset}${' '.repeat(38)}Gateway v2.2.0`));
+        console.log(divider());
 
-            addActivity(
-                `Gateway error • ${err.message} `
-            );
+        // Status Metrics Block
+        const tunnelStr = state.cloudConnected ? `${cGreen}● CONNECTED${cReset} Secure tunnel active` : `${cYellow}● WAITING${cReset} Connecting to cloud...`;
+        const healthStr = `${cGreen}● HEALTHY${cReset} Diagnostic monitor active`;
+        const machineCount = state.machines.length;
+        const totalTags = state.machines.reduce((acc, m) => acc + (m.tags?.length || 0), 0);
 
-            if (VERBOSE) {
-                console.error(err);
-            }
+        console.log(line(`CLOUD CONNECTION${' '.repeat(20)}${tunnelStr}`));
+        console.log(line(`GATEWAY HEALTH${' '.repeat(22)}${healthStr}`));
+        console.log(line(`MACHINES${' '.repeat(30)}${cBold}${machineCount}${cReset} Configured machines`));
+        console.log(line(`TAGS${' '.repeat(32)}${cBold}${totalTags}${cReset} Tags configured`));
+        console.log(divider());
+
+        // Machine Status Table Header
+        console.log(line(`${cCyan}► MACHINE STATUS${cReset}`));
+        console.log(line(`${cGray}DEVICE                  PROTOCOL        STATUS          TAGS${cReset}`));
+        console.log(cCyan + '╟' + '─'.repeat(w + 2) + '╢' + cReset);
+
+        if (state.machines.length === 0) {
+            console.log(line(`${cGray}No machine connections configured.${cReset}`));
+        } else {
+            state.machines.forEach(m => {
+                const devName = (m.plcName || 'Machine').padEnd(23).substring(0, 23);
+                const proto = (m.protocol || 'UNKNOWN').toUpperCase().padEnd(15).substring(0, 15);
+                const stat = state.cloudConnected ? `${cGreen}ONLINE${cReset}` : `${cYellow}WAITING${cReset}`;
+                const tagsLen = String(m.tags?.length || 0).padEnd(6);
+                console.log(line(`${cWhite}${devName}${cReset} ${cGray}${proto}${cReset} ${stat}${' '.repeat(8)}${tagsLen}`));
+            });
         }
-    );
+        console.log(divider());
 
-    process.on(
-        'unhandledRejection',
-        (err) => {
+        // Data Engine Status
+        const engineCol = state.dataEngineStatus === 'ACTIVE' ? cGreen : cYellow;
+        console.log(line(`DATA ENGINE ${engineCol}● ${state.dataEngineStatus}${cReset}  ${totalTags} tags configured for acquisition`));
+        console.log(divider());
 
-            addActivity(
-                `Gateway error • ${err?.message || err} `
-            );
+        // Connection Status Block
+        console.log(line(`${cCyan}► CONNECTION STATUS${cReset}`));
+        const cServ = state.cloudConnected ? `${cGreen}● Connected${cReset}` : `${cYellow}● Connecting...${cReset}`;
+        const mLayer = state.machines.length > 0 ? `${cGreen}● Active${cReset}` : `${cYellow}● Waiting${cReset}`;
+        const dAcq = totalTags > 0 ? `${cGreen}● Polling${cReset}` : `${cYellow}● Waiting${cReset}`;
 
-            if (VERBOSE) {
-                console.error(err);
-            }
+        console.log(line(`Cloud service${' '.repeat(21)}${cServ}`));
+        console.log(line(`Machine layer${' '.repeat(21)}${mLayer}`));
+        console.log(line(`Data acquisition${' '.repeat(18)}${dAcq}`));
+        console.log(divider());
+
+        // Latest Activity Log Block
+        console.log(line(`${cCyan}► LATEST ACTIVITY${cReset}`));
+        state.logs.slice(0, 4).forEach(lg => {
+            console.log(line(`› ${cGray}${lg}${cReset}`));
+        });
+
+        console.log(cCyan + '╚' + '═'.repeat(w + 2) + '╝' + cReset);
+        console.log(`${cCyan}OnlineSCADA${cReset} Industrial Cloud SCADA${' '.repeat(34)}Ctrl + C ${cYellow}Stop Gateway${cReset}`);
+    }
+
+    // Initialize Bridge & Readers
+    const cloudBridge = new CloudBridge(config, false);
+    const plcReader = new PLCReader(config, cloudBridge, false);
+    const healthMonitor = new HealthMonitor(config, cloudBridge, false);
+
+    cloudBridge.onWriteCommand((cmd) => {
+        addLog(`Write command -> Tag: ${cmd.tagName} = ${cmd.value}`);
+        plcReader.handleWriteCommand(cmd);
+    });
+
+    cloudBridge.onConfigUpdate((newConfig) => {
+        if (Array.isArray(newConfig?.plcs)) {
+            state.machines = newConfig.plcs;
+            state.dataEngineStatus = 'ACTIVE';
+            state.machineLayerStatus = 'Active';
+            state.dataAcqStatus = 'Polling';
+            addLog(`Hot-reloaded ${newConfig.plcs.length} machine connection(s)`);
+            plcReader.reload(newConfig.plcs);
+            redrawDashboard();
         }
-    );
+    });
 
-    addActivity(
-        'Connecting to OnlineSCADA cloud'
-    );
+    // Handle connection state callbacks
+    setInterval(() => {
+        const isOnline = cloudBridge.isConnected;
+        if (state.cloudConnected !== isOnline) {
+            state.cloudConnected = isOnline;
+            if (isOnline) {
+                state.dataEngineStatus = 'ACTIVE';
+                addLog('Secure WebSocket tunnel established');
+            } else {
+                state.dataEngineStatus = 'WAITING';
+                addLog('Connection lost - reconnecting...');
+            }
+            redrawDashboard();
+        }
+    }, 1000);
+
+    redrawDashboard();
 
     await cloudBridge.connect();
-
-    if (
-        cloudBridge.isConnected
-    ) {
-
-        addActivity(
-            'Secure cloud connection established'
-        );
-
-    } else {
-
-        addActivity(
-            'Cloud connection pending • automatic reconnection enabled'
-        );
-    }
-
-    addActivity(
-        'Starting industrial machine protocol readers'
-    );
-
     await plcReader.startAll();
-
-    addActivity(
-        `${config.plcs?.length || 0} machine connection(s) initialized`
-    );
-
-    addActivity(
-        'Starting gateway diagnostic monitor'
-    );
-
     healthMonitor.start();
 
-    addActivity(
-        'OnlineSCADA Edge Gateway is ready'
-    );
-
-    dashboard.draw();
+    state.cloudConnected = true;
+    state.dataEngineStatus = 'ACTIVE';
+    addLog('OnlineSCADA Factory Connector is online');
+    redrawDashboard();
 }
 
-main().catch(
-    (err) => {
-
-        process.stdout.write(
-            UI.showCursor
-        );
-
-        console.error('');
-        console.error(
-            '[OnlineSCADA] Fatal gateway error:',
-            err.message
-        );
-
-        console.error('');
-
-        process.exit(1);
-    }
-);
+main().catch((err) => {
+    console.error('\x1b[31m[CRITICAL ERROR] Gateway engine halted:', err.message, '\x1b[0m');
+});
