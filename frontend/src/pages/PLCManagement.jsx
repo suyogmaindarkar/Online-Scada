@@ -246,14 +246,14 @@ const PLCManagement = () => {
                 <h3 className="font-bold text-base text-slate-900">Factory Connector Link</h3>
                 <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: isGatewayOnline ? '#DCFCE7' : '#FEF3C7', color: isGatewayOnline ? '#15803D' : '#B45309' }}>
                   {isGatewayOnline ? <CheckCircle size={12} strokeWidth={3} /> : <AlertCircle size={12} strokeWidth={3} />}
-                  {isGatewayOnline ? 'System is Online & Connected' : nonSimPlcCount === 0 ? 'Waiting for Equipment' : 'Offline - Setup Required'}
+                  {isGatewayOnline ? 'System is Online & Connected' : nonSimPlcCount === 0 ? 'Ready for Download' : 'Offline - Setup Required'}
                 </span>
               </div>
               <p className="text-sm text-slate-700">
                 {isGatewayOnline ? (
                   <span className="flex items-center gap-1"><CheckCircle2 size={14} className="text-emerald-600" /> Secure bridge active. Streaming from <strong>{nonSimPlcCount} machine(s)</strong>.</span>
                 ) : nonSimPlcCount === 0 ? (
-                  `Add your machine (PLC) below, then download the Connector to link it securely.`
+                  `Download the Connector to enable Network Discovery, or add your machine manually below.`
                 ) : (
                   `Download the Connector to link your ${nonSimPlcCount} machine(s) securely to the cloud. No installation needed!`
                 )}
@@ -267,7 +267,9 @@ const PLCManagement = () => {
               )}
             </div>
           </div>
-          <ActionButton variant="emerald" icon={FolderArchive} onClick={handleDownloadCompletePackage} disabled={downloadingPackage || nonSimPlcCount === 0} loading={downloadingPackage}>
+
+          {/* REMOVED: disabled rule blocking download when PLC count is 0 */}
+          <ActionButton variant="emerald" icon={FolderArchive} onClick={handleDownloadCompletePackage} disabled={downloadingPackage} loading={downloadingPackage}>
             {downloadingPackage ? 'Preparing...' : 'Download Connector'}
           </ActionButton>
         </div>
@@ -279,8 +281,8 @@ const PLCManagement = () => {
           <div className="py-16 text-center">
             <Cpu className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <h3 className="text-xl font-bold text-slate-800">No Equipment Added</h3>
-            <p className="text-sm text-slate-500 mb-6">Click "Add Equipment" to connect your first machine.</p>
-            <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
+            <p className="text-sm text-slate-500 mb-6">Click "Discover" above to scan your network, or add manually.</p>
+            <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment Manually</ActionButton>
           </div>
         ) : (
           <table className="w-full text-left">
