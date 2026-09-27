@@ -145,44 +145,68 @@ async function main() {
         }
     });
 
-    // ─── Restore Network Discovery Scanner ───
+    // Replace ONLY the `cloudBridge.onStartDiscovery` block inside your `index.js` with this:
+
+    // ─── HIGH-SPEED PARALLEL NETWORK DISCOVERY ───
     cloudBridge.onStartDiscovery(async (options) => {
         state.addLog(`Network scan started: ${options.startIP} to ${options.endIP}`);
-        cloudBridge.reportDiscovery('started', []);
-
+        
         const results = [];
         const targetPorts = { 102: 'S7', 502: 'MODBUS_TCP', 4840: 'OPC_UA', 44818: 'ETHERNET_IP' };
-
+        
         try {
             const base = options.startIP.substring(0, options.startIP.lastIndexOf('.'));
             const start = parseInt(options.startIP.split('.').pop());
             const end = parseInt(options.endIP.split('.').pop());
 
-            for (let i = start; i <= end; i++) {
-                const ip = `${base}.${i}`;
-                for (const [portStr, proto] of Object.entries(targetPorts)) {
-                    const port = parseInt(portStr);
-                    await new Promise((resolve) => {
-                        const socket = new net.Socket();
-                        socket.setTimeout(400);
-                        socket.on('connect', () => {
-                            results.push({ ip, port, protocol: proto });
-                            state.addLog(`Discovered ${proto} at ${ip}:${port}`);
-                            socket.destroy();
-                            resolve();
-                        });
-                        socket.on('timeout', () => { socket.destroy(); resolve(); });
-                        socket.on('error', () => resolve());
-                        socket.connect(port, ip);
+            const checkPort = (ip, port, proto) => {
+                return new Promise((resolve) => {
+                    const socket = new net.Socket();
+                    socket.setTimeout(400); // 400ms timeout max
+                    socket.on('connect', () => {
+                        socket.destroy();
+                        resolve({ ip, port, protocol: proto });
                     });
+                    socket.on('timeout', () => { socket.destroy(); resolve(null); });
+                    socket.on('error', () => { socket.destroy(); resolve(null); });
+                    socket.connect(port, ip);
+                });
+            };
+
+            // Process in chunks of 20 IPs to avoid maxing out Windows sockets but keep it extremely fast
+            const ipList = [];
+            for (let i = start; i <= end; i++) ipList.push(`${base}.${i}`);
+
+            for (let i = 0; i < ipList.length; i += 20) {
+                const chunk = ipList.slice(i, i + 20);
+                const promises = [];
+
+                for (const ip of chunk) {
+                    for (const [portStr, proto] of Object.entries(targetPorts)) {
+                        promises.push(checkPort(ip, parseInt(portStr), proto));
+                    }
                 }
+
+                const chunkResults = await Promise.all(promises);
+                for (const res of chunkResults) {
+                    if (res) {
+                        results.push(res);
+                        state.addLog(`Discovered ${res.protocol} at ${res.ip}`);
+                    }
+                }
+                
+                // Report progressive status to the cloud so UI updates
+                cloudBridge.reportDiscovery('progress', results);
             }
+
+            // Final completion payload
+            cloudBridge.reportDiscovery('completed', results);
+            state.addLog(`Scan complete. Found ${results.length} machine(s).`);
+
         } catch (err) {
             state.addLog(`Scan failed: ${err.message}`);
+            cloudBridge.reportDiscovery('completed', []); // Send empty array to unlock UI on failure
         }
-
-        cloudBridge.reportDiscovery('completed', results);
-        state.addLog(`Scan complete. Found ${results.length} device(s).`);
     });
 
     setInterval(() => {
