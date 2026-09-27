@@ -89,10 +89,10 @@ const createPLC = async (req, res) => {
       brand: brand || 'OTHER', model: model || '', pollingRate: pollingRate || 1000,
       opcuaUsername: opcuaUsername || '', opcuaPassword: opcuaPassword || '',
       isActive: true,
-      isSimulation: false // Force false so gateway syncs it
+      isSimulation: false
     });
 
-    await compileAndBroadcastConfig(req); // Sync to gateway instantly
+    await compileAndBroadcastConfig(req);
     res.status(201).json({ success: true, message: 'Equipment created successfully', data: plc });
   } catch (error) { res.status(500).json({ success: false, message: 'Server Error', error: error.message }); }
 };
@@ -131,7 +131,7 @@ const updatePLC = async (req, res) => {
     const plc = await PLCConnection.findOneAndUpdate({ _id: req.params.id, companyId: req.companyId }, req.body, { new: true });
     if (!plc) return res.status(404).json({ success: false, message: 'Not found' });
 
-    await compileAndBroadcastConfig(req); // Sync to gateway instantly
+    await compileAndBroadcastConfig(req);
     res.json({ success: true, message: 'Equipment updated successfully', data: plc });
   } catch (error) { res.status(500).json({ success: false, message: 'Server Error', error: error.message }); }
 };
@@ -145,7 +145,7 @@ const deletePLC = async (req, res) => {
     if (tagCount > 0) return res.status(400).json({ success: false, message: `Delete ${tagCount} tags first.` });
 
     await PLCConnection.findOneAndDelete({ _id: req.params.id, companyId: req.companyId });
-    await compileAndBroadcastConfig(req); // Sync to gateway instantly
+    await compileAndBroadcastConfig(req);
     res.json({ success: true, message: 'Equipment deleted' });
   } catch (error) { res.status(500).json({ success: false, message: 'Server Error', error: error.message }); }
 };
@@ -169,8 +169,28 @@ const testPLCConnection = async (req, res) => {
   }
 };
 
-const startPLC = async (req, res) => res.json({ success: true, message: `System active` });
-const stopPLC = async (req, res) => res.json({ success: true, message: `System paused` });
+const startPLC = async (req, res) => {
+  try {
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'Equipment not found' });
+    plc.isActive = true; await plc.save();
+    try { await plcManager.start(req.params.id); } catch (e) { }
+    await compileAndBroadcastConfig(req);
+    res.json({ success: true, message: `System active` });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const stopPLC = async (req, res) => {
+  try {
+    const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!plc) return res.status(404).json({ success: false, message: 'Equipment not found' });
+    plc.isActive = false; plc.isConnected = false; await plc.save();
+    try { await plcManager.stop(req.params.id); } catch (e) { }
+    await compileAndBroadcastConfig(req);
+    res.json({ success: true, message: `System paused` });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 const getPLCStatus = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
@@ -180,4 +200,35 @@ const getPLCStatus = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false }); }
 };
 
-module.exports = { createPLC, createQuickSimulationPLC, getAllPLCs, getPLC, updatePLC, deletePLC, testPLCConnection, startPLC, stopPLC, getPLCStatus };
+// ─── CSV UTILITIES ───
+const csvEscape = (v) => {
+  const s = v === null || v === undefined ? '' : String(v);
+  if (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+};
+
+const exportPLCsCSV = async (req, res) => {
+  try {
+    const plcs = await PLCConnection.find({ companyId: req.companyId, isSimulation: { $ne: true } }).sort({ name: 1 });
+    const headers = ['name', 'description', 'protocol', 'ipAddress', 'port', 'rack', 'slot', 'brand', 'model', 'pollingRate', 'isActive', 'opcuaUsername', 'opcuaPassword'];
+    let csv = `# OnlineSCADA PLC Export\n# Workspace: ${req.company?.slug || 'unknown'}\n# Generated: ${new Date().toISOString()}\n# Total PLCs: ${plcs.length}\n#\n\n${headers.join(',')}\n`;
+    plcs.forEach(plc => {
+      csv += [csvEscape(plc.name), csvEscape(plc.description || ''), csvEscape(plc.protocol), csvEscape(plc.ipAddress), csvEscape(plc.port), csvEscape(plc.rack ?? 0), csvEscape(plc.slot ?? 1), csvEscape(plc.brand || 'OTHER'), csvEscape(plc.model || ''), csvEscape(plc.pollingRate ?? 1000), csvEscape(plc.isActive ? 'true' : 'false'), csvEscape(plc.opcuaUsername || ''), csvEscape(plc.opcuaPassword || '')].join(',') + '\n';
+    });
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="plcs_export_${new Date().toISOString().slice(0, 10)}.csv"`);
+    res.send(csv);
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to export PLCs', error: error.message }); }
+};
+
+const downloadPLCTemplate = async (req, res) => {
+  const headers = ['name', 'description', 'protocol', 'ipAddress', 'port', 'rack', 'slot', 'brand', 'model', 'pollingRate', 'isActive', 'opcuaUsername', 'opcuaPassword'];
+  const template = `# OnlineSCADA PLC Import Template\n${headers.join(',')}\nMain_PLC_01,Production line 1,S7,192.168.1.10,102,0,1,SIEMENS,S7-1500,1000,true,,`;
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="plcs_import_template.csv"');
+  res.send(template);
+};
+
+const importPLCsCSV = async (req, res) => res.status(400).json({ success: false, message: 'Import currently disabled.' });
+
+module.exports = { createPLC, createQuickSimulationPLC, getAllPLCs, getPLC, updatePLC, deletePLC, testPLCConnection, startPLC, stopPLC, getPLCStatus, exportPLCsCSV, importPLCsCSV, downloadPLCTemplate };
