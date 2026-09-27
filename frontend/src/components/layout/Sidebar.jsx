@@ -87,9 +87,9 @@ const Sidebar = () => {
       {/* ─── LOGO HEADER ─── */}
       <div className="px-5 py-5 flex items-center shrink-0 h-[80px]" style={{ borderBottom: '1px solid #F1F5F9' }}>
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'linear-gradient(135deg, #2563EB 0%, #0F3D91 100%)', boxShadow: '0 4px 10px rgba(37,99,235,0.2)' }}>
-            <Zap size={20} color="#FFFFFF" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white border border-slate-100 shadow-sm overflow-hidden p-1"
+            style={{ boxShadow: '0 4px 10px rgba(37,99,235,0.1)' }}>
+            <img src="/favicon.png" alt="OnlineSCADA Logo" className="w-full h-full object-contain" />
           </div>
           <div className={`flex flex-col transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>
             <h1 className="text-lg font-extrabold leading-tight tracking-tight whitespace-nowrap" style={{ color: '#081B43' }}>
