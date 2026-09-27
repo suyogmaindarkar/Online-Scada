@@ -14,8 +14,15 @@ class CloudBridge {
 
     connect() {
         return new Promise((resolve) => {
-            let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com').replace(/^wss:/, 'https:').replace(/^ws:/, 'http:').replace(/\/$/, '');
-            this.socket = io(`${baseUrl}/edge`, { auth: { apiKey: this.config.apiKey, companyId: this.config.companyId }, transports: ['websocket', 'polling'] });
+            let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com')
+                .replace(/^wss:/, 'https:')
+                .replace(/^ws:/, 'http:')
+                .replace(/\/$/, '');
+
+            this.socket = io(`${baseUrl}/edge`, {
+                auth: { apiKey: this.config.apiKey, companyId: this.config.companyId },
+                transports: ['websocket', 'polling']
+            });
 
             this.socket.on('connect', () => { this.isConnected = true; resolve(); });
             this.socket.on('connect_error', () => { this.isConnected = false; resolve(); });
@@ -28,14 +35,35 @@ class CloudBridge {
         });
     }
 
-    sendTagValues(tags) { if (this.isConnected) this.socket.emit('edge:tagValues', { tags }); }
-    sendHeartbeat(stats) { if (this.isConnected) this.socket.emit('edge:heartbeat', { ...stats, hostname: os.hostname(), os: os.type() }); }
-    reportDiscovery(phase, results) { if (this.isConnected) this.socket.emit('edge:discoveryReport', { companyId: this.config.companyId, apiKey: this.config.apiKey, phase, results }); }
+    sendTagValues(tags) {
+        if (this.isConnected && this.socket) this.socket.emit('edge:tagValues', { tags });
+    }
+
+    sendHeartbeat(stats) {
+        if (this.isConnected && this.socket) {
+            this.socket.emit('edge:heartbeat', { ...stats, hostname: os.hostname(), os: os.type() });
+        }
+    }
+
+    reportDiscovery(phase, results) {
+        if (this.isConnected && this.socket) {
+            this.socket.emit('edge:discoveryReport', {
+                companyId: this.config.companyId,
+                apiKey: this.config.apiKey,
+                phase,
+                results
+            });
+        }
+    }
 
     onWriteCommand(cb) { this.writeCallback = cb; }
     onConfigUpdate(cb) { this.configCallback = cb; }
     onStartDiscovery(cb) { this.discoveryCallback = cb; }
-    disconnect() { if (this.socket) this.socket.disconnect(); this.isConnected = false; }
+
+    disconnect() {
+        if (this.socket) this.socket.disconnect();
+        this.isConnected = false;
+    }
 }
 
-module.exports = CloudBridge;x
+module.exports = CloudBridge;
