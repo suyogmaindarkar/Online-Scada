@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// PLC Reader Manager — Instant Connection & Polling Engine
+// PLC Reader Manager — Clean Value-Change Polling Engine
 // ═══════════════════════════════════════════════════════════
 
 const S7Reader = require('./readers/s7Reader');
@@ -37,8 +37,8 @@ class PLCReader {
 
             const success = await reader.connect();
             this.readers.set(plcId, reader);
-
-            // Mark online immediately upon successful handshake
+            
+            // Mark online immediately upon handshake success
             plcConfig.isConnected = Boolean(success);
 
             const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), plcConfig.pollIntervalMs || 1000);
@@ -52,7 +52,6 @@ class PLCReader {
         const reader = this.readers.get(plcId);
         if (!reader) return;
 
-        // Keep connection state live
         plcConfig.isConnected = reader.isConnected !== false;
 
         const tags = plcConfig.tags || [];
@@ -66,13 +65,17 @@ class PLCReader {
             const now = Date.now();
             for (const val of values) {
                 const prev = this.previousValues.get(val.tagId);
-                if (!prev || prev.value !== val.value || (now - prev.timestamp > 10000)) {
+                
+                // FIXED: ONLY send when value genuinely changes. Removed the 10s forced timer spam.
+                if (!prev || prev.value !== val.value) {
                     changed.push({ tagId: val.tagId, tagName: val.tagName, value: val.value, quality: val.quality || 'GOOD', timestamp: now });
                     this.previousValues.set(val.tagId, { value: val.value, timestamp: now });
                 }
             }
-            if (changed.length) this.cloudBridge.sendTagValues(changed);
-        } catch (err) { }
+            if (changed.length) {
+                this.cloudBridge.sendTagValues(changed);
+            }
+        } catch (err) {}
     }
 
     async handleWriteCommand(cmd) {
@@ -80,7 +83,7 @@ class PLCReader {
             try {
                 await reader.writeTag(cmd.address, cmd.value, cmd.dataType);
                 return;
-            } catch (err) { }
+            } catch (err) {}
         }
     }
 
@@ -93,7 +96,7 @@ class PLCReader {
     stopAll() {
         for (const [, id] of this.intervals) clearInterval(id);
         this.intervals.clear();
-        for (const [, r] of this.readers) try { r.disconnect(); } catch (e) { }
+        for (const [, r] of this.readers) try { r.disconnect(); } catch (e) {}
         this.readers.clear();
     }
 }

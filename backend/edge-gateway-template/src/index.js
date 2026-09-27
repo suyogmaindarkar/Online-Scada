@@ -24,13 +24,36 @@ async function main() {
     const state = {
         cloudConnected: false,
         machines: config.plcs || [],
+        logs: [
+            'OnlineSCADA Edge Gateway is ready',
+            'Starting gateway diagnostic monitor',
+            'Initializing secure WebSocket tunnel...'
+        ],
+        addLog(msg) {
+            this.logs.unshift(msg);
+            if (this.logs.length > 4) this.logs.pop();
+            renderDashboard();
+        }
+    };
+
+    // Intercept console.log/error so third-party library warnings never break the terminal layout
+    const originalLog = console.log;
+    const originalError = console.error;
+    console.log = (...args) => {
+        const txt = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        if (!txt.includes('node-opcua') && !txt.includes('verify')) {
+            state.addLog(txt.substring(0, 65));
+        }
+    };
+    console.error = (...args) => {
+        const txt = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        state.addLog(`ERR: ${txt.substring(0, 60)}`);
     };
 
     const cloudBridge = new CloudBridge(config, false);
     const plcReader = new PLCReader(config, cloudBridge, false);
     const healthMonitor = new HealthMonitor(config, cloudBridge, false);
 
-    // Live Cursor-Managed Dashboard Renderer
     let isFirstRender = true;
 
     function renderDashboard() {
@@ -49,7 +72,7 @@ async function main() {
         if (isFirstRender) {
             buf += '\x1b[2J'; // Clear screen once on startup
         }
-        buf += '\x1b[H'; // Move cursor to top-left (0,0) without creating scroll entries
+        buf += '\x1b[H'; // Reset cursor to top-left (0,0) without scrollback spam
 
         buf += boxTop + '\n';
         buf += row('\x1b[1m\x1b[36m                       O N L I N E S C A D A\x1b[0m') + '\n';
@@ -82,7 +105,6 @@ async function main() {
             state.machines.forEach(m => {
                 const name = (m.plcName || 'Machine').padEnd(30).substring(0, 30);
                 const proto = (m.protocol || 'OPCUA').toUpperCase().padEnd(14).substring(0, 14);
-                // Shows ONLINE immediately upon successful connection handshake
                 const stat = m.isConnected ? '\x1b[32m● ONLINE\x1b[0m' : '\x1b[33m● WAITING\x1b[0m';
                 const tagsLen = String(m.tags?.length || 0);
                 buf += row(`${name}${proto}${stat}${' '.repeat(14)}${tagsLen}`) + '\n';
@@ -90,8 +112,8 @@ async function main() {
         }
 
         buf += boxMid + '\n';
-        const engineStat = state.machines.some(m => m.isConnected) ? '\x1b[32m● READING\x1b[0m' : '\x1b[33m● WAITING\x1b[0m';
         const activeTagCount = state.machines.reduce((acc, m) => acc + (m.tags?.length || 0), 0);
+        const engineStat = state.machines.some(m => m.isConnected) ? '\x1b[32m● READING\x1b[0m' : '\x1b[33m● WAITING\x1b[0m';
         buf += row(`DATA ENGINE         ${engineStat}       \x1b[1m${activeTagCount} TAGS ACTIVE\x1b[0m`) + '\n';
         buf += boxMid + '\n';
 
@@ -104,6 +126,12 @@ async function main() {
         buf += row(`Data acquisition               ${dStatus}`) + '\n';
         buf += boxMid + '\n';
 
+        buf += row('\x1b[36m▸ LATEST ACTIVITY\x1b[0m') + '\n';
+        state.logs.slice(0, 3).forEach(lg => {
+            buf += '\n'  (`\x1b[90m› ${lg}\x1b[0m`);
+        });
+        buf += '\n';
+
         buf += row('OnlineSCADA • Industrial Cloud SCADA                         \x1b[33mCtrl+C Stop\x1b[0m') + '\n';
         buf += boxBot;
 
@@ -112,18 +140,19 @@ async function main() {
     }
 
     cloudBridge.onWriteCommand((cmd) => {
+        state.addLog(`Write -> ${cmd.tagName} = ${cmd.value}`);
         plcReader.handleWriteCommand(cmd);
     });
 
     cloudBridge.onConfigUpdate((newConfig) => {
         if (Array.isArray(newConfig?.plcs)) {
             state.machines = newConfig.plcs;
+            state.addLog(`Hot-reloaded ${newConfig.plcs.length} machine(s)`);
             plcReader.reload(newConfig.plcs);
             renderDashboard();
         }
     });
 
-    // Refresh UI state every second
     setInterval(() => {
         state.cloudConnected = cloudBridge.isConnected;
         renderDashboard();
@@ -140,5 +169,5 @@ async function main() {
 }
 
 main().catch((err) => {
-    console.error('\x1b[31m[CRITICAL ERROR] Gateway engine halted:', err.message, '\x1b[0m');
-}); 
+    originalError('[FATAL ERROR]', err.message);
+});
