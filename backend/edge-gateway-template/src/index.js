@@ -36,9 +36,7 @@ async function main() {
         }
     };
 
-    // Intercept console.log/error so third-party library warnings never break the terminal layout
-    const originalLog = console.log;
-    const originalError = console.error;
+    // Intercept console outputs so third-party library warnings never break the terminal layout
     console.log = (...args) => {
         const txt = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
         if (!txt.includes('node-opcua') && !txt.includes('verify')) {
@@ -128,9 +126,8 @@ async function main() {
 
         buf += row('\x1b[36m▸ LATEST ACTIVITY\x1b[0m') + '\n';
         state.logs.slice(0, 3).forEach(lg => {
-            buf += '\n'  (`\x1b[90m› ${lg}\x1b[0m`);
+            buf += row(`\x1b[90m› ${lg}\x1b[0m`) + '\n';
         });
-        buf += '\n';
 
         buf += row('OnlineSCADA • Industrial Cloud SCADA                         \x1b[33mCtrl+C Stop\x1b[0m') + '\n';
         buf += boxBot;
@@ -169,5 +166,5 @@ async function main() {
 }
 
 main().catch((err) => {
-    originalError('[FATAL ERROR]', err.message);
+    console.error('[FATAL ERROR]', err.message);
 });

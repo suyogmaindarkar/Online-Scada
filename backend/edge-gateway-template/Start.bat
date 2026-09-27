@@ -18,7 +18,8 @@ goto RUN_GATEWAY
 
 :INSTALL_DEPS
 echo [SYSTEM] First-time setup: Installing required industrial modules...
-call npm install socket.io-client nodes7 modbus-serial node-opcua --no-audit --no-fund --silent
+echo [INFO] Please ensure you have an active internet connection for the first run.
+call npm install socket.io-client nodes7 modbus-serial node-opcua ethernet-ip --no-audit --no-fund
 if errorlevel 1 goto ERR_NPM
 cls
 echo ========================================================
@@ -26,11 +27,6 @@ echo        OnlineSCADA Factory Connector Engine v2.1
 echo ========================================================
 echo [OK] Modules installed successfully!
 echo.
-
-:INSTALL_ETH
-echo [SYSTEM] Installing Ethernet/IP module...
-call npm install ethernet-ip --no-audit --no-fund --silent
-if errorlevel 1 goto ERR_NPM
 
 :RUN_GATEWAY
 node src\index.js
@@ -55,7 +51,10 @@ exit /b 1
 
 :ERR_NPM
 color 0C
-echo [ERROR] Failed to install npm dependencies. Check network connectivity.
+echo [ERROR] Failed to install npm dependencies. 
+echo Please check your internet connection, corporate firewall, or VPN settings.
+echo You can manually open a terminal inside this folder and run:
+echo npm install socket.io-client nodes7 modbus-serial node-opcua ethernet-ip
 echo.
 pause
 exit /b 1
