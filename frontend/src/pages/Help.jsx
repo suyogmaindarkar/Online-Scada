@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════════════════════
-// Help & Documentation Page — Full Guide for OnlineSCADA Users
+// Help & Documentation Page — Emoji-Free Professional UI
 // ═══════════════════════════════════════════════════════════
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
     HelpCircle, Search, ChevronRight, Book, Cpu, Zap, Server,
     Network, Download, AlertCircle, CheckCircle, Info, Play,
     Settings as SettingsIcon, Users, BarChart, Bell, Terminal,
     FolderArchive, KeyRound, Wifi, WifiOff, ChevronDown,
-    ClipboardCheck, FileWarning, ExternalLink, Wrench, LayoutDashboard
+    ClipboardCheck, FileWarning, ExternalLink, Wrench, LayoutDashboard,
+    Globe, Building2, Shield, Target, Rocket, Search as SearchIcon,
+    Lightbulb, XCircle, Lock, MonitorPlay, Sparkles
 } from 'lucide-react';
 
 const C = {
@@ -32,10 +34,11 @@ const Section = ({ id, icon: Icon, title, children, color = C.brand }) => (
 );
 
 // ─── Sub-Card ───
-const Card = ({ title, children, badge, badgeColor = C.brand }) => (
+const Card = ({ title, icon: TitleIcon, children, badge, badgeColor = C.brand }) => (
     <div className="rounded-xl border p-5" style={{ background: C.card, borderColor: C.border }}>
         {title && (
             <div className="flex items-center gap-2 mb-3">
+                {TitleIcon && <TitleIcon size={18} style={{ color: C.brand }} />}
                 <h3 className="font-bold text-lg" style={{ color: C.heading }}>{title}</h3>
                 {badge && <span className="px-2 py-0.5 text-xs font-bold rounded-full" style={{ background: `${badgeColor}20`, color: badgeColor }}>{badge}</span>}
             </div>
@@ -90,7 +93,7 @@ const Code = ({ children }) => (
     <code className="px-2 py-0.5 rounded font-mono text-xs" style={{ background: '#F1F5F9', color: '#DC2626', fontWeight: 600 }}>{children}</code>
 );
 
-// ─── Sidebar Item ───
+// ─── Sidebar Nav Item ───
 const NavItem = ({ href, icon: Icon, label, activeSection, onClick }) => {
     const isActive = activeSection === href;
     return (
@@ -109,6 +112,17 @@ const NavItem = ({ href, icon: Icon, label, activeSection, onClick }) => {
         </a>
     );
 };
+
+// ─── Troubleshoot Card (Custom for Emoji Removal) ───
+const TroubleshootCard = ({ title, children }) => (
+    <div className="rounded-xl border p-5" style={{ background: C.card, borderColor: C.border }}>
+        <div className="flex items-center gap-2 mb-3">
+            <XCircle size={18} style={{ color: C.danger }} />
+            <h3 className="font-bold text-base" style={{ color: C.heading }}>{title}</h3>
+        </div>
+        <div className="text-sm leading-relaxed space-y-2" style={{ color: C.text }}>{children}</div>
+    </div>
+);
 
 // ═══════════════════════════════════════════════════════════
 // MAIN COMPONENT
@@ -189,16 +203,16 @@ const Help = () => {
                             </p>
                         </Card>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Card title="🌐 What is OnlineSCADA?">
+                            <Card title="What is OnlineSCADA?" icon={Globe}>
                                 A cloud-based SCADA system that runs 100% in your web browser. No software installation needed for daily users. Multi-tenant SaaS with role-based access.
                             </Card>
-                            <Card title="🏭 What is Factory Connector?">
+                            <Card title="What is Factory Connector?" icon={Building2}>
                                 A tiny application that runs on any PC in your factory. It securely reads your PLCs and streams data to the cloud so you can access it from any browser.
                             </Card>
-                            <Card title="🔒 Is It Secure?">
-                                Yes! All data is encrypted with TLS 1.3. Each company has isolated workspaces. No PLC is ever exposed to the internet. Password-protected users with role-based access.
+                            <Card title="Is It Secure?" icon={Shield}>
+                                Yes. All data is encrypted with TLS 1.3. Each company has isolated workspaces. No PLC is ever exposed to the internet. Password-protected users with role-based access.
                             </Card>
-                            <Card title="🎯 What Do I Need?">
+                            <Card title="What Do I Need?" icon={Target}>
                                 Just a web browser to use the system. To read real PLC data, you also need one Windows PC in the factory that can access both your PLC and the internet.
                             </Card>
                         </div>
@@ -206,14 +220,14 @@ const Help = () => {
 
                     {/* ═══════ GETTING STARTED ═══════ */}
                     <Section id="getting-started" icon={Play} title="Getting Started" color={C.success}>
-                        <Card title="🚀 5-Minute Quick Start">
+                        <Card title="5-Minute Quick Start" icon={Rocket}>
                             <ol className="list-decimal ml-5 space-y-2">
                                 <li><strong>Sign Up</strong> at <Code>app.onlinescada.in</Code> — creates a free 14-day trial workspace.</li>
                                 <li><strong>Add a PLC</strong> from PLC Management page — select protocol (Siemens/Modbus/OPC-UA/Allen-Bradley).</li>
                                 <li><strong>Add Tags</strong> with correct addresses for your protocol.</li>
                                 <li><strong>Download the Factory Connector</strong> — extract and double-click <Code>Start.bat</Code>.</li>
                                 <li><strong>Design HMI Screens</strong> in the Graphic Designer with drag-and-drop.</li>
-                                <li><strong>View Live Data</strong> in Runtime from any browser!</li>
+                                <li><strong>View Live Data</strong> in Runtime from any browser.</li>
                             </ol>
                         </Card>
 
@@ -263,8 +277,8 @@ const Help = () => {
                             />
                         </Card>
 
-                        <Alert type="warning" title="⚠️ CRITICAL: Enable PUT/GET in TIA Portal">
-                            In TIA Portal, open your CPU properties → <strong>Protection & Security</strong> → <strong>Connection Mechanisms</strong> → check <strong>"Permit access with PUT/GET communication from remote partner"</strong>. Without this, S7-1200/1500 will REFUSE all external connections!
+                        <Alert type="warning" title="CRITICAL: Enable PUT/GET in TIA Portal">
+                            In TIA Portal, open your CPU properties, go to <strong>Protection &amp; Security</strong>, then <strong>Connection Mechanisms</strong>, and check <strong>"Permit access with PUT/GET communication from remote partner"</strong>. Without this, S7-1200/1500 will REFUSE all external connections.
                         </Alert>
 
                         <Card title="S7 Tag Address Format Examples">
@@ -309,8 +323,8 @@ const Help = () => {
                             />
                         </Card>
 
-                        <Alert type="info" title="🟢 Auto-Detection Feature">
-                            OnlineSCADA's Modbus reader auto-detects working register offsets. If your tag address doesn't work with one interpretation, it silently tries multiple candidates and caches the working one for instant future reads!
+                        <Alert type="info" title="Auto-Detection Feature">
+                            OnlineSCADA's Modbus reader auto-detects working register offsets. If your tag address doesn't work with one interpretation, it silently tries multiple candidates and caches the working one for instant future reads.
                         </Alert>
 
                         <Card title="REAL / Float (32-bit) Values">
@@ -356,7 +370,7 @@ const Help = () => {
                             />
                         </Card>
 
-                        <Alert type="success" title="💡 Finding Exact NodeIDs">
+                        <Alert type="success" title="Finding Exact NodeIDs">
                             Download <strong>UAExpert</strong> (free) from Unified Automation. Connect to your OPC-UA server, browse the address space, click any variable, and copy the exact <strong>NodeId</strong> from the Attributes panel. Paste it directly into OnlineSCADA's Tag PLC Address field.
                         </Alert>
                     </Section>
@@ -364,7 +378,7 @@ const Help = () => {
                     {/* ═══════ ALLEN-BRADLEY ═══════ */}
                     <Section id="ethernet-ip" icon={Zap} title="Allen-Bradley (Ethernet/IP) Setup" color="#DC2626">
                         <Card title="MicroLogix 1400 via Modbus TCP" badge="RECOMMENDED" badgeColor={C.success}>
-                            MicroLogix 1400 has built-in Ethernet + Modbus TCP! Enable Modbus TCP in RSLogix 500:
+                            MicroLogix 1400 has built-in Ethernet + Modbus TCP. Enable Modbus TCP in RSLogix 500:
                             <ol className="list-decimal ml-5 space-y-1 mt-2">
                                 <li>RSLogix 500 → <strong>Channel Configuration</strong> → Channel 1</li>
                                 <li>Enable <strong>Modbus TCP Server</strong>, Port <Code>502</Code></li>
@@ -405,8 +419,8 @@ const Help = () => {
                         <Card title="Delta DVP Series (via RS485-to-Ethernet)">
                             Delta DVP-14SS2 and similar don't have built-in Ethernet. You need one of:
                             <ul className="list-disc ml-5 mt-2 space-y-1">
-                                <li><strong>RS485-to-Ethernet Converter</strong> (₹1,800 - Waveshare/HF2211/Moxa) — RECOMMENDED</li>
-                                <li><strong>USB-to-RS485 Dongle</strong> on the Gateway PC (₹250)</li>
+                                <li><strong>RS485-to-Ethernet Converter</strong> (Rs. 1,800 - Waveshare/HF2211/Moxa) — RECOMMENDED</li>
+                                <li><strong>USB-to-RS485 Dongle</strong> on the Gateway PC (Rs. 250)</li>
                                 <li>Delta's <strong>DVP-EN01-SL</strong> Ethernet module</li>
                             </ul>
                         </Card>
@@ -422,8 +436,8 @@ const Help = () => {
                                     ['X0 (Input)', 'Input Relay X0', <Code>11025</Code>],
                                 ]}
                             />
-                            <p className="mt-2 text-xs" style={{ color: C.muted }}>
-                                💡 You can also type Delta names directly like <Code>D0</Code>, <Code>Y0</Code>, <Code>M0</Code> — our system auto-converts them!
+                            <p className="mt-2 text-xs flex items-center gap-1.5" style={{ color: C.muted }}>
+                                <Lightbulb size={12} /> You can also type Delta names directly like <Code>D0</Code>, <Code>Y0</Code>, <Code>M0</Code> — our system auto-converts them.
                             </p>
                         </Card>
 
@@ -535,7 +549,7 @@ const Help = () => {
 
                     {/* ═══════ TROUBLESHOOTING ═══════ */}
                     <Section id="troubleshoot" icon={FileWarning} title="Common Issues & Solutions" color={C.danger}>
-                        <Card title="🔴 PLC shows OFFLINE on website">
+                        <TroubleshootCard title="PLC shows OFFLINE on website">
                             <ul className="list-disc ml-5 space-y-1">
                                 <li>Make sure the Factory Connector is running on the factory PC.</li>
                                 <li>Verify the PLC IP is reachable via <Code>ping</Code> command.</li>
@@ -543,61 +557,61 @@ const Help = () => {
                                 <li>For Siemens: enable PUT/GET in TIA Portal.</li>
                                 <li>For OPC-UA: verify NodeIDs with UAExpert.</li>
                             </ul>
-                        </Card>
+                        </TroubleshootCard>
 
-                        <Card title="🔴 Start.bat opens and closes instantly">
+                        <TroubleshootCard title="Start.bat opens and closes instantly">
                             <ul className="list-disc ml-5 space-y-1">
                                 <li>Extract the ZIP file properly (don't run from inside ZIP preview).</li>
                                 <li>Right-click Start.bat → "Run as Administrator".</li>
                                 <li>Make sure <Code>config.json</Code> exists in the folder.</li>
                                 <li>Avoid folder names with special characters like <Code>(2)</Code>.</li>
                             </ul>
-                        </Card>
+                        </TroubleshootCard>
 
-                        <Card title="🔴 'Node.js is not installed'">
+                        <TroubleshootCard title="Node.js is not installed">
                             Download and install Node.js LTS from <strong>nodejs.org</strong>. It's a one-time install.
-                        </Card>
+                        </TroubleshootCard>
 
-                        <Card title="🔴 Tag values show NULL">
+                        <TroubleshootCard title="Tag values show NULL">
                             <ul className="list-disc ml-5 space-y-1">
                                 <li>Verify the tag address matches your PLC memory location.</li>
                                 <li>For Modbus: check register offset and function code.</li>
                                 <li>For OPC-UA: use UAExpert to copy exact NodeID.</li>
                                 <li>Check PLC is in RUN mode.</li>
                             </ul>
-                        </Card>
+                        </TroubleshootCard>
 
-                        <Card title="🔴 Modbus 'Illegal Data Address' (Exception 2)">
-                            The register offset is beyond the PLC's defined range. Verify the address exists in the PLC. Our system auto-tries multiple offset interpretations!
-                        </Card>
+                        <TroubleshootCard title="Modbus 'Illegal Data Address' (Exception 2)">
+                            The register offset is beyond the PLC's defined range. Verify the address exists in the PLC. Our system auto-tries multiple offset interpretations.
+                        </TroubleshootCard>
 
-                        <Card title="🔴 'Cannot download Ready Package'">
+                        <TroubleshootCard title="Cannot download Ready Package">
                             Make sure you're logged in as Admin or Engineer. If page shows "No gateway profile", refresh — the system auto-creates one for each company.
-                        </Card>
+                        </TroubleshootCard>
                     </Section>
 
                     {/* ═══════ FAQ ═══════ */}
                     <Section id="faq" icon={HelpCircle} title="Frequently Asked Questions" color={C.warning}>
                         <Card title="Do I need to install anything on user PCs?">
-                            <strong>No!</strong> Users only need a web browser. Only one factory PC needs the Factory Connector installed.
+                            <strong>No.</strong> Users only need a web browser. Only one factory PC needs the Factory Connector installed.
                         </Card>
                         <Card title="Does the PLC need internet access?">
-                            <strong>No!</strong> The PLC stays on your private factory network. Only the Factory Connector PC needs internet.
+                            <strong>No.</strong> The PLC stays on your private factory network. Only the Factory Connector PC needs internet.
                         </Card>
                         <Card title="What happens if internet fails at the factory?">
                             The PLC continues running normally. When internet returns, the Connector automatically reconnects and resumes streaming.
                         </Card>
                         <Card title="Can multiple users view the same screen simultaneously?">
-                            <strong>Yes!</strong> Unlimited concurrent viewers on the same workspace. All see live data in real-time.
+                            <strong>Yes.</strong> Unlimited concurrent viewers on the same workspace. All see live data in real-time.
                         </Card>
                         <Card title="Can I write values back to the PLC from the browser?">
-                            <strong>Yes!</strong> Click any button, IO field, or interactive element on your HMI to send commands to the PLC.
+                            <strong>Yes.</strong> Click any button, IO field, or interactive element on your HMI to send commands to the PLC.
                         </Card>
                         <Card title="Is my data isolated from other companies?">
-                            <strong>Yes!</strong> Every company has its own isolated workspace. Data is scoped by companyId at the database level.
+                            <strong>Yes.</strong> Every company has its own isolated workspace. Data is scoped by companyId at the database level.
                         </Card>
                         <Card title="What if I want to add a new PLC after the Connector is running?">
-                            Simply add the PLC on the website. The Connector automatically hot-reloads its configuration without restart!
+                            Simply add the PLC on the website. The Connector automatically hot-reloads its configuration without restart.
                         </Card>
                         <Card title="How do I contact support?">
                             Email: <strong>support@onlinescada.in</strong>
