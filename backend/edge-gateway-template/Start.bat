@@ -27,6 +27,11 @@ echo ========================================================
 echo [OK] Modules installed successfully!
 echo.
 
+:INSTALL_ETH
+echo [SYSTEM] Installing Ethernet/IP module...
+call npm install ethernet-ip --no-audit --no-fund --silent
+if errorlevel 1 goto ERR_NPM
+
 :RUN_GATEWAY
 node src\index.js
 if errorlevel 1 goto ERR_CRASH
