@@ -19,7 +19,7 @@ const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 // ─── Banner ───────────────────────────────────────────────
 console.log('');
 console.log('╔══════════════════════════════════════════════════════════╗');
-console.log('║        OnlineSCADA Factory Connector v1.0.0              ║');
+console.log('║        OnlineSCADA Factory Connector v2.0.0              ║');
 console.log('║        Factory -> Cloud Machine Data Bridge              ║');
 console.log('╚══════════════════════════════════════════════════════════╝');
 console.log('');
@@ -44,11 +44,6 @@ function loadConfig() {
             process.exit(1);
         }
 
-        if (config.apiKey === 'YOUR_API_KEY_HERE' || config.companyId === 'YOUR_COMPANY_ID_HERE') {
-            console.error('[ERROR] config.json still has placeholder values!');
-            process.exit(1);
-        }
-
         return config;
     } catch (err) {
         console.error(`[ERROR] Failed to parse config.json: ${err.message}`);
@@ -56,37 +51,46 @@ function loadConfig() {
     }
 }
 
-// ─── Network Discovery Scanner ────────────────────────────
+// ─── High-Speed Multi-Subnet Discovery Scanner ────────────
 async function scanNetwork(options, cloudBridge) {
     const { startIP, endIP } = options;
-    let start = startIP, end = endIP;
+    let rangesToScan = [];
 
-    if (!start || !end) {
+    // 1. Determine Subnets to Scan
+    if (startIP && endIP) {
+        rangesToScan.push({ start: startIP, end: endIP });
+    } else {
         const interfaces = os.networkInterfaces();
-        let localIp = '192.168.1.1';
-        for (let k in interfaces) {
-            for (let k2 in interfaces[k]) {
-                const address = interfaces[k][k2];
-                if (address.family === 'IPv4' && !address.internal) {
-                    localIp = address.address;
-                    break;
+        for (const name of Object.keys(interfaces)) {
+            // Skip common virtual/hyper-v/WSL adapters to avoid false IPs
+            if (name.toLowerCase().includes('wsl') || name.toLowerCase().includes('veth')) continue;
+
+            for (const iface of interfaces[name]) {
+                if (iface.family === 'IPv4' && !iface.internal) {
+                    const parts = iface.address.split('.');
+                    rangesToScan.push({
+                        start: `${parts[0]}.${parts[1]}.${parts[2]}.1`,
+                        end: `${parts[0]}.${parts[1]}.${parts[2]}.254`
+                    });
                 }
             }
         }
-        const parts = localIp.split('.');
-        start = `${parts[0]}.${parts[1]}.${parts[2]}.1`;
-        end = `${parts[0]}.${parts[1]}.${parts[2]}.254`;
     }
 
-    console.log(`[o] Scanning IP range: ${start} to ${end}`);
+    // Deduplicate ranges in case of multiple IPs on one subnet
+    rangesToScan = rangesToScan.filter((v, i, a) => a.findIndex(t => (t.start === v.start)) === i);
+
+    if (rangesToScan.length === 0) {
+        console.log('[x] No physical IPv4 networks found to scan.');
+        await cloudBridge.reportDiscovery('done', { scannedIPs: 0, aliveHosts: 0, devices: [] });
+        return;
+    }
+
+    console.log(`[o] Commencing hardware scan across ${rangesToScan.length} subnet(s)...`);
     await cloudBridge.reportDiscovery('pinging', { scannedIPs: 0, aliveHosts: 0, devices: [] });
 
     const ipToInt = (ip) => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
     const intToIp = (int) => `${(int >>> 24)}.${(int >> 16 & 255)}.${(int >> 8 & 255)}.${int & 255}`;
-
-    const startInt = ipToInt(start);
-    const endInt = ipToInt(end);
-    const totalIPs = endInt - startInt + 1;
 
     let scanned = 0;
     let alive = 0;
@@ -95,7 +99,7 @@ async function scanNetwork(options, cloudBridge) {
     const checkPort = (ip, port) => {
         return new Promise((resolve) => {
             const s = new net.Socket();
-            s.setTimeout(800); // Fast timeout for LAN
+            s.setTimeout(500); // 500ms timeout for ultra-fast LAN sweeps
             s.on('connect', () => { s.destroy(); resolve(true); });
             s.on('timeout', () => { s.destroy(); resolve(false); });
             s.on('error', () => { s.destroy(); resolve(false); });
@@ -116,40 +120,54 @@ async function scanNetwork(options, cloudBridge) {
         44818: 'Allen-Bradley (EIP)'
     };
 
-    for (let i = startInt; i <= endInt; i++) {
-        const ip = intToIp(i);
-        scanned++;
+    // 2. High-Speed Concurrent Batch Processing
+    for (const range of rangesToScan) {
+        console.log(`[o] Sweeping IP Range: ${range.start} -> ${range.end}`);
+        const startInt = ipToInt(range.start);
+        const endInt = ipToInt(range.end);
 
-        const results = await Promise.all(
-            Object.keys(portsToProtocols).map(async (port) => {
-                const isOpen = await checkPort(ip, parseInt(port));
-                return { port, isOpen };
-            })
-        );
-
-        const openPorts = results.filter(r => r.isOpen);
-        if (openPorts.length > 0) {
-            alive++;
-            console.log(`[+] Found active industrial device at ${ip}`);
-            for (const { port } of openPorts) {
-                devices.push({
-                    ip,
-                    port: parseInt(port),
-                    protocol: portsToProtocols[port],
-                    vendorName: vendorNames[port],
-                    verified: true,
-                    deepInfo: { model: 'Identified via Hardware Port Scan' }
-                });
-            }
+        const ipsToScan = [];
+        for (let i = startInt; i <= endInt; i++) {
+            ipsToScan.push(intToIp(i));
         }
 
-        // Report progress every 10 IPs or at the end
-        if (scanned % 10 === 0 || scanned === totalIPs) {
+        const BATCH_SIZE = 40; // Scan 40 IPs simultaneously
+        for (let i = 0; i < ipsToScan.length; i += BATCH_SIZE) {
+            const batch = ipsToScan.slice(i, i + BATCH_SIZE);
+
+            await Promise.all(batch.map(async (ip) => {
+                const results = await Promise.all(
+                    Object.keys(portsToProtocols).map(async (port) => {
+                        const isOpen = await checkPort(ip, parseInt(port));
+                        return { port, isOpen };
+                    })
+                );
+
+                scanned++;
+                const openPorts = results.filter(r => r.isOpen);
+
+                if (openPorts.length > 0) {
+                    alive++;
+                    console.log(`[+] Found active industrial machine at ${ip}`);
+                    for (const { port } of openPorts) {
+                        devices.push({
+                            ip,
+                            port: parseInt(port),
+                            protocol: portsToProtocols[port],
+                            vendorName: vendorNames[port],
+                            verified: true,
+                            deepInfo: { model: 'Identified via Hardware Port Scan' }
+                        });
+                    }
+                }
+            }));
+
+            // Stream progress back to the cloud UI
             await cloudBridge.reportDiscovery('probing', { scannedIPs: scanned, aliveHosts: alive, devices });
         }
     }
 
-    console.log(`[x] Scan complete. Found ${devices.length} machines.`);
+    console.log(`[x] Scan complete. Found ${devices.length} valid machines.`);
     await cloudBridge.reportDiscovery('done', { scannedIPs: scanned, aliveHosts: alive, devices });
 }
 
