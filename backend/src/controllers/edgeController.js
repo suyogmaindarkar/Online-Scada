@@ -20,12 +20,15 @@ const createArchive = (format = 'zip', options = {}) => {
 };
 
 const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
-  const plcs = await PLCConnection.find({ companyId, isSimulation: { $ne: true }, isActive: true });
+  // Fix 1: Removed restrictive 'isActive' filters that could accidentally block PLCs
+  const plcs = await PLCConnection.find({ companyId, isSimulation: { $ne: true } });
   const plcConfigArray = [];
 
   for (const plc of plcs) {
-    const tags = await Tag.find({ companyId, plcConnection: plc._id, isActive: true });
-    if (tags.length === 0) continue;
+    const tags = await Tag.find({ companyId, plcConnection: plc._id });
+
+    // Fix 2: We no longer skip PLCs with 0 tags. 
+    // We send them anyway so the Gateway can establish a connection and report "ONLINE" status!
 
     let normalizedProtocol = (plc.protocol || '').toLowerCase();
     if (normalizedProtocol.includes('modbus')) normalizedProtocol = 'modbus';
@@ -46,8 +49,9 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
       tags: tags.map((t) => ({
         tagId: t._id.toString(),
         tagName: t.tagName,
-        address: t.plcAddress,
-        dataType: t.dataType,
+        // Fix 3: Bulletproof schema mapping. Covers every common database field name.
+        address: t.address || t.plcAddress || t.register || t.nodeId || '',
+        dataType: t.dataType || 'INT',
       })),
     });
   }
@@ -152,7 +156,6 @@ const downloadCompletePackage = async (req, res) => {
     archive.on('error', (err) => { if (!res.headersSent) res.status(500).json({ success: false, message: err.message }); });
     archive.pipe(res);
 
-    // DYNAMIC READ FROM TEMPLATE DIRECTORY (Safely excluding node_modules)
     const templateDir = path.join(__dirname, '../../edge-gateway-template');
 
     if (!fs.existsSync(templateDir)) {
@@ -175,7 +178,6 @@ const downloadCompletePackage = async (req, res) => {
       }
     }
 
-    // Append dynamic configuration
     archive.append(JSON.stringify(configProfile, null, 2), { name: 'config.json' });
 
     await archive.finalize();
