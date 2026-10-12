@@ -24,11 +24,10 @@ async function compileLiveConfig(companyId) {
       isActive: true,
     });
 
-    if (tags.length === 0) continue;
-
     let protocol = (plc.protocol || '').toLowerCase();
     if (protocol === 'modbus_tcp' || protocol === 'modbus_rtu') protocol = 'modbus';
     if (protocol === 'opc_ua' || protocol === 'opc-ua') protocol = 'opcua';
+    if (protocol === 'ethernet_ip' || protocol === 'ethernet-ip') protocol = 'ethernet_ip';
 
     plcConfigArray.push({
       plcId: plc._id.toString(),
@@ -41,6 +40,9 @@ async function compileLiveConfig(companyId) {
       opcuaUsername: plc.opcuaUsername || '',
       opcuaPassword: plc.opcuaPassword || '',
       pollIntervalMs: plc.pollingRate || 1000,
+      isConnected: false,
+      connectionState: 'pending',
+      connectionMessage: 'Waiting for equipment connection test',
       tags: tags.map((t) => ({
         tagId: t._id.toString(),
         tagName: t.tagName,

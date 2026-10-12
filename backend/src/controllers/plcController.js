@@ -10,15 +10,31 @@ const edgeService = require('../services/edgeService');
 const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
 
 const isPlcLiveFromEdge = async (plc, companyId) => {
-  if (plc.isSimulation) return plc.isConnected;
-  if (!edgeService.hasActiveGateway(String(companyId))) return false;
+  if (plc.isSimulation) return {
+    connected: Boolean(plc.isConnected),
+    state: plc.isConnected ? 'connected' : 'stopped',
+    message: plc.isConnected ? 'Simulation is running' : 'Simulation is stopped',
+  };
+  if (!edgeService.hasActiveGateway(String(companyId))) return {
+    connected: false,
+    state: 'connector_offline',
+    message: 'Factory Connector is offline',
+  };
 
   const freshTag = await Tag.findOne({
     companyId,
     plcConnection: plc._id,
     lastUpdated: { $gte: new Date(Date.now() - 15000) },
   });
-  return !!freshTag;
+  return freshTag ? {
+    connected: true,
+    state: 'streaming',
+    message: 'Equipment is connected and data is streaming',
+  } : {
+    connected: true,
+    state: 'connected_no_data',
+    message: 'Equipment connection is active, but no recent tag data exists',
+  };
 };
 
 const checkPLCLimit = async (req) => {
@@ -129,7 +145,9 @@ const getAllPLCs = async (req, res) => {
         return {
           ...plc.toObject(),
           tagCount,
-          isConnected: liveConnected || plc.isConnected,
+          isConnected: liveConnected.connected,
+           connectionState: liveConnected.state,
+           connectionMessage: liveConnected.message,
         };
       })
     );
@@ -147,7 +165,7 @@ const getPLC = async (req, res) => {
     const tagCount = await Tag.countDocuments({ companyId: req.companyId, plcConnection: plc._id });
     const liveConnected = await isPlcLiveFromEdge(plc, req.companyId);
 
-    res.json({ success: true, data: { ...plc.toObject(), tagCount, isConnected: liveConnected || plc.isConnected } });
+    res.json({ success: true, data: { ...plc.toObject(), tagCount, isConnected: liveConnected.connected, connectionState: liveConnected.state, connectionMessage: liveConnected.message } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
@@ -295,7 +313,9 @@ const getPLCStatus = async (req, res) => {
         plcId: plc._id,
         name: plc.name,
         protocol: plc.protocol,
-        isConnected: liveConnected || plc.isConnected,
+        isConnected: liveConnected.connected,
+        connectionState: liveConnected.state,
+        connectionMessage: liveConnected.message,
         isRunning,
         isSimulation: plc.isSimulation,
       },

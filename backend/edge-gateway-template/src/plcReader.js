@@ -15,6 +15,8 @@ class PLCReader {
         this.readers = new Map();
         this.intervals = new Map();
         this.previousValues = new Map();
+        this.statuses = new Map();
+        this.stats = { totalReads: 0, totalErrors: 0, tagsReadPerSecond: 0, _readsThisSecond: 0 };
     }
 
     async startAll() {
@@ -22,6 +24,25 @@ class PLCReader {
         for (const plcConfig of plcs) {
             await this._startPLC(plcConfig);
         }
+    }
+
+    _setStatus(plcConfig, state, message, extra = {}) {
+        const status = {
+            plcId: String(plcConfig.plcId),
+            plcName: plcConfig.plcName || 'Equipment',
+            protocol: plcConfig.protocol || '',
+            state,
+            message,
+            isConnected: state === 'connected' || state === 'connected_no_tags' || state === 'streaming' || state === 'connected_no_data',
+            hasTags: Array.isArray(plcConfig.tags) && plcConfig.tags.length > 0,
+            tagCount: Array.isArray(plcConfig.tags) ? plcConfig.tags.length : 0,
+            timestamp: Date.now(),
+            ...extra,
+        };
+        this.statuses.set(String(plcConfig.plcId), status);
+        plcConfig.isConnected = status.isConnected;
+        plcConfig.connectionState = state;
+        plcConfig.connectionMessage = message;
     }
 
     async _startPLC(plcConfig) {
@@ -37,14 +58,19 @@ class PLCReader {
 
             const success = await reader.connect();
             this.readers.set(plcId, reader);
-            
-            // Mark online immediately upon handshake success
-            plcConfig.isConnected = Boolean(success);
+
+            if (!success || reader.isConnected === false) {
+                this._setStatus(plcConfig, 'failed', 'Equipment connection failed');
+            } else if (!plcConfig.tags?.length) {
+                this._setStatus(plcConfig, 'connected_no_tags', 'Equipment connected. Add tags to start data streaming');
+            } else {
+                this._setStatus(plcConfig, 'connected', 'Equipment connected. Waiting for tag data');
+            }
 
             const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), plcConfig.pollIntervalMs || 1000);
             this.intervals.set(plcId, intervalId);
         } catch (err) {
-            plcConfig.isConnected = false;
+            this._setStatus(plcConfig, 'failed', 'Equipment connection failed', { error: err.message });
         }
     }
 
@@ -52,14 +78,27 @@ class PLCReader {
         const reader = this.readers.get(plcId);
         if (!reader) return;
 
-        plcConfig.isConnected = reader.isConnected !== false;
+        if (reader.isConnected === false) {
+            this._setStatus(plcConfig, 'failed', 'Equipment connection lost');
+            return;
+        }
 
         const tags = plcConfig.tags || [];
-        if (tags.length === 0) return;
+        if (tags.length === 0) {
+            this._setStatus(plcConfig, 'connected_no_tags', 'Equipment connected. Add tags to start data streaming');
+            return;
+        }
 
         try {
             const values = await reader.readTags(tags);
-            if (!values?.length) return;
+            if (!values?.length) {
+                this._setStatus(plcConfig, 'connected_no_data', 'Equipment connected, but no tag values were returned');
+                return;
+            }
+
+            this.stats.totalReads += values.length;
+            this.stats._readsThisSecond += values.length;
+            this._setStatus(plcConfig, 'streaming', 'Equipment connected and data is streaming', { lastDataAt: Date.now() });
 
             const changed = [];
             const now = Date.now();
@@ -75,7 +114,10 @@ class PLCReader {
             if (changed.length) {
                 this.cloudBridge.sendTagValues(changed);
             }
-        } catch (err) {}
+        } catch (err) {
+            this.stats.totalErrors += 1;
+            this._setStatus(plcConfig, 'connected_read_error', 'Equipment connected, but tag reading failed', { error: err.message });
+        }
     }
 
     async handleWriteCommand(cmd) {
@@ -90,6 +132,7 @@ class PLCReader {
     async reload(newPlcConfigs) {
         this.stopAll();
         this.config.plcs = newPlcConfigs;
+        this.statuses.clear();
         await this.startAll();
     }
 
@@ -98,6 +141,13 @@ class PLCReader {
         this.intervals.clear();
         for (const [, r] of this.readers) try { r.disconnect(); } catch (e) {}
         this.readers.clear();
+    }
+
+    getStats() {
+        const tagsReadPerSecond = this.stats._readsThisSecond;
+        this.stats._readsThisSecond = 0;
+        this.stats.tagsReadPerSecond = tagsReadPerSecond;
+        return { ...this.stats, equipmentStatuses: Array.from(this.statuses.values()) };
     }
 }
 

@@ -29,7 +29,7 @@ async function main() {
 
     const cloudBridge = new CloudBridge(config, false);
     const plcReader = new PLCReader(config, cloudBridge, false);
-    const healthMonitor = new HealthMonitor(config, cloudBridge, false);
+    const healthMonitor = new HealthMonitor(config, cloudBridge, plcReader, false);
 
     let isFirstRender = true;
 

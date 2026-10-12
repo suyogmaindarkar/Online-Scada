@@ -56,6 +56,20 @@ const PHASE_LABELS = {
   done: 'Scan complete', cancelled: 'Cancelled',
 };
 
+const getEquipmentStatus = (plc) => {
+  const states = {
+    streaming: ['STREAMING', 'Live tag data received', '#16A34A', '#F0FDF4', '#BBF7D0', Wifi],
+    connected_no_tags: ['CONNECTED', 'No tags configured', '#2563EB', '#EFF6FF', '#BFDBFE', Wifi],
+    connected_no_data: ['CONNECTED', 'No recent tag data', '#D97706', '#FFFBEB', '#FDE68A', SignalLow],
+    connector_offline: ['CONNECTOR OFFLINE', 'Start the Factory Connector', '#DC2626', '#FEF2F2', '#FECACA', WifiOff],
+    failed: ['CONNECTION ERROR', plc.connectionMessage || 'Equipment connection failed', '#DC2626', '#FEF2F2', '#FECACA', AlertCircle],
+    connected_read_error: ['READ ERROR', plc.connectionMessage || 'Tag reading failed', '#DC2626', '#FEF2F2', '#FECACA', AlertCircle],
+    stopped: ['STOPPED', 'Connection is disabled', '#64748B', '#F1F5F9', '#CBD5E1', Pause],
+  };
+  const value = states[plc.connectionState] || ['WAITING', plc.connectionMessage || 'Waiting for status', '#64748B', '#F8FAFC', '#E2E8F0', Signal];
+  return { label: value[0], detail: value[1], color: value[2], background: value[3], border: value[4], Icon: value[5] };
+};
+
 const PLCManagement = () => {
   const { showToast } = useToast();
   const [plcs, setPlcs] = useState([]);
@@ -83,7 +97,15 @@ const PLCManagement = () => {
 
   useEffect(() => {
     loadPLCs(); loadGateway();
-    const handlePlcStatus = (data) => { setPlcs(prev => prev.map(p => p._id === data.plcId ? { ...p, isConnected: data.isConnected } : p)); };
+    const handlePlcStatus = (data) => {
+      setPlcs(prev => prev.map(p => p._id === data.plcId ? {
+        ...p,
+        isConnected: data.isConnected,
+        connectionState: data.state,
+        connectionMessage: data.message,
+        lastDataAt: data.lastDataAt,
+      } : p));
+    };
     socketService.on('plcStatus', handlePlcStatus);
     const statusInterval = setInterval(() => { loadPLCs(); loadGateway(); }, 8000);
     return () => { socketService.off('plcStatus', handlePlcStatus); clearInterval(statusInterval); };
@@ -292,11 +314,14 @@ const PLCManagement = () => {
             <tbody className="text-sm">
               {plcs.map(plc => (
                 <tr key={plc._id} className="border-b hover:bg-slate-50 transition-colors">
-                  <td className="p-4">
-                    {plc.isConnected
-                      ? <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100"><Wifi size={12} /> ONLINE</span>
-                      : <span className="inline-flex items-center gap-1 text-slate-400 font-bold text-xs bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><WifiOff size={12} /> OFFLINE</span>}
-                  </td>
+                   <td className="p-4">
+                     {(() => { const status = getEquipmentStatus(plc); const StatusIcon = status.Icon; return (
+                       <div className="inline-flex flex-col gap-0.5 px-2.5 py-1.5 rounded-md border" style={{ color: status.color, background: status.background, borderColor: status.border }}>
+                         <span className="inline-flex items-center gap-1 font-bold text-xs"><StatusIcon size={12} />{status.label}</span>
+                         <span className="text-[10px] font-medium">{status.detail}</span>
+                       </div>
+                     ); })()}
+                   </td>
                   <td className="p-4">
                     <p className="font-semibold text-slate-800">{plc.name}</p>
                     {plc.isSimulation && <span className="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded mt-1 inline-flex items-center gap-1"><Sparkles size={10} /> SIM</span>}

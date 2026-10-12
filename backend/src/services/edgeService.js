@@ -118,6 +118,23 @@ class EdgeService {
             if (data) updateData.stats = data;
             EdgeGateway.findByIdAndUpdate(socket.gatewayId, updateData).catch(() => { });
         }
+        if (Array.isArray(data?.equipmentStatuses)) {
+            for (const status of data.equipmentStatuses) {
+                if (!status?.plcId || !this.mainIo) continue;
+                this.mainIo.to(`company:${socket.companyId}`).emit('plcStatus', {
+                    plcId: String(status.plcId),
+                    name: status.plcName || 'Equipment',
+                    state: status.state || 'unknown',
+                    message: status.message || '',
+                    isConnected: Boolean(status.isConnected),
+                    hasTags: Boolean(status.hasTags),
+                    tagCount: Number(status.tagCount || 0),
+                    lastDataAt: status.lastDataAt || null,
+                    error: status.error || null,
+                    timestamp: status.timestamp || Date.now(),
+                });
+            }
+        }
         socket.emit('edge:heartbeatAck', { timestamp: Date.now() });
     }
 

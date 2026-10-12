@@ -6,9 +6,10 @@
 // ═══════════════════════════════════════════════════════════
 
 class HealthMonitor {
-    constructor(config, cloudBridge, verbose = false) {
+    constructor(config, cloudBridge, plcReader, verbose = false) {
         this.config = config;
         this.cloudBridge = cloudBridge;
+        this.plcReader = plcReader;
         this.verbose = verbose;
         this.interval = null;
         this.heartbeatMs = config.heartbeatIntervalMs || 30000;
@@ -18,9 +19,7 @@ class HealthMonitor {
         if (this.interval) return;
 
         // Send first heartbeat after 5s
-        setTimeout(() => {
-            this._sendHeartbeat();
-        }, 5000);
+        this._sendHeartbeat();
 
         // Then every heartbeatMs
         this.interval = setInterval(() => {
@@ -35,13 +34,15 @@ class HealthMonitor {
     _sendHeartbeat() {
         // Gather stats from process
         const mem = process.memoryUsage();
+        const readerStats = this.plcReader?.getStats?.() || {};
         const stats = {
             uptimeSeconds: Math.floor(process.uptime()),
             memoryUsageMB: Math.round(mem.heapUsed / 1024 / 1024),
             cpuPercent: 0,
-            tagsReadPerSecond: 0,
-            totalReads: 0,
-            totalErrors: 0,
+            tagsReadPerSecond: readerStats.tagsReadPerSecond || 0,
+            totalReads: readerStats.totalReads || 0,
+            totalErrors: readerStats.totalErrors || 0,
+            equipmentStatuses: readerStats.equipmentStatuses || [],
         };
 
         this.cloudBridge.sendHeartbeat(stats);
