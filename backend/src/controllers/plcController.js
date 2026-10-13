@@ -55,7 +55,7 @@ const createPLC = async (req, res) => {
   try {
     const {
       name, description, protocol, ipAddress, port,
-      rack, slot, brand, model, pollingRate,
+       rack, slot, unitId, brand, model, pollingRate,
       opcuaUsername, opcuaPassword,
     } = req.body;
 
@@ -85,8 +85,9 @@ const createPLC = async (req, res) => {
       protocol,
       ipAddress: ipAddress || '192.168.1.100',
       port: port || defaultPort,
-      rack: rack || 0,
-      slot: slot || 1,
+       rack: rack || 0,
+       slot: slot || 1,
+       unitId: unitId ?? 1,
       brand: brand || 'OTHER',
       model: model || '',
       pollingRate: pollingRate || 1000,
@@ -238,6 +239,7 @@ const testPLCConnection = async (req, res) => {
       case 'MODBUS_TCP':
       case 'MODBUS_RTU': service = require('../services/modbusService'); break;
       case 'OPC_UA': service = require('../services/opcuaService'); break;
+      case 'ETHERNET_IP': service = require('../services/ethernetIpService'); break;
       default: return res.json({ success: false, message: `Test not supported` });
     }
 

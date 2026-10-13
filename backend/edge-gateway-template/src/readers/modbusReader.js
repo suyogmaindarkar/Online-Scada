@@ -13,7 +13,9 @@ class ModbusReader {
     this.client = null;
     this.isConnected = false;
     this.reconnectTimer = null;
-    this.unitId = plcConfig.unitId || 1;
+    this.unitId = Number.isInteger(Number(plcConfig.unitId)) ? Number(plcConfig.unitId) : 1;
+    if (this.unitId < 0 || this.unitId > 255) this.unitId = 1;
+    this.pollInProgress = false;
 
     // Cache working register offsets per tag for ultra-fast polling
     this.workingOffsetCache = new Map();
@@ -41,6 +43,10 @@ class ModbusReader {
       const num = parseInt(raw.substring(1), 10);
       candidates.push({ fc: 2, reg: 1024 + num, type: 'discrete', desc: `Delta X${num} (Offset ${1024 + num})` });
       candidates.push({ fc: 2, reg: num, type: 'discrete', desc: `Direct X${num} (Offset ${num})` });
+    } else if (/^T\d+$/.test(raw) || /^C\d+$/.test(raw)) {
+      const area = raw[0]; const num = parseInt(raw.substring(1), 10);
+      candidates.push({ fc: 3, reg: (area === 'T' ? 1536 : 2048) + num, type: 'holding', desc: `Delta ${area}${num}` });
+      candidates.push({ fc: 3, reg: num, type: 'holding', desc: `Direct ${area}${num}` });
     }
 
     // 2. Standard 5/6-digit Modbus Notation (0xxxx, 1xxxx, 3xxxx, 4xxxx)
@@ -76,7 +82,7 @@ class ModbusReader {
       candidates.push({ fc: 3, reg: 0, type: 'holding', desc: 'Default Fallback' });
     }
 
-    return candidates;
+    return candidates.filter((candidate) => Number.isInteger(candidate.reg) && candidate.reg >= 0);
   }
 
   async connect() {
@@ -86,9 +92,8 @@ class ModbusReader {
         this.client.setID(this.unitId);
         this.client.setTimeout(3000);
 
-        await this.client.connectTCP(this.config.ip, {
-          port: this.config.port || 502,
-        });
+        if (this.config.protocol === 'MODBUS_RTU') await this.client.connectRTUBuffered(this.config.ip, { baudRate: this.config.baudRate || 9600, dataBits: 8, stopBits: 1, parity: this.config.parity || 'none' });
+        else await this.client.connectTCP(this.config.ip, { port: this.config.port || 502 });
 
         this.isConnected = true;
         console.log(`✅ Modbus TCP connected to ${this.config.ip}:${this.config.port || 502} (Unit ID ${this.unitId})`);
@@ -103,6 +108,9 @@ class ModbusReader {
   }
 
   async readTags(tags) {
+    if (this.pollInProgress) return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+    this.pollInProgress = true;
+    try {
     if (!this.isConnected || !this.client) {
       return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
     }
@@ -161,11 +169,21 @@ class ModbusReader {
     }
 
     return results;
+    } catch (err) {
+      this.isConnected = false;
+      this._scheduleReconnect();
+      console.error(`⚠️ Modbus polling error: ${err.message}`);
+      return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+    } finally {
+      this.pollInProgress = false;
+    }
   }
 
   async _readRegister(fc, reg, dataType) {
     // Prevent negative offset errors
-    const safeReg = Math.max(0, reg);
+    const safeReg = Number(reg);
+    if (!Number.isInteger(safeReg) || safeReg < 0 || safeReg > 65535) throw new Error(`Invalid Modbus offset: ${reg}`);
+    const normalizedType = String(dataType || '').toUpperCase();
 
     switch (fc) {
       case 1: {
@@ -177,23 +195,32 @@ class ModbusReader {
         return res.data[0];
       }
       case 3: {
-        const is32Bit = dataType === 'REAL' || dataType === 'DINT' || dataType === 'DWORD';
+        const is32Bit = normalizedType === 'REAL' || normalizedType === 'DINT' || normalizedType === 'DWORD';
         const count = is32Bit ? 2 : 1;
         const res = await this.client.readHoldingRegisters(safeReg, count);
 
-        if (dataType === 'REAL' && res.data.length >= 2) {
+        if (normalizedType === 'REAL' && res.data.length >= 2) {
           const buf = Buffer.alloc(4);
           buf.writeUInt16BE(res.data[0], 0);
           buf.writeUInt16BE(res.data[1], 2);
           return buf.readFloatBE(0);
-        } else if ((dataType === 'DINT' || dataType === 'DWORD') && res.data.length >= 2) {
-          return (res.data[0] << 16) | res.data[1];
+        } else if ((normalizedType === 'DINT' || normalizedType === 'DWORD') && res.data.length >= 2) {
+          const buf = Buffer.alloc(4);
+          buf.writeUInt16BE(res.data[0], 0); buf.writeUInt16BE(res.data[1], 2);
+          return normalizedType === 'DINT' ? buf.readInt32BE(0) : buf.readUInt32BE(0);
         } else {
           return res.data[0];
         }
       }
       case 4: {
-        const res = await this.client.readInputRegisters(safeReg, 1);
+        const is32Bit = normalizedType === 'REAL' || normalizedType === 'DINT' || normalizedType === 'DWORD';
+        const res = await this.client.readInputRegisters(safeReg, is32Bit ? 2 : 1);
+        if (is32Bit && res.data.length >= 2) {
+          const buf = Buffer.alloc(4);
+          buf.writeUInt16BE(res.data[0], 0); buf.writeUInt16BE(res.data[1], 2);
+          if (normalizedType === 'REAL') return buf.readFloatBE(0);
+          return normalizedType === 'DINT' ? buf.readInt32BE(0) : buf.readUInt32BE(0);
+        }
         return res.data[0];
       }
       default:
@@ -227,7 +254,8 @@ class ModbusReader {
   }
 
   async _writeRegister(type, reg, value, dataType) {
-    const safeReg = Math.max(0, reg);
+    const safeReg = Number(reg);
+    if (!Number.isInteger(safeReg) || safeReg < 0 || safeReg > 65535) throw new Error('Invalid Modbus offset');
 
     if (type === 'coil') {
       const boolVal = (value === true || value === 'true' || value === 1 || value === '1');
@@ -238,7 +266,9 @@ class ModbusReader {
         buf.writeFloatBE(parseFloat(value), 0);
         await this.client.writeRegisters(safeReg, [buf.readUInt16BE(0), buf.readUInt16BE(2)]);
       } else {
-        await this.client.writeRegister(safeReg, Math.round(Number(value)));
+        const numeric = Number(value);
+        if (!Number.isInteger(numeric) || numeric < -32768 || numeric > 65535) throw new Error('Value is outside the supported Modbus register range');
+        await this.client.writeRegister(safeReg, numeric & 65535);
       }
     }
   }

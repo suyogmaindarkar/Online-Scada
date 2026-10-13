@@ -5,6 +5,7 @@
 const S7Reader = require('./readers/s7Reader');
 const ModbusReader = require('./readers/modbusReader');
 const OPCUAReader = require('./readers/opcuaReader');
+const EthernetIPReader = require('./readers/ethernetIpReader');
 
 class PLCReader {
     constructor(config, cloudBridge, verbose = false) {
@@ -15,6 +16,7 @@ class PLCReader {
         this.readers = new Map();
         this.intervals = new Map();
         this.previousValues = new Map();
+        this.polling = new Set();
 
         this.stats = {
             totalReads: 0,
@@ -44,6 +46,7 @@ class PLCReader {
             if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
             else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
             else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
+            else if (protocol.includes('ethernet') || protocol === 'ab') reader = new EthernetIPReader(plcConfig);
             else return;
 
             const connected = await reader.connect();
@@ -62,8 +65,10 @@ class PLCReader {
     }
 
     async _pollPLC(plcId, plcConfig) {
+        if (this.polling.has(plcId)) return;
+        this.polling.add(plcId);
         const reader = this.readers.get(plcId);
-        if (!reader) return;
+        if (!reader) { this.polling.delete(plcId); return; }
 
         try {
             const tags = plcConfig.tags || [];
@@ -86,7 +91,8 @@ class PLCReader {
             if (changed.length > 0) {
                 this.cloudBridge.sendTagValues(changed);
             }
-        } catch (err) { }
+        } catch (err) { console.warn(`⚠️ PLC poll failed (${plcId}): ${err.message}`); }
+        finally { this.polling.delete(plcId); }
     }
 
     // ═══════════════════════════════════════════════════════════

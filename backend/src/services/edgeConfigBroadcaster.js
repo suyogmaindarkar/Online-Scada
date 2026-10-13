@@ -35,6 +35,7 @@ async function compileLiveConfig(companyId) {
       protocol,
       ip: plc.ipAddress,
       port: plc.port,
+      unitId: plc.unitId ?? 1,
       rack: plc.rack || 0,
       slot: plc.slot || 0,
       opcuaUsername: plc.opcuaUsername || '',

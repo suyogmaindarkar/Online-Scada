@@ -28,6 +28,9 @@ const plcConnectionSchema = new mongoose.Schema(
     },
     ipAddress:     { type: String, default: '192.168.1.100' },
     port:          { type: Number, default: 502 },
+    unitId:        { type: Number, default: 1, min: 0, max: 255 },
+    baudRate:      { type: Number, default: 9600, min: 300, max: 115200 },
+    parity:        { type: String, enum: ['none', 'even', 'odd'], default: 'none' },
     rack:          { type: Number, default: 0 },
     slot:          { type: Number, default: 1 },
     brand: {

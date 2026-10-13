@@ -92,7 +92,7 @@ const PLCManagement = () => {
 
   const [formData, setFormData] = useState({
     name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502,
-    rack: 0, slot: 0, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: ''
+    rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: ''
   });
 
   useEffect(() => {
@@ -173,7 +173,7 @@ const PLCManagement = () => {
     } catch (err) { showToast('Creation failed', 'error'); } finally { setCreatingSim(false); }
   };
 
-  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
+  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
   const handleOpenEdit = (plc) => { setEditingPLC(plc); setFormData({ ...plc }); setShowModal(true); };
 
   const handleSubmit = async (e) => {
@@ -362,10 +362,11 @@ const PLCManagement = () => {
             <div><label className="block text-sm font-semibold mb-1">IP Address</label><input name="ipAddress" value={formData.ipAddress} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
             <div><label className="block text-sm font-semibold mb-1">Port</label><input type="number" name="port" value={formData.port} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div><label className="block text-sm font-semibold mb-1 text-slate-500">Rack (S7)</label><input type="number" name="rack" value={formData.rack} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
-            <div><label className="block text-sm font-semibold mb-1 text-slate-500">Slot (S7)</label><input type="number" name="slot" value={formData.slot} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
-            <div><label className="block text-sm font-semibold mb-1 text-slate-500">Poll (ms)</label><input type="number" name="pollingRate" value={formData.pollingRate} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
+       <div className="grid grid-cols-4 gap-4">
+             <div><label className="block text-sm font-semibold mb-1 text-slate-500">Rack (S7)</label><input type="number" name="rack" value={formData.rack} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
+              <div><label className="block text-sm font-semibold mb-1 text-slate-500">Slot (S7 / Allen-Bradley)</label><input type="number" min="0" name="slot" value={formData.slot} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
+             <div><label className="block text-sm font-semibold mb-1 text-slate-500">Unit ID (Modbus)</label><input type="number" min="0" max="255" name="unitId" value={formData.unitId ?? 1} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
+             <div><label className="block text-sm font-semibold mb-1 text-slate-500">Poll (ms)</label><input type="number" name="pollingRate" value={formData.pollingRate} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
           </div>
           <button type="submit" className="w-full p-3 bg-blue-600 text-white font-bold rounded-lg mt-4 hover:bg-blue-700 transition-colors shadow-md">Save Equipment</button>
         </form>

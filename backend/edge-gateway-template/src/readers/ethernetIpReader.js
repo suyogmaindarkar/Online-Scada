@@ -14,17 +14,18 @@ class EthernetIPReader {
 
     async connect() {
         try {
-            await this.PLC.connect(this.config.ip, this.config.slot || 0);
+            await this.PLC.connect(this.config.ip || this.config.ipAddress, this.config.slot ?? 0);
             this.isConnected = true;
             return true;
         } catch (e) {
             this.isConnected = false;
+            this.lastError = e.message;
             return false;
         }
     }
 
     async readTags(tagList) {
-        if (!this.isConnected) return [];
+        if (!this.isConnected) return tagList.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         const results = [];
         for (const t of tagList) {
             try {
@@ -43,6 +44,7 @@ class EthernetIPReader {
     }
 
     async writeTag(addr, val, dataType) {
+        if (!this.isConnected) throw new Error('Ethernet/IP PLC is not connected');
         let tagObj = this.tags.get(addr);
         if (!tagObj) {
             tagObj = new Tag(addr);

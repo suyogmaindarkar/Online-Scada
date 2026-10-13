@@ -87,6 +87,9 @@ class PLCManager {
       case 'OPC-UA':
         service = require('./opcuaService');
         break;
+      case 'ETHERNET_IP':
+        service = require('./ethernetIpService');
+        break;
       default:
         throw new Error(`Unsupported protocol: ${plc.protocol}`);
     }
@@ -121,6 +124,9 @@ class PLCManager {
       case 'OPC-UA':
         service = require('./opcuaService');
         break;
+      case 'ETHERNET_IP':
+        service = require('./ethernetIpService');
+        break;
       default:
         throw new Error(`Unsupported protocol for write: ${plc.protocol}`);
     }
@@ -152,6 +158,9 @@ class PLCManager {
       case 'OPC_UA':
       case 'OPC-UA':
         service = require('./opcuaService');
+        break;
+      case 'ETHERNET_IP':
+        service = require('./ethernetIpService');
         break;
       default:
         return false;
@@ -189,6 +198,7 @@ class PLCManager {
       require('./s7Service').stopAll();
       require('./modbusService').stopAll();
       require('./opcuaService').stopAll();
+      require('./ethernetIpService').stopAll();
       this.activeServices.clear();
       console.log('⏹️  All PLC services stopped');
     } catch (e) {

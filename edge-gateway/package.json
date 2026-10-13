@@ -13,6 +13,7 @@
     "socket.io-client": "^4.7.5",
     "nodes7": "^0.3.14",
     "modbus-serial": "^8.0.17",
-    "node-opcua": "^2.130.0"
+    "node-opcua": "^2.130.0",
+    "ethernet-ip": "^2.0.0"
   }
 }

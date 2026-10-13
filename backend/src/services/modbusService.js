@@ -38,13 +38,14 @@ class ModbusService {
     try {
       const client = new ModbusRTU();
 
-      console.log(`🔌 Connecting to Modbus: ${plc.name} (${plc.ipAddress}:${plc.port || 502})`);
-
-      await client.connectTCP(plc.ipAddress, {
-        port: plc.port || 502,
-      });
-
-      client.setID(1);
+      const unitId = Number.isInteger(Number(plc.unitId)) && Number(plc.unitId) >= 0 && Number(plc.unitId) <= 255
+        ? Number(plc.unitId) : 1;
+      if (plc.protocol === 'MODBUS_RTU') {
+        await client.connectRTUBuffered(plc.ipAddress, { baudRate: plc.baudRate || 9600, dataBits: 8, stopBits: 1, parity: plc.parity || 'none' });
+      } else {
+        await client.connectTCP(plc.ipAddress, { port: plc.port || 502 });
+      }
+      client.setID(unitId);
       client.setTimeout(3000);
 
       this.connections.set(plc._id.toString(), client);
@@ -184,7 +185,19 @@ class ModbusService {
   //   40001-49999  → Holding Registers (FC03, read-write)
   // ═══════════════════════════════════════════════════════════
   async readTag(client, tag) {
-    const address = parseInt(tag.plcAddress);
+    const addressText = String(tag.plcAddress || '').trim().toUpperCase();
+    const delta = /^(D|M|X|Y|T|C)(\d+)$/.exec(addressText);
+    const address = parseInt(addressText, 10);
+
+    if (delta) {
+      const number = Number(delta[2]);
+      const area = delta[1];
+      if (area === 'D') return this.readHoldingValue(client, 4096 + number, tag.dataType);
+      if (area === 'M') return (await client.readCoils(2048 + number, 1)).data[0];
+      if (area === 'Y') return (await client.readCoils(1280 + number, 1)).data[0];
+      if (area === 'X') return (await client.readDiscreteInputs(1024 + number, 1)).data[0];
+      if (area === 'T' || area === 'C') return (await client.readHoldingRegisters((area === 'T' ? 1536 : 2048) + number, 1)).data[0];
+    }
 
     if (isNaN(address)) {
       throw new Error(
@@ -282,7 +295,17 @@ class ModbusService {
     const client = this.connections.get(plcId.toString());
     if (!client) throw new Error('PLC not connected');
 
-    const address = parseInt(tag.plcAddress);
+    const addressText = String(tag.plcAddress || '').trim().toUpperCase();
+    const delta = /^(D|M|X|Y|T|C)(\d+)$/.exec(addressText);
+    if (delta) {
+      const area = delta[1];
+      const number = Number(delta[2]);
+      if (area === 'X') throw new Error('Delta X inputs are read-only. Use M, Y, or D addresses for writes.');
+      if (area === 'M' || area === 'Y') await client.writeCoil((area === 'M' ? 2048 : 1280) + number, value === true || value === 'true' || value === 1 || value === '1');
+      else await this.writeHoldingValue(client, (area === 'D' ? 4096 : area === 'T' ? 1536 : 2048) + number, value, tag.dataType);
+      return true;
+    }
+    const address = parseInt(addressText, 10);
 
     if (isNaN(address)) {
       throw new Error(`Invalid Modbus address: "${tag.plcAddress}"`);
@@ -345,6 +368,23 @@ class ModbusService {
     return true;
   }
 
+  async readHoldingValue(client, regAddr, dataType) {
+    const count = ['REAL', 'DINT', 'DWORD'].includes(String(dataType).toUpperCase()) ? 2 : 1;
+    const data = await client.readHoldingRegisters(regAddr, count);
+    if (count === 1) return data.data[0];
+    const buffer = Buffer.alloc(4); buffer.writeUInt16BE(data.data[0], 0); buffer.writeUInt16BE(data.data[1], 2);
+    if (String(dataType).toUpperCase() === 'REAL') return parseFloat(buffer.readFloatBE(0).toFixed(4));
+    return String(dataType).toUpperCase() === 'DINT' ? buffer.readInt32BE(0) : buffer.readUInt32BE(0);
+  }
+
+  async writeHoldingValue(client, regAddr, value, dataType) {
+    const type = String(dataType || '').toUpperCase();
+    if (type === 'REAL') { const buffer = Buffer.alloc(4); buffer.writeFloatBE(Number(value), 0); return client.writeRegisters(regAddr, [buffer.readUInt16BE(0), buffer.readUInt16BE(2)]); }
+    if (type === 'DINT' || type === 'DWORD') { const n = Number(value) >>> 0; return client.writeRegisters(regAddr, [(n >>> 16) & 65535, n & 65535]); }
+    const n = Number(value); if (!Number.isInteger(n) || n < -32768 || n > 65535) throw new Error('Value is outside the supported Modbus register range.');
+    return client.writeRegister(regAddr, n & 65535);
+  }
+
   stop(plcId) {
     const id = plcId.toString();
 
@@ -374,11 +414,9 @@ class ModbusService {
 
       console.log(`🔌 Testing Modbus connection: ${plc.name} (${plc.ipAddress}:${plc.port || 502})`);
 
-      await client.connectTCP(plc.ipAddress, {
-        port: plc.port || 502,
-      });
-
-      client.setID(1);
+      if (plc.protocol === 'MODBUS_RTU') await client.connectRTUBuffered(plc.ipAddress, { baudRate: plc.baudRate || 9600, dataBits: 8, stopBits: 1, parity: plc.parity || 'none' });
+      else await client.connectTCP(plc.ipAddress, { port: plc.port || 502 });
+      client.setID(Number.isInteger(Number(plc.unitId)) ? Number(plc.unitId) : 1);
       client.setTimeout(3000);
 
       // Try to read a single holding register to verify the connection works

@@ -14,7 +14,8 @@ class PLCReader {
         this.verbose = verbose;
         this.readers = new Map();
         this.intervals = new Map();
-        this.previousValues = new Map();
+    this.previousValues = new Map();
+    this.polling = new Set();
         this.statuses = new Map();
         this.stats = { totalReads: 0, totalErrors: 0, tagsReadPerSecond: 0, _readsThisSecond: 0 };
     }
@@ -75,21 +76,24 @@ class PLCReader {
     }
 
     async _pollPLC(plcId, plcConfig) {
-        const reader = this.readers.get(plcId);
-        if (!reader) return;
-
-        if (reader.isConnected === false) {
-            this._setStatus(plcConfig, 'failed', 'Equipment connection lost');
-            return;
-        }
-
-        const tags = plcConfig.tags || [];
-        if (tags.length === 0) {
-            this._setStatus(plcConfig, 'connected_no_tags', 'Equipment connected. Add tags to start data streaming');
-            return;
-        }
+        if (this.polling.has(plcId)) return;
+        this.polling.add(plcId);
 
         try {
+            const reader = this.readers.get(plcId);
+            if (!reader) return;
+
+            if (reader.isConnected === false) {
+                this._setStatus(plcConfig, 'failed', 'Equipment connection lost');
+                return;
+            }
+
+            const tags = plcConfig.tags || [];
+            if (tags.length === 0) {
+                this._setStatus(plcConfig, 'connected_no_tags', 'Equipment connected. Add tags to start data streaming');
+                return;
+            }
+
             const values = await reader.readTags(tags);
             if (!values?.length) {
                 this._setStatus(plcConfig, 'connected_no_data', 'Equipment connected, but no tag values were returned');
@@ -104,19 +108,20 @@ class PLCReader {
             const now = Date.now();
             for (const val of values) {
                 const prev = this.previousValues.get(val.tagId);
-                
-                // FIXED: ONLY send when value genuinely changes. Removed the 10s forced timer spam.
                 if (!prev || prev.value !== val.value) {
                     changed.push({ tagId: val.tagId, tagName: val.tagName, value: val.value, quality: val.quality || 'GOOD', timestamp: now });
                     this.previousValues.set(val.tagId, { value: val.value, timestamp: now });
                 }
             }
+
             if (changed.length) {
                 this.cloudBridge.sendTagValues(changed);
             }
         } catch (err) {
             this.stats.totalErrors += 1;
             this._setStatus(plcConfig, 'connected_read_error', 'Equipment connected, but tag reading failed', { error: err.message });
+        } finally {
+            this.polling.delete(plcId);
         }
     }
 

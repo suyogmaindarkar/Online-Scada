@@ -15,28 +15,36 @@ class OPCUAReader {
         this.client = null;
         this.session = null;
         this.isConnected = false;
+        this.lastError = null;
     }
 
     async connect() {
         try {
-            const url = `opc.tcp://${this.config.ip}:${this.config.port || 4840}`;
+            const url = this._endpointUrl();
             this.client = opcua.OPCUAClient.create({
                 securityMode: opcua.MessageSecurityMode.None,
                 securityPolicy: opcua.SecurityPolicy.None,
                 endpointMustExist: false
             });
             await this.client.connect(url);
-            this.session = await this.client.createSession();
+            const identity = this.config.username || this.config.user
+                ? { userName: this.config.username || this.config.user, password: this.config.password || '' }
+                : null;
+            this.session = await this.client.createSession(identity);
             this.isConnected = true;
             return true;
         } catch (e) {
             this.isConnected = false;
+            this.lastError = new Error(`OPC-UA connection failed for ${this._endpointUrl()}: ${e.message}`);
+            if (this.client) { try { await this.client.disconnect(); } catch (_) { } }
+            this.client = null;
+            this.session = null;
             return false;
         }
     }
 
     async readTags(tags) {
-        if (!this.isConnected || !this.session) return [];
+        if (!this.isConnected || !this.session) return tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         try {
             const nodes = tags.map(t => ({
                 nodeId: t.address,
@@ -60,7 +68,9 @@ class OPCUAReader {
                 };
             });
         } catch (e) {
-            return [];
+            this.isConnected = false;
+            this.lastError = new Error(`OPC-UA read failed: ${e.message}`);
+            return tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
         }
     }
 
@@ -114,6 +124,12 @@ class OPCUAReader {
             } catch (e) { }
         }
         this.isConnected = false;
+    }
+
+    _endpointUrl() {
+        const endpoint = String(this.config.endpoint || this.config.url || this.config.ip || '').trim();
+        if (!endpoint) throw new Error('OPC-UA endpoint is required');
+        return endpoint.includes('://') ? endpoint : `opc.tcp://${endpoint}:${this.config.port || 4840}`;
     }
 }
 

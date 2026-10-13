@@ -78,6 +78,9 @@ const PROTOCOL_GUIDE = {
       { label: 'Delta D0 Register', value: 'D0', type: 'INT' },
       { label: 'Delta M0 Relay', value: 'M0', type: 'BOOL' },
       { label: 'Delta Y0 Output', value: 'Y0', type: 'BOOL' },
+      { label: 'Delta X0 Input', value: 'X0', type: 'BOOL' },
+      { label: 'Delta T0 Timer', value: 'T0', type: 'INT' },
+      { label: 'Delta C0 Counter', value: 'C0', type: 'INT' },
     ],
     validate: (addr) => {
       if (!addr) return null;

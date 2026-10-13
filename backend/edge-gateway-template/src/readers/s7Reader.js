@@ -43,24 +43,27 @@ class S7Reader {
                 };
 
                 if (this.verbose) {
-                    console.log(`🔌 S7 connecting to ${this.config.ip}:${connectionParams.port} (Rack=${rack}, Slot=${slot})`);
+                    console.log(`S7 connecting to ${this.config.ip}:${connectionParams.port} (Rack=${rack}, Slot=${slot})`);
                 }
 
                 this.conn.initiateConnection(connectionParams, (err) => {
                     if (err) {
-                        console.error(`❌ S7 connection failed to ${this.config.ip}: ${err}`);
+                        console.error(`S7 connection failed to ${this.config.ip}: ${err.message || err}`);
                         this.isConnected = false;
+                        this.conn = null;
                         this._scheduleReconnect();
                         resolve(false);
                         return;
                     }
 
                     this.isConnected = true;
-                    console.log(`✅ S7 connected to ${this.config.ip} (Rack=${rack}, Slot=${slot})`);
+                    console.log(`S7 connected to ${this.config.ip} (Rack=${rack}, Slot=${slot})`);
                     resolve(true);
                 });
             } catch (err) {
-                console.error(`❌ S7 init error: ${err.message}`);
+                console.error(`S7 init error: ${err.message}`);
+                this.conn = null;
+                this._scheduleReconnect();
                 resolve(false);
             }
         });
@@ -80,13 +83,17 @@ class S7Reader {
             }
 
             // Build address list for nodes7
-            const addresses = tags.map((t) => t.address);
+            const addresses = tags.map((t) => this._convertAddress(t));
+            if (addresses.some((address) => !address)) {
+                resolve(this._badResults(tags));
+                return;
+            }
 
             try {
                 this.conn.readAllItems((err, values) => {
                     if (err) {
                         if (this.verbose) {
-                            console.error(`❌ S7 read error: ${err}`);
+                            console.error(`S7 read error: ${err.message || err}`);
                         }
                         this.isConnected = false;
                         this._scheduleReconnect();
@@ -99,8 +106,8 @@ class S7Reader {
                         return;
                     }
 
-                    const results = tags.map((t) => {
-                        const rawValue = values[t.address];
+                    const results = tags.map((t, index) => {
+                        const rawValue = values[addresses[index]];
                         const quality = (rawValue !== undefined && rawValue !== null) ? 'GOOD' : 'BAD';
 
                         return {
@@ -118,8 +125,10 @@ class S7Reader {
                 this.conn.addItems(addresses);
             } catch (err) {
                 if (this.verbose) {
-                    console.error(`❌ S7 readAllItems error: ${err.message}`);
+                    console.error(`S7 readAllItems error: ${err.message}`);
                 }
+                this.isConnected = false;
+                this._scheduleReconnect();
                 resolve(tags.map((t) => ({
                     tagId: t.tagId,
                     tagName: t.tagName,
@@ -202,7 +211,7 @@ class S7Reader {
             this.reconnectTimer = null;
             if (!this.isConnected) {
                 if (this.verbose) {
-                    console.log(`🔄 S7 reconnecting to ${this.config.ip}...`);
+                    console.log(`S7 reconnecting to ${this.config.ip}...`);
                 }
                 await this.connect();
             }
@@ -222,6 +231,32 @@ class S7Reader {
             this.conn = null;
         }
         this.isConnected = false;
+    }
+
+    _badResults(tags) {
+        return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+    }
+
+    _convertAddress(tag) {
+        let addr = String(tag.address || tag.plcAddress || '').trim().toUpperCase();
+        if (!addr) return null;
+        if (/^DB\d+,[A-Z]+\d/.test(addr) || /^M\d+(\.\d+)?$/.test(addr) || /^(MB|MW|MD)\d+$/.test(addr)) return addr;
+        if (/^[IE](\d+\.\d+|B\d+|W\d+|D\d+)$/.test(addr)) return addr.replace(/^E/, 'I');
+        if (/^[QA](\d+\.\d+|B\d+|W\d+|D\d+)$/.test(addr)) return addr.replace(/^A/, 'Q');
+        let match = addr.match(/^DB(\d+)\.DBX(\d+)\.(\d+)$/);
+        if (match) return `DB${match[1]},X${match[2]}.${match[3]}`;
+        match = addr.match(/^DB(\d+)\.DBB(\d+)$/);
+        if (match) return `DB${match[1]},BYTE${match[2]}`;
+        match = addr.match(/^DB(\d+)\.DBW(\d+)$/);
+        if (match) return `DB${match[1]},${tag.dataType === 'WORD' ? 'WORD' : 'INT'}${match[2]}`;
+        match = addr.match(/^DB(\d+)\.DBD(\d+)$/);
+        if (match) return `DB${match[1]},${tag.dataType === 'REAL' ? 'REAL' : tag.dataType === 'DWORD' ? 'DWORD' : 'DINT'}${match[2]}`;
+        match = addr.match(/^DB(\d+),(\d+)$/);
+        if (match) {
+            const type = { REAL: 'REAL', DINT: 'DINT', BOOL: 'X', WORD: 'WORD', DWORD: 'DWORD', STRING: 'S' }[tag.dataType] || 'INT';
+            return type === 'X' ? `DB${match[1]},X${match[2]}.0` : `DB${match[1]},${type}${match[2]}`;
+        }
+        return /^DB\d+,/.test(addr) ? addr : null;
     }
 }
 

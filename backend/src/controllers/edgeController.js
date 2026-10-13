@@ -39,6 +39,7 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
       port: plc.port,
       rack: plc.rack || 0,
       slot: plc.slot || 0,
+      unitId: plc.unitId ?? 1,
       opcuaUsername: plc.opcuaUsername || '',
       opcuaPassword: plc.opcuaPassword || '',
       pollIntervalMs: plc.pollingRate || 1000,
