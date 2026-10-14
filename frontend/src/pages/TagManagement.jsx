@@ -9,7 +9,7 @@ import {
   Tag, Plus, Edit2, Trash2, Search, Download, Upload,
   FileText, Loader2, Sparkles, Server, Info, AlertTriangle,
   CheckCircle2, HelpCircle, Layers, Database, Code, Lightbulb,
-  ExternalLink, ArrowRight, RefreshCw, XCircle
+  ExternalLink, ArrowRight, RefreshCw, XCircle, Settings2, Wrench
 } from 'lucide-react';
 
 const C = {
@@ -154,6 +154,13 @@ const TagManagement = () => {
     plcAddress: '', dataType: 'BOOL', accessType: 'READ_WRITE',
     unit: '', minValue: 0, maxValue: 100, enableLogging: false,
   });
+  const [addressBuilder, setAddressBuilder] = useState({
+    show: false,
+    s7: { area: 'DB', dbNumber: 1, byteOffset: 0, bitOffset: 0 },
+    modbus: { area: 'holding', index: 1, deltaName: 'D0' },
+    opcua: { type: 's', namespace: 3, identifier: '' },
+    ethernetIp: { scope: 'controller', tagName: '', program: 'MainProgram' },
+  });
 
   useEffect(() => {
     loadData();
@@ -210,6 +217,87 @@ const TagManagement = () => {
   if (normProtocol === 'SIMULATION' && formData.dataType === 'STRING') compatibilityWarnings.push('Simulation patterns currently generate numeric or boolean values; verify STRING support before saving.');
    if (isProfibusGateway && transportProtocol.includes('MODBUS') && !/^(?:0|1|3|4)\d{4}$/.test(address) && !/^[DMXYTC]\d+$/.test(address)) compatibilityWarnings.push('This Profibus gateway exposes Modbus mapping; use a five-digit register or supported Delta address.');
    if (isProfibusGateway && transportProtocol.includes('S7') && !/^DB\d+\./.test(address)) compatibilityWarnings.push('This Profibus gateway exposes S7 mapping; use a DB address such as DB1.DBW2.');
+
+  // ─── ADDRESS BUILDER HELPERS (Phase 2A) ───────────────
+  // Which helper applies for the currently selected PLC (or Profibus transport).
+  const builderHelperFor = () => {
+    const rp = String(selectedPLC?.protocol || '').toUpperCase();
+    const tp = String(selectedPLC?.transportProtocol || rp).toUpperCase();
+    if (rp === 'PROFIBUS_GATEWAY') {
+      if (tp.includes('OPC')) return 'OPC_UA';
+      if (tp.includes('ETHERNET')) return 'ETHERNET_IP';
+      if (tp.includes('MODBUS')) return 'MODBUS';
+      return null;
+    }
+    if (rp.includes('S7')) return 'S7';
+    if (rp.includes('MODBUS') || rp.includes('DELTA') || rp.includes('SIMULATION')) return 'MODBUS';
+    if (rp.includes('OPC')) return 'OPC_UA';
+    if (rp.includes('ETHERNET')) return 'ETHERNET_IP';
+    return null;
+  };
+  const builderHelper = builderHelperFor();
+
+  // Generate the address string from the active builder fields.
+  const buildAddress = (helper) => {
+    if (helper === 'S7') {
+      const { area, dbNumber, byteOffset, bitOffset } = addressBuilder.s7;
+      if (area === 'DB') {
+        const type = formData.dataType || 'BOOL';
+        if (type === 'BOOL') return `DB${dbNumber}.DBX${byteOffset}.${bitOffset}`;
+        if (type === 'BYTE') return `DB${dbNumber}.DBB${byteOffset}`;
+        if (type === 'INT' || type === 'WORD') return `DB${dbNumber}.DBW${byteOffset}`;
+        return `DB${dbNumber}.DBD${byteOffset}`;
+      }
+      // M / I / Q are bit addressing (BOOL)
+      return `${area}${byteOffset}.${bitOffset}`;
+    }
+    if (helper === 'MODBUS') {
+      const { area, index, deltaName } = addressBuilder.modbus;
+      if (area !== 'coil' && area !== 'discrete' && area !== 'input' && area !== 'holding') return deltaName; // Delta name
+      const prefix = area === 'coil' ? 0 : area === 'discrete' ? 1 : area === 'input' ? 3 : 4;
+      return String(prefix) + String(Math.max(1, Number(index) || 1)).padStart(4, '0');
+    }
+    if (helper === 'OPC_UA') {
+      const { type, namespace, identifier } = addressBuilder.opcua;
+      if (!identifier) return '';
+      return `ns=${namespace};${type}=${identifier}`;
+    }
+    if (helper === 'ETHERNET_IP') {
+      const { scope, tagName, program } = addressBuilder.ethernetIp;
+      if (!tagName) return '';
+      return scope === 'program' ? `Program:${program}.${tagName}` : tagName;
+    }
+    return '';
+  };
+
+  const applyBuilderAddress = () => {
+    const addr = buildAddress(builderHelper).trim();
+    if (!addr) { showToast('Complete the address fields before generating', 'warning'); return; }
+    let inferredType = formData.dataType;
+    let inferredAccess = formData.accessType;
+    if (builderHelper === 'S7') {
+      const a = addressBuilder.s7.area;
+      if (a === 'M' || a === 'I' || a === 'Q') inferredType = 'BOOL';
+      else inferredType = addressBuilder.s7.bitOffset >= 0 && !formData.dataType ? 'BOOL' : formData.dataType;
+      // DBX always BOOL
+      if (a === 'DB') {
+        const type = formData.dataType || 'BOOL';
+        inferredType = type === 'BOOL' ? 'BOOL' : type;
+      }
+    } else if (builderHelper === 'MODBUS') {
+      const a = addressBuilder.modbus.area;
+      if (['coil', 'discrete'].includes(a)) inferredType = 'BOOL';
+      if (['deltaM', 'deltaX', 'deltaY'].includes(a)) inferredType = 'BOOL';
+      if (['discrete', 'input', 'deltaX'].includes(a)) inferredAccess = 'READ';
+    }
+    setFormData((prev) => ({ ...prev, plcAddress: addr, dataType: inferredType, accessType: inferredAccess }));
+    showToast('Address generated and filled', 'success');
+  };
+
+  const openBuilder = () => {
+    if (!builderHelper) { showToast('Address builder is not available for this protocol', 'info'); return; }
+    setAddressBuilder((b) => ({ ...b, show: !b.show }));
+  };
 
   const handleOpenAdd = () => {
     setEditingTag(null);
@@ -490,6 +578,220 @@ const TagManagement = () => {
             <p className="text-[11px] text-slate-500 italic leading-relaxed pt-1 border-t border-slate-200">
               {guide.tip}
             </p>
+
+            {/* ADDRESS BUILDER TOGGLE (Phase 2A) */}
+            {builderHelper && (
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={openBuilder}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  style={{ background: addressBuilder.show ? '#EEF2FF' : '#EFF6FF', color: C.brandDark, border: '1px solid #BFDBFE' }}
+                >
+                  <Settings2 size={14} /> {addressBuilder.show ? 'Hide Address Builder' : 'Build Address with Helper'}
+                </button>
+              </div>
+            )}
+
+            {addressBuilder.show && builderHelper && (
+              <div className="p-4 rounded-xl border border-blue-200 bg-white space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">
+                    <Wrench size={13} className="text-blue-600" /> Address Builder &mdash; {guide.label}
+                  </p>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                    Preview: {buildAddress(builderHelper) || '—'}
+                  </span>
+                </div>
+
+                {builderHelper === 'S7' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Area</label>
+                      <select
+                        value={addressBuilder.s7.area}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, s7: { ...addressBuilder.s7, area: e.target.value } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-slate-50 outline-none"
+                      >
+                        <option value="DB">Data Block</option>
+                        <option value="M">Memory</option>
+                        <option value="I">Input</option>
+                        <option value="Q">Output</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Data Block number</label>
+                      <input
+                        type="number" min="1"
+                        value={addressBuilder.s7.dbNumber}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, s7: { ...addressBuilder.s7, dbNumber: Number(e.target.value) || 1 } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Byte offset</label>
+                      <input
+                        type="number" min="0"
+                        value={addressBuilder.s7.byteOffset}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, s7: { ...addressBuilder.s7, byteOffset: Number(e.target.value) || 0 } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Bit offset (0-7)</label>
+                      <input
+                        type="number" min="0" max="7"
+                        value={addressBuilder.s7.bitOffset}
+                        onChange={e => { const v = Math.min(7, Math.max(0, Number(e.target.value) || 0)); setAddressBuilder({ ...addressBuilder, s7: { ...addressBuilder.s7, bitOffset: v } }); }}
+                        className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {builderHelper === 'MODBUS' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Memory area</label>
+                      <select
+                        value={addressBuilder.modbus.area}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, modbus: { ...addressBuilder.modbus, area: e.target.value } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-slate-50 outline-none"
+                      >
+                        <option value="coil">Coil (00001)</option>
+                        <option value="discrete">Discrete Input (10001)</option>
+                        <option value="input">Input Register (30001)</option>
+                        <option value="holding">Holding Register (40001)</option>
+                        <option value="deltaD">Delta D</option>
+                        <option value="deltaM">Delta M</option>
+                        <option value="deltaX">Delta X</option>
+                        <option value="deltaY">Delta Y</option>
+                        <option value="deltaT">Delta T</option>
+                        <option value="deltaC">Delta C</option>
+                      </select>
+                    </div>
+                    <div>
+                      {['deltaD','deltaM','deltaX','deltaY','deltaT','deltaC'].includes(addressBuilder.modbus.area) ? (
+                        <>
+                          <label className="block text-[10px] font-bold mb-1">Delta address</label>
+                          <input
+                            type="text"
+                            value={addressBuilder.modbus.deltaName}
+                            onChange={e => setAddressBuilder({ ...addressBuilder, modbus: { ...addressBuilder.modbus, deltaName: e.target.value.toUpperCase() } })}
+                            placeholder="e.g. D0, M0, X0"
+                            className="w-full p-2 rounded-lg text-xs border bg-white font-mono outline-none"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <label className="block text-[10px] font-bold mb-1">Register / bit number (1 based)</label>
+                          <input
+                            type="number" min="1"
+                            value={addressBuilder.modbus.index}
+                            onChange={e => setAddressBuilder({ ...addressBuilder, modbus: { ...addressBuilder.modbus, index: Number(e.target.value) || 1 } })}
+                            className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {builderHelper === 'OPC_UA' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">NodeID type</label>
+                      <select
+                        value={addressBuilder.opcua.type}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, opcua: { ...addressBuilder.opcua, type: e.target.value } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-slate-50 outline-none"
+                      >
+                        <option value="s">String</option>
+                        <option value="i">Numeric</option>
+                        <option value="g">GUID</option>
+                        <option value="b">Byte string</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Namespace index</label>
+                      <input
+                        type="number" min="0"
+                        value={addressBuilder.opcua.namespace}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, opcua: { ...addressBuilder.opcua, namespace: Number(e.target.value) || 0 } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-[10px] font-bold mb-1">Identifier</label>
+                      <input
+                        type="text"
+                        value={addressBuilder.opcua.identifier}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, opcua: { ...addressBuilder.opcua, identifier: e.target.value } })}
+                        placeholder="e.g. Channel1.Device1.Temperature"
+                        className="w-full p-2 rounded-lg text-xs border bg-white font-mono outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {builderHelper === 'ETHERNET_IP' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold mb-1">Tag scope</label>
+                      <select
+                        value={addressBuilder.ethernetIp.scope}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, ethernetIp: { ...addressBuilder.ethernetIp, scope: e.target.value } })}
+                        className="w-full p-2 rounded-lg text-xs border bg-slate-50 outline-none"
+                      >
+                        <option value="controller">Controller tag</option>
+                        <option value="program">Program tag</option>
+                      </select>
+                    </div>
+                    {addressBuilder.ethernetIp.scope === 'program' && (
+                      <div>
+                        <label className="block text-[10px] font-bold mb-1">Program name</label>
+                        <input
+                          type="text"
+                          value={addressBuilder.ethernetIp.program}
+                          onChange={e => setAddressBuilder({ ...addressBuilder, ethernetIp: { ...addressBuilder.ethernetIp, program: e.target.value } })}
+                          placeholder="MainProgram"
+                          className="w-full p-2 rounded-lg text-xs border bg-white outline-none"
+                        />
+                      </div>
+                    )}
+                    <div className={addressBuilder.ethernetIp.scope === 'program' ? '' : 'col-span-2'}>
+                      <label className="block text-[10px] font-bold mb-1">Tag name</label>
+                      <input
+                        type="text"
+                        value={addressBuilder.ethernetIp.tagName}
+                        onChange={e => setAddressBuilder({ ...addressBuilder, ethernetIp: { ...addressBuilder.ethernetIp, tagName: e.target.value } })}
+                        placeholder="e.g. Motor:Speed"
+                        className="w-full p-2 rounded-lg text-xs border bg-white font-mono outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={closeBuilder}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white text-slate-500 cursor-pointer hover:bg-slate-50"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyBuilderAddress}
+                    className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white cursor-pointer shadow-sm"
+                    style={{ background: C.btnPrimary }}
+                  >
+                    <span className="inline-flex items-center gap-1"><ArrowRight size={12} />Fill Address</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
 
           <div className="grid grid-cols-2 gap-4">
