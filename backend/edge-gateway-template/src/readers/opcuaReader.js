@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const opcua = require('node-opcua');
+const { CODES, badTag } = require('../utils/diagnostics');
 
 // Silence node-opcua internal warning spam (certificates, clock skew warnings)
 if (opcua.Logger && opcua.LogLevel) {
@@ -44,7 +45,7 @@ class OPCUAReader {
     }
 
     async readTags(tags) {
-        if (!this.isConnected || !this.session) return tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        if (!this.isConnected || !this.session) return tags.map(t => badTag(t, null, CODES.CONNECTION_FAILED));
         try {
             const nodes = tags.map(t => ({
                 nodeId: t.address,

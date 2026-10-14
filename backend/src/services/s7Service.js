@@ -12,6 +12,7 @@ const nodes7 = require('nodes7');
 const Tag = require('../models/Tag');
 const PLCConnection = require('../models/PLCConnection');
 const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
+const { CODES, normalizeError } = require('../utils/diagnostics');
 
 const toInfluxValue = (value, dataType) => {
   if (value === null || value === undefined) return null;
@@ -54,7 +55,8 @@ class S7Service {
         if (err) {
           const errStr = typeof err === 'string' ? err : JSON.stringify(err);
           console.error(`❌ S7 connection failed for ${plc.name}: ${errStr}`);
-          return resolve({ success: false, error: errStr });
+           const diagnostic = normalizeError(err, CODES.CONNECTION_FAILED);
+           return resolve({ success: false, error: errStr, errorCode: diagnostic.code });
         }
 
         this.connections.set(plc._id.toString(), conn);

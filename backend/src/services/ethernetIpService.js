@@ -1,6 +1,7 @@
 // Native Allen-Bradley Ethernet/IP service. Tag addresses are symbolic names
 // supported by ethernet-ip (controller-scoped or program-scoped tags).
 const { Controller, Tag } = require('ethernet-ip');
+const { CODES, normalizeError } = require('../utils/diagnostics');
 const TagModel = require('../models/Tag');
 
 class EthernetIpService {
@@ -8,7 +9,7 @@ class EthernetIpService {
   async connect(plc) {
     const controller = new Controller();
     try { await controller.connect(plc.ipAddress, plc.slot ?? 0); this.connections.set(String(plc._id), controller); return { success: true, controller }; }
-    catch (err) { return { success: false, error: err.message }; }
+    catch (err) { const diagnostic = normalizeError(err, CODES.CONNECTION_FAILED); return { success: false, error: err.message, errorCode: diagnostic.code }; }
   }
   async test(plc) { const result = await this.connect(plc); if (result.controller) { try { result.controller.disconnect(); } catch (_) {} this.connections.delete(String(plc._id)); } return result; }
   async start(plc, io) {

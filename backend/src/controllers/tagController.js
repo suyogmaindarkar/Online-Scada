@@ -9,6 +9,71 @@
 const Tag = require('../models/Tag');
 const PLCConnection = require('../models/PLCConnection');
 const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
+
+// Address rules are deliberately kept at the API boundary so every way of
+// creating a tag (including imports) has the same protocol/tenant checks.
+const VALID_DATA_TYPES = ['BOOL', 'INT', 'DINT', 'REAL', 'STRING', 'WORD', 'DWORD', 'BYTE'];
+const VALID_ACCESS_TYPES = ['READ', 'WRITE', 'READ_WRITE'];
+const normalizeAccessType = (value) => {
+  const normalized = String(value || 'READ_WRITE').toUpperCase();
+  return normalized === 'READ_ONLY' ? 'READ' : normalized;
+};
+const normalizeProtocol = (plc) => {
+  if (!plc) return 'SIMULATION';
+  if (plc.protocol === 'PROFIBUS_GATEWAY') return String(plc.transportProtocol || 'PROFIBUS_GATEWAY').toUpperCase();
+  if (plc.protocol === 'MODBUS_TCP' || plc.protocol === 'MODBUS_RTU') return plc.protocol;
+  return plc.protocol;
+};
+const validateTagConfiguration = (data, plc) => {
+  const errors = [], warnings = [];
+  const type = String(data.dataType || '').toUpperCase();
+  const access = normalizeAccessType(data.accessType);
+  const address = String(data.plcAddress || '').trim();
+  if (!VALID_DATA_TYPES.includes(type)) errors.push(`Invalid data type '${data.dataType}'.`);
+  if (!VALID_ACCESS_TYPES.includes(access)) errors.push(`Invalid access type '${data.accessType}'. Use READ, WRITE or READ_WRITE.`);
+  if (!plc && address) errors.push('A PLC/equipment must be selected when an address is provided.');
+  if (!plc) return { errors, warnings };
+  const protocol = normalizeProtocol(plc);
+  const patterns = {
+    S7: /^(?:DB\d+\.(?:DBX\d+\.[0-7]|DBB\d+|DBW\d+|DBD\d+)|DB\d+,(?:X\d+\.[0-7]|BYTE\d+|INT\d+|WORD\d+|DINT\d+|REAL\d+|DWORD\d+|S\d+(?:\.\d+)?)|[MIQ](?:[BWD]?\d+|\d+\.[0-7]))$/i,
+    MODBUS_TCP: /^(?:0\d{4}|1\d{4}|3\d{4}|4\d{4}|[DMXYTC]\d+)$/i,
+    MODBUS_RTU: /^(?:0\d{4}|1\d{4}|3\d{4}|4\d{4}|[DMXYTC]\d+)$/i,
+    DELTA: /^(?:[DMXYTC]\d+)$/i,
+    OPC_UA: /^(?:(?:ns=\d+;)?(?:s=.+|i=\d+|g=[0-9a-f-]{8,}|b=[A-Za-z0-9+/=]+))$/i,
+    ETHERNET_IP: /^(?:Program:[A-Za-z_][\w]*\.)?[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*(?::\d+)?(?:\/\d+)?$/,
+    SIMULATION: /^(?:SIM_[A-Z][A-Z0-9_]*|0\d{4}|1\d{4}|3\d{4}|4\d{4})$/i,
+  };
+  if (!address && protocol !== 'SIMULATION') errors.push(`An address is required for ${protocol}.`);
+  else if (address && patterns[protocol] && !patterns[protocol].test(address)) errors.push(`Address '${address}' is not valid for ${protocol}.`);
+  if (!patterns[protocol]) errors.push('The equipment has no supported transport configured.');
+  if (protocol === 'S7') {
+    const bit = /(?:DBX|,X|[MIQ])\d+\.(\d+)$/i.exec(address);
+    if (bit && Number(bit[1]) > 7) errors.push('S7 bit offsets must be between 0 and 7.');
+    if (bit && type !== 'BOOL') errors.push('An S7 bit address requires BOOL.');
+  }
+  if (protocol === 'S7' && type === 'BOOL') {
+    const isBitAddress = /(?:DBX\d+\.[0-7]|,X\d+\.[0-7]|[MIQ]\d+\.[0-7])$/i.test(address);
+    const isDWordish = /(?:DBD|,REAL|,DINT|,DWORD|,DWORD\d)/i.test(address);
+    if (!bit && isDWordish) errors.push('A BOOL on S7 requires a bit address such as DB1.DBX0.0, DB1,X0.0, or M0.0.');
+  }
+  if (['MODBUS_TCP', 'MODBUS_RTU'].includes(protocol)) {
+    const numeric = /^(?:0|1|3|4)\d{4}$/.test(address);
+    if (numeric && ['00000', '10000', '30000', '40000'].includes(address)) errors.push('Modbus reference addresses start at 00001, 10001, 30001, or 40001.');
+    const bitArea = /^(?:[01]\d{4}|[MXY]\d+)$/i.test(address);
+    const inputArea = /^(?:[13]\d{4}|X\d+)$/i.test(address);
+    if (bitArea && type !== 'BOOL') errors.push('Coils and discrete inputs require BOOL.');
+    if (inputArea && access !== 'READ') errors.push('Input addresses are read-only. Select Read access.');
+    if (['REAL', 'DINT', 'DWORD'].includes(type) && ['39999', '49999'].includes(address)) errors.push('This 32-bit value requires two registers within the supported area.');
+    if (type === 'STRING') errors.push('Text decoding is not supported by the current Modbus reader.');
+  }
+  if (['BOOL'].includes(type) && ['MODBUS_TCP', 'MODBUS_RTU', 'DELTA'].includes(protocol) && /^4\d{4}$/i.test(address)) warnings.push('BOOL on a holding register uses the register value; use a coil or discrete input for a bit value.');
+  if (type === 'STRING' && ['MODBUS_TCP', 'MODBUS_RTU', 'DELTA'].includes(protocol)) warnings.push('String encoding/length must be supported by the connected device.');
+  if (type === 'REAL' && protocol === 'S7' && !/DBD/i.test(address)) warnings.push('REAL values on S7 normally use a DBD (double-word) address.');
+  if (['REAL', 'DINT', 'DWORD'].includes(type) && ['MODBUS_TCP', 'MODBUS_RTU', 'DELTA'].includes(protocol)) warnings.push(`${type} uses two consecutive Modbus registers; verify the mapped register span and word order.`);
+  if (type === 'BOOL' && protocol === 'S7' && !/(?:DBX\d+\.\d+|[MIQ]\d+\.\d+)/i.test(address)) warnings.push('BOOL values on S7 normally use a bit address such as DB1.DBX0.0 or M0.0.');
+  return { errors, warnings };
+};
+const getOwnedPLC = (companyId, id) => id ? PLCConnection.findOne({ _id: id, companyId }) : null;
 // ─────────────────────────────────────────────────────────
 // CSV UTILITIES (unchanged)
 // ─────────────────────────────────────────────────────────
@@ -117,26 +182,30 @@ const createTag = async (req, res) => {
     }
 
     // ✅ PLC ownership check (can't reference another company's PLC)
+    let plcExists = null;
     if (plcConnection) {
-      const plcExists = await PLCConnection.findOne({ _id: plcConnection, companyId: req.companyId });
+      plcExists = await getOwnedPLC(req.companyId, plcConnection);
       if (!plcExists) {
         return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
       }
     }
+    const normalizedDataType = String(dataType).toUpperCase();
+    const validation = validateTagConfiguration({ dataType: normalizedDataType, accessType, plcAddress }, plcExists);
+    if (validation.errors.length) return res.status(400).json({ success: false, message: validation.errors.join(' '), errors: validation.errors, warnings: validation.warnings });
 
     let defaultValue = 0;
-    if (dataType === 'BOOL') defaultValue = false;
-    if (dataType === 'STRING') defaultValue = '';
+    if (normalizedDataType === 'BOOL') defaultValue = false;
+    if (normalizedDataType === 'STRING') defaultValue = '';
 
     const tag = await Tag.create({
       companyId: req.companyId, // ✅ MULTI-TENANT
       tagName: tagName.toUpperCase(),
       description: description || '',
       group: group || 'Default',
-      dataType,
+      dataType: normalizedDataType,
       plcConnection: plcConnection || null,
-      plcAddress: plcAddress || '',
-      accessType: accessType || 'READ_WRITE',
+      plcAddress: String(plcAddress || '').trim(),
+      accessType: normalizeAccessType(accessType),
       currentValue: defaultValue,
       unit: unit || '',
       minValue: minValue || 0,
@@ -161,6 +230,7 @@ const createTag = async (req, res) => {
       success: true,
       message: 'Tag created successfully',
       data: tag,
+      warnings: validation.warnings,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
@@ -217,6 +287,17 @@ const updateTag = async (req, res) => {
     delete req.body.companyId; // Prevent tenant escape
     if (req.body.tagName) req.body.tagName = req.body.tagName.toUpperCase();
 
+    const existing = await Tag.findOne({ _id: req.params.id, companyId: req.companyId });
+    if (!existing) return res.status(404).json({ success: false, message: 'Tag not found in this workspace' });
+    const plcId = req.body.plcConnection === undefined ? existing.plcConnection : req.body.plcConnection;
+    const plc = await getOwnedPLC(req.companyId, plcId);
+    if (plcId && !plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+    req.body.accessType = normalizeAccessType(req.body.accessType || existing.accessType);
+    const validation = validateTagConfiguration({ dataType: req.body.dataType || existing.dataType, accessType: req.body.accessType, plcAddress: req.body.plcAddress === undefined ? existing.plcAddress : req.body.plcAddress }, plc);
+    if (validation.errors.length) return res.status(400).json({ success: false, message: validation.errors.join(' '), errors: validation.errors, warnings: validation.warnings });
+    if (req.body.dataType) req.body.dataType = String(req.body.dataType).toUpperCase();
+    if (req.body.plcAddress !== undefined) req.body.plcAddress = String(req.body.plcAddress || '').trim();
+
     const tag = await Tag.findOneAndUpdate(
       { _id: req.params.id, companyId: req.companyId },
       req.body,
@@ -231,7 +312,7 @@ const updateTag = async (req, res) => {
       await broadcastConfigUpdate(io, req.companyId);
     } catch (e) { }
 
-    res.json({ success: true, message: 'Tag updated successfully', data: tag });
+    res.json({ success: true, message: 'Tag updated successfully', data: tag, warnings: validation.warnings });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
@@ -280,7 +361,7 @@ const writeTagValue = async (req, res) => {
       return res.status(404).json({ success: false, message: `Tag "${tagName || tagId}" not found in workspace` });
     }
 
-    if (tag.accessType === 'READ_ONLY') {
+    if (tag.accessType === 'READ' || tag.accessType === 'READ_ONLY') {
       return res.status(403).json({ success: false, message: `Tag "${tag.tagName}" is read-only` });
     }
 
@@ -390,6 +471,12 @@ const bulkCreateTags = async (req, res) => {
     for (const tagData of tags) {
       try {
         if (tagData.tagName) tagData.tagName = tagData.tagName.toUpperCase();
+        const plc = await getOwnedPLC(req.companyId, tagData.plcConnection);
+        if (tagData.plcConnection && !plc) throw new Error('PLC not found in this workspace');
+        const validation = validateTagConfiguration(tagData, plc);
+        if (validation.errors.length) throw new Error(validation.errors.join(' '));
+        tagData.dataType = String(tagData.dataType || '').toUpperCase();
+        tagData.accessType = normalizeAccessType(tagData.accessType);
         const tag = await Tag.create({ ...tagData, companyId: req.companyId });
         results.created.push(tag.tagName);
       } catch (error) {
@@ -558,8 +645,8 @@ const importTagsCSV = async (req, res) => {
     };
 
     // ✅ Build PLC name → id lookup SCOPED to company
-    const allPLCs = await PLCConnection.find({ companyId: req.companyId }).select('_id name');
-    const plcMap = new Map(allPLCs.map(p => [p.name.toLowerCase().trim(), p._id]));
+    const allPLCs = await PLCConnection.find({ companyId: req.companyId }).select('_id name protocol transportProtocol brand');
+    const plcMap = new Map(allPLCs.map(p => [p.name.toLowerCase().trim(), p]));
 
     const results = { total: rows.length, created: [], updated: [], skipped: [], failed: [] };
     let createdCount = 0;
@@ -584,7 +671,7 @@ const importTagsCSV = async (req, res) => {
         }
 
         const validAccessTypes = ['READ', 'WRITE', 'READ_WRITE'];
-        const accessType = ((row.accesstype || 'READ_WRITE').trim() || 'READ_WRITE').toUpperCase();
+        const accessType = normalizeAccessType((row.accesstype || 'READ_WRITE').trim() || 'READ_WRITE');
         if (!validAccessTypes.includes(accessType)) {
           results.failed.push({ row: rowNum, tagName, error: `Invalid accessType '${row.accesstype}'` });
           continue;
@@ -593,12 +680,12 @@ const importTagsCSV = async (req, res) => {
         let plcConnection = null;
         const plcName = (row.plcname || '').trim();
         if (plcName) {
-          const plcId = plcMap.get(plcName.toLowerCase());
-          if (!plcId) {
+           const plc = plcMap.get(plcName.toLowerCase());
+           if (!plc) {
             results.failed.push({ row: rowNum, tagName, error: `PLC "${plcName}" not found in this workspace` });
             continue;
           }
-          plcConnection = plcId;
+           plcConnection = plc._id;
         }
 
         const parseBool = (v) => {
@@ -635,6 +722,12 @@ const importTagsCSV = async (req, res) => {
           loggingInterval: parseNum(row.logginginterval, 1000),
           enableAlarm: parseBool(row.enablealarm),
         };
+        const selectedPLC = plcConnection ? allPLCs.find(p => String(p._id) === String(plcConnection)) : null;
+        const validation = validateTagConfiguration(tagData, selectedPLC);
+        if (validation.errors.length) {
+          results.failed.push({ row: rowNum, tagName, error: validation.errors.join(' '), warnings: validation.warnings });
+          continue;
+        }
 
         if (upperDataType === 'BOOL') tagData.currentValue = false;
         else if (upperDataType === 'STRING') tagData.currentValue = '';

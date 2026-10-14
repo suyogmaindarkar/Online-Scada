@@ -54,7 +54,7 @@ const checkPLCLimit = async (req) => {
 const createPLC = async (req, res) => {
   try {
     const {
-      name, description, protocol, ipAddress, port,
+       name, description, protocol, transportProtocol, gatewayDeviceAddress, ipAddress, port,
        rack, slot, unitId, brand, model, pollingRate,
       opcuaUsername, opcuaPassword,
     } = req.body;
@@ -77,12 +77,21 @@ const createPLC = async (req, res) => {
     if (protocol === 'S7') defaultPort = 102;
     if (protocol === 'OPC_UA') defaultPort = 4840;
     if (protocol === 'ETHERNET_IP') defaultPort = 44818;
+    if (protocol === 'PROFIBUS_GATEWAY') {
+      if (!['OPC_UA', 'MODBUS_TCP', 'ETHERNET_IP'].includes(transportProtocol)) {
+        return res.status(400).json({ success: false, message: 'Select OPC UA, Modbus TCP, or Ethernet/IP as the Profibus gateway transport.' });
+      }
+      if (transportProtocol === 'OPC_UA') defaultPort = 4840;
+      if (transportProtocol === 'ETHERNET_IP') defaultPort = 44818;
+    }
 
     const plc = await PLCConnection.create({
       companyId: req.companyId,
       name,
       description: description || '',
-      protocol,
+       protocol,
+       transportProtocol: protocol === 'PROFIBUS_GATEWAY' ? transportProtocol : null,
+       gatewayDeviceAddress: protocol === 'PROFIBUS_GATEWAY' ? (gatewayDeviceAddress || '') : '',
       ipAddress: ipAddress || '192.168.1.100',
       port: port || defaultPort,
        rack: rack || 0,
@@ -234,7 +243,8 @@ const testPLCConnection = async (req, res) => {
     }
 
     let service;
-    switch (plc.protocol) {
+    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
+    switch (effectiveProtocol) {
       case 'S7': service = require('../services/s7Service'); break;
       case 'MODBUS_TCP':
       case 'MODBUS_RTU': service = require('../services/modbusService'); break;
@@ -306,7 +316,8 @@ const getPLCStatus = async (req, res) => {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
 
-    const isRunning = plcManager.isRunning(plc._id, plc.protocol);
+    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
+    const isRunning = plcManager.isRunning(plc._id, effectiveProtocol);
     const liveConnected = await isPlcLiveFromEdge(plc, req.companyId);
 
     res.json({

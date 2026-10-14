@@ -91,7 +91,7 @@ const PLCManagement = () => {
   const [testingPLC, setTestingPLC] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502,
+    name: '', description: '', protocol: 'SIMULATION', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 502,
     rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: ''
   });
 
@@ -173,7 +173,7 @@ const PLCManagement = () => {
     } catch (err) { showToast('Creation failed', 'error'); } finally { setCreatingSim(false); }
   };
 
-  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
+  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
   const handleOpenEdit = (plc) => { setEditingPLC(plc); setFormData({ ...plc }); setShowModal(true); };
 
   const handleSubmit = async (e) => {
@@ -353,11 +353,19 @@ const PLCManagement = () => {
                 <option value="S7">Siemens S7</option>
                 <option value="MODBUS_TCP">Modbus TCP</option>
                 <option value="OPC_UA">OPC-UA</option>
-                <option value="ETHERNET_IP">Allen-Bradley (Ethernet/IP)</option>
-                <option value="SIMULATION">Simulation Mode</option>
+                 <option value="ETHERNET_IP">Allen-Bradley (Ethernet/IP)</option>
+                 <option value="PROFIBUS_GATEWAY">Profibus via Gateway</option>
+                 <option value="SIMULATION">Simulation Mode</option>
               </select>
             </div>
           </div>
+          {formData.protocol === 'PROFIBUS_GATEWAY' && <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-3">
+            <p className="text-xs text-blue-800">Profibus requires an industrial gateway that exposes data through OPC UA, Modbus TCP, or Ethernet/IP.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="block text-sm font-semibold mb-1">Gateway Transport *</label><select required name="transportProtocol" value={formData.transportProtocol || 'OPC_UA'} onChange={handleInputChange} className="w-full p-2 border rounded bg-white"><option value="OPC_UA">OPC UA</option><option value="MODBUS_TCP">Modbus TCP</option><option value="ETHERNET_IP">Ethernet/IP</option></select></div>
+              <div><label className="block text-sm font-semibold mb-1">Profibus Device Address</label><input name="gatewayDeviceAddress" value={formData.gatewayDeviceAddress || ''} onChange={handleInputChange} placeholder="Device or mapped tag prefix" className="w-full p-2 border rounded bg-white" /></div>
+            </div>
+          </div>}
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-semibold mb-1">IP Address</label><input name="ipAddress" value={formData.ipAddress} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
             <div><label className="block text-sm font-semibold mb-1">Port</label><input type="number" name="port" value={formData.port} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>

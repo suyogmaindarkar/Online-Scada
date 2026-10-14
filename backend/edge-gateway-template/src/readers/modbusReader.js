@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const ModbusRTU = require('modbus-serial');
+const { CODES, badTag } = require('../utils/diagnostics');
 
 class ModbusReader {
   constructor(plcConfig, verbose = false) {
@@ -108,7 +109,7 @@ class ModbusReader {
   }
 
   async readTags(tags) {
-    if (this.pollInProgress) return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+    if (this.pollInProgress) return tags.map((t) => badTag(t, null, CODES.TIMEOUT));
     this.pollInProgress = true;
     try {
     if (!this.isConnected || !this.client) {
@@ -173,7 +174,7 @@ class ModbusReader {
       this.isConnected = false;
       this._scheduleReconnect();
       console.error(`⚠️ Modbus polling error: ${err.message}`);
-      return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+      return tags.map((t) => badTag(t, null, CODES.CONNECTION_FAILED));
     } finally {
       this.pollInProgress = false;
     }

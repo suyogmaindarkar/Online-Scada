@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════
-// Tag Management — Smart Protocol Guidance & Live Syntax Validation
-// ═══════════════════════════════════════════════════════════
+// Tag Management — protocol guidance and address validation
 
 import React, { useState, useEffect, useRef } from 'react';
 import { tagAPI, plcAPI } from '../services/api';
@@ -38,8 +36,7 @@ const PROTOCOL_GUIDE = {
     ],
     validate: (addr) => {
       if (!addr) return null;
-      if (!addr.includes(';')) return 'OPC-UA address should contain namespace separator semicolon (;) e.g., ns=3;s="DB1"."Tag"';
-      if (!addr.startsWith('ns=') && !addr.startsWith('i=')) return 'OPC-UA address typically starts with ns= or i=';
+      if (!/^(?:ns=\d+;)?(?:s=.+|i=\d+|g=[0-9a-f-]{8,}|b=[A-Za-z0-9+/=]+)$/i.test(addr.trim())) return 'Use a valid OPC UA NodeID such as ns=3;s="DB1"."Tag" or ns=2;i=1085.';
       return null;
     },
     tip: 'Tip: Use UAExpert (free tool) to browse your OPC-UA Server and copy the exact NodeId from Attributes.',
@@ -58,10 +55,10 @@ const PROTOCOL_GUIDE = {
     ],
     validate: (addr) => {
       if (!addr) return null;
-      const upper = addr.toUpperCase();
-      if (!upper.startsWith('DB') && !upper.startsWith('M') && !upper.startsWith('I') && !upper.startsWith('Q')) {
-        return 'S7 addresses must start with DB (Data Block), M (Memory), I (Input), or Q (Output)';
-      }
+      const upper = addr.trim().toUpperCase();
+      if (!/^(?:DB\d+\.(?:DBX\d+\.\d+|DBB\d+|DBW\d+|DBD\d+)|DB\d+,(?:X\d+\.\d+|BYTE\d+|INT\d+|WORD\d+|DINT\d+|REAL\d+|DWORD\d+|S\d+(?:\.\d+)?)|[MIQ](?:[BWD]?\d+|\d+\.\d+))$/.test(upper)) return 'Use S7 syntax such as DB1.DBX0.0, DB1.DBW2, DB1.DBD4, DB1,REAL4, MW0, or M0.0.';
+      const bit = /(?:DBX|,X|[MIQ])\d+\.(\d+)$/.exec(upper);
+      if (bit && Number(bit[1]) > 7) return 'S7 bit offsets must be between 0 and 7.';
       return null;
     },
     tip: 'Tip: Ensure "Permit access with PUT/GET communication" is enabled in TIA Portal CPU settings.',
@@ -84,10 +81,11 @@ const PROTOCOL_GUIDE = {
     ],
     validate: (addr) => {
       if (!addr) return null;
-      if (addr.includes(';')) return 'Warning: Modbus addresses do not use semicolons (;). Use 5-digit format (40001) or Delta names (D0).';
+      if (!/^(0|1|3|4)\d{4}$/.test(addr.trim()) && !/^[DMXYTC]\d+$/.test(addr.trim().toUpperCase())) return 'Use a five-digit Modbus address (00001, 10001, 30001, or 40001) or a Delta device address such as D0, M0, X0, Y0, T0, or C0.';
+      if (['00000', '10000', '30000', '40000'].includes(addr.trim())) return 'Modbus reference addresses start at 00001, 10001, 30001, or 40001.';
       return null;
     },
-    tip: 'Tip: OnlineSCADA auto-detects register offsets automatically across all Modbus devices and simulators.',
+    tip: 'Copy the address from the equipment register map. Confirm Unit ID, data type, and word order. A readable register alone does not prove it is the intended signal.',
   },
   ETHERNET_IP: {
     label: 'Allen-Bradley CIP Tag',
@@ -102,7 +100,7 @@ const PROTOCOL_GUIDE = {
     ],
     validate: (addr) => {
       if (!addr) return null;
-      if (addr.includes(';')) return 'Ethernet/IP tag addresses do not use semicolons (;)';
+      if (!/^(?:Program:[A-Za-z_][\w]*\.)?[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*(?::\d+)?(?:\/\d+)?$/.test(addr.trim())) return 'Use an exact tag name such as Motor1.Speed or Program:MainProgram.Speed. Legacy file syntax requires a compatible controller driver.';
       return null;
     },
     tip: 'Tip: For MicroLogix 1400, enable Modbus TCP mapping in RSLogix 500 Channel Configuration.',
@@ -119,10 +117,24 @@ const PROTOCOL_GUIDE = {
       { label: 'Motor Toggle', value: 'SIM_MOTOR_RUN', type: 'BOOL' },
       { label: 'Counter Inc', value: 'SIM_COUNTER', type: 'INT' },
     ],
-    validate: () => null,
-    tip: 'Simulation tags require no hardware connection and generate live testing data automatically.',
+    validate: (addr) => addr && !(/^(?:SIM_[A-Z][A-Z0-9_]*|(?:0|1|3|4)\d{4})$/.test(addr.trim().toUpperCase())) ? 'Use a simulation name such as SIM_TEMPERATURE or the reserved demo address 40001.' : null,
+    tip: 'Simulation tags use generated values. New tags should use a SIM_ name; existing demo tags may retain reserved addresses such as 40001.',
+  },
+  PROFIBUS: {
+    label: 'Profibus Address', badgeColor: C.teal,
+    placeholder: 'DB1.DBW2 or 40001',
+    hint: 'Use the address syntax exposed by the selected Profibus gateway mapping.',
+    examples: [
+      { label: 'Mapped S7 Word', value: 'DB1.DBW2', type: 'INT' },
+      { label: 'Mapped Holding Register', value: '40001', type: 'INT' },
+      { label: 'Mapped Bit', value: 'DB1.DBX0.0', type: 'BOOL' },
+    ],
+    validate: (addr) => addr && !(/^(DB\d+\.(DBX\d+\.\d+|DBB\d+|DBW\d+|DBD\d+)|[0-4]\d{4})$/.test(addr.trim().toUpperCase())) ? 'Use the address format configured by the gateway, such as DB1.DBW2, DB1.DBX0.0, or 40001.' : null,
+    tip: 'Profibus devices are accessed through the selected gateway. Confirm whether its mapping uses S7 byte addresses or Modbus registers.',
   },
 };
+
+const ACCESS_LABELS = { READ: 'Read', WRITE: 'Write', READ_WRITE: 'Read/Write' };
 
 const TagManagement = () => {
   const { showToast } = useToast();
@@ -165,14 +177,39 @@ const TagManagement = () => {
 
   // Find currently selected PLC in modal
   const selectedPLC = plcs.find(p => p._id === formData.plcConnection);
-  const rawProtocol = selectedPLC?.protocol || 'SIMULATION';
-  const normProtocol = rawProtocol.includes('MODBUS') ? 'MODBUS_TCP'
-    : rawProtocol.includes('OPC') ? 'OPC_UA'
-      : rawProtocol.includes('ETHERNET') ? 'ETHERNET_IP'
-        : rawProtocol;
-
-  const guide = PROTOCOL_GUIDE[normProtocol] || PROTOCOL_GUIDE.MODBUS_TCP;
-  const addressWarning = guide.validate(formData.plcAddress);
+  const rawProtocol = String(selectedPLC?.protocol || 'SIMULATION').toUpperCase();
+  const transportProtocol = String(selectedPLC?.transportProtocol || rawProtocol).toUpperCase();
+  const isProfibusGateway = rawProtocol === 'PROFIBUS_GATEWAY';
+  const transportGuideKey = isProfibusGateway
+    ? (transportProtocol.includes('MODBUS') ? 'MODBUS_TCP'
+      : transportProtocol.includes('OPC') ? 'OPC_UA'
+        : transportProtocol.includes('ETHERNET') ? 'ETHERNET_IP' : 'PROFIBUS')
+    : rawProtocol.includes('MODBUS') ? 'MODBUS_TCP'
+      : rawProtocol.includes('OPC') ? 'OPC_UA'
+        : rawProtocol.includes('ETHERNET') ? 'ETHERNET_IP'
+          : rawProtocol.includes('SIMULATION') ? 'SIMULATION' : rawProtocol;
+  const normProtocol = transportGuideKey;
+  const baseGuide = PROTOCOL_GUIDE[normProtocol] || PROTOCOL_GUIDE.MODBUS_TCP;
+  const guide = isProfibusGateway
+    ? { ...baseGuide, label: `Profibus via ${transportProtocol.replace('_', ' ')}`, tip: `This Profibus connection uses a ${transportProtocol.replace('_', ' ')} gateway. Enter the address exposed by that gateway, not the physical Profibus station number.` }
+    : baseGuide;
+  let addressWarning = guide.validate(formData.plcAddress);
+  const compatibilityWarnings = [];
+  const address = formData.plcAddress.trim().toUpperCase();
+  if (normProtocol === 'S7' && /(?:DBX|,X|[MIQ])\d+\.\d+$/.test(address) && formData.dataType !== 'BOOL') addressWarning = 'An S7 bit address requires BOOL.';
+  if (normProtocol === 'MODBUS_TCP' || normProtocol === 'MODBUS_RTU' || normProtocol === 'DELTA') {
+    if (/^(?:[01]\d{4}|[MXY]\d+)$/.test(address) && formData.dataType !== 'BOOL') addressWarning = 'Coils and discrete inputs require BOOL.';
+    if (/^(?:[13]\d{4}|X\d+)$/.test(address) && formData.accessType !== 'READ') addressWarning = 'Input addresses are read-only. Select Read access.';
+    if (formData.dataType === 'STRING') addressWarning = 'Text decoding is not supported by the current Modbus reader.';
+    if (['REAL', 'DINT', 'DWORD'].includes(formData.dataType) && ['39999', '49999'].includes(address)) addressWarning = 'This 32-bit value needs two registers within the supported area.';
+  }
+  if (formData.dataType === 'BOOL' && normProtocol === 'MODBUS_TCP' && /^\d{5}$/.test(address) && !address.startsWith('0') && !address.startsWith('1')) compatibilityWarnings.push('BOOL is normally mapped to a coil or discrete input (00001 or 10001), not a register address.');
+  if (['REAL', 'DINT', 'DWORD'].includes(formData.dataType) && normProtocol === 'MODBUS_TCP' && /^[0134]\d{4}$/.test(address)) compatibilityWarnings.push(`${formData.dataType} uses two Modbus registers; verify the gateway word order and register span.`);
+  if (normProtocol === 'S7' && address.startsWith('DBX') && formData.dataType !== 'BOOL') compatibilityWarnings.push('DBX is a bit address and is compatible with BOOL only.');
+  if (normProtocol === 'S7' && /DB[WB]\d+$/.test(address) && ['BOOL', 'REAL', 'DINT', 'DWORD'].includes(formData.dataType)) compatibilityWarnings.push('This S7 address width may not match the selected data type; use DBX for BOOL, DBW for 16-bit values, or DBD for 32-bit values.');
+  if (normProtocol === 'SIMULATION' && formData.dataType === 'STRING') compatibilityWarnings.push('Simulation patterns currently generate numeric or boolean values; verify STRING support before saving.');
+   if (isProfibusGateway && transportProtocol.includes('MODBUS') && !/^(?:0|1|3|4)\d{4}$/.test(address) && !/^[DMXYTC]\d+$/.test(address)) compatibilityWarnings.push('This Profibus gateway exposes Modbus mapping; use a five-digit register or supported Delta address.');
+   if (isProfibusGateway && transportProtocol.includes('S7') && !/^DB\d+\./.test(address)) compatibilityWarnings.push('This Profibus gateway exposes S7 mapping; use a DB address such as DB1.DBW2.');
 
   const handleOpenAdd = () => {
     setEditingTag(null);
@@ -193,7 +230,7 @@ const TagManagement = () => {
       plcConnection: tag.plcConnection?._id || tag.plcConnection || '',
       plcAddress: tag.plcAddress || '',
       dataType: tag.dataType || 'BOOL',
-      accessType: tag.accessType || 'READ_WRITE',
+      accessType: tag.accessType === 'READ_ONLY' ? 'READ' : (tag.accessType || 'READ_WRITE'),
       unit: tag.unit || '',
       minValue: tag.minValue ?? 0,
       maxValue: tag.maxValue ?? 100,
@@ -208,18 +245,28 @@ const TagManagement = () => {
       showToast('Please select a PLC connection', 'warning');
       return;
     }
+    if (addressWarning) {
+      showToast(addressWarning, 'warning');
+      return;
+    }
     try {
+      let response;
       if (editingTag) {
-        await tagAPI.update(editingTag._id, formData);
-        showToast(`Tag "${formData.tagName}" updated`, 'success');
+        response = await tagAPI.update(editingTag._id, formData);
       } else {
-        await tagAPI.create(formData);
-        showToast(`Tag "${formData.tagName}" created`, 'success');
+        response = await tagAPI.create(formData);
       }
+      const backendWarnings = response?.data?.warnings || [];
+      backendWarnings.forEach((w) => showToast(w, 'warning', 6000));
+      showToast(`Tag "${formData.tagName}" ${editingTag ? 'updated' : 'created'}`, 'success');
       setShowModal(false);
       loadData();
     } catch (err) {
-      showToast(err.response?.data?.message || 'Operation failed', 'error');
+      const data = err.response?.data;
+      if (Array.isArray(data?.warnings) && data.warnings.length) {
+        data.warnings.forEach((w) => showToast(w, 'warning', 6000));
+      }
+      showToast(data?.message || 'Operation failed', 'error');
     }
   };
 
@@ -340,7 +387,7 @@ const TagManagement = () => {
                           {tag.unit && <span className="ml-1 text-slate-500 font-normal">{tag.unit}</span>}
                         </span>
                       </td>
-                      <td className="p-4 text-xs font-semibold text-slate-500">{tag.accessType === 'READ_ONLY' ? 'Read' : 'Read/Write'}</td>
+                      <td className="p-4 text-xs font-semibold text-slate-500">{ACCESS_LABELS[tag.accessType] || tag.accessType}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button onClick={() => handleOpenEdit(tag)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={15} /></button>
@@ -385,7 +432,7 @@ const TagManagement = () => {
             </div>
           </div>
 
-          {/* 🟢 SMART PROTOCOL-AWARE PLC ADDRESS SECTION */}
+          {/* SMART PROTOCOL-AWARE PLC ADDRESS SECTION */}
           <div className="p-4 rounded-xl border bg-slate-50 space-y-3" style={{ borderColor: C.border }}>
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
@@ -412,6 +459,13 @@ const TagManagement = () => {
               </div>
             )}
 
+            {compatibilityWarnings.map((warning) => (
+              <div key={warning} className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs flex gap-2 items-start">
+                <Info size={16} className="shrink-0 mt-0.5 text-blue-600" />
+                <span>{warning}</span>
+              </div>
+            ))}
+
             {/* CLICK-TO-FILL QUICK EXAMPLES */}
             <div>
               <p className="text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
@@ -422,7 +476,7 @@ const TagManagement = () => {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setFormData({ ...formData, plcAddress: ex.value, dataType: ex.type })}
+                    onClick={() => setFormData({ ...formData, plcAddress: ex.value, dataType: ex.type, accessType: normProtocol === 'MODBUS_TCP' && /^(?:[13]\d{4}|X\d+)$/i.test(ex.value) ? 'READ' : formData.accessType })}
                     className="px-2 py-1 rounded-lg text-[11px] font-mono border bg-white hover:bg-blue-50 hover:border-blue-300 transition-all text-slate-700 cursor-pointer flex items-center gap-1"
                   >
                     <span>{ex.label}:</span>
@@ -434,7 +488,7 @@ const TagManagement = () => {
 
             {/* HELPER TIP */}
             <p className="text-[11px] text-slate-500 italic leading-relaxed pt-1 border-t border-slate-200">
-              💡 {guide.tip}
+              {guide.tip}
             </p>
           </div>
 
@@ -463,8 +517,9 @@ const TagManagement = () => {
                 onChange={e => setFormData({ ...formData, accessType: e.target.value })}
                 className="w-full p-2.5 border rounded-xl text-sm bg-slate-50 outline-none font-semibold"
               >
+                <option value="READ">Read (Display Only)</option>
+                <option value="WRITE">Write (Command Only)</option>
                 <option value="READ_WRITE">Read / Write (Full Control)</option>
-                <option value="READ_ONLY">Read Only (Display Only)</option>
               </select>
             </div>
           </div>

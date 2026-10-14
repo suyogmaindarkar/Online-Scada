@@ -24,7 +24,8 @@ async function compileLiveConfig(companyId) {
       isActive: true,
     });
 
-    let protocol = (plc.protocol || '').toLowerCase();
+    const isProfibusGateway = plc.protocol === 'PROFIBUS_GATEWAY';
+    let protocol = (isProfibusGateway ? plc.transportProtocol : plc.protocol || '').toLowerCase();
     if (protocol === 'modbus_tcp' || protocol === 'modbus_rtu') protocol = 'modbus';
     if (protocol === 'opc_ua' || protocol === 'opc-ua') protocol = 'opcua';
     if (protocol === 'ethernet_ip' || protocol === 'ethernet-ip') protocol = 'ethernet_ip';
@@ -32,6 +33,9 @@ async function compileLiveConfig(companyId) {
     plcConfigArray.push({
       plcId: plc._id.toString(),
       plcName: plc.name,
+      sourceProtocol: plc.protocol,
+      isProfibusGateway,
+      gatewayDeviceAddress: plc.gatewayDeviceAddress || '',
       protocol,
       ip: plc.ipAddress,
       port: plc.port,

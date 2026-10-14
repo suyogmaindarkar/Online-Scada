@@ -10,6 +10,7 @@ const {
   DataType,
   UserTokenType,
 } = require('node-opcua');
+const { CODES, normalizeError } = require('../utils/diagnostics');
 
 const Tag = require('../models/Tag');
 const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
@@ -137,7 +138,8 @@ class OPCUAService {
       return { success: true, client, session };
     } catch (err) {
       console.error(`❌ OPC UA connect failed for ${plc.name}: ${err.message}`);
-      return { success: false, error: err.message };
+      const diagnostic = normalizeError(err, CODES.CONNECTION_FAILED);
+      return { success: false, error: err.message, errorCode: diagnostic.code };
     }
   }
 

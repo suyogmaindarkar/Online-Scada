@@ -74,8 +74,9 @@ class PLCManager {
       };
     }
 
+    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
     let service;
-    switch (plc.protocol) {
+    switch (effectiveProtocol) {
       case 'S7':
         service = require('./s7Service');
         break;
@@ -111,8 +112,9 @@ class PLCManager {
       return await simulationService.writeTag(plcId, tag, value);
     }
 
+    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
     let service;
-    switch (plc.protocol) {
+    switch (effectiveProtocol) {
       case 'S7':
         service = require('./s7Service');
         break;
@@ -146,8 +148,9 @@ class PLCManager {
       return true;
     }
 
+    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
     let service;
-    switch (plc.protocol) {
+    switch (effectiveProtocol) {
       case 'S7':
         service = require('./s7Service');
         break;

@@ -26,7 +26,8 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
   for (const plc of plcs) {
     const tags = await Tag.find({ companyId, plcConnection: plc._id });
 
-    let normalizedProtocol = (plc.protocol || '').toLowerCase();
+    const isProfibusGateway = plc.protocol === 'PROFIBUS_GATEWAY';
+    let normalizedProtocol = (isProfibusGateway ? plc.transportProtocol : plc.protocol || '').toLowerCase();
     if (normalizedProtocol.includes('modbus')) normalizedProtocol = 'modbus';
     if (normalizedProtocol.includes('opc')) normalizedProtocol = 'opcua';
     if (normalizedProtocol.includes('ethernet')) normalizedProtocol = 'ethernet_ip';
@@ -34,6 +35,9 @@ const compileGatewayConfig = async (companyId, gateway, rawKey = null) => {
     plcConfigArray.push({
       plcId: plc._id.toString(),
       plcName: plc.name,
+      sourceProtocol: plc.protocol,
+      isProfibusGateway,
+      gatewayDeviceAddress: plc.gatewayDeviceAddress || '',
       protocol: normalizedProtocol,
       ip: plc.ipAddress,
       port: plc.port,

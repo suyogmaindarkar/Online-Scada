@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const ModbusRTU = require('modbus-serial');
+const { CODES, normalizeError, badTag } = require('../utils/diagnostics');
 
 class ModbusReader {
     constructor(plcConfig, verbose = false) {
@@ -108,11 +109,11 @@ class ModbusReader {
     }
 
     async readTags(tags) {
-        if (this.pollInProgress) return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        if (this.pollInProgress) return tags.map((t) => badTag(t, null, CODES.TIMEOUT));
         this.pollInProgress = true;
         try {
         if (!this.isConnected || !this.client) {
-            return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+            return tags.map((t) => badTag(t, null, CODES.CONNECTION_FAILED));
         }
 
         const results = [];
@@ -160,11 +161,12 @@ class ModbusReader {
                 }
             }
 
-            results.push({
+                results.push({
                 tagId: tag.tagId,
                 tagName: tag.tagName,
                 value: readSuccess ? this._normalize(value, tag.dataType) : null,
-                quality: readSuccess ? 'GOOD' : 'BAD',
+                    quality: readSuccess ? 'GOOD' : 'BAD',
+                    ...(readSuccess ? {} : { errorCode: normalizeError(lastError, CODES.BAD_DEVICE_QUALITY).code, error: lastError?.message }),
             });
         }
 
@@ -173,7 +175,7 @@ class ModbusReader {
             this.isConnected = false;
             this._scheduleReconnect();
             console.error(`⚠️ Modbus polling error: ${err.message}`);
-            return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+            return tags.map((t) => badTag(t, err, CODES.CONNECTION_FAILED));
         } finally {
             this.pollInProgress = false;
         }
@@ -249,7 +251,8 @@ class ModbusReader {
         }
 
         if (!writeSuccess) {
-            throw new Error(`Modbus write failed for "${address}": ${lastErr?.message || 'Unknown'}`);
+            const d = normalizeError(lastErr, CODES.WRITE_PERMISSION_DENIED);
+            throw Object.assign(new Error(`Modbus write failed for "${address}": ${d.message}`), { code: d.code });
         }
     }
 

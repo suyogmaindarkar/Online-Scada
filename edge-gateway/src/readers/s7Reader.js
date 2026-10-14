@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const nodes7 = require('nodes7');
+const { CODES, normalizeError, badTag } = require('../utils/diagnostics');
 
 class S7Reader {
     constructor(plcConfig, verbose = false) {
@@ -73,12 +74,7 @@ class S7Reader {
     readTags(tags) {
         return new Promise((resolve) => {
             if (!this.isConnected || !this.conn) {
-                resolve(tags.map((t) => ({
-                    tagId: t.tagId,
-                    tagName: t.tagName,
-                    value: null,
-                    quality: 'BAD',
-                })));
+                resolve(tags.map((t) => badTag(t, null, CODES.CONNECTION_FAILED)));
                 return;
             }
 
@@ -97,12 +93,7 @@ class S7Reader {
                         }
                         this.isConnected = false;
                         this._scheduleReconnect();
-                        resolve(tags.map((t) => ({
-                            tagId: t.tagId,
-                            tagName: t.tagName,
-                            value: null,
-                            quality: 'BAD',
-                        })));
+                        resolve(tags.map((t) => badTag(t, err, CODES.CONNECTION_FAILED)));
                         return;
                     }
 
@@ -115,6 +106,7 @@ class S7Reader {
                             tagName: t.tagName,
                             value: quality === 'GOOD' ? this._normalizeValue(rawValue, t.dataType) : null,
                             quality,
+                            ...(quality === 'BAD' ? { errorCode: CODES.BAD_DEVICE_QUALITY } : {}),
                         };
                     });
 
@@ -129,12 +121,7 @@ class S7Reader {
                 this.isConnected = false;
                 this._scheduleReconnect();
                 }
-                resolve(tags.map((t) => ({
-                    tagId: t.tagId,
-                    tagName: t.tagName,
-                    value: null,
-                    quality: 'BAD',
-                })));
+                resolve(tags.map((t) => badTag(t, err, CODES.CONNECTION_FAILED)));
             }
         });
     }
@@ -143,20 +130,22 @@ class S7Reader {
     writeTag(address, value, dataType) {
         return new Promise((resolve, reject) => {
             if (!this.isConnected || !this.conn) {
-                return reject(new Error('S7 not connected'));
+                return reject(Object.assign(new Error('S7 not connected'), { code: CODES.CONNECTION_FAILED }));
             }
 
             try {
                 const writeValue = this._denormalizeValue(value, dataType);
                 this.conn.writeItems(address, writeValue, (err) => {
                     if (err) {
-                        reject(new Error(`S7 write failed: ${err}`));
+                        const d = normalizeError(err, CODES.WRITE_PERMISSION_DENIED);
+                        reject(Object.assign(new Error(d.message), { code: d.code }));
                     } else {
                         resolve();
                     }
                 });
             } catch (err) {
-                reject(new Error(`S7 write error: ${err.message}`));
+                const d = normalizeError(err, CODES.WRITE_PERMISSION_DENIED);
+                reject(Object.assign(new Error(d.message), { code: d.code }));
             }
         });
     }
@@ -219,7 +208,7 @@ class S7Reader {
     }
 
     _badResults(tags) {
-        return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        return tags.map((t) => badTag(t, null, CODES.INVALID_ADDRESS));
     }
 
     _convertAddress(tag) {

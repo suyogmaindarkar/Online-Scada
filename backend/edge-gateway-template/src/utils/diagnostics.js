@@ -1,0 +1,11 @@
+// Protocol-independent diagnostic normalization. Kept dependency-free for offline gateways.
+const CODES = Object.freeze({ CONNECTION_FAILED:'CONNECTION_FAILED', TIMEOUT:'TIMEOUT', INVALID_ADDRESS:'INVALID_ADDRESS', BAD_DEVICE_QUALITY:'BAD_DEVICE_QUALITY', UNSUPPORTED_DATA_TYPE:'UNSUPPORTED_DATA_TYPE', READ_PERMISSION_DENIED:'READ_PERMISSION_DENIED', WRITE_PERMISSION_DENIED:'WRITE_PERMISSION_DENIED', UNIT_ID_MISMATCH:'UNIT_ID_MISMATCH' });
+function normalizeError(error, fallbackCode = CODES.CONNECTION_FAILED) {
+    const message = String(error && (error.message || error.description || error) || fallbackCode);
+    const u = message.toUpperCase(); let code = error && CODES[error.code] ? error.code : fallbackCode;
+    if (/TIMEOUT|TIMED OUT|ETIMEDOUT/.test(u)) code=CODES.TIMEOUT; else if (/INVALID.*(ADDRESS|OFFSET)|BAD ADDRESS|NODE.*INVALID/.test(u)) code=CODES.INVALID_ADDRESS; else if (/PERMISSION|ACCESS DENIED|NOT AUTHORIZED|READ.?ONLY/.test(u)) code=/WRITE/.test(u)?CODES.WRITE_PERMISSION_DENIED:CODES.READ_PERMISSION_DENIED; else if (/UNIT.?ID|SLAVE.*ID|DEVICE.*ID/.test(u)) code=CODES.UNIT_ID_MISMATCH; else if (/UNSUPPORTED|UNKNOWN.*TYPE|DATATYPE/.test(u)) code=CODES.UNSUPPORTED_DATA_TYPE;
+    return { code, message };
+}
+function diagnosticResult(result, error, fallbackCode) { if (!error) return result; const d=normalizeError(error,fallbackCode); return Object.assign({},result,{errorCode:d.code,error:d.message}); }
+function badTag(tag,error,fallbackCode=CODES.BAD_DEVICE_QUALITY) { const d=normalizeError(error,fallbackCode); return {tagId:tag.tagId,tagName:tag.tagName,value:null,quality:'BAD',errorCode:d.code,error:d.message}; }
+module.exports={CODES,normalizeError,diagnosticResult,badTag};

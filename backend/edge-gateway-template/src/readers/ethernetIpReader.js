@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const { Controller, Tag } = require('ethernet-ip');
+const { CODES, badTag } = require('../utils/diagnostics');
 
 class EthernetIPReader {
     constructor(plcConfig) {
@@ -25,7 +26,7 @@ class EthernetIPReader {
     }
 
     async readTags(tagList) {
-        if (!this.isConnected) return tagList.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        if (!this.isConnected) return tagList.map(t => badTag(t, null, CODES.CONNECTION_FAILED));
         const results = [];
         for (const t of tagList) {
             try {

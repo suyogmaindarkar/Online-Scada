@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const nodes7 = require('nodes7');
+const { CODES, badTag } = require('../utils/diagnostics');
 
 class S7Reader {
     constructor(plcConfig, verbose = false) {
@@ -234,7 +235,7 @@ class S7Reader {
     }
 
     _badResults(tags) {
-        return tags.map((t) => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        return tags.map((t) => badTag(t, null, CODES.INVALID_ADDRESS));
     }
 
     _convertAddress(tag) {

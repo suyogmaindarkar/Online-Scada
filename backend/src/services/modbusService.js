@@ -13,6 +13,7 @@ const ModbusRTU = require('modbus-serial');
 const Tag = require('../models/Tag');
 const PLCConnection = require('../models/PLCConnection');
 const { writeMultipleTagValues, isInfluxAvailable } = require('./influxService');
+const { CODES, normalizeError } = require('../utils/diagnostics');
 
 const toInfluxValue = (value, dataType) => {
   if (value === null || value === undefined) return null;
@@ -54,7 +55,8 @@ class ModbusService {
       return { success: true, client };
     } catch (error) {
       console.error(`❌ Modbus connection failed for ${plc.name}:`, error.message);
-      return { success: false, error: error.message };
+      const diagnostic = normalizeError(error, CODES.CONNECTION_FAILED);
+      return { success: false, error: error.message, errorCode: diagnostic.code };
     }
   }
 
@@ -308,7 +310,7 @@ class ModbusService {
     const address = parseInt(addressText, 10);
 
     if (isNaN(address)) {
-      throw new Error(`Invalid Modbus address: "${tag.plcAddress}"`);
+      throw Object.assign(new Error(`Invalid Modbus address: "${tag.plcAddress}"`), { code: CODES.INVALID_ADDRESS });
     }
 
     // ─── Holding Registers (40001-49999) ───
@@ -341,7 +343,7 @@ class ModbusService {
     }
     // ─── Input areas are read-only ───
     else if (address >= 10001 && address <= 39999) {
-      throw new Error('Cannot write to Input area (read-only). Use Holding Registers (40001+) or Coils (00001+).');
+      throw Object.assign(new Error('Cannot write to Input area (read-only). Use Holding Registers (40001+) or Coils (00001+).'), { code: CODES.WRITE_PERMISSION_DENIED });
     }
     else {
       throw new Error(`Unsupported write address: ${address}`);

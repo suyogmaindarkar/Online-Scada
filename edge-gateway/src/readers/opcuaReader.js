@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const opcua = require('node-opcua');
+const { CODES, normalizeError, badTag } = require('../utils/diagnostics');
 
 class OPCUAReader {
     constructor(plcConfig) {
@@ -39,7 +40,7 @@ class OPCUAReader {
     }
 
     async readTags(tags) {
-        if (!this.isConnected || !this.session) return tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+        if (!this.isConnected || !this.session) return tags.map(t => badTag(t, null, CODES.CONNECTION_FAILED));
         try {
             const nodes = tags.map(t => ({
                 nodeId: t.address,
@@ -60,19 +61,20 @@ class OPCUAReader {
                     tagId: t.tagId,
                     tagName: t.tagName,
                     value: val !== undefined ? val : null,
-                    quality: dv?.statusCode?.isGood() ? 'GOOD' : 'BAD'
+                    quality: dv?.statusCode?.isGood() ? 'GOOD' : 'BAD',
+                    ...(dv?.statusCode?.isGood() ? {} : { errorCode: CODES.BAD_DEVICE_QUALITY })
                 };
             });
         } catch (e) {
             this.isConnected = false;
             this.lastError = new Error(`OPC-UA read failed: ${e.message}`);
-            return tags.map(t => ({ tagId: t.tagId, tagName: t.tagName, value: null, quality: 'BAD' }));
+            return tags.map(t => badTag(t, e, CODES.BAD_DEVICE_QUALITY));
         }
     }
 
     async writeTag(nodeId, value, dataTypeStr) {
         if (!this.isConnected || !this.session) {
-            throw new Error('OPC-UA session not connected');
+            throw Object.assign(new Error('OPC-UA session not connected'), { code: CODES.CONNECTION_FAILED });
         }
 
         let opcuaDataType = opcua.DataType.Double;
@@ -111,7 +113,8 @@ class OPCUAReader {
         if (statusCode[0].isGood()) {
             return true;
         } else {
-            throw new Error(`OPC-UA write rejected with status: ${statusCode[0].toString()}`);
+            const d = normalizeError(new Error(`OPC-UA write rejected with status: ${statusCode[0].toString()}`), CODES.WRITE_PERMISSION_DENIED);
+            throw Object.assign(new Error(d.message), { code: d.code });
         }
     }
 
