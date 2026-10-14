@@ -299,6 +299,8 @@ const TagManagement = () => {
     setAddressBuilder((b) => ({ ...b, show: !b.show }));
   };
 
+  const closeBuilder = () => setAddressBuilder((b) => ({ ...b, show: false }));
+
   const handleOpenAdd = () => {
     setEditingTag(null);
     const defaultPlc = plcs[0]?._id || '';
@@ -307,6 +309,7 @@ const TagManagement = () => {
       plcAddress: '', dataType: 'BOOL', accessType: 'READ_WRITE',
       unit: '', minValue: 0, maxValue: 100, enableLogging: false,
     });
+    setAddressBuilder((b) => ({ ...b, show: false }));
     setShowModal(true);
   };
 
