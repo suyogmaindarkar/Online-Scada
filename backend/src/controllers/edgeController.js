@@ -101,6 +101,25 @@ const getGateway = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
+const getConnectorStatus = async (req, res) => {
+  try {
+    const gateways = await EdgeGateway.find({ companyId: req.companyId }).sort({ updatedAt: -1 }).lean();
+    const live = gateways.find((gateway) => edgeService.gateways.has(String(gateway._id)));
+    res.json({
+      success: true,
+      data: {
+        connectorOnline: Boolean(live),
+        status: live ? 'online' : (gateways[0]?.status || 'never_connected'),
+        gatewayId: live?._id || gateways[0]?._id || null,
+        lastHeartbeat: live?.lastHeartbeat || gateways[0]?.lastHeartbeat || null,
+        hostname: live?.hostname || gateways[0]?.hostname || '',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Unable to read Factory Connector status' });
+  }
+};
+
 const createGateway = async (req, res) => {
   try {
     const { rawKey, hash, prefix } = EdgeGateway.generateApiKey();
@@ -164,7 +183,7 @@ const downloadCompletePackage = async (req, res) => {
 
     const filesToInclude = [
       'package.json', 'Start.bat', 'Run-In-Background.vbs', 'README.txt',
-      'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/healthMonitor.js',
+      'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/healthMonitor.js', 'src/serviceRuntime.js', 'src/service-entry.js', 'src/pair-connector.js', 'src/secretStore.js',
       'src/readers/s7Reader.js', 'src/readers/modbusReader.js', 
       'src/readers/opcuaReader.js', 'src/readers/ethernetIpReader.js'
     ];
@@ -195,4 +214,4 @@ const deleteGateway = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-module.exports = { getGateways, getGateway, createGateway, updateGateway, regenerateApiKey, downloadGatewayConfig, downloadCompletePackage, deleteGateway };
+module.exports = { getGateways, getGateway, getConnectorStatus, createGateway, updateGateway, regenerateApiKey, downloadGatewayConfig, downloadCompletePackage, deleteGateway };

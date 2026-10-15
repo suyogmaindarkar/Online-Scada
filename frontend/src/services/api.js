@@ -154,7 +154,7 @@ export const equipmentAPI = {
   start: (id) => api.post('/equipment/' + id + '/start'),
   stop:  (id) => api.post('/equipment/' + id + '/stop'),
   restart: (id) => api.post('/equipment/' + id + '/restart'),
-  connectorStatus: () => api.get('/equipment/status'),
+   connectorStatus: () => api.get('/edge/status'),
 };
 
 export const tagAPI = {

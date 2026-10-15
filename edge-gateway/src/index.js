@@ -6,6 +6,7 @@ const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
 const runtime = require('./serviceRuntime');
+const secretStore = require('./secretStore');
 
 const RUNTIME_PATHS = runtime.getPaths();
 
@@ -17,6 +18,7 @@ async function main() {
     runtime.ensureRuntimeFolders(RUNTIME_PATHS);
     const releaseInstance = runtime.acquireSingleInstance(RUNTIME_PATHS);
     let config = loadConfig();
+    config.apiKey = secretStore.loadSecret(config, RUNTIME_PATHS);
 
     const state = {
         cloudConnected: false,

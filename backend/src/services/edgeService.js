@@ -86,7 +86,7 @@ class EdgeService {
 
         this.socketToGateway.set(socket.id, gatewayId);
 
-        EdgeGateway.findByIdAndUpdate(gatewayId, {
+        EdgeGateway.findOneAndUpdate({ _id: gatewayId, companyId }, {
             status: 'online',
             lastHeartbeat: new Date(),
             ipAddress: socket.handshake.address || '',
@@ -117,7 +117,7 @@ class EdgeService {
             gateway.lastDbHeartbeat = now;
             const updateData = { status: 'online', lastHeartbeat: new Date() };
             if (data) updateData.stats = data;
-            EdgeGateway.findByIdAndUpdate(socket.gatewayId, updateData).catch(() => { });
+            EdgeGateway.findOneAndUpdate({ _id: socket.gatewayId, companyId: socket.companyId }, updateData).catch(() => { });
         }
         if (Array.isArray(data?.equipmentStatuses)) {
             for (const status of data.equipmentStatuses) {
@@ -211,7 +211,7 @@ class EdgeService {
         if (!gateway) return;
         if (gateway.heartbeatTimer) clearTimeout(gateway.heartbeatTimer);
         this.gateways.delete(gatewayId);
-        EdgeGateway.findByIdAndUpdate(gatewayId, { status: 'offline' }).catch(() => { });
+        EdgeGateway.findOneAndUpdate({ _id: gatewayId, companyId: gateway.companyId }, { status: 'offline' }).catch(() => { });
         console.log(`🔴 Edge Gateway OFFLINE: ${gateway.name} | reason=${reason}`);
     }
 

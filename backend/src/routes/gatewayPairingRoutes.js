@@ -14,7 +14,7 @@ router.post('/redeem', redeemPairing);
 
 // ─── PROTECTED — website UI (admin/engineer) ───
 router.use(userProtect);
-router.post('/', authorize('admin', 'engineer'), createPairing);
-router.get('/status', authorize('admin', 'engineer'), getPairingStatus);
+router.post('/', authorize('admin'), createPairing);
+router.get('/status', authorize('admin'), getPairingStatus);
 
 module.exports = router;

@@ -330,9 +330,14 @@ const PLCManagement = () => {
           </div>
 
           {/* REMOVED: disabled rule blocking download when PLC count is 0 */}
-          <ActionButton variant="emerald" icon={FolderArchive} onClick={handleDownloadCompletePackage} disabled={downloadingPackage} loading={downloadingPackage}>
-            {downloadingPackage ? 'Preparing...' : 'Download Connector'}
-          </ActionButton>
+          <div className="flex items-center gap-2 flex-wrap">
+            <ActionButton variant="secondary" icon={KeyRound} onClick={() => setShowSetupModal(true)}>
+              Pair Connector
+            </ActionButton>
+            <ActionButton variant="emerald" icon={FolderArchive} onClick={handleDownloadCompletePackage} disabled={downloadingPackage} loading={downloadingPackage}>
+              {downloadingPackage ? 'Preparing...' : 'Download Connector'}
+            </ActionButton>
+          </div>
         </div>
       </div>
 

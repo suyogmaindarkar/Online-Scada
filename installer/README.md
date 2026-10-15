@@ -26,6 +26,24 @@ The runtime directory may contain the additional files required by that Node.js 
 
 Do not distribute this installer until the runtime is bundled, the package dependencies are included, and the installer is code-signed.
 
+## Build and validate
+
+On a Windows release machine:
+
+```bat
+installer\build-installer.bat
+```
+
+The build stops if the approved runtime or Inno Setup compiler is missing.
+
+Optional PowerShell release-input validation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\validate-release.ps1
+```
+
+The installer must be tested on a clean Windows machine before customer distribution.
+
 ## Service commands for developer testing
 
 From an elevated Command Prompt, after setting the connector installation path:

@@ -23,17 +23,17 @@ Source: "..\edge-gateway\src\*.js"; DestDir: "{app}\src"; Flags: ignoreversion r
 Source: "..\edge-gateway\package.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\edge-gateway\package-lock.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 ; Release builds must place the approved portable Node.js runtime here.
-Source: "runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs skipifsourcedoesntexist
+Source: "runtime\node.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
+Source: "runtime\README.txt"; DestDir: "{app}\runtime"; Flags: ignoreversion
+Source: "pair-connector.bat"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
 Name: "{commonappdata}\OnlineSCADA\Factory Connector"
 Name: "{commonappdata}\OnlineSCADA\Factory Connector\logs"
 
 [Run]
-Filename: "{sys}\sc.exe"; Parameters: "create {#ServiceName} binPath= \\"{code:GetNodePath}\" \"{app}\src\service-entry.js\" start= auto DisplayName= \"{#AppName}\""; Flags: runhidden waituntilterminated; StatusMsg: "Registering background service..."
-Filename: "{sys}\sc.exe"; Parameters: "description {#ServiceName} \"Runs the OnlineSCADA Factory Connector in the background.\""; Flags: runhidden waituntilterminated
+Filename: "{sys}\sc.exe"; Parameters: "create {#ServiceName} binPath= ""{code:GetNodePath}"" ""{app}\src\service-entry.js"" start= auto DisplayName= ""{#AppName}"""; Flags: runhidden waituntilterminated; StatusMsg: "Registering background service..."
 Filename: "{sys}\sc.exe"; Parameters: "failure {#ServiceName} reset= 86400 actions= restart/5000/restart/15000/restart/60000"; Flags: runhidden waituntilterminated
-Filename: "{sys}\sc.exe"; Parameters: "start {#ServiceName}"; Flags: runhidden waituntilterminated; StatusMsg: "Starting OnlineSCADA Factory Connector..."
 
 [UninstallRun]
 Filename: "{sys}\sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated

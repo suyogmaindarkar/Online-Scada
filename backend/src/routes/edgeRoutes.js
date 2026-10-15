@@ -3,6 +3,7 @@ const router = express.Router();
 const {
     getGateways,
     getGateway,
+    getConnectorStatus,
     createGateway,
     updateGateway,
     regenerateApiKey,
@@ -15,6 +16,7 @@ const { userProtect, authorize } = require('../middleware/auth');
 router.use(userProtect);
 
 router.get('/', authorize('admin', 'engineer'), getGateways);
+router.get('/status', authorize('admin', 'engineer'), getConnectorStatus);
 router.get('/:id', authorize('admin', 'engineer'), getGateway);
 router.get('/:id/config', authorize('admin', 'engineer'), downloadGatewayConfig);
 router.get('/:id/download-package', authorize('admin', 'engineer'), downloadCompletePackage); // 🆕

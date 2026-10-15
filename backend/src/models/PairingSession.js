@@ -21,12 +21,10 @@ const pairingSessionSchema = new mongoose.Schema(
     },
 
     // Short, human-enterable pairing code, e.g. "ABCD-1234"
-    code: {
+    codeHash: {
       type: String,
       required: true,
       unique: true,
-      uppercase: true,
-      trim: true,
       index: true,
     },
 
@@ -95,6 +93,11 @@ pairingSessionSchema.statics.generateCode = function () {
     return out;
   };
   return `${part(4)}-${part(4)}`;
+};
+
+pairingSessionSchema.statics.hashCode = function (code) {
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(String(code).trim().toUpperCase()).digest('hex');
 };
 
 module.exports = mongoose.model('PairingSession', pairingSessionSchema);

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --max-old-space-size=4096 server.js",
     "dev": "nodemon --max-old-space-size=4096 server.js",
-    "simulate:protocols": "node scripts/protocol-simulator.js"
+    "simulate:protocols": "node scripts/protocol-simulator.js",
+    "test": "node --test test/*.test.js"
   },
   "keywords": [],
   "author": "",
