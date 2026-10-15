@@ -123,10 +123,31 @@ async function main() {
         }
     });
 
-    // Refresh UI state every second
+    // ─── REMOTE EQUIPMENT COMMANDS (start/stop/restart from website) ───
+    cloudBridge.onEquipmentCommand((cmd) => {
+        plcReader.handleEquipmentCommand(cmd).catch((err) => {
+            console.error('[x] Equipment command error:', err.message);
+            cloudBridge.sendEquipmentCommandResult({
+                requestId: cmd && cmd.requestId,
+                equipmentId: cmd && cmd.equipmentId,
+                action: cmd && cmd.action,
+                success: false,
+                state: 'error',
+                message: 'Internal command error: ' + err.message,
+            });
+        });
+    });
+
+    // ─── PER-EQUIPMENT STATUS PUSH (every 3s) so the website shows live states ───
+    let statusTick = 0;
     setInterval(() => {
         state.cloudConnected = cloudBridge.isConnected;
         renderDashboard();
+        statusTick += 1;
+        if (statusTick % 3 === 0 && cloudBridge.isConnected) {
+            const statuses = plcReader.getEquipmentStatuses();
+            if (statuses.length > 0) cloudBridge.sendEquipmentStatuses(statuses);
+        }
     }, 1000);
 
     renderDashboard();

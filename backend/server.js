@@ -134,6 +134,8 @@ app.use('/api/discovery', require('./src/routes/discoveryRoutes'));
 app.use('/api/leads', require('./src/routes/leadsRoutes'));
 app.use('/api/signup', require('./src/routes/signupRoutes'));
 app.use('/api/edge', require('./src/routes/edgeRoutes'));
+app.use('/api/edge-pairing', require('./src/routes/gatewayPairingRoutes'));
+app.use('/api/equipment', require('./src/routes/equipmentCommandRoutes'));
 
 app.set('io', io);
 

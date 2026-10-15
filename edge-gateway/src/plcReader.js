@@ -181,6 +181,173 @@ class PLCReader {
         this.readers.clear();
     }
 
+    // ─── PER-EQUIPMENT LIFECYCLE (remote start/stop from website) ───
+
+    // Stop a single equipment's reader + interval. Returns the reader.
+    stopOnePLC(plcId) {
+        const k = String(plcId);
+        if (this.intervals.has(k)) clearInterval(this.intervals.get(k));
+        this.intervals.delete(k);
+        this.readers.delete(k);
+        this.polling.delete(k);
+        this.previousValues.delete(k);
+    }
+
+    // Start (or restart) a single equipment's reader using its config entry.
+    async startOnePLC(plcConfig) {
+        if (!plcConfig) return { ok: false, error: 'no config' };
+        const k = String(plcConfig.plcId || '');
+        if (!k) return { ok: false, error: 'missing plcId' };
+
+        // Stop existing instance first (idempotent)
+        this.stopOnePLC(k);
+
+        const protocol = (plcConfig.protocol || '').toLowerCase();
+
+        let reader;
+        if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
+        else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
+        else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
+        else if (protocol.includes('ethernet') || protocol === 'ab') reader = new EthernetIPReader(plcConfig, this.verbose);
+        else return { ok: false, error: 'unsupported protocol: ' + protocol };
+
+        let connected = false;
+        try { connected = await reader.connect(); } catch (e) { connected = false; }
+        this.readers.set(k, reader);
+
+        const pollMs = plcConfig.pollIntervalMs || 1000;
+        const intervalId = setInterval(() => this._pollPLC(k, plcConfig), pollMs);
+        this.intervals.set(k, intervalId);
+
+        if (!connected) {
+            console.warn('[!] Connection pending for ' + plcConfig.plcName + ' (' + plcConfig.ip + ':' + plcConfig.port + ')');
+            return { ok: false, pending: true, error: 'connection pending / unreachable' };
+        }
+        console.log('[+] Equipment online: ' + plcConfig.plcName + ' (' + plcConfig.ip + ':' + plcConfig.port + ')');
+        return { ok: true, connected: true };
+    }
+
+    // Handle a remote start/stop/restart command from the cloud, then reply via
+    // the cloudBridge with a status so the website shows the result instantly.
+    async handleEquipmentCommand(cmd) {
+        const { requestId, equipmentId, action, payload } = cmd || {};
+        const plcId = equipmentId ? String(equipmentId) : '';
+        const reply = { requestId, equipmentId, action };
+
+        if (!plcId) {
+            this.cloudBridge.sendEquipmentCommandResult({ ...reply, success: false, state: 'error', message: 'Missing equipment id' });
+            return;
+        }
+
+        // Resolve the matching config entry (current config or via plcId)
+        const allConfigs = this.config.plcs || [];
+        let plcConfig = allConfigs.find((p) => String(p.plcId) === plcId);
+        const found = Boolean(plcConfig) || this.readers.has(plcId);
+
+        // start
+        if (action === 'start') {
+            if (!plcConfig) {
+                this.cloudBridge.sendEquipmentCommandResult({
+                    ...reply, success: false, state: 'not_configured', message: 'Equipment config not delivered yet. Try again in a few seconds.',
+                });
+                return;
+            }
+            const result = await this.startOnePLC(plcConfig);
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply,
+                success: result.ok && result.connected,
+                state: result.ok ? 'streaming' : 'failed',
+                message: result.ok ? 'Equipment data is streaming' : (result.error || 'Equipment connection failed'),
+            });
+            return;
+        }
+
+        // stop
+        if (action === 'stop') {
+            this.stopOnePLC(plcId);
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply, success: true, state: 'stopped', message: 'Equipment connection stopped',
+            });
+            return;
+        }
+
+        // restart
+        if (action === 'restart') {
+            if (!plcConfig) {
+                this.cloudBridge.sendEquipmentCommandResult({
+                    ...reply, success: false, state: 'not_configured', message: 'Equipment config not available',
+                });
+                return;
+            }
+            const result = await this.startOnePLC(plcConfig);
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply,
+                success: result.ok && result.connected,
+                state: result.ok ? 'streaming' : 'failed',
+                message: result.ok ? 'Equipment restarted and polling' : (result.error || 'Restart failed'),
+            });
+            return;
+        }
+
+        // unknown
+        this.cloudBridge.sendEquipmentCommandResult({
+            ...reply, success: false, state: 'error', message: 'Unknown command: ' + action,
+        });
+    }
+
+    // Build a fresh status array for the heartbeat — used by index.js so the
+    // website shows per-equipment state (connector vs equipment vs tags) distinctly.
+    getEquipmentStatuses() {
+        const statuses = [];
+        for (const plcConfig of (this.config.plcs || [])) {
+            const plcId = String(plcConfig.plcId || '');
+            const reader = this.readers.get(plcId);
+            const active = plcConfig.isActive !== false;
+            let state = 'stopped';
+            let message = 'Connection is disabled';
+            let isConnected = false;
+            let hasTags = false;
+            let tagCount = (plcConfig.tags || []).length;
+            let lastDataAt = plcConfig.lastDataAt || null;
+
+            if (active) {
+                if (plcConfig.isSimulation) {
+                    state = 'connected';
+                    message = 'Simulation is running';
+                    isConnected = true;
+                    hasTags = Boolean(tagCount);
+                } else if (!reader) {
+                    state = 'waiting_connector';
+                    message = 'Factory Connector online, equipment config pending';
+                } else {
+                    // Blocking happens in index.js via _pollPLC errors; here we just report
+                    // based on interval + reader existence. Actual value freshness comes later.
+                    state = 'connecting';
+                    message = 'Reader created, awaiting tag data';
+                    try {
+                        const fresh = plcConfig.__freshData || false;
+                        if (fresh) { state = 'streaming'; message = 'Equipment data is streaming'; isConnected = true; hasTags = true; }
+                    } catch (e) { }
+                }
+            } else {
+                continue; // disabled equipments not reported
+            }
+
+            statuses.push({
+                plcId,
+                plcName: plcConfig.plcName || plcConfig.name || plcConfig.ip,
+                state,
+                message,
+                isConnected,
+                hasTags: Boolean(tagCount),
+                tagCount,
+                lastDataAt,
+                timestamp: Date.now(),
+            });
+        }
+        return statuses;
+    }
+
     getStats() {
         return { ...this.stats };
     }

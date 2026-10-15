@@ -99,6 +99,7 @@ class EdgeService {
         socket.on('edge:heartbeat', (data) => this._handleHeartbeat(socket, data));
         socket.on('edge:tagValues', (data) => this._handleTagValues(socket, data));
         socket.on('edge:writeResult', (data) => this._handleWriteResult(socket, data));
+        socket.on('edge:equipmentCommandResult', (data) => this._handleEquipmentCommandResult(socket, data));
         socket.on('disconnect', (reason) => this._handleDisconnect(socket, reason));
     }
 
@@ -236,6 +237,48 @@ class EdgeService {
         const result = {};
         for (const [tagName, data] of companyCache) result[tagName] = data;
         return result;
+    }
+
+    // ─── REMOTE EQUIPMENT COMMAND RELAY (installer/service feature) ───
+    // Sends start/stop/restart/reload to this company's Factory Connector
+    // over the /edge namespace with requestId. Multi-tenant safe.
+    sendEquipmentCommand(companyId, { equipmentId, action, payload = {} }, opts = {}) {
+        const companyStr = String(companyId);
+        let gatewayInfo = null;
+        for (const [gid, info] of this.gateways) {
+            if (info.companyId === companyStr) { gatewayInfo = { gid, ...info }; break; }
+        }
+        if (!gatewayInfo || !gatewayInfo.socketId) {
+            return { ok: false, code: 'CONNECTOR_OFFLINE', message: 'Factory Connector is offline' };
+        }
+        if (!this.edgeNamespace) {
+            return { ok: false, code: 'NOT_INITIALIZED', message: 'Edge bridge not ready' };
+        }
+        const requestId = crypto.randomUUID ? crypto.randomUUID() : `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        this.edgeNamespace.to(gatewayInfo.socketId).emit('edge:equipmentCommand', {
+            requestId,
+            equipmentId,
+            action,
+            payload,
+            timestamp: Date.now(),
+        });
+        return { ok: true, requestId, message: 'Command sent to Factory Connector' };
+    }
+
+    // Forward the connector's reply to every browser in the company room.
+    _handleEquipmentCommandResult(socket, data) {
+        if (!this.mainIo) return;
+        const { requestId, equipmentId, action, success, state, message, error } = data || {};
+        this.mainIo.to('company:' + socket.companyId).emit('equipmentCommandResult', {
+            requestId,
+            equipmentId,
+            action: action || 'unknown',
+            success: success !== false,
+            state: state || 'unknown',
+            message: message || '',
+            error: error || null,
+            timestamp: Date.now(),
+        });
     }
 
     hasActiveGateway(companyId) {

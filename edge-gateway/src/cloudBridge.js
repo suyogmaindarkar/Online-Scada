@@ -14,6 +14,7 @@ class CloudBridge {
         this.writeCallback = null;
         this.configCallback = null;
         this.discoveryCallback = null;
+        this.equipmentCommandCallback = null;
     }
 
     connect() {
@@ -84,6 +85,11 @@ class CloudBridge {
                 } else if (this.configCallback) {
                     this.configCallback({ plcs: this.config.plcs || [] });
                 }
+            });
+
+            this.socket.on('edge:equipmentCommand', (data) => {
+                if (this.verbose) console.log('[in] Equipment command from cloud: ' + (data && data.action ? data.action : 'unknown'));
+                if (this.equipmentCommandCallback) this.equipmentCommandCallback(data || {});
             });
 
             this.socket.on('edge:heartbeatAck', () => {
@@ -164,6 +170,24 @@ class CloudBridge {
     sendError(message) {
         if (!this.isConnected || !this.socket) return;
         this.socket.emit('edge:error', { message, timestamp: Date.now() });
+    }
+
+    onEquipmentCommand(callback) { this.equipmentCommandCallback = callback; }
+
+    // Reply to a start/stop/restart command from the cloud
+    sendEquipmentCommandResult(data) {
+        if (!this.isConnected || !this.socket) return;
+        this.socket.emit('edge:equipmentCommandResult', data);
+    }
+
+    // Push live equipment state in the heartbeat (state: connecting/streaming/failed/stopped)
+    sendEquipmentStatuses(statuses) {
+        if (!this.isConnected || !this.socket || !Array.isArray(statuses)) return;
+        this.socket.emit('edge:heartbeat', {
+            status: 'ok',
+            equipmentStatuses: statuses,
+            stats: { uptime: Math.floor(process.uptime()), tags: statuses.length },
+        });
     }
 
     onWriteCommand(callback) { this.writeCallback = callback; }

@@ -3,18 +3,20 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef } from 'react';
-import { plcAPI } from '../services/api';
+import { plcAPI, pairingAPI, equipmentAPI } from '../services/api';
 import api from '../services/api';
 import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import FactoryConnectorSetup from '../components/FactoryConnectorSetup';
 import {
   Plus, Edit2, Trash2, Play, Pause, Cpu, Wifi, WifiOff, Loader2, Sparkles,
   Download, Upload, FileText, Search, Radar, Signal, SignalHigh, SignalLow,
   CheckCircle2, ShieldCheck, Microscope, RefreshCw, ChevronDown, ChevronUp,
   Zap, Package, Hash, Tag, Server, Settings2, CheckCircle, Network, FolderArchive,
-  Info, Key, MapPin, Monitor, Lightbulb, Hexagon, Box, Layers, Timer, AlertCircle
+  Info, Key, MapPin, Monitor, Lightbulb, Hexagon, Box, Layers, Timer, AlertCircle,
+  HardDrive, KeyRound, Power
 } from 'lucide-react';
 
 const C = {
@@ -89,6 +91,8 @@ const PLCManagement = () => {
   const [gateway, setGateway] = useState(null);
   const [downloadingPackage, setDownloadingPackage] = useState(false);
   const [testingPLC, setTestingPLC] = useState(null);
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [commandingId, setCommandingId] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '', description: '', protocol: 'SIMULATION', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 502,
@@ -107,8 +111,21 @@ const PLCManagement = () => {
       } : p));
     };
     socketService.on('plcStatus', handlePlcStatus);
+    const handleCommandResult = (data) => {
+      if (!data) return;
+      const label = data.action === 'start' ? 'Start' : data.action === 'stop' ? 'Stop' : 'Restart';
+      if (data.success) showToast(`${label} confirmed: ${data.message || 'equipment OK'}`, 'success', 5000);
+      else showToast(`${label} failed: ${data.error || data.message || 'unknown error'}`, 'error', 7000);
+      setCommandingId(null);
+      loadPLCs();
+    };
+    socketService.on('equipmentCommandResult', handleCommandResult);
     const statusInterval = setInterval(() => { loadPLCs(); loadGateway(); }, 8000);
-    return () => { socketService.off('plcStatus', handlePlcStatus); clearInterval(statusInterval); };
+    return () => {
+      socketService.off('plcStatus', handlePlcStatus);
+      socketService.off('equipmentCommandResult', handleCommandResult);
+      clearInterval(statusInterval);
+    };
   }, []);
 
   // Poll for Discovery Progress via HTTP to circumvent complex socket namespace routing
@@ -189,10 +206,32 @@ const PLCManagement = () => {
 
   const handleStartStop = async (plc) => {
     try {
-      if (plc.isConnected) { await plcAPI.stop(plc._id); showToast(`Stopped`, 'info'); }
-      else { await plcAPI.start(plc._id); showToast(`Started`, 'success'); }
-      setTimeout(loadPLCs, 1000);
+      setCommandingId(plc._id);
+      const res = plc.isConnected ? await equipmentAPI.stop(plc._id) : await equipmentAPI.start(plc._id);
+      const d = res?.data;
+      if (d?.code === 'CONNECTOR_OFFLINE') {
+        showToast(d.message || 'Factory Connector is offline. Start it first.', 'warning', 7000);
+        setShowSetupModal(true);
+      } else if (d?.success) {
+        showToast(d.message || (plc.isConnected ? 'Stop command sent' : 'Start command sent'), 'success', 5000);
+      } else {
+        showToast(d?.message || 'Command could not be delivered', 'error', 6000);
+      }
+      setTimeout(loadPLCs, 1200);
     } catch (err) { showToast('Operation failed', 'error'); }
+    finally { setCommandingId(null); }
+  };
+
+  const handleRestartConnection = async (plc) => {
+    try {
+      setCommandingId(plc._id);
+      const res = await equipmentAPI.restart(plc._id);
+      const d = res?.data;
+      if (d?.code === 'CONNECTOR_OFFLINE') showToast(d.message || 'Factory Connector is offline', 'warning', 6000);
+      else showToast(d?.message || 'Restart command sent', d?.success ? 'success' : 'info', 5000);
+      setTimeout(loadPLCs, 1200);
+    } catch (err) { showToast('Restart failed', 'error'); }
+    finally { setCommandingId(null); }
   };
 
   const handleTestConnection = async (plc) => {
@@ -381,6 +420,8 @@ const PLCManagement = () => {
       </Modal>
 
       <ConfirmDialog isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Remove Equipment?" message="Are you sure you want to delete this machine?" confirmText="Delete" confirmColor="red" icon="warning" />
+
+      <FactoryConnectorSetup open={showSetupModal} onClose={() => setShowSetupModal(false)} gateway={gateway} onRefresh={loadGateway} />
 
       {/* ═══════════ DISCOVERY MODAL ═══════════ */}
       <Modal isOpen={showDiscoveryModal} onClose={() => { setShowDiscoveryModal(false); setScanning(false); setScanResults(null); }} title="Discover Equipment on Network" size="xl">

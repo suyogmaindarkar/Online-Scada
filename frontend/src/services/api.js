@@ -144,6 +144,19 @@ export const plcAPI = {
   importCSV: (csvText, mode = 'create') => api.post('/plc/import/csv', { csvText, mode }),
 };
 
+// Factory Connector install/pairing flow
+export const pairingAPI = {
+  create: () => api.post('/edge-pairing'),
+  status: () => api.get('/edge-pairing/status'),
+};
+// Remote equipment start/stop/restart
+export const equipmentAPI = {
+  start: (id) => api.post('/equipment/' + id + '/start'),
+  stop:  (id) => api.post('/equipment/' + id + '/stop'),
+  restart: (id) => api.post('/equipment/' + id + '/restart'),
+  connectorStatus: () => api.get('/equipment/status'),
+};
+
 export const tagAPI = {
   getAll: (filters = {}) => api.get(`/tags?${new URLSearchParams(filters)}`),
   getOne: (id) => api.get(`/tags/${id}`),

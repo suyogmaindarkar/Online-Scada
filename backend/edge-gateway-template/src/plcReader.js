@@ -125,6 +125,107 @@ class PLCReader {
         }
     }
 
+    // ─── REMOTE EQUIPMENT COMMANDS (start/stop/restart from website) ───
+    stopOnePLC(plcId) {
+        const k = String(plcId);
+        if (this.intervals.has(k)) clearInterval(this.intervals.get(k));
+        this.intervals.delete(k);
+        this.readers.delete(k);
+        this.polling.delete(k);
+        this.previousValues.delete(k);
+        const status = this.statuses.get(k);
+        if (status) { status.state = 'stopped'; status.message = 'Connection is stopped'; status.isConnected = false; }
+    }
+
+    async startOnePLC(plcConfig) {
+        if (!plcConfig) return { ok: false, error: 'no config' };
+        const k = String(plcConfig.plcId);
+        this.stopOnePLC(k);
+        const protocol = (plcConfig.protocol || '').toLowerCase();
+
+        let reader;
+        try {
+            if (protocol === 's7') reader = new S7Reader(plcConfig);
+            else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig);
+            else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig);
+            else if (protocol.includes('ethernet') || protocol === 'ab') reader = new EthernetIPReader(plcConfig);
+            else return { ok: false, error: 'unsupported protocol' };
+
+            const success = await reader.connect();
+            this.readers.set(k, reader);
+            const intervalId = setInterval(() => this._pollPLC(k, plcConfig), plcConfig.pollIntervalMs || 1000);
+            this.intervals.set(k, intervalId);
+
+            if (success === false || reader.isConnected === false) {
+                this._setStatus(plcConfig, 'failed', 'Equipment connection failed');
+                return { ok: false, error: 'connection failed' };
+            }
+            this._setStatus(plcConfig, 'connected', 'Equipment connected');
+            return { ok: true, connected: true };
+        } catch (err) {
+            this._setStatus(plcConfig, 'failed', 'Equipment connection failed', { error: err.message });
+            return { ok: false, error: err.message };
+        }
+    }
+
+    async handleEquipmentCommand(cmd) {
+        const { requestId, equipmentId, action } = cmd || {};
+        const plcId = equipmentId ? String(equipmentId) : '';
+        const reply = { requestId, equipmentId, action };
+
+        if (!plcId) {
+            this.cloudBridge.sendEquipmentCommandResult({ ...reply, success: false, state: 'error', message: 'Missing equipment id' });
+            return;
+        }
+
+        const plcConfig = (this.config.plcs || []).find((p) => String(p.plcId) === plcId);
+
+        if (action === 'start') {
+            if (!plcConfig) {
+                this.cloudBridge.sendEquipmentCommandResult({
+                    ...reply, success: false, state: 'not_configured', message: 'Equipment config not delivered yet. Try again shortly.',
+                });
+                return;
+            }
+            const result = await this.startOnePLC(plcConfig);
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply,
+                success: result.ok,
+                state: result.ok ? 'streaming' : 'failed',
+                message: result.ok ? 'Equipment data is streaming' : (result.error || 'Equipment connection failed'),
+            });
+            return;
+        }
+
+        if (action === 'stop') {
+            this.stopOnePLC(plcId);
+            if (plcConfig) this._setStatus(plcConfig, 'stopped', 'Connection is stopped');
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply, success: true, state: 'stopped', message: 'Equipment connection stopped',
+            });
+            return;
+        }
+
+        if (action === 'restart') {
+            if (!plcConfig) {
+                this.cloudBridge.sendEquipmentCommandResult({
+                    ...reply, success: false, state: 'not_configured', message: 'Equipment config not available',
+                });
+                return;
+            }
+            const result = await this.startOnePLC(plcConfig);
+            this.cloudBridge.sendEquipmentCommandResult({
+                ...reply,
+                success: result.ok,
+                state: result.ok ? 'streaming' : 'failed',
+                message: result.ok ? 'Equipment restarted and polling' : (result.error || 'Restart failed'),
+            });
+            return;
+        }
+
+        this.cloudBridge.sendEquipmentCommandResult({ ...reply, success: false, state: 'error', message: 'Unknown command: ' + action });
+    }
+
     async handleWriteCommand(cmd) {
         for (const [, reader] of this.readers) {
             try {

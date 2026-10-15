@@ -113,6 +113,20 @@ async function main() {
         cloudBridge.reportDiscovery('completed', results);
     });
 
+        // ─── REMOTE EQUIPMENT COMMANDS from website ───
+    cloudBridge.onEquipmentCommand((cmd) => {
+        plcReader.handleEquipmentCommand(cmd).catch((err) => {
+            cloudBridge.sendEquipmentCommandResult({
+                requestId: cmd && cmd.requestId,
+                equipmentId: cmd && cmd.equipmentId,
+                action: cmd && cmd.action,
+                success: false,
+                state: 'error',
+                message: 'Command error: ' + err.message,
+            });
+        });
+    });
+
     setInterval(() => { state.cloudConnected = cloudBridge.isConnected; renderDashboard(); }, 1000);
     renderDashboard();
 

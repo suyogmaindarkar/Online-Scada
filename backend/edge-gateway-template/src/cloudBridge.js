@@ -30,6 +30,7 @@ class CloudBridge {
             this.socket.on('edge:writeCommand', (data) => { if (this.writeCallback) this.writeCallback(data); });
             this.socket.on('edge:configUpdate', (data) => { if (this.configCallback && Array.isArray(data?.plcs)) this.configCallback(data); });
             this.socket.on('edge:startDiscovery', (options) => { if (this.discoveryCallback) this.discoveryCallback(options); });
+            this.socket.on('edge:equipmentCommand', (data) => { if (this.equipmentCommandCallback) this.equipmentCommandCallback(data || {}); });
 
             setTimeout(() => resolve(), 4000);
         });
@@ -54,6 +55,12 @@ class CloudBridge {
                 results
             });
         }
+    }
+
+    onEquipmentCommand(cb) { this.equipmentCommandCallback = cb; }
+
+    sendEquipmentCommandResult(data) {
+        if (this.isConnected && this.socket) this.socket.emit('edge:equipmentCommandResult', data);
     }
 
     onWriteCommand(cb) { this.writeCallback = cb; }
