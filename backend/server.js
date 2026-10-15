@@ -1,6 +1,9 @@
 // ═══════════════════════════════════════════════════════════
 // Server Entry Point — OnlineSCADA Backend (Production Hardened)
 // ═══════════════════════════════════════════════════════════
+
+// Public Edge Status Route
+app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
 const dns = require('dns');
 // 🔒 Force Node.js to resolve IPv4 addresses first across all network operations (fixes Render.com email/SMTP timeouts)
 if (dns.setDefaultResultOrder) {
@@ -136,7 +139,9 @@ app.use('/api/signup', require('./src/routes/signupRoutes'));
 app.use('/api/edge', require('./src/routes/edgeRoutes'));
 app.use('/api/edge-pairing', require('./src/routes/gatewayPairingRoutes'));
 app.use('/api/equipment', require('./src/routes/equipmentCommandRoutes'));
-
+// Register edge pairing routes
+app.use('/api/edge-pairing', require('./src/routes/edgePairingRoutes'));
+app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════

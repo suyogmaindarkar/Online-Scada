@@ -2,23 +2,20 @@
 // OnlineSCADA Factory Connector — Fixed Screen SCADA Dashboard
 // ═══════════════════════════════════════════════════════════
 
-const path = require('path');
-const fs = require('fs');
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
+const runtime = require('./serviceRuntime');
 
-const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
+const RUNTIME_PATHS = runtime.getPaths();
 
 function loadConfig() {
-    if (!fs.existsSync(CONFIG_PATH)) {
-        console.error('[ERROR] config.json missing in workspace.');
-        process.exit(1);
-    }
-    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+    return runtime.loadConfig(RUNTIME_PATHS);
 }
 
 async function main() {
+    runtime.ensureRuntimeFolders(RUNTIME_PATHS);
+    const releaseInstance = runtime.acquireSingleInstance(RUNTIME_PATHS);
     let config = loadConfig();
 
     const state = {
@@ -155,6 +152,15 @@ async function main() {
     await cloudBridge.connect();
     await plcReader.startAll();
     healthMonitor.start();
+
+    runtime.installShutdownHandlers({
+        release: releaseInstance,
+        stop: async () => {
+            healthMonitor.stop();
+            plcReader.stopAll();
+            cloudBridge.disconnect();
+        },
+    });
 
     state.cloudConnected = true;
     renderDashboard();
