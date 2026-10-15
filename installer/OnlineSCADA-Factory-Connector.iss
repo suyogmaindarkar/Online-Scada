@@ -27,6 +27,7 @@ Source: "runtime\node.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "runtime\README.txt"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "pair-connector.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-service.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "install-service.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
 Name: "{commonappdata}\OnlineSCADA\Factory Connector"
