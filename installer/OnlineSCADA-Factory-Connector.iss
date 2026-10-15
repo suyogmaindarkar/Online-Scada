@@ -22,6 +22,7 @@ SolidCompression=yes
 Source: "..\edge-gateway\src\*.js"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs
 Source: "..\edge-gateway\package.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\edge-gateway\package-lock.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\edge-gateway\node_modules\*"; DestDir: "{app}\node_modules"; Flags: ignoreversion recursesubdirs
 ; Release builds must place the approved portable Node.js runtime here.
 Source: "runtime\node.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "runtime\README.txt"; DestDir: "{app}\runtime"; Flags: ignoreversion
@@ -38,8 +39,7 @@ Filename: "{sys}\sc.exe"; Parameters: "create {#ServiceName} binPath= ""{code:Ge
 Filename: "{sys}\sc.exe"; Parameters: "failure {#ServiceName} reset= 86400 actions= restart/5000/restart/15000/restart/60000"; Flags: runhidden waituntilterminated
 
 [UninstallRun]
-Filename: "{sys}\sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated
-Filename: "{sys}\sc.exe"; Parameters: "delete {#ServiceName}"; Flags: runhidden waituntilterminated
+Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\service-uninstall.js"""; Flags: runhidden waituntilterminated
 
 [Code]
 function GetNodePath(Param: String): String;

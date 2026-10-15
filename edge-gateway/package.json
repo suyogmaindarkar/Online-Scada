@@ -10,10 +10,11 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "socket.io-client": "^4.7.5",
-    "nodes7": "^0.3.14",
+    "ethernet-ip": "^2.0.0",
     "modbus-serial": "^8.0.17",
     "node-opcua": "^2.130.0",
-    "ethernet-ip": "^2.0.0"
+    "node-windows": "^1.0.0-beta.8",
+    "nodes7": "^0.3.14",
+    "socket.io-client": "^4.7.5"
   }
 }
