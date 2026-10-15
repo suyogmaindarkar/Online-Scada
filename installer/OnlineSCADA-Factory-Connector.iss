@@ -35,14 +35,7 @@ Name: "{commonappdata}\OnlineSCADA\Factory Connector"
 Name: "{commonappdata}\OnlineSCADA\Factory Connector\logs"
 
 [Run]
-Filename: "{sys}\sc.exe"; Parameters: "create {#ServiceName} binPath= ""{code:GetNodePath}"" ""{app}\src\service-entry.js"" start= auto DisplayName= ""{#AppName}"""; Flags: runhidden waituntilterminated; StatusMsg: "Registering background service..."
-Filename: "{sys}\sc.exe"; Parameters: "failure {#ServiceName} reset= 86400 actions= restart/5000/restart/15000/restart/60000"; Flags: runhidden waituntilterminated
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\install-service.ps1"" -InstallDir ""{app}"""; Flags: runhidden waituntilterminated; StatusMsg: "Registering background service..."
 
 [UninstallRun]
 Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\service-uninstall.js"""; Flags: runhidden waituntilterminated
-
-[Code]
-function GetNodePath(Param: String): String;
-begin
-  Result := ExpandConstant('{app}\runtime\node.exe');
-end;
