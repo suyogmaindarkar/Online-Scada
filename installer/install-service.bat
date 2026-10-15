@@ -9,12 +9,11 @@ if "%~1"=="" (
 set "INSTALL_DIR=%~1"
 set "SERVICE_NAME=OnlineSCADAFactoryConnector"
 set "DISPLAY_NAME=OnlineSCADA Factory Connector"
-set "NODE_EXE=node.exe"
+set "NODE_EXE=%INSTALL_DIR%\runtime\node.exe"
 set "ENTRY=%INSTALL_DIR%\src\service-entry.js"
 
-where %NODE_EXE% >nul 2>nul
-if errorlevel 1 (
-  echo Node.js LTS was not found. Install the approved runtime before registering the service.
+if not exist "%NODE_EXE%" (
+  echo Bundled Node.js runtime was not found: %NODE_EXE%
   exit /b 3
 )
 
