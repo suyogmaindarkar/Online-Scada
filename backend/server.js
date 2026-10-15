@@ -1,11 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// Server Entry Point — OnlineSCADA Backend (Production Hardened)
+// Server Entry Point — OnlineSCADA Backend (Hardened Production)
 // ═══════════════════════════════════════════════════════════
-
-// Public Edge Status Route
-app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
 const dns = require('dns');
-// 🔒 Force Node.js to resolve IPv4 addresses first across all network operations (fixes Render.com email/SMTP timeouts)
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
@@ -20,11 +16,12 @@ const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
-const discoveryRoutes = require('./src/routes/discoveryRoutes');
+
 const { initInflux, closeInflux, isInfluxAvailable } = require('./src/services/influxService');
 const trendRoutes = require('./src/routes/trendRoutes');
 const connectDB = require('./src/config/database');
 
+// 🟢 1. Initialize Express App First!
 const app = express();
 const server = http.createServer(app);
 
@@ -65,7 +62,6 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      console.warn(`⚠️  CORS blocked origin: ${origin}`);
       return callback(new Error(`CORS: origin ${origin} not allowed`), false);
     },
     credentials: true,
@@ -108,7 +104,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/tags/write', writeLimiter);
 app.use('/api/signup', signupLimiter);
 app.use('/api/workspace/register', signupLimiter);
-app.use('/api/discovery', discoveryRoutes);
+
 // ═══════════════════════════════════════════════════════════
 // DATABASE CONNECTION + AUTO-SEED
 // ═══════════════════════════════════════════════════════════
@@ -121,6 +117,10 @@ app.use('/api/discovery', discoveryRoutes);
 // ═══════════════════════════════════════════════════════════
 // API ROUTES
 // ═══════════════════════════════════════════════════════════
+
+// 🟢 Public Edge Status Route (NOW PLACED PROPERLY AFTER APP INITIALIZATION)
+app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
+
 app.use('/api/workspace', require('./src/routes/workspaceRoutes'));
 app.use('/api/super-admin', require('./src/routes/superAdminRoutes'));
 app.use('/api/auth', require('./src/routes/authRoutes'));
@@ -137,11 +137,8 @@ app.use('/api/discovery', require('./src/routes/discoveryRoutes'));
 app.use('/api/leads', require('./src/routes/leadsRoutes'));
 app.use('/api/signup', require('./src/routes/signupRoutes'));
 app.use('/api/edge', require('./src/routes/edgeRoutes'));
-app.use('/api/edge-pairing', require('./src/routes/gatewayPairingRoutes'));
-app.use('/api/equipment', require('./src/routes/equipmentCommandRoutes'));
-// Register edge pairing routes
 app.use('/api/edge-pairing', require('./src/routes/edgePairingRoutes'));
-app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
+
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════
@@ -173,37 +170,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ✉️ DIRECT EMAIL TEST ENDPOINT FOR SUYOG
-app.get('/api/test-email', async (req, res) => {
-  const { sendWelcomeEmail } = require('./src/services/emailService');
-  const targetEmail = req.query.to || process.env.SMTP_USER || 'suyogmaindarkar@gmail.com';
-  try {
-    const result = await sendWelcomeEmail({
-      email: targetEmail,
-      fullName: 'Suyog Maindarkar (Test)',
-      companyName: 'OnlineSCADA Test',
-      slug: 'test-workspace',
-    });
-
-    res.json({
-      success: result.sent,
-      message: result.sent ? `Email sent successfully to ${targetEmail}` : `Email failed: ${result.reason}`,
-      config: {
-        smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-        smtpPort: process.env.SMTP_PORT || '465',
-        smtpUser: process.env.SMTP_USER || 'Not set',
-        hasPass: !!process.env.SMTP_PASS,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-      stack: err.stack,
-    });
-  }
-});
-
 // ═══════════════════════════════════════════════════════════
 // SERVICE INITIALIZATION
 // ═══════════════════════════════════════════════════════════
@@ -216,7 +182,6 @@ alarmEngine.init(io);
 const timeService = require('./src/services/timeService');
 timeService.init(io);
 
-// ─── Edge Gateway Service (Phase B) ───────────────────────
 const edgeService = require('./src/services/edgeService');
 const edgeNamespace = io.of('/edge');
 edgeService.init(edgeNamespace, io);
@@ -228,31 +193,21 @@ setTimeout(() => {
 }, 3000);
 
 // ═══════════════════════════════════════════════════════════
-// SOCKET.IO — MULTI-TENANT AUTHENTICATED (Browser Clients)
+// SOCKET.IO (Browser Clients)
 // ═══════════════════════════════════════════════════════════
 io.use(async (socket, next) => {
   try {
-    const token =
-      socket.handshake.auth?.token ||
-      socket.handshake.query?.token;
-
-    if (!token) {
-      console.warn(`🔒 Socket ${socket.id} rejected — no auth token`);
-      return next(new Error('AUTH_REQUIRED'));
-    }
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+    if (!token) return next(new Error('AUTH_REQUIRED'));
 
     let payload;
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      console.warn(`🔒 Socket ${socket.id} rejected — invalid token: ${err.message}`);
       return next(new Error('AUTH_INVALID'));
     }
 
-    if (payload.type !== 'user') {
-      console.warn(`🔒 Socket ${socket.id} rejected — wrong token type: ${payload.type}`);
-      return next(new Error('WRONG_TOKEN_TYPE'));
-    }
+    if (payload.type !== 'user') return next(new Error('WRONG_TOKEN_TYPE'));
 
     socket.userId = payload.userId;
     socket.companyId = String(payload.companyId);
@@ -260,7 +215,6 @@ io.use(async (socket, next) => {
 
     next();
   } catch (err) {
-    console.error('Socket auth error:', err.message);
     next(new Error('AUTH_FAILED'));
   }
 });
@@ -269,8 +223,6 @@ io.on('connection', async (socket) => {
   const companyRoom = `company:${socket.companyId}`;
   socket.join(companyRoom);
 
-  console.log(`🔌 Socket connected: ${socket.id} | company=${socket.companyId} | role=${socket.userRole}`);
-
   socket.emit('welcome', {
     message: 'Connected to OnlineSCADA Server',
     socketId: socket.id,
@@ -278,15 +230,9 @@ io.on('connection', async (socket) => {
     role: socket.userRole,
   });
 
-  // ─── Send Initial Tags (from DB + Edge Cache) ──────────
   try {
     const Tag = require('./src/models/Tag');
-    const tags = await Tag.find({
-      companyId: socket.companyId,
-      isActive: true,
-    });
-
-    // Merge DB values with edge cache (edge cache is fresher)
+    const tags = await Tag.find({ companyId: socket.companyId, isActive: true });
     const edgeCache = edgeService.getTagCache(socket.companyId);
 
     const initialData = tags.map((tag) => {
@@ -301,19 +247,14 @@ io.on('connection', async (socket) => {
     });
 
     socket.emit('initialTags', initialData);
-
-    // Also send edge gateway status for this company
-    const hasGateway = edgeService.hasActiveGateway(socket.companyId);
     socket.emit('edgeStatus', {
-      hasActiveGateway: hasGateway,
+      hasActiveGateway: edgeService.hasActiveGateway(socket.companyId),
       gateways: edgeService.getCompanyGateways(socket.companyId),
     });
   } catch (err) {
     console.error('Error sending initial tags:', err.message);
   }
 
-  // ─── Write Tag (Browser → Cloud → Edge/Sim) ────────────
-  // ─── Write Tag (Browser Event / HMI Event Actions) ───────
   socket.on('writeTag', async (data) => {
     try {
       if (socket.userRole === 'viewer') {
@@ -323,15 +264,13 @@ io.on('connection', async (socket) => {
 
       const Tag = require('./src/models/Tag');
       const query = { companyId: socket.companyId };
-
       if (data.tagId) query._id = data.tagId;
       else if (data.tagName) query.tagName = data.tagName;
       else return;
 
       const tag = await Tag.findOne(query);
-
       if (!tag) {
-        socket.emit('error', { message: `Tag "${data.tagName || data.tagId}" not found in workspace` });
+        socket.emit('error', { message: `Tag "${data.tagName || data.tagId}" not found` });
         return;
       }
 
@@ -340,8 +279,6 @@ io.on('connection', async (socket) => {
         return;
       }
 
-      // ─── 1. Forward to Edge Gateway ────────────────────
-      const edgeService = require('./src/services/edgeService');
       const hasEdge = edgeService.hasActiveGateway(socket.companyId);
 
       if (hasEdge && !tag.isSimulationTag) {
@@ -361,14 +298,12 @@ io.on('connection', async (socket) => {
           socket.emit('writeAck', {
             tagName: tag.tagName,
             status: 'pending',
-            message: 'Write command sent to PLC via Edge Gateway',
+            message: 'Write command sent via Edge Gateway',
           });
           return;
         }
       }
 
-      // ─── 2. Fallback: Write via plcManager ──────────────
-      const plcManager = require('./src/services/plcManager');
       await plcManager.writeTag(tag.plcConnection, tag, data.value);
 
       tag.currentValue = data.value;
@@ -383,41 +318,34 @@ io.on('connection', async (socket) => {
         source: 'socket-write',
       }]);
     } catch (err) {
-      console.error('❌ socket writeTag error:', err.message);
       socket.emit('error', { message: err.message });
     }
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log(`❌ Socket disconnected: ${socket.id}`);
   });
 });
 
 // ═══════════════════════════════════════════════════════════
-// ERROR HANDLING
+// ERROR HANDLING & SHUTDOWN
 // ═══════════════════════════════════════════════════════════
 const { notFound, errorHandler } = require('./src/middleware/errorHandler');
 app.use(notFound);
 app.use(errorHandler);
 
-// ═══════════════════════════════════════════════════════════
-// GRACEFUL SHUTDOWN
-// ═══════════════════════════════════════════════════════════
 process.on('SIGINT', async () => {
-  console.log('\n⏹️  Shutting down server...');
   try {
     plcManager.stopAll();
     alarmEngine.stop();
     timeService.stop();
     edgeService.stop();
     await closeInflux();
-  } catch (e) {
-    console.error('Shutdown error:', e.message);
-  }
+  } catch (e) { }
   process.exit(0);
 });
 
 const PORT = process.env.PORT || 5000;
-
 server.listen(PORT, () => {
-  console.log('╔════════════════════════════════════════════════════════╗');
-  console.log(`║  🚀 OnlineSCADA Server running on port ${PORT}            ║`);
-  console.log('║  🌐 Edge Gateway namespace: /edge                     ║');
-  console.log('╚════════════════════════════════════════════════════════╝');
+  console.log(`🚀 OnlineSCADA Server running on port ${PORT}`);
 });
