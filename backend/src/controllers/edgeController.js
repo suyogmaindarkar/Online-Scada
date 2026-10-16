@@ -185,7 +185,7 @@ const downloadCompletePackage = async (req, res) => {
       'package.json', 'Start.bat', 'Run-In-Background.vbs', 'README.txt',
       'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/healthMonitor.js', 'src/serviceRuntime.js', 'src/service-entry.js', 'src/pair-connector.js', 'src/secretStore.js',
       'src/readers/s7Reader.js', 'src/readers/modbusReader.js', 
-      'src/readers/opcuaReader.js', 'src/readers/ethernetIpReader.js'
+      'src/readers/opcuaReader.js', 'src/readers/ethernetIpReader.js', 'src/utils/opcuaNodeId.js'
     ];
 
     for (const file of filesToInclude) {

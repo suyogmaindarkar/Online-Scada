@@ -24,6 +24,16 @@ const normalizeProtocol = (plc) => {
   if (plc.protocol === 'MODBUS_TCP' || plc.protocol === 'MODBUS_RTU') return plc.protocol;
   return plc.protocol;
 };
+const isValidOpcuaNodeId = (value) => {
+  const address = String(value || '').trim();
+  if (!/^(?:ns=\d+;)?(?:s=.+|i=\d+|g=[0-9a-f-]{8,}|b=[A-Za-z0-9+/=]+)$/i.test(address)) return false;
+  if (/^(?:ns=\d+;)?s=/i.test(address)) {
+    const identifier = address.replace(/^(?:ns=\d+;)?s=/i, '');
+    if (!identifier || /[;\r\n]/.test(identifier)) return false;
+    if (((identifier.match(/"/g) || []).length % 2) !== 0) return false;
+  }
+  return true;
+};
 const validateTagConfiguration = (data, plc) => {
   const errors = [], warnings = [];
   const type = String(data.dataType || '').toUpperCase();
@@ -39,12 +49,12 @@ const validateTagConfiguration = (data, plc) => {
     MODBUS_TCP: /^(?:0\d{4}|1\d{4}|3\d{4}|4\d{4}|[DMXYTC]\d+)$/i,
     MODBUS_RTU: /^(?:0\d{4}|1\d{4}|3\d{4}|4\d{4}|[DMXYTC]\d+)$/i,
     DELTA: /^(?:[DMXYTC]\d+)$/i,
-    OPC_UA: /^(?:(?:ns=\d+;)?(?:s=.+|i=\d+|g=[0-9a-f-]{8,}|b=[A-Za-z0-9+/=]+))$/i,
+    OPC_UA: isValidOpcuaNodeId,
     ETHERNET_IP: /^(?:Program:[A-Za-z_][\w]*\.)?[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*(?::\d+)?(?:\/\d+)?$/,
     SIMULATION: /^(?:SIM_[A-Z][A-Z0-9_]*|0\d{4}|1\d{4}|3\d{4}|4\d{4})$/i,
   };
   if (!address && protocol !== 'SIMULATION') errors.push(`An address is required for ${protocol}.`);
-  else if (address && patterns[protocol] && !patterns[protocol].test(address)) errors.push(`Address '${address}' is not valid for ${protocol}.`);
+  else if (address && patterns[protocol] && !(typeof patterns[protocol] === 'function' ? patterns[protocol](address) : patterns[protocol].test(address))) errors.push(`Address '${address}' is not valid for ${protocol}.`);
   if (!patterns[protocol]) errors.push('The equipment has no supported transport configured.');
   if (protocol === 'S7') {
     const bit = /(?:DBX|,X|[MIQ])\d+\.(\d+)$/i.exec(address);
@@ -803,4 +813,5 @@ module.exports = {
   exportTagsCSV,
   importTagsCSV,
   downloadTagTemplate,
+  validateTagConfiguration,
 };

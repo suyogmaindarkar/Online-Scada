@@ -4,6 +4,7 @@
 
 const opcua = require('node-opcua');
 const { CODES, normalizeError, badTag } = require('../utils/diagnostics');
+const { isValidOpcuaNodeId } = require('../utils/opcuaNodeId');
 
 class OPCUAReader {
     constructor(plcConfig) {
@@ -41,14 +42,20 @@ class OPCUAReader {
 
     async readTags(tags) {
         if (!this.isConnected || !this.session) return tags.map(t => badTag(t, null, CODES.CONNECTION_FAILED));
+        const results = tags.map((tag) => ({ tag, result: null }));
+        const valid = results.filter(({ tag }) => isValidOpcuaNodeId(tag.address));
+        for (const item of results.filter(({ tag }) => !isValidOpcuaNodeId(tag.address))) {
+            item.result = badTag(item.tag, new Error(`Invalid OPC-UA NodeId: ${item.tag.address}`), CODES.INVALID_ADDRESS);
+        }
+        if (valid.length === 0) return results.map(({ result }) => result);
         try {
-            const nodes = tags.map(t => ({
-                nodeId: t.address,
+            const nodes = valid.map(({ tag }) => ({
+                nodeId: tag.address,
                 attributeId: opcua.AttributeIds.Value
             }));
             const dataValues = await this.session.read(nodes);
 
-            return tags.map((t, index) => {
+            valid.forEach(({ tag }, index) => {
                 const dv = dataValues[index];
                 let val = dv?.value?.value;
 
@@ -57,18 +64,38 @@ class OPCUAReader {
                     val = Number(val);
                 }
 
-                return {
-                    tagId: t.tagId,
-                    tagName: t.tagName,
+                const result = {
+                    tagId: tag.tagId,
+                    tagName: tag.tagName,
                     value: val !== undefined ? val : null,
                     quality: dv?.statusCode?.isGood() ? 'GOOD' : 'BAD',
                     ...(dv?.statusCode?.isGood() ? {} : { errorCode: CODES.BAD_DEVICE_QUALITY })
                 };
+                results.find((item) => item.tag === tag).result = result;
             });
-        } catch (e) {
-            this.isConnected = false;
-            this.lastError = new Error(`OPC-UA read failed: ${e.message}`);
-            return tags.map(t => badTag(t, e, CODES.BAD_DEVICE_QUALITY));
+            return results.map(({ result }) => result);
+        } catch (batchError) {
+            // A single bad NodeId should not turn every tag into null. Retry
+            // valid nodes individually and keep the OPC-UA session alive.
+            for (const item of valid) {
+                try {
+                    const dataValues = await this.session.read([{ nodeId: item.tag.address, attributeId: opcua.AttributeIds.Value }]);
+                    const dv = dataValues[0];
+                    let val = dv?.value?.value;
+                    if (typeof val === 'bigint') val = Number(val);
+                    item.result = {
+                        tagId: item.tag.tagId,
+                        tagName: item.tag.tagName,
+                        value: val !== undefined ? val : null,
+                        quality: dv?.statusCode?.isGood() ? 'GOOD' : 'BAD',
+                        ...(dv?.statusCode?.isGood() ? {} : { errorCode: CODES.BAD_DEVICE_QUALITY })
+                    };
+                } catch (error) {
+                    item.result = badTag(item.tag, error, CODES.BAD_DEVICE_QUALITY);
+                }
+            }
+            this.lastError = new Error(`OPC-UA read degraded: ${batchError.message}`);
+            return results.map(({ result }) => result);
         }
     }
 

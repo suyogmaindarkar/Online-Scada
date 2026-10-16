@@ -77,6 +77,16 @@ class PLCReader {
             const values = await reader.readTags(tags);
             if (!values || values.length === 0) return;
 
+            const goodValues = values.filter((value) => value.quality === 'GOOD');
+            if (goodValues.length > 0) {
+                plcConfig.__freshData = true;
+                plcConfig.lastDataAt = Date.now();
+                this.stats.totalReads += goodValues.length;
+                this.stats._readsThisSecond += goodValues.length;
+            } else {
+                this.stats.totalErrors += values.length;
+            }
+
             const changed = [];
             const now = Date.now();
 
