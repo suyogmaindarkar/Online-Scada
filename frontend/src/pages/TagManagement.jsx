@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { tagAPI, plcAPI } from '../services/api';
+import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
@@ -164,6 +165,17 @@ const TagManagement = () => {
 
   useEffect(() => {
     loadData();
+    const handleTagsUpdate = (updates = []) => {
+      if (!Array.isArray(updates)) return;
+      const byName = new Map(updates.filter((item) => item?.tagName).map((item) => [item.tagName, item]));
+      if (byName.size === 0) return;
+      setTags((current) => current.map((tag) => {
+        const update = byName.get(tag.tagName);
+        return update ? { ...tag, currentValue: update.value, currentQuality: update.quality, lastValueAt: update.timestamp } : tag;
+      }));
+    };
+    socketService.on('tagsUpdate', handleTagsUpdate);
+    return () => socketService.off('tagsUpdate', handleTagsUpdate);
   }, []);
 
   const loadData = async () => {

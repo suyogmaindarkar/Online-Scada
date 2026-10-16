@@ -153,7 +153,18 @@ const PLCManagement = () => {
     return () => clearInterval(interval);
   }, [scanning]);
 
-  const loadPLCs = async () => { try { const res = await plcAPI.getAll(); setPlcs(res.data.data); } catch (err) { } finally { setLoading(false); } };
+  const loadPLCs = async () => {
+    try {
+      const res = await plcAPI.getAll();
+      const incoming = res.data.data || [];
+      setPlcs((current) => incoming.map((plc) => {
+        const live = current.find((item) => item._id === plc._id);
+        return live?.connectionState
+          ? { ...plc, isConnected: live.isConnected, connectionState: live.connectionState, connectionMessage: live.connectionMessage, lastDataAt: live.lastDataAt }
+          : plc;
+      }));
+    } catch (err) { } finally { setLoading(false); }
+  };
   const loadGateway = async () => { try { const res = await api.get('/edge'); setGateway(res?.data?.data?.[0] || null); } catch (err) { } };
 
   const handleDownloadCompletePackage = async () => {
