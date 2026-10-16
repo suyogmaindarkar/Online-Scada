@@ -43,6 +43,7 @@ class HealthMonitor {
             totalReads: readerStats.totalReads || 0,
             totalErrors: readerStats.totalErrors || 0,
             equipmentStatuses: readerStats.equipmentStatuses || [],
+            connectorMetrics: this.cloudBridge.metrics ? { ...this.cloudBridge.metrics } : {},
         };
 
         this.cloudBridge.sendHeartbeat(stats);

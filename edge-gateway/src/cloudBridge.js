@@ -15,6 +15,16 @@ class CloudBridge {
         this.configCallback = null;
         this.discoveryCallback = null;
         this.equipmentCommandCallback = null;
+        this.metrics = {
+            reconnectAttempts: 0,
+            connectionErrors: 0,
+            heartbeatSent: 0,
+            heartbeatSkipped: 0,
+            tagBatchesSent: 0,
+            tagsSent: 0,
+            connectedAt: null,
+            lastHeartbeatAt: null,
+        };
     }
 
     connect() {
@@ -44,6 +54,7 @@ class CloudBridge {
 
             this.socket.on('connect', () => {
                 this.isConnected = true;
+                this.metrics.connectedAt = new Date().toISOString();
                 console.log(`[+] Connected to Cloud Server! (Session: ${this.socket.id})`);
                 resolve();
             });
@@ -58,6 +69,8 @@ class CloudBridge {
             });
 
             this.socket.on('connect_error', (err) => {
+                this.metrics.connectionErrors += 1;
+                this.metrics.reconnectAttempts += 1;
                 console.error(`[ERROR] Cloud Connection Failed: ${err.message}`);
                 if (err.message.includes('AUTH_INVALID') || err.message.includes('AUTH_')) {
                     console.error(`[!] Fix: Download a fresh Connector Package (new API key).`);
@@ -142,13 +155,20 @@ class CloudBridge {
         if (!tags || tags.length === 0) return;
 
         this.socket.emit('edge:tagValues', { tags });
+        this.metrics.tagBatchesSent += 1;
+        this.metrics.tagsSent += tags.length;
         const sample = tags.slice(0, 3).map((t) => `${t.tagName}=${t.value}`).join(', ');
         // We removed terminal spam rules, but keep this brief
         if (this.verbose) console.log(`[out] Streamed ${tags.length} tag(s): ${sample}${tags.length > 3 ? '...' : ''}`);
     }
 
     sendHeartbeat(stats) {
-        if (!this.isConnected || !this.socket) return;
+        if (!this.isConnected || !this.socket) {
+            this.metrics.heartbeatSkipped += 1;
+            return;
+        }
+        this.metrics.heartbeatSent += 1;
+        this.metrics.lastHeartbeatAt = new Date().toISOString();
         this.socket.emit('edge:heartbeat', {
             version: '1.0.0',
             hostname: os.hostname(),
@@ -159,6 +179,7 @@ class CloudBridge {
             tagsReadPerSecond: stats.tagsReadPerSecond || 0,
             totalReads: stats.totalReads || 0,
             totalErrors: stats.totalErrors || 0,
+            connectorMetrics: { ...this.metrics },
         });
     }
 
