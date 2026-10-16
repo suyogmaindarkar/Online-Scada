@@ -208,6 +208,12 @@ const UserSelection = () => {
           company={company}
           onClose={handleClosePasswordModal}
           onSuccess={(user) => {
+            const redirect = sessionStorage.getItem('connectorAuthorizationRedirect');
+            if (redirect) {
+              sessionStorage.removeItem('connectorAuthorizationRedirect');
+              navigate(redirect);
+              return;
+            }
             if (user.role === 'operator' || user.role === 'viewer') {
               navigate('/runtime');
             } else {

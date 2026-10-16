@@ -35,7 +35,7 @@ Name: "{commonappdata}\OnlineSCADA\Factory Connector"
 Name: "{commonappdata}\OnlineSCADA\Factory Connector\logs"
 
 [Run]
-Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\install-service.ps1"" -InstallDir ""{app}"""; Flags: runhidden waituntilterminated; StatusMsg: "Registering background service..."
+Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\install-flow.js"" ""{app}"""; Flags: runhidden waituntilterminated; StatusMsg: "Authorize and register the Factory Connector..."
 
 [UninstallRun]
 Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\service-uninstall.js"""; Flags: runhidden waituntilterminated

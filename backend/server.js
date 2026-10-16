@@ -153,6 +153,7 @@ app.use('/api/leads', require('./src/routes/leadsRoutes'));
 app.use('/api/signup', require('./src/routes/signupRoutes'));
 app.use('/api/edge', require('./src/routes/edgeRoutes'));
 app.use('/api/edge-pairing', require('./src/routes/edgePairingRoutes'));
+app.use('/api/device-authorization', require('./src/routes/deviceAuthorizationRoutes'));
 
 app.set('io', io);
 

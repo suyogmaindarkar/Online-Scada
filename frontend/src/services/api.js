@@ -227,6 +227,11 @@ export const settingsAPI = {
   reset: (section = null) => api.post('/settings/reset', { section }),
 };
 
+export const deviceAuthorizationAPI = {
+  details: (userCode) => api.get('/device-authorization/details', { params: { userCode } }),
+  approve: (userCode) => api.post('/device-authorization/approve', { userCode }),
+};
+
 export default api;
 
 export const getTagHistory = (tagId, timeRange = '1h', aggregation = '10s') =>

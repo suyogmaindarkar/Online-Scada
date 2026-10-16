@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const { userProtect, authorize } = require('../middleware/auth');
+const { createDeviceAuthorization, startDeviceAuthorization, approveDeviceAuthorization, getDeviceAuthorizationDetails, pollDeviceAuthorization } = require('../controllers/deviceAuthorizationController');
+router.post('/start', startDeviceAuthorization);
+router.post('/', userProtect, authorize('admin'), createDeviceAuthorization);
+router.post('/approve', userProtect, authorize('admin', 'engineer'), approveDeviceAuthorization);
+router.get('/details', getDeviceAuthorizationDetails);
+router.post('/poll', pollDeviceAuthorization);
+module.exports = router;

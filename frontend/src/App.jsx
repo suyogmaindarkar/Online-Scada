@@ -24,6 +24,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 // Main app pages
 import Dashboard from './pages/Dashboard';
 import PLCManagement from './pages/PLCManagement';
+import ConnectorAuthorize from './pages/ConnectorAuthorize';
 import TagManagement from './pages/TagManagement';
 import GraphicDesigner from './pages/GraphicDesigner';
 import Runtime from './pages/Runtime';
@@ -62,6 +63,7 @@ function App() {
                     {/* ═══════ WORKSPACE AUTH ROUTES ═══════ */}
                     <Route path="/login" element={<WorkspaceLogin />} />
                     <Route path="/select-user" element={<UserSelection />} />
+                    <Route path="/connector/authorize" element={<ConnectorAuthorize />} />
 
                     {/* ═══════ ADMIN + ENGINEER ONLY ═══════ */}
                     <Route path="/dashboard"
