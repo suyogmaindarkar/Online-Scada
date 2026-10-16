@@ -16,6 +16,8 @@ const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
+const { snapshot, recordRequest } = require('./src/utils/metrics');
+const logger = require('./src/utils/logger');
 
 const { initInflux, closeInflux, isInfluxAvailable } = require('./src/services/influxService');
 const trendRoutes = require('./src/routes/trendRoutes');
@@ -72,6 +74,19 @@ app.use(
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+app.use((req, res, next) => {
+  const requestId = req.get('x-request-id') || require('crypto').randomUUID();
+  req.requestId = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  const started = process.hrtime.bigint();
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - started) / 1e6;
+    recordRequest(durationMs, res.statusCode);
+    logger.info('request.completed', { requestId, method: req.method, path: req.originalUrl, statusCode: res.statusCode, durationMs: Math.round(durationMs * 100) / 100 });
+  });
+  next();
+});
 
 // ─── Rate Limiters ─────────────────────────────────────
 const generalLimiter = rateLimit({
@@ -167,6 +182,7 @@ app.get('/api/health', (req, res) => {
       initialized: edgeService.isInitialized,
       onlineGateways: edgeService.gateways.size,
     },
+    metrics: snapshot(),
   });
 });
 

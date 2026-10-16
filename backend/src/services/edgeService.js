@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const EdgeGateway = require('../models/EdgeGateway');
 const Tag = require('../models/Tag');
 const Company = require('../models/Company');
+const { increment, setPendingMongoQueueSize } = require('../utils/metrics');
 
 const HEARTBEAT_TIMEOUT_MS = 60000;
 const DB_FLUSH_INTERVAL_MS = 2000;
@@ -83,6 +84,7 @@ class EdgeService {
             name: gatewayName,
             connectedAt: Date.now(),
         });
+        increment('heartbeatOnline');
 
         this.socketToGateway.set(socket.id, gatewayId);
 
@@ -148,6 +150,8 @@ class EdgeService {
         const companyCache = this.tagCache.get(companyId);
 
         const broadcastUpdates = [];
+        increment('tagBatchesReceived');
+        increment('tagsReceived', data.tags.length);
         for (const tag of data.tags) {
             const key = tag.tagName || tag.tagId;
             if (!key) continue;
@@ -173,7 +177,9 @@ class EdgeService {
 
         if (this.mainIo && broadcastUpdates.length > 0) {
             this.mainIo.to(companyRoom).emit('tagsUpdate', broadcastUpdates);
+            increment('broadcasts');
         }
+        setPendingMongoQueueSize(this.pendingDbWrites.size);
     }
 
     _handleWriteResult(socket, data) {
@@ -182,6 +188,7 @@ class EdgeService {
             if (!this.tagCache.has(socket.companyId)) this.tagCache.set(socket.companyId, new Map());
             this.tagCache.get(socket.companyId).set(data.tagName, { value: data.value, quality: 'GOOD', timestamp: Date.now() });
             this.pendingDbWrites.set(data.tagId, { currentValue: data.value, quality: 'GOOD', lastUpdated: new Date() });
+            setPendingMongoQueueSize(this.pendingDbWrites.size);
             if (this.mainIo) this.mainIo.to(`company:${socket.companyId}`).emit('tagsUpdate', [{ tagName: data.tagName, value: data.value, quality: 'GOOD', timestamp: Date.now(), source: 'edge-write' }]);
         }
     }
@@ -211,6 +218,7 @@ class EdgeService {
         if (!gateway) return;
         if (gateway.heartbeatTimer) clearTimeout(gateway.heartbeatTimer);
         this.gateways.delete(gatewayId);
+        increment('heartbeatOffline');
         EdgeGateway.findOneAndUpdate({ _id: gatewayId, companyId: gateway.companyId }, { status: 'offline' }).catch(() => { });
         console.log(`🔴 Edge Gateway OFFLINE: ${gateway.name} | reason=${reason}`);
     }
@@ -219,6 +227,8 @@ class EdgeService {
         if (this.pendingDbWrites.size === 0) return;
         const writes = new Map(this.pendingDbWrites);
         this.pendingDbWrites.clear();
+        setPendingMongoQueueSize(this.pendingDbWrites.size);
+        const started = process.hrtime.bigint();
         try {
             const bulkOps = [];
             for (const [tagId, data] of writes) {
@@ -227,7 +237,13 @@ class EdgeService {
             for (let i = 0; i < bulkOps.length; i += MAX_TAGS_PER_BATCH) {
                 await Tag.bulkWrite(bulkOps.slice(i, i + MAX_TAGS_PER_BATCH), { ordered: false });
             }
-        } catch (err) { }
+            increment('flushes');
+        } catch (err) {
+            increment('flushFailures');
+        } finally {
+            const { metrics } = require('../utils/metrics');
+            metrics.edge.flushDurationMs += Number(process.hrtime.bigint() - started) / 1e6;
+        }
     }
 
     // ✅ FIXED: Safely convert ObjectIds to Strings for comparisons

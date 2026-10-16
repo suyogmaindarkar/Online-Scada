@@ -15,9 +15,9 @@ const errorHandler = (err, req, res, next) => {
 
   // Log full stack trace on server terminal (for Suyog's debugging)
   if (!isProduction) {
-    console.error('❌ Server Error:', err.stack);
+    console.error('Server Error:', err.stack);
   } else {
-    console.error(`❌ [PROD ERROR] ${req.method} ${req.originalUrl}:`, err.message);
+    console.error(`[PROD ERROR] ${req.method} ${req.originalUrl}:`, err.message);
   }
 
   res.status(statusCode).json({
