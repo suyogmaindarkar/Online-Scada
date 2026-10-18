@@ -22,6 +22,8 @@ class EdgeService {
         this.mainIo = null;
         this.dbFlushTimer = null;
         this.isInitialized = false;
+        this.equipmentStatuses = new Map();
+        this.pendingCommands = new Map();
     }
 
     init(edgeNamespace, mainIo) {
@@ -102,12 +104,25 @@ class EdgeService {
         socket.on('edge:tagValues', (data) => this._handleTagValues(socket, data));
         socket.on('edge:writeResult', (data) => this._handleWriteResult(socket, data));
         socket.on('edge:equipmentCommandResult', (data) => this._handleEquipmentCommandResult(socket, data));
+        socket.on('edge:discoveryProgress', (data) => {
+            if (!this._isCurrentSocket(socket)) return;
+            require('./discoveryService').updateStatus(socket.companyId, data, socket.gatewayId);
+        });
         socket.on('disconnect', (reason) => this._handleDisconnect(socket, reason));
+        require('./edgeConfigBroadcaster').compileLiveConfig(companyId).then((config) => {
+            if (this._isCurrentSocket(socket)) socket.emit('edge:configUpdate', config);
+        }).catch(() => {
+            if (this._isCurrentSocket(socket)) socket.emit('edge:configError', { message: 'Unable to load current equipment configuration' });
+        });
+    }
+
+    _isCurrentSocket(socket) {
+        return this.gateways.get(socket.gatewayId)?.socketId === socket.id;
     }
 
     _handleHeartbeat(socket, data) {
         const gateway = this.gateways.get(socket.gatewayId);
-        if (!gateway) return;
+        if (!gateway || gateway.socketId !== socket.id) return;
 
         if (gateway.heartbeatTimer) clearTimeout(gateway.heartbeatTimer);
         gateway.heartbeatTimer = setTimeout(() => {
@@ -123,19 +138,22 @@ class EdgeService {
         }
         if (Array.isArray(data?.equipmentStatuses)) {
             for (const status of data.equipmentStatuses) {
-                if (!status?.plcId || !this.mainIo) continue;
-                this.mainIo.to(`company:${socket.companyId}`).emit('plcStatus', {
+                if (!status?.plcId) continue;
+                const liveStatus = {
                     plcId: String(status.plcId),
                     name: status.plcName || 'Equipment',
                     state: status.state || 'unknown',
                     message: status.message || '',
-                    isConnected: Boolean(status.isConnected),
+                    isConnected: status.isConnected === true,
                     hasTags: Boolean(status.hasTags),
                     tagCount: Number(status.tagCount || 0),
                     lastDataAt: status.lastDataAt || null,
                     error: status.error || null,
-                    timestamp: status.timestamp || Date.now(),
-                });
+                    timestamp: Date.now(),
+                    gatewayId: socket.gatewayId,
+                };
+                this.equipmentStatuses.set(`${socket.companyId}:${status.plcId}`, liveStatus);
+                if (this.mainIo) this.mainIo.to(`company:${socket.companyId}`).emit('plcStatus', liveStatus);
             }
         }
         socket.emit('edge:heartbeatAck', { timestamp: Date.now() });
@@ -143,6 +161,7 @@ class EdgeService {
 
     _handleTagValues(socket, data) {
         const { companyId } = socket;
+        if (socket.gatewayId && !this._isCurrentSocket(socket)) return;
         if (!data || !Array.isArray(data.tags)) return;
 
         const companyRoom = `company:${companyId}`;
@@ -159,7 +178,9 @@ class EdgeService {
             companyCache.set(key, { value: tag.value, quality: tag.quality || 'GOOD', timestamp: tag.timestamp });
 
             if (tag.tagId) {
-                this.pendingDbWrites.set(tag.tagId, {
+                this.pendingDbWrites.set(`${companyId}:${tag.tagId}`, {
+                    tagId: tag.tagId,
+                    companyId,
                     currentValue: tag.value,
                     quality: tag.quality || 'GOOD',
                     lastUpdated: new Date(tag.timestamp),
@@ -183,11 +204,12 @@ class EdgeService {
     }
 
     _handleWriteResult(socket, data) {
+        if (socket.gatewayId && !this._isCurrentSocket(socket)) return;
         if (!data || !data.tagId) return;
         if (data.success) {
             if (!this.tagCache.has(socket.companyId)) this.tagCache.set(socket.companyId, new Map());
             this.tagCache.get(socket.companyId).set(data.tagName, { value: data.value, quality: 'GOOD', timestamp: Date.now() });
-            this.pendingDbWrites.set(data.tagId, { currentValue: data.value, quality: 'GOOD', lastUpdated: new Date() });
+            this.pendingDbWrites.set(`${socket.companyId}:${data.tagId}`, { tagId: data.tagId, companyId: socket.companyId, currentValue: data.value, quality: 'GOOD', lastUpdated: new Date() });
             setPendingMongoQueueSize(this.pendingDbWrites.size);
             if (this.mainIo) this.mainIo.to(`company:${socket.companyId}`).emit('tagsUpdate', [{ tagName: data.tagName, value: data.value, quality: 'GOOD', timestamp: Date.now(), source: 'edge-write' }]);
         }
@@ -218,6 +240,14 @@ class EdgeService {
         if (!gateway) return;
         if (gateway.heartbeatTimer) clearTimeout(gateway.heartbeatTimer);
         this.gateways.delete(gatewayId);
+        this.socketToGateway.delete(gateway.socketId);
+        for (const [key, status] of this.equipmentStatuses) {
+            if (status.gatewayId === gatewayId) this.equipmentStatuses.delete(key);
+        }
+        for (const [requestId, pending] of this.pendingCommands) {
+            if (pending.gatewayId === gatewayId) this._finishCommand(requestId, { success: false, connected: false, state: 'connector_offline', code: 'CONNECTOR_OFFLINE', message: 'Factory Connector disconnected' });
+        }
+        require('./discoveryService').gatewayOffline(gateway.companyId, gatewayId);
         increment('heartbeatOffline');
         EdgeGateway.findOneAndUpdate({ _id: gatewayId, companyId: gateway.companyId }, { status: 'offline' }).catch(() => { });
         console.log(`🔴 Edge Gateway OFFLINE: ${gateway.name} | reason=${reason}`);
@@ -231,8 +261,9 @@ class EdgeService {
         const started = process.hrtime.bigint();
         try {
             const bulkOps = [];
-            for (const [tagId, data] of writes) {
-                bulkOps.push({ updateOne: { filter: { _id: tagId }, update: { $set: data } } });
+            for (const [, pending] of writes) {
+                const { tagId, companyId, ...data } = pending;
+                bulkOps.push({ updateOne: { filter: { _id: tagId, companyId }, update: { $set: data } } });
             }
             for (let i = 0; i < bulkOps.length; i += MAX_TAGS_PER_BATCH) {
                 await Tag.bulkWrite(bulkOps.slice(i, i + MAX_TAGS_PER_BATCH), { ordered: false });
@@ -262,7 +293,7 @@ class EdgeService {
         const companyStr = String(companyId);
         let gatewayInfo = null;
         for (const [gid, info] of this.gateways) {
-            if (info.companyId === companyStr) { gatewayInfo = { gid, ...info }; break; }
+            if (String(info.companyId) === companyStr) { gatewayInfo = { gid, ...info }; break; }
         }
         if (!gatewayInfo || !gatewayInfo.socketId) {
             return { ok: false, code: 'CONNECTOR_OFFLINE', message: 'Factory Connector is offline' };
@@ -271,6 +302,12 @@ class EdgeService {
             return { ok: false, code: 'NOT_INITIALIZED', message: 'Edge bridge not ready' };
         }
         const requestId = crypto.randomUUID ? crypto.randomUUID() : `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const timer = setTimeout(() => this._finishCommand(requestId, {
+            success: false, connected: false, state: 'timeout', code: 'COMMAND_TIMEOUT', message: 'Factory Connector did not confirm the command in time',
+        }), opts.timeoutMs || 15000);
+        timer.unref?.();
+        this.pendingCommands.set(requestId, { companyId: companyStr, gatewayId: gatewayInfo.gid, socketId: gatewayInfo.socketId, equipmentId: String(equipmentId), action, timer, resolve: opts.resolve });
+        if (action !== 'test') this.equipmentStatuses.delete(`${companyStr}:${equipmentId}`);
         this.edgeNamespace.to(gatewayInfo.socketId).emit('edge:equipmentCommand', {
             requestId,
             equipmentId,
@@ -283,18 +320,51 @@ class EdgeService {
 
     // Forward the connector's reply to every browser in the company room.
     _handleEquipmentCommandResult(socket, data) {
-        if (!this.mainIo) return;
-        const { requestId, equipmentId, action, success, state, message, error } = data || {};
-        this.mainIo.to('company:' + socket.companyId).emit('equipmentCommandResult', {
-            requestId,
-            equipmentId,
-            action: action || 'unknown',
-            success: success !== false,
-            state: state || 'unknown',
-            message: message || '',
-            error: error || null,
-            timestamp: Date.now(),
+        const pending = this.pendingCommands.get(data?.requestId);
+        if (!pending || pending.companyId !== String(socket.companyId) || pending.gatewayId !== socket.gatewayId || pending.socketId !== socket.id || pending.equipmentId !== String(data.equipmentId) || pending.action !== data.action || !this._isCurrentSocket(socket)) return;
+        this._finishCommand(data.requestId, data);
+    }
+
+    _finishCommand(requestId, data) {
+        const pending = this.pendingCommands.get(requestId);
+        if (!pending) return;
+        clearTimeout(pending.timer);
+        this.pendingCommands.delete(requestId);
+        const result = {
+            requestId, equipmentId: pending.equipmentId, action: pending.action,
+            success: data.success === true, connected: data.connected === true,
+            state: data.state || 'unknown', message: data.message || '',
+            error: data.error || null, code: data.code, timestamp: Date.now(),
+        };
+        if (pending.action !== 'test') {
+            const status = { plcId: pending.equipmentId, gatewayId: pending.gatewayId, isConnected: result.connected, state: result.state || 'unknown', message: result.message || '', timestamp: result.timestamp };
+            this.equipmentStatuses.set(`${pending.companyId}:${pending.equipmentId}`, status);
+            if (this.mainIo) this.mainIo.to(`company:${pending.companyId}`).emit('plcStatus', status);
+            if (this.mainIo) this.mainIo.to(`company:${pending.companyId}`).emit('equipmentCommandResult', result);
+        }
+        pending.resolve?.(result);
+    }
+
+    requestEquipmentCommand(companyId, command, opts = {}) {
+        return new Promise((resolve) => {
+            const relay = this.sendEquipmentCommand(companyId, command, { ...opts, resolve });
+            if (!relay.ok) resolve({ success: false, connected: false, ...relay });
         });
+    }
+
+    getEquipmentStatus(companyId, equipmentId) {
+        const status = this.equipmentStatuses.get(`${companyId}:${equipmentId}`);
+        return status && Date.now() - status.timestamp < 12000 && this.gateways.has(status.gatewayId) ? status : null;
+    }
+
+    sendDiscoveryCommand(companyId, event, data, gatewayId) {
+        for (const [id, gateway] of this.gateways) {
+            if (String(gateway.companyId) !== String(companyId) || (gatewayId && gatewayId !== id)) continue;
+            if (!this.edgeNamespace) break;
+            this.edgeNamespace.to(gateway.socketId).emit(event, data);
+            return { ok: true, gatewayId: id };
+        }
+        return { ok: false, code: 'CONNECTOR_OFFLINE', message: 'Factory Connector is offline' };
     }
 
     hasActiveGateway(companyId) {
@@ -320,9 +390,11 @@ class EdgeService {
         if (this.dbFlushTimer) clearInterval(this.dbFlushTimer);
         for (const [gatewayId, info] of this.gateways) {
             if (info.heartbeatTimer) clearTimeout(info.heartbeatTimer);
-            EdgeGateway.findByIdAndUpdate(gatewayId, { status: 'offline' }).catch(() => { });
+            EdgeGateway.findOneAndUpdate({ _id: gatewayId, companyId: info.companyId }, { status: 'offline' }).catch(() => { });
         }
         this.gateways.clear();
+        for (const requestId of this.pendingCommands.keys()) this._finishCommand(requestId, { success: false, connected: false, state: 'connector_offline', message: 'Factory Connector bridge stopped' });
+        this.equipmentStatuses.clear();
     }
 }
 

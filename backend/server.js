@@ -133,13 +133,11 @@ app.use('/api/workspace/register', signupLimiter);
 // API ROUTES
 // ═══════════════════════════════════════════════════════════
 
-// 🟢 Public Edge Status Route (NOW PLACED PROPERLY AFTER APP INITIALIZATION)
-app.get('/api/edge/status', require('./src/controllers/edgePairingController').getEdgeStatus);
-
 app.use('/api/workspace', require('./src/routes/workspaceRoutes'));
 app.use('/api/super-admin', require('./src/routes/superAdminRoutes'));
 app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/plc', require('./src/routes/plcRoutes'));
+app.use('/api/equipment', require('./src/routes/equipmentCommandRoutes'));
 app.use('/api/tags', require('./src/routes/tagRoutes'));
 app.use('/api/screens', require('./src/routes/screenRoutes'));
 app.use('/api/alarms', require('./src/routes/alarmRoutes'));

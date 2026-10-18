@@ -17,6 +17,8 @@ class PLCReader {
         this.intervals = new Map();
         this.previousValues = new Map();
         this.polling = new Set();
+        this.generations = new Map();
+        this.lifecycle = Promise.resolve();
 
         this.stats = {
             totalReads: 0,
@@ -30,38 +32,38 @@ class PLCReader {
 
     async startAll() {
         const plcs = this.config.plcs || [];
-        for (const plcConfig of plcs) {
-            await this._startPLC(plcConfig);
-        }
+        await Promise.all(plcs.filter((config) => config.isActive !== false).map((config) => this.startOnePLC(config).catch(() => ({ ok: false }))));
     }
 
     async _startPLC(plcConfig) {
-        const plcId = plcConfig.plcId;
-        const protocol = (plcConfig.protocol || '').toLowerCase();
+        return this.startOnePLC(plcConfig);
+    }
 
-        console.log(`🏭 Starting PLC: ${plcConfig.ip}:${plcConfig.port} (${protocol}) — ${plcConfig.tags?.length || 0} tags`);
+    enqueue(operation) {
+        const next = this.lifecycle.then(operation);
+        this.lifecycle = next.catch(() => {});
+        return next;
+    }
 
-        try {
-            let reader;
-            if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
-            else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
-            else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
-            else if (protocol.includes('ethernet') || protocol === 'ab') reader = new EthernetIPReader(plcConfig);
-            else return;
+    _createReader(config) {
+        const protocol = String(config.protocol || '').toLowerCase();
+        if (protocol === 's7') return new S7Reader(config, this.verbose);
+        if (protocol.includes('modbus')) return new ModbusReader(config, this.verbose);
+        if (protocol.includes('opc')) return new OPCUAReader({ ...config, username: config.username || config.opcuaUsername, password: config.password || config.opcuaPassword }, this.verbose);
+        if (protocol.includes('ethernet') || protocol === 'ab') return new EthernetIPReader(config, this.verbose);
+        throw new Error('Unsupported equipment protocol');
+    }
 
-            const connected = await reader.connect();
-            if (!connected) console.error(`❌ Connection pending for PLC ${plcConfig.ip}:${plcConfig.port}`);
+    async _disconnect(reader) {
+        if (!reader) return;
+        try { await this._bounded(Promise.resolve(reader.disconnect()), 2000); } catch (_) {}
+    }
 
-            this.readers.set(plcId, reader);
-
-            const pollMs = plcConfig.pollIntervalMs || 1000;
-            const intervalId = setInterval(() => this._pollPLC(plcId, plcConfig), pollMs);
-            this.intervals.set(plcId, intervalId);
-
-            console.log(`✅ PLC ${plcId} polling active (${pollMs}ms)`);
-        } catch (err) {
-            console.error(`❌ Error starting PLC ${plcId}:`, err.message);
-        }
+    _bounded(promise, timeoutMs = 10000) {
+        let timer;
+        return Promise.race([promise, new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error('Equipment connection timed out')), timeoutMs);
+        })]).finally(() => clearTimeout(timer));
     }
 
     async _pollPLC(plcId, plcConfig) {
@@ -75,6 +77,7 @@ class PLCReader {
             if (tags.length === 0) return;
 
             const values = await reader.readTags(tags);
+            if (this.readers.get(plcId) !== reader || plcConfig.isActive === false) return;
             if (!values || values.length === 0) return;
 
             const goodValues = values.filter((value) => value.quality === 'GOOD');
@@ -84,6 +87,7 @@ class PLCReader {
                 this.stats.totalReads += goodValues.length;
                 this.stats._readsThisSecond += goodValues.length;
             } else {
+                plcConfig.__freshData = false;
                 this.stats.totalErrors += values.length;
             }
 
@@ -92,17 +96,23 @@ class PLCReader {
 
             for (const val of values) {
                 const prev = this.previousValues.get(val.tagId);
-                if (!prev || prev.value !== val.value || (now - prev.timestamp > 10000)) {
+                if (!prev || prev.value !== val.value || prev.quality !== val.quality || (now - prev.timestamp > 10000)) {
                     changed.push({ tagId: val.tagId, tagName: val.tagName, value: val.value, quality: val.quality || 'GOOD', timestamp: now });
-                    this.previousValues.set(val.tagId, { value: val.value, timestamp: now });
+                    this.previousValues.set(val.tagId, { value: val.value, quality: val.quality, timestamp: now });
                 }
             }
 
             if (changed.length > 0) {
                 this.cloudBridge.sendTagValues(changed);
             }
-        } catch (err) { console.warn(`⚠️ PLC poll failed (${plcId}): ${err.message}`); }
-        finally { this.polling.delete(plcId); }
+        } catch (_) {
+            plcConfig.__freshData = false;
+            this.stats.totalErrors++;
+        }
+        finally {
+            if (this.readers.get(plcId) === reader) this.polling.delete(plcId);
+            else await this._disconnect(reader);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -117,18 +127,13 @@ class PLCReader {
 
         for (const [plcId, reader] of this.readers) {
             const plcConfig = (this.config.plcs || []).find((p) => p.plcId === plcId);
-            if (!plcConfig) continue;
+            if (!plcConfig || plcConfig.isActive === false) continue;
 
-            const hasTag = (plcConfig.tags || []).some((t) => t.tagId === tagId || t.address === address || t.tagName === tagName);
+            const hasTag = (plcConfig.tags || []).some((t) => tagId ? t.tagId === tagId : t.tagName === tagName);
             if (hasTag) {
                 targetReader = reader;
                 break;
             }
-        }
-
-        // Fallback: If not found by tag, use the first active reader
-        if (!targetReader && this.readers.size > 0) {
-            targetReader = this.readers.values().next().value;
         }
 
         if (!targetReader) {
@@ -173,67 +178,82 @@ class PLCReader {
     }
 
     async reload(newPlcConfigs) {
-        console.log('🔄 Hot-reloading PLC connections...');
-        this.stopAll();
-        this.previousValues.clear();
-        this.config.plcs = newPlcConfigs || [];
-        await this.startAll();
-        console.log('✅ Hot reload complete');
+        const next = Array.isArray(newPlcConfigs) ? newPlcConfigs : [];
+        const previous = this.config.plcs || [];
+        const signature = (config) => JSON.stringify(Object.fromEntries(Object.entries(config).filter(([key]) => !['__freshData', 'lastDataAt', 'isConnected', 'connectionState', 'connectionMessage'].includes(key))));
+        const retained = new Set();
+        for (const config of next) {
+            const old = previous.find((item) => String(item.plcId) === String(config.plcId));
+            if (old && config.isActive !== false && this.readers.has(String(config.plcId)) && signature(old) === signature(config)) {
+                config.lastDataAt = old.lastDataAt;
+                config.__freshData = old.__freshData;
+                retained.add(String(config.plcId));
+            }
+        }
+        await Promise.all([...this.readers.keys()].filter((id) => !retained.has(id)).map((id) => this.stopOnePLC(id)));
+        this.config.plcs = next;
+        await Promise.all(next.filter((config) => config.isActive !== false && !retained.has(String(config.plcId))).map((config) => this.startOnePLC(config).catch(() => ({ ok: false }))));
     }
 
-    stopAll() {
-        for (const [, id] of this.intervals) clearInterval(id);
-        this.intervals.clear();
-
-        for (const [, reader] of this.readers) {
-            try { reader.disconnect(); } catch (e) { }
-        }
-        this.readers.clear();
+    async stopAll() {
+        const ids = new Set([...this.readers.keys(), ...(this.config.plcs || []).map((config) => String(config.plcId))]);
+        await Promise.all([...ids].map((id) => this.stopOnePLC(id)));
     }
 
     // ─── PER-EQUIPMENT LIFECYCLE (remote start/stop from website) ───
 
     // Stop a single equipment's reader + interval. Returns the reader.
-    stopOnePLC(plcId) {
+    async stopOnePLC(plcId) {
         const k = String(plcId);
+        this.generations.set(k, (this.generations.get(k) || 0) + 1);
+        const reader = this.readers.get(k);
         if (this.intervals.has(k)) clearInterval(this.intervals.get(k));
         this.intervals.delete(k);
         this.readers.delete(k);
         this.polling.delete(k);
-        this.previousValues.delete(k);
+        const config = (this.config.plcs || []).find((item) => String(item.plcId) === k);
+        if (config) {
+            config.__freshData = false;
+            config.lastDataAt = null;
+            config.isConnected = false;
+            for (const tag of config.tags || []) this.previousValues.delete(tag.tagId);
+        }
+        await this._disconnect(reader);
     }
 
     // Start (or restart) a single equipment's reader using its config entry.
-    async startOnePLC(plcConfig) {
+    async startOnePLC(plcConfig, { force = false } = {}) {
         if (!plcConfig) return { ok: false, error: 'no config' };
         const k = String(plcConfig.plcId || '');
         if (!k) return { ok: false, error: 'missing plcId' };
 
-        // Stop existing instance first (idempotent)
-        this.stopOnePLC(k);
-
-        const protocol = (plcConfig.protocol || '').toLowerCase();
-
-        let reader;
-        if (protocol === 's7') reader = new S7Reader(plcConfig, this.verbose);
-        else if (protocol.includes('modbus')) reader = new ModbusReader(plcConfig, this.verbose);
-        else if (protocol.includes('opc')) reader = new OPCUAReader(plcConfig, this.verbose);
-        else if (protocol.includes('ethernet') || protocol === 'ab') reader = new EthernetIPReader(plcConfig, this.verbose);
-        else return { ok: false, error: 'unsupported protocol: ' + protocol };
-
-        let connected = false;
-        try { connected = await reader.connect(); } catch (e) { connected = false; }
+        if (plcConfig.isActive === false) return { ok: false, error: 'Equipment is disabled' };
+        if (!force && this.readers.get(k)?.isConnected === true) return { ok: true, connected: true };
+        const stopping = this.stopOnePLC(k);
+        const generation = this.generations.get(k);
+        await stopping;
+        if (this.generations.get(k) !== generation) return { ok: false, error: 'Equipment connection was stopped' };
+        const reader = this._createReader(plcConfig);
         this.readers.set(k, reader);
-
+        const connection = Promise.resolve().then(() => reader.connect());
+        connection.finally(() => {
+            if (this.generations.get(k) !== generation || this.readers.get(k) !== reader) this._disconnect(reader);
+        }).catch(() => {});
+        let connected = false;
+        try { connected = (await this._bounded(connection)) === true; }
+        catch (_) { await this.stopOnePLC(k); return { ok: false, error: 'Equipment connection timed out' }; }
+        if (this.generations.get(k) !== generation || this.readers.get(k) !== reader) {
+            await this._disconnect(reader);
+            return { ok: false, error: 'Equipment connection was stopped' };
+        }
+        plcConfig.isConnected = connected;
         const pollMs = plcConfig.pollIntervalMs || 1000;
-        const intervalId = setInterval(() => this._pollPLC(k, plcConfig), pollMs);
+        const intervalId = setInterval(() => this._pollPLC(k, (this.config.plcs || []).find((config) => String(config.plcId) === k) || plcConfig), pollMs);
         this.intervals.set(k, intervalId);
 
         if (!connected) {
-            console.warn('[!] Connection pending for ' + plcConfig.plcName + ' (' + plcConfig.ip + ':' + plcConfig.port + ')');
             return { ok: false, pending: true, error: 'connection pending / unreachable' };
         }
-        console.log('[+] Equipment online: ' + plcConfig.plcName + ' (' + plcConfig.ip + ':' + plcConfig.port + ')');
         return { ok: true, connected: true };
     }
 
@@ -250,9 +270,29 @@ class PLCReader {
         }
 
         // Resolve the matching config entry (current config or via plcId)
-        const allConfigs = this.config.plcs || [];
+        const allConfigs = this.config.plcs || (this.config.plcs = []);
         let plcConfig = allConfigs.find((p) => String(p.plcId) === plcId);
-        const found = Boolean(plcConfig) || this.readers.has(plcId);
+        if (payload?.config && String(payload.config.plcId) === plcId && action !== 'stop') {
+            if (action === 'test') plcConfig = payload.config;
+            else if (!plcConfig) { plcConfig = payload.config; allConfigs.push(plcConfig); }
+            else if (plcConfig.isActive === false && action === 'start') { Object.assign(plcConfig, payload.config); }
+        }
+
+        if (action === 'test') {
+            let reader;
+            let settled = false;
+            let connected = false;
+            try {
+                if (!plcConfig) throw new Error('Equipment configuration is unavailable');
+                reader = this._createReader(plcConfig);
+                const connection = Promise.resolve().then(() => reader.connect());
+                connection.finally(() => { if (settled) this._disconnect(reader); }).catch(() => {});
+                connected = (await this._bounded(connection)) === true;
+            } catch (_) { connected = false; }
+            finally { settled = true; await this._disconnect(reader); }
+            this.cloudBridge.sendEquipmentCommandResult({ ...reply, success: connected, connected, state: connected ? 'connected' : 'failed', message: connected ? 'Equipment connection test successful' : 'Equipment connection test failed or timed out' });
+            return;
+        }
 
         // start
         if (action === 'start') {
@@ -266,17 +306,19 @@ class PLCReader {
             this.cloudBridge.sendEquipmentCommandResult({
                 ...reply,
                 success: result.ok && result.connected,
-                state: result.ok ? 'streaming' : 'failed',
-                message: result.ok ? 'Equipment data is streaming' : (result.error || 'Equipment connection failed'),
+                connected: result.connected === true,
+                state: result.ok ? 'connected_no_data' : 'failed',
+                message: result.ok ? 'Equipment connected; waiting for tag data' : (result.error || 'Equipment connection failed'),
             });
             return;
         }
 
         // stop
         if (action === 'stop') {
-            this.stopOnePLC(plcId);
+            if (plcConfig) plcConfig.isActive = false;
+            await this.stopOnePLC(plcId);
             this.cloudBridge.sendEquipmentCommandResult({
-                ...reply, success: true, state: 'stopped', message: 'Equipment connection stopped',
+                ...reply, success: true, connected: false, state: 'stopped', message: 'Equipment connection stopped',
             });
             return;
         }
@@ -289,11 +331,12 @@ class PLCReader {
                 });
                 return;
             }
-            const result = await this.startOnePLC(plcConfig);
+            const result = await this.startOnePLC(plcConfig, { force: true });
             this.cloudBridge.sendEquipmentCommandResult({
                 ...reply,
                 success: result.ok && result.connected,
-                state: result.ok ? 'streaming' : 'failed',
+                connected: result.connected === true,
+                state: result.ok ? 'connected_no_data' : 'failed',
                 message: result.ok ? 'Equipment restarted and polling' : (result.error || 'Restart failed'),
             });
             return;
@@ -335,12 +378,15 @@ class PLCReader {
                     state = 'connecting';
                     message = 'Reader created, awaiting tag data';
                     try {
-                        const fresh = plcConfig.__freshData || false;
-                        if (fresh) { state = 'streaming'; message = 'Equipment data is streaming'; isConnected = true; hasTags = true; }
+                        const fresh = plcConfig.__freshData && plcConfig.lastDataAt && Date.now() - plcConfig.lastDataAt < Math.max(15000, (plcConfig.pollIntervalMs || 1000) * 3);
+                        isConnected = reader.isConnected === true;
+                        if (isConnected) { state = 'connected_no_data'; message = 'Equipment connected; no recent tag data'; }
+                        else { state = 'failed'; message = 'Equipment connection is unavailable'; }
+                        if (isConnected && fresh) { state = 'streaming'; message = 'Equipment data is streaming'; hasTags = true; }
                     } catch (e) { }
                 }
             } else {
-                continue; // disabled equipments not reported
+                state = 'stopped';
             }
 
             statuses.push({

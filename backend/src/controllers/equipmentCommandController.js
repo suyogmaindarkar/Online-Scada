@@ -9,9 +9,8 @@
 // ═══════════════════════════════════════════════════════════
 
 const PLCConnection = require('../models/PLCConnection');
-const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
-const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
+const { broadcastConfigUpdate, compileLiveConfig } = require('../services/edgeConfigBroadcaster');
 
 // ─── Start Equipment ──────────────────────────────────────
 // Sets active + broadcasts fresh config to the connector so it
@@ -21,6 +20,7 @@ const startEquipment = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'Equipment not found in this workspace' });
+    if (plc.isSimulation || plc.protocol === 'SIMULATION') return require('./plcController').startPLC(req, res);
 
     const hasGateway = edgeService.hasActiveGateway(String(req.companyId));
     if (!hasGateway) {
@@ -47,17 +47,17 @@ const startEquipment = async (req, res) => {
     const relay = edgeService.sendEquipmentCommand(req.companyId, {
       equipmentId: plc._id.toString(),
       action: 'start',
-      payload: { name: plc.name, protocol: plc.protocol, transportProtocol: plc.transportProtocol || null },
+      payload: { config: (await compileLiveConfig(req.companyId, { equipmentId: plc._id })).plcs[0] },
     });
 
-    if (!relay.ok && !sent) {
-      return res.json({ success: false, code: 'CONNECTOR_OFFLINE', message: relay.message });
+    if (!relay.ok) {
+      return res.json({ success: false, code: relay.code, message: relay.message });
     }
 
     res.json({
       success: true,
       message: sent ? 'Equipment is starting on the Factory Connector' : 'Start command sent to Factory Connector',
-      data: { equipmentId: plc._id, requestId: relay.requestId || null, deferred: true },
+      data: { equipmentId: plc._id, requestId: relay.requestId || null, deferred: true, isActive: true },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -69,6 +69,7 @@ const stopEquipment = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'Equipment not found in this workspace' });
+    if (plc.isSimulation || plc.protocol === 'SIMULATION') return require('./plcController').stopPLC(req, res);
 
     plc.isActive = false;
     plc.isConnected = false;
@@ -91,7 +92,7 @@ const stopEquipment = async (req, res) => {
       message: relay.ok
         ? 'Stop command sent to Factory Connector'
         : 'Equipment marked inactive (connector offline). It will not stream.',
-      data: { equipmentId: plc._id, requestId: relay.requestId || null },
+      data: { equipmentId: plc._id, requestId: relay.requestId || null, isActive: false },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -103,6 +104,11 @@ const restartEquipment = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'Equipment not found' });
+    if (!plc.isActive) return res.status(409).json({ success: false, code: 'EQUIPMENT_DISABLED', message: 'Equipment is stopped. Start it before restarting the connection.' });
+    if (plc.isSimulation || plc.protocol === 'SIMULATION') {
+      await require('../services/plcManager').stop(req.params.id);
+      return require('./plcController').startPLC(req, res);
+    }
 
     if (!edgeService.hasActiveGateway(String(req.companyId))) {
       return res.json({ success: false, code: 'CONNECTOR_OFFLINE', message: 'Factory Connector is offline. Start Equipment first.' });
@@ -111,7 +117,7 @@ const restartEquipment = async (req, res) => {
     const relay = edgeService.sendEquipmentCommand(req.companyId, {
       equipmentId: plc._id.toString(),
       action: 'restart',
-      payload: { name: plc.name },
+      payload: { config: (await compileLiveConfig(req.companyId, { equipmentId: plc._id })).plcs[0] },
     });
 
     try {
@@ -119,7 +125,7 @@ const restartEquipment = async (req, res) => {
       await broadcastConfigUpdate(io, req.companyId);
     } catch (e) { /* optional */ }
 
-    res.json({ success: relay.ok, message: 'Restart command sent to Factory Connector', data: { equipmentId: plc._id, requestId: relay.requestId || null } });
+    res.json({ success: relay.ok, code: relay.code, message: relay.ok ? 'Restart command sent to Factory Connector' : relay.message, data: { equipmentId: plc._id, requestId: relay.requestId || null } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

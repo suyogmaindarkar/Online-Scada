@@ -181,8 +181,8 @@ export const screenAPI = {
 
 export const discoveryAPI = {
   getNetworks: () => api.get('/discovery/networks'),
-  startScan: (options = {}) => api.post('/discovery/scan', options),
-  getProgress: () => api.get('/discovery/progress'),
+  startScan: (options = {}) => api.post('/discovery/start', options),
+  getProgress: () => api.get('/discovery/status'),
   cancelScan: () => api.post('/discovery/cancel'),
   probeDevice: (ip, ports) => api.post('/discovery/probe', { ip, ports }),
 };

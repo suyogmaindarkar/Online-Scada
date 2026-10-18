@@ -4,15 +4,18 @@
 // Call this whenever PLCs or Tags are created/updated/deleted
 // ═══════════════════════════════════════════════════════════
 
-const EdgeGateway = require('../models/EdgeGateway');
 const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
+let lastConfigTimestamp = 0;
 
-async function compileLiveConfig(companyId) {
+async function compileLiveConfig(companyId, { equipmentId, includeInactive = false } = {}) {
+  lastConfigTimestamp = Math.max(Date.now(), lastConfigTimestamp + 1);
+  const generatedAt = new Date(lastConfigTimestamp).toISOString();
   const plcs = await PLCConnection.find({
     companyId,
     isSimulation: { $ne: true },
-    isActive: true,
+    ...(includeInactive ? {} : { isActive: true }),
+    ...(equipmentId ? { _id: equipmentId } : {}),
   });
 
   const plcConfigArray = [];
@@ -33,6 +36,7 @@ async function compileLiveConfig(companyId) {
     plcConfigArray.push({
       plcId: plc._id.toString(),
       plcName: plc.name,
+      isActive: plc.isActive,
       sourceProtocol: plc.protocol,
       isProfibusGateway,
       gatewayDeviceAddress: plc.gatewayDeviceAddress || '',
@@ -44,6 +48,8 @@ async function compileLiveConfig(companyId) {
       slot: plc.slot || 0,
       opcuaUsername: plc.opcuaUsername || '',
       opcuaPassword: plc.opcuaPassword || '',
+      username: plc.opcuaUsername || '',
+      password: plc.opcuaPassword || '',
       pollIntervalMs: plc.pollingRate || 1000,
       isConnected: false,
       connectionState: 'pending',
@@ -59,7 +65,7 @@ async function compileLiveConfig(companyId) {
 
   return {
     plcs: plcConfigArray,
-    generatedAt: new Date().toISOString(),
+    generatedAt,
   };
 }
 
@@ -68,7 +74,7 @@ async function compileLiveConfig(companyId) {
  * Safe to call even if no gateway is online.
  */
 async function broadcastConfigUpdate(io, companyId) {
-  if (!io) return;
+  if (!io) return { sent: false };
 
   try {
     const config = await compileLiveConfig(companyId);
@@ -81,12 +87,9 @@ async function broadcastConfigUpdate(io, companyId) {
       timestamp: Date.now(),
     });
 
-    console.log(
-      `📡 edge:configUpdate → company=${companyId} | ${config.plcs.length} PLC(s) | ` +
-      `${config.plcs.reduce((n, p) => n + (p.tags?.length || 0), 0)} tag(s)`
-    );
+    return { sent: true, config };
   } catch (err) {
-    console.warn('⚠️  broadcastConfigUpdate failed:', err.message);
+    return { sent: false };
   }
 }
 

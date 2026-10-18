@@ -5,6 +5,7 @@
 const CloudBridge = require('./cloudBridge');
 const PLCReader = require('./plcReader');
 const HealthMonitor = require('./healthMonitor');
+const { Discovery } = require('./discovery');
 const runtime = require('./serviceRuntime');
 const secretStore = require('./secretStore');
 
@@ -19,6 +20,9 @@ async function main() {
     const releaseInstance = runtime.acquireSingleInstance(RUNTIME_PATHS);
     let config = loadConfig();
     config.apiKey = secretStore.loadSecret(config, RUNTIME_PATHS);
+    // Equipment activation is owned by the current workspace configuration.
+    // A downloaded/cached snapshot may predate a Stop issued while offline.
+    config.plcs = [];
 
     const state = {
         cloudConnected: false,
@@ -28,11 +32,20 @@ async function main() {
     const cloudBridge = new CloudBridge(config, false);
     const plcReader = new PLCReader(config, cloudBridge, false);
     const healthMonitor = new HealthMonitor(config, cloudBridge, plcReader, false);
+    const discovery = new Discovery((data) => cloudBridge.reportDiscovery(data));
+    cloudBridge.onStartDiscovery((options) => discovery.start(options));
+    cloudBridge.onCancelDiscovery(({ scanId }) => discovery.cancel(scanId));
 
     // Live Cursor-Managed Dashboard Renderer
     let isFirstRender = true;
 
     function renderDashboard() {
+        const statuses = new Map(plcReader.getEquipmentStatuses().map((status) => [status.plcId, status]));
+        state.machines = (config.plcs || []).map((machine) => ({
+            ...machine,
+            isConnected: statuses.get(String(machine.plcId))?.isConnected === true,
+            connectionState: statuses.get(String(machine.plcId))?.state || 'connecting',
+        }));
         const w = 76;
         const boxTop = '┌' + '─'.repeat(w + 2) + '┐';
         const boxMid = '├' + '─'.repeat(w + 2) + '┤';
@@ -63,12 +76,13 @@ async function main() {
         const tunnelStat = state.cloudConnected ? '\x1b[32m● CONNECTED\x1b[0m    Secure tunnel active' : '\x1b[33m● WAITING\x1b[0m      Connecting to cloud...';
         const healthStat = '\x1b[32m● HEALTHY\x1b[0m      Diagnostic monitor';
         const machCount = String(state.machines.length);
+        const connectedCount = state.machines.filter((machine) => machine.isConnected).length;
         const tagCount = String(state.machines.reduce((acc, m) => acc + (m.tags?.length || 0), 0));
 
         buf += row(`CLOUD CONNECTION                    ${tunnelStat}`) + '\n';
         buf += row(`GATEWAY HEALTH                      ${healthStat}`) + '\n';
-        buf += row(`MACHINES                            \x1b[1m${machCount}\x1b[0m             Connected`) + '\n';
-        buf += row(`TAGS                                \x1b[1m${tagCount}\x1b[0m             Reading`) + '\n';
+        buf += row(`MACHINES                            ${connectedCount} / ${machCount}         Connected`) + '\n';
+        buf += row(`TAGS                                ${tagCount}             Configured`) + '\n';
         buf += boxMid + '\n';
 
         buf += row('\x1b[36m▸ MACHINE STATUS\x1b[0m') + '\n';
@@ -89,8 +103,8 @@ async function main() {
         }
 
         buf += boxMid + '\n';
-        const engineStat = state.machines.some(m => m.isConnected) ? '\x1b[32m● READING\x1b[0m' : '\x1b[33m● WAITING\x1b[0m';
-        const activeTagCount = state.machines.reduce((acc, m) => acc + (m.tags?.length || 0), 0);
+        const engineStat = state.machines.some(m => m.connectionState === 'streaming') ? '\x1b[32m● READING\x1b[0m' : '\x1b[33m● WAITING\x1b[0m';
+        const activeTagCount = state.machines.filter((machine) => machine.connectionState === 'streaming').reduce((acc, m) => acc + (m.tags?.length || 0), 0);
         buf += row(`DATA ENGINE         ${engineStat}       \x1b[1m${activeTagCount} TAGS ACTIVE\x1b[0m`) + '\n';
         buf += boxMid + '\n';
 
@@ -116,15 +130,18 @@ async function main() {
 
     cloudBridge.onConfigUpdate((newConfig) => {
         if (Array.isArray(newConfig?.plcs)) {
-            state.machines = newConfig.plcs;
-            plcReader.reload(newConfig.plcs);
-            renderDashboard();
+            plcReader.enqueue(async () => {
+                await plcReader.reload(newConfig.plcs);
+                state.machines = config.plcs;
+                renderDashboard();
+            }).catch(() => cloudBridge.sendError('Unable to apply equipment configuration'));
         }
     });
 
     // ─── REMOTE EQUIPMENT COMMANDS (start/stop/restart from website) ───
     cloudBridge.onEquipmentCommand((cmd) => {
-        plcReader.handleEquipmentCommand(cmd).catch((err) => {
+        const command = cmd.action === 'test' ? plcReader.handleEquipmentCommand(cmd) : plcReader.enqueue(() => plcReader.handleEquipmentCommand(cmd));
+        command.catch((err) => {
             console.error('[x] Equipment command error:', err.message);
             cloudBridge.sendEquipmentCommandResult({
                 requestId: cmd && cmd.requestId,
@@ -152,19 +169,19 @@ async function main() {
     renderDashboard();
 
     await cloudBridge.connect();
-    await plcReader.startAll();
     healthMonitor.start();
 
     runtime.installShutdownHandlers({
         release: releaseInstance,
         stop: async () => {
             healthMonitor.stop();
-            plcReader.stopAll();
+            discovery.cancel();
+            await plcReader.stopAll();
             cloudBridge.disconnect();
         },
     });
 
-    state.cloudConnected = true;
+    state.cloudConnected = cloudBridge.isConnected;
     renderDashboard();
 }
 

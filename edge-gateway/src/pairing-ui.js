@@ -52,10 +52,10 @@ async function run() {
         fs.mkdirSync(dataDir, { recursive: true });
         const configPath = path.join(dataDir, 'config.json');
         secretStore.saveSecret({ cloudUrl: data.cloudUrl || cloudUrl, namespace: data.namespace || '/edge', companyId: data.companyId, gatewayId: String(data.gatewayId), plcs: data.plcs || [] }, { configPath }, data.apiKey);
-        console.log('[+] Factory Connector authorized and protected configuration saved.');
+        console.log('[+] Factory Connector authorized and protected configuration saved. The Windows service must now be started or restarted to apply it.');
         return true;
     } catch (error) {
-        console.error(`[x] ${error.message}`);
+        console.error('[x] Factory Connector authorization could not be completed. Check your connection and browser approval, then run setup again.');
         return false;
     }
 }

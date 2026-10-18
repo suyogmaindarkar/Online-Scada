@@ -6,14 +6,17 @@ const { io } = require('socket.io-client');
 const os = require('os');
 
 class CloudBridge {
-    constructor(config, verbose = false) {
+    constructor(config, verbose = false, { createSocket = io } = {}) {
         this.config = config;
         this.verbose = verbose;
+        this.createSocket = createSocket;
         this.socket = null;
         this.isConnected = false;
         this.writeCallback = null;
         this.configCallback = null;
         this.discoveryCallback = null;
+        this.cancelDiscoveryCallback = null;
+        this.pendingConfig = null;
         this.equipmentCommandCallback = null;
         this.metrics = {
             reconnectAttempts: 0,
@@ -29,6 +32,8 @@ class CloudBridge {
 
     connect() {
         return new Promise((resolve) => {
+            const initialTimer = setTimeout(() => resolve(), 8000);
+            const finishInitialConnection = () => { clearTimeout(initialTimer); resolve(); };
             let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com')
                 .replace(/^wss:/, 'https:')
                 .replace(/^ws:/, 'http:')
@@ -39,7 +44,7 @@ class CloudBridge {
 
             console.log(`[o] Targeting Cloud Infrastructure...`);
 
-            this.socket = io(fullTarget, {
+            this.socket = this.createSocket(fullTarget, {
                 auth: {
                     apiKey: this.config.apiKey,
                     companyId: this.config.companyId,
@@ -56,7 +61,7 @@ class CloudBridge {
                 this.isConnected = true;
                 this.metrics.connectedAt = new Date().toISOString();
                 console.log(`[+] Connected to Cloud Server! (Session: ${this.socket.id})`);
-                resolve();
+                finishInitialConnection();
             });
 
             this.socket.on('edge:welcome', (data) => {
@@ -65,6 +70,7 @@ class CloudBridge {
 
             this.socket.on('disconnect', (reason) => {
                 this.isConnected = false;
+                this.pendingConfig = null;
                 console.log(`[x] Disconnected from Cloud: ${reason}`);
             });
 
@@ -75,7 +81,7 @@ class CloudBridge {
                 if (err.message.includes('AUTH_INVALID') || err.message.includes('AUTH_')) {
                     console.error(`[!] Fix: Download a fresh Connector Package (new API key).`);
                 }
-                if (!this.isConnected) resolve();
+                if (!this.isConnected) finishInitialConnection();
             });
 
             this.socket.on('edge:writeCommand', (data) => {
@@ -87,17 +93,21 @@ class CloudBridge {
                 console.log(`[o] Network Discovery scan requested by cloud`);
                 if (this.discoveryCallback) this.discoveryCallback(config);
             });
+            this.socket.on('edge:cancelDiscovery', (data) => {
+                if (this.cancelDiscoveryCallback) this.cancelDiscoveryCallback(data || {});
+            });
 
             // ─── FULL CONFIG HOT-RELOAD ─────────────────────────
             this.socket.on('edge:configUpdate', (data) => {
                 const plcCount = data?.plcs?.length || 0;
                 const tagCount = (data?.plcs || []).reduce((n, p) => n + (p.tags?.length || 0), 0);
                 console.log(`[in] Config update from cloud: ${plcCount} Machine(s), ${tagCount} tag(s) — hot reloading...`);
-                if (this.configCallback && Array.isArray(data?.plcs)) {
-                    this.configCallback(data);
-                } else if (this.configCallback) {
-                    this.configCallback({ plcs: this.config.plcs || [] });
-                }
+                if (!Array.isArray(data?.plcs)) return;
+                const receivedAt = Date.parse(data.generatedAt);
+                const previousAt = Date.parse(this.pendingConfig?.generatedAt);
+                if (Number.isFinite(receivedAt) && Number.isFinite(previousAt) && receivedAt < previousAt) return;
+                this.pendingConfig = data;
+                if (this.configCallback) this.configCallback(data);
             });
 
             this.socket.on('edge:equipmentCommand', (data) => {
@@ -109,45 +119,12 @@ class CloudBridge {
                 if (this.verbose) console.log(`[+] Heartbeat acknowledged`);
             });
 
-            setTimeout(() => {
-                if (!this.isConnected) resolve();
-            }, 8000);
         });
     }
 
-    async reportDiscovery(phase, results) {
-        try {
-            let baseUrl = (this.config.cloudUrl || 'https://onlinescada-api.onrender.com')
-                .replace(/^wss?:/, 'https:')
-                .replace(/\/$/, '');
-
-            const url = `${baseUrl}/api/discovery/edge-report`;
-            const payload = JSON.stringify({
-                companyId: this.config.companyId,
-                apiKey: this.config.apiKey,
-                phase,
-                results
-            });
-
-            const http = url.startsWith('https') ? require('https') : require('http');
-            const reqUrl = new URL(url);
-            const options = {
-                hostname: reqUrl.hostname,
-                port: reqUrl.port,
-                path: reqUrl.pathname,
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
-            };
-
-            return new Promise((resolve, reject) => {
-                const req = http.request(options, (res) => { resolve(); });
-                req.on('error', reject);
-                req.write(payload);
-                req.end();
-            });
-        } catch (err) {
-            console.error(`[ERROR] Failed to report discovery status: ${err.message}`);
-        }
+    reportDiscovery(data) {
+        if (!this.isConnected || !this.socket) return;
+        this.socket.emit('edge:discoveryProgress', data);
     }
 
     sendTagValues(tags) {
@@ -212,8 +189,12 @@ class CloudBridge {
     }
 
     onWriteCommand(callback) { this.writeCallback = callback; }
-    onConfigUpdate(callback) { this.configCallback = callback; }
+    onConfigUpdate(callback) {
+        this.configCallback = callback;
+        if (this.pendingConfig) callback(this.pendingConfig);
+    }
     onStartDiscovery(callback) { this.discoveryCallback = callback; }
+    onCancelDiscovery(callback) { this.cancelDiscoveryCallback = callback; }
 
     disconnect() {
         if (this.socket) {

@@ -7,8 +7,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback } from 'react';
-import { pairingAPI, equipmentAPI } from '../services/api';
-import api from '../services/api';
+import { equipmentAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import Modal from './ui/Modal';
 import { Download, Loader2, RefreshCw, ShieldCheck, Monitor, AlertCircle, Wifi } from 'lucide-react';
@@ -18,15 +17,7 @@ const C = {
   warning: '#F59E0B', danger: '#DC2626', muted: '#5F6B7A',
 };
 
-const downloadBlob = (blob, filename) => {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  a.remove(); URL.revokeObjectURL(url);
-};
-
-export default function FactoryConnectorSetup({ open, onClose, gateway, onRefresh }) {
+export default function FactoryConnectorSetup({ open, onClose, onRefresh }) {
   const { showToast } = useToast();
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -39,18 +30,14 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
   const loadStatus = useCallback(async () => {
     setLoadingStatus(true);
     try {
-      const [pairRes, connRes] = await Promise.all([
-        pairingAPI.status().catch(() => null),
-        equipmentAPI.connectorStatus().catch(() => null),
-      ]);
-      const pairData = pairRes?.data?.data;
+      const connRes = await equipmentAPI.connectorStatus();
       const connData = connRes?.data?.data;
-        setState((previous) => ({
-          paired: Boolean(pairData?.paired),
-         connectorOnline: Boolean(connData?.connectorOnline),
-         loading: false,
-       }));
-    } catch (e) {
+        setState({
+          paired: Boolean(connData?.gatewayId),
+          connectorOnline: Boolean(connData?.connectorOnline),
+          loading: false,
+        });
+    } catch {
       setState((s) => ({ ...s, loading: false }));
     } finally {
       setLoadingStatus(false);
@@ -58,7 +45,9 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
   }, []);
 
   useEffect(() => {
-    if (open) loadStatus();
+    if (!open) return undefined;
+    const initialLoad = setTimeout(loadStatus, 0);
+    return () => clearTimeout(initialLoad);
   }, [open, loadStatus]);
 
   // Pairing is completed by the Factory Connector installer, so keep the
@@ -70,23 +59,14 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
   }, [open, loadStatus]);
 
   const handleDownload = async () => {
-    if (!gateway?._id) { showToast('Connector profile not ready. Wait a moment and retry.', 'warning'); return; }
     setDownloading(true);
     try {
-      const installerUrl = import.meta.env.VITE_CONNECTOR_INSTALLER_URL;
-      if (installerUrl) {
-        window.open(installerUrl, '_blank', 'noopener,noreferrer');
-        showToast('Installer download started. Run it on the factory PC; the browser will handle sign-in and approval.', 'success', 9000);
-        return;
-      }
-      const res = await api.get(`/edge/${gateway._id}/download-package`, { responseType: 'blob' });
-      const filename = 'OnlineSCADA-Factory-Connector.zip';
-      const cd = res.headers?.['content-disposition'];
-      const match = cd && cd.match(/filename="?([^"]+)"?/);
-      downloadBlob(res.data, match ? match[1] : filename);
-      showToast('Fallback package downloaded. Configure VITE_CONNECTOR_INSTALLER_URL for the Windows installer.', 'success', 9000);
-      if (onRefresh) { try { onRefresh(); } catch (e) { /* ignore */ } }
-    } catch (err) {
+      const link = document.createElement('a');
+      link.href = import.meta.env.VITE_CONNECTOR_INSTALLER_URL || '/OnlineSCADA-Factory-Connector-Setup.exe';
+      link.download = 'OnlineSCADA-Factory-Connector-Setup.exe';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link); link.click(); link.remove();
+    } catch {
       showToast('Download failed. Try again.', 'error');
     } finally {
       setDownloading(false);
@@ -102,7 +82,7 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
 
   const steps =
     statusKey === 'online' ? [] :
-    statusKey === 'paired_offline' ? ['Connector is paired', 'Start the Factory Connector service on the PC', 'Wait for the cloud link to establish'] :
+    statusKey === 'paired_offline' ? ['A connector profile exists', 'Run the installer on the factory PC to authorize and start the connector', 'Wait for the cloud link to establish'] :
     ['Download the Windows Factory Connector installer', 'Run it once on the factory PC', 'Sign in through the browser when prompted', 'Approve the factory computer'];
 
   return (
@@ -133,7 +113,7 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
            <Monitor size={16} />}
           <span className="font-semibold">
              {statusKey === 'online' ? 'Factory Connector online and connected' :
-              statusKey === 'paired_offline' ? 'Connector paired. Waiting for it to connect.' :
+              statusKey === 'paired_offline' ? 'Connector profile found. Waiting for a live connection.' :
               statusKey === 'loading' ? 'Checking installation status...' :
              'Beginning setup. Download the installer to start.'}
           </span>
@@ -145,7 +125,7 @@ export default function FactoryConnectorSetup({ open, onClose, gateway, onRefres
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white cursor-pointer shadow-sm hover:opacity-90 disabled:opacity-50"
             style={{ background: C.brand }}>
             {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-             {downloading ? 'Preparing installer...' : (import.meta.env.VITE_CONNECTOR_INSTALLER_URL ? 'Download Windows Installer' : 'Download fallback package')}
+              {downloading ? 'Preparing installer...' : 'Download Windows Installer'}
           </button>
 
           <button type="button" onClick={() => { loadStatus(); if (onRefresh) onRefresh(); }}

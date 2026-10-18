@@ -2,8 +2,9 @@
 // PLC Management — Professional UI (Emoji-Free)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react';
-import { plcAPI, pairingAPI, equipmentAPI } from '../services/api';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { plcAPI, equipmentAPI, discoveryAPI } from '../services/api';
+import { isEquipmentEnabled, mergeEquipmentStatus, selectConnector, isTerminalScan, matchesCommand } from '../utils/equipmentState.mjs';
 import api from '../services/api';
 import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
@@ -12,20 +13,9 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import FactoryConnectorSetup from '../components/FactoryConnectorSetup';
 import {
   Plus, Edit2, Trash2, Play, Pause, Cpu, Wifi, WifiOff, Loader2, Sparkles,
-  Download, Upload, FileText, Search, Radar, Signal, SignalHigh, SignalLow,
-  CheckCircle2, ShieldCheck, Microscope, RefreshCw, ChevronDown, ChevronUp,
-  Zap, Package, Hash, Tag, Server, Settings2, CheckCircle, Network, FolderArchive,
-  Info, Key, MapPin, Monitor, Lightbulb, Hexagon, Box, Layers, Timer, AlertCircle,
-  HardDrive, KeyRound, Power
+  Download, Radar, Signal, SignalLow, CheckCircle2, Server, CheckCircle,
+  Info, Key, MapPin, Monitor, AlertCircle
 } from 'lucide-react';
-
-const C = {
-  bg: '#F8FAFC', card: '#FFFFFF', cardSubtle: '#F8FAFC', cardHover: '#EEF6FF',
-  border: '#E5E7EB', heading: '#081B43', text: '#334155', muted: '#5F6B7A',
-  subtle: '#94A3B8', brand: '#2563EB', brandDark: '#0F3D91', btnPrimary: '#2563EB',
-  btnHover: '#1D4ED8', success: '#16A34A', warning: '#F59E0B', danger: '#DC2626',
-  purple: '#9333EA', purpleDark: '#6B21A8', teal: '#0891B2', tealDark: '#0E7490', verified: '#059669',
-};
 
 const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disabled, loading, title }) => {
   const variants = {
@@ -54,8 +44,8 @@ const ActionButton = ({ variant = 'primary', icon: Icon, children, onClick, disa
 };
 
 const PHASE_LABELS = {
-  idle: 'Idle', pinging: 'Phase 1: Preparing scan...', probing: 'Phase 2: Port checking across local subnet...',
-  done: 'Scan complete', cancelled: 'Cancelled',
+  idle: 'Idle', queued: 'Waiting for connector...', pinging: 'Preparing scan...', probing: 'Checking equipment protocols...',
+  done: 'Scan complete', cancelled: 'Scan cancelled', failed: 'Scan failed',
 };
 
 const getEquipmentStatus = (plc) => {
@@ -79,43 +69,61 @@ const PLCManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingPLC, setEditingPLC] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [creatingSim, setCreatingSim] = useState(false);
 
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanPhase, setScanPhase] = useState('idle');
   const [scanResults, setScanResults] = useState(null);
+  const [scanMessage, setScanMessage] = useState('');
+  const [cancellingScan, setCancellingScan] = useState(false);
+  const scanIdRef = useRef(null);
+  const scanStartedRef = useRef(0);
+  const scanPollErrorsRef = useRef(0);
   const [customRange, setCustomRange] = useState({ startIP: '', endIP: '' });
   const [useDeepProbe, setUseDeepProbe] = useState(true);
 
   const [gateway, setGateway] = useState(null);
-  const [downloadingPackage, setDownloadingPackage] = useState(false);
   const [testingPLC, setTestingPLC] = useState(null);
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [commandingId, setCommandingId] = useState(null);
+  const pendingCommandRef = useRef(null);
+  const commandTimerRef = useRef(null);
+  const liveStatusesRef = useRef(new Map());
 
   const [formData, setFormData] = useState({
-    name: '', description: '', protocol: 'SIMULATION', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 502,
+    name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 4840,
     rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: ''
   });
 
+  const loadPLCs = useCallback(async () => {
+    try {
+      const res = await plcAPI.getAll();
+      const incoming = res.data.data || [];
+      setPlcs(incoming.map((plc) => mergeEquipmentStatus(plc, liveStatusesRef.current.get(plc._id))));
+    } catch { /* Keep the last confirmed list during transient failures. */ }
+    finally { setLoading(false); }
+  }, []);
+  const loadGateway = useCallback(async () => {
+    try { const res = await api.get('/edge'); setGateway(selectConnector(res?.data?.data || [])); }
+    catch { /* Retry on the next status refresh. */ }
+  }, []);
+
   useEffect(() => {
-    loadPLCs(); loadGateway();
+    const initialLoad = setTimeout(() => { loadPLCs(); loadGateway(); }, 0);
     const handlePlcStatus = (data) => {
-      setPlcs(prev => prev.map(p => p._id === data.plcId ? {
-        ...p,
-        isConnected: data.isConnected,
-        connectionState: data.state,
-        connectionMessage: data.message,
-        lastDataAt: data.lastDataAt,
-      } : p));
+      if (!data?.plcId) return;
+      const live = { ...data, receivedAt: Date.now() };
+      liveStatusesRef.current.set(data.plcId, live);
+      setPlcs(prev => prev.map(p => p._id === data.plcId ? mergeEquipmentStatus({ ...p, connectionState: data.state }, live) : p));
     };
     socketService.on('plcStatus', handlePlcStatus);
     const handleCommandResult = (data) => {
-      if (!data) return;
+      if (!matchesCommand(pendingCommandRef.current, data)) return;
       const label = data.action === 'start' ? 'Start' : data.action === 'stop' ? 'Stop' : 'Restart';
       if (data.success) showToast(`${label} confirmed: ${data.message || 'equipment OK'}`, 'success', 5000);
       else showToast(`${label} failed: ${data.error || data.message || 'unknown error'}`, 'error', 7000);
+      clearTimeout(commandTimerRef.current);
+      pendingCommandRef.current = null;
       setCommandingId(null);
       loadPLCs();
     };
@@ -125,17 +133,26 @@ const PLCManagement = () => {
       socketService.off('plcStatus', handlePlcStatus);
       socketService.off('equipmentCommandResult', handleCommandResult);
       clearInterval(statusInterval);
+      clearTimeout(initialLoad);
+      clearTimeout(commandTimerRef.current);
     };
-  }, []);
+  }, [loadPLCs, loadGateway, showToast]);
 
   // Poll for Discovery Progress via HTTP to circumvent complex socket namespace routing
   useEffect(() => {
     if (!scanning) return;
     const interval = setInterval(async () => {
       try {
-        const res = await api.get('/discovery/status');
+        if (Date.now() - scanStartedRef.current > 130000) {
+          setScanning(false); setScanPhase('failed'); setScanMessage('Discovery timed out. Check that the connector is online.'); return;
+        }
+        if (!scanIdRef.current) return;
+        const res = await discoveryAPI.getProgress();
         if (res.data) {
+          if (scanIdRef.current && res.data.scanId !== scanIdRef.current) return;
           setScanPhase(res.data.phase);
+          setScanMessage(res.data.message || '');
+          scanPollErrorsRef.current = 0;
           if (res.data.devices) {
             setScanResults({
               scannedIPs: res.data.scannedIPs,
@@ -143,65 +160,29 @@ const PLCManagement = () => {
               devices: res.data.devices
             });
           }
-          if (res.data.phase === 'done') {
+          if (isTerminalScan(res.data.phase)) {
             setScanning(false);
-            showToast('Network scan complete', 'success');
+            showToast(res.data.message || PHASE_LABELS[res.data.phase], res.data.phase === 'failed' ? 'error' : 'info');
           }
         }
-      } catch { }
+      } catch {
+        if (++scanPollErrorsRef.current >= 3) {
+          setScanning(false); setScanPhase('failed'); setScanMessage('Unable to read discovery progress. Check your connection and try again.');
+        }
+      }
     }, 1500);
     return () => clearInterval(interval);
-  }, [scanning]);
+  }, [scanning, showToast]);
 
-  const loadPLCs = async () => {
-    try {
-      const res = await plcAPI.getAll();
-      const incoming = res.data.data || [];
-      setPlcs((current) => incoming.map((plc) => {
-        const live = current.find((item) => item._id === plc._id);
-        return live?.connectionState
-          ? { ...plc, isConnected: live.isConnected, connectionState: live.connectionState, connectionMessage: live.connectionMessage, lastDataAt: live.lastDataAt }
-          : plc;
-      }));
-    } catch (err) { } finally { setLoading(false); }
-  };
-  const loadGateway = async () => { try { const res = await api.get('/edge'); setGateway(res?.data?.data?.[0] || null); } catch (err) { } };
-
-  const handleDownloadCompletePackage = async () => {
-    try {
-      setDownloadingPackage(true);
-      let targetGateway = gateway;
-      if (!targetGateway) {
-        try { const createRes = await api.post('/edge', { name: 'Factory Connector' }); targetGateway = createRes.data?.data; setGateway(targetGateway); } catch (e) { }
-      }
-      if (!targetGateway) { const fetchRes = await api.get('/edge'); targetGateway = fetchRes?.data?.data?.[0]; setGateway(targetGateway); }
-      if (!targetGateway) { showToast('Profile error. Try again.', 'error'); return; }
-
-      const res = await api.get(`/edge/${targetGateway._id}/download-package`, { responseType: 'blob' });
-      const blob = new Blob([res.data], { type: 'application/zip' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `OnlineSCADA-Connector.zip`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-
-      showToast('Connector downloaded successfully! Extract and run Start.bat', 'success', 8000);
-      loadGateway();
-    } catch (err) {
-      let msg = 'Package download failed';
-      try { if (err.response?.data?.message) msg = err.response.data.message; } catch (e) { }
-      showToast(`Error: ${msg}`, 'error', 6000);
-    } finally { setDownloadingPackage(false); }
+  const handleDownloadInstaller = () => {
+    const link = document.createElement('a');
+    link.href = import.meta.env.VITE_CONNECTOR_INSTALLER_URL || '/OnlineSCADA-Factory-Connector-Setup.exe';
+    link.download = 'OnlineSCADA-Factory-Connector-Setup.exe';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link); link.click(); link.remove();
   };
 
-  const handleQuickSimulation = async () => {
-    try {
-      setCreatingSim(true);
-      const res = await plcAPI.quickSimulation();
-      showToast(`${res.data?.data?.name || 'Simulation PLC'} created with demo tags`, 'success', 5000);
-      await loadPLCs();
-    } catch (err) { showToast('Creation failed', 'error'); } finally { setCreatingSim(false); }
-  };
-
-  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'SIMULATION', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 502, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
+  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 4840, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
   const handleOpenEdit = (plc) => { setEditingPLC(plc); setFormData({ ...plc }); setShowModal(true); };
 
   const handleSubmit = async (e) => {
@@ -210,39 +191,43 @@ const PLCManagement = () => {
       if (editingPLC) await plcAPI.update(editingPLC._id, formData);
       else await plcAPI.create(formData);
       showToast('Equipment saved', 'success'); setShowModal(false); loadPLCs(); loadGateway();
-    } catch (err) { showToast('Operation failed', 'error'); }
+    } catch { showToast('Operation failed', 'error'); }
   };
 
-  const handleDelete = async () => { try { await plcAPI.delete(deleteId); setDeleteId(null); loadPLCs(); showToast('Deleted successfully', 'success'); } catch (err) { showToast('Delete failed', 'error'); } };
+  const handleDelete = async () => { try { await plcAPI.delete(deleteId); setDeleteId(null); loadPLCs(); showToast('Deleted successfully', 'success'); } catch { showToast('Delete failed', 'error'); } };
 
   const handleStartStop = async (plc) => {
+    if (pendingCommandRef.current) return;
+    const action = isEquipmentEnabled(plc) ? 'stop' : 'start';
+    const pending = { equipmentId: plc._id, action, requestId: null };
+    pendingCommandRef.current = pending;
+    liveStatusesRef.current.delete(plc._id);
     try {
       setCommandingId(plc._id);
-      const res = plc.isConnected ? await equipmentAPI.stop(plc._id) : await equipmentAPI.start(plc._id);
+      const res = await equipmentAPI[action](plc._id);
       const d = res?.data;
       if (d?.code === 'CONNECTOR_OFFLINE') {
         showToast(d.message || 'Factory Connector is offline. Start it first.', 'warning', 7000);
         setShowSetupModal(true);
       } else if (d?.success) {
-        showToast(d.message || (plc.isConnected ? 'Stop command sent' : 'Start command sent'), 'success', 5000);
+        showToast(d.message || 'Command sent to connector', 'info', 5000);
+        if (typeof d.data?.isActive === 'boolean') {
+          setPlcs(current => current.map(p => p._id === plc._id ? { ...p, isActive: d.data.isActive, isConnected: false, connectionState: d.data.isActive ? 'pending' : 'stopped' } : p));
+        }
+        if (d.data?.requestId && pendingCommandRef.current === pending) {
+          pending.requestId = d.data.requestId;
+          commandTimerRef.current = setTimeout(() => {
+            pendingCommandRef.current = null; setCommandingId(null);
+            showToast('Command confirmation timed out. Refreshing equipment status.', 'warning'); loadPLCs();
+          }, 18000);
+        } else if (!d.data?.requestId) pendingCommandRef.current = null;
       } else {
         showToast(d?.message || 'Command could not be delivered', 'error', 6000);
       }
       setTimeout(loadPLCs, 1200);
-    } catch (err) { showToast('Operation failed', 'error'); }
-    finally { setCommandingId(null); }
-  };
-
-  const handleRestartConnection = async (plc) => {
-    try {
-      setCommandingId(plc._id);
-      const res = await equipmentAPI.restart(plc._id);
-      const d = res?.data;
-      if (d?.code === 'CONNECTOR_OFFLINE') showToast(d.message || 'Factory Connector is offline', 'warning', 6000);
-      else showToast(d?.message || 'Restart command sent', d?.success ? 'success' : 'info', 5000);
-      setTimeout(loadPLCs, 1200);
-    } catch (err) { showToast('Restart failed', 'error'); }
-    finally { setCommandingId(null); }
+      if (!d?.success) pendingCommandRef.current = null;
+    } catch (err) { pendingCommandRef.current = null; showToast(err.response?.data?.message || 'Operation failed', 'error'); }
+    finally { if (!pendingCommandRef.current?.requestId) { pendingCommandRef.current = null; setCommandingId(null); } }
   };
 
   const handleTestConnection = async (plc) => {
@@ -251,27 +236,45 @@ const PLCManagement = () => {
       const res = await plcAPI.testConnection(plc._id);
       if (res.data.success && res.data?.data?.connected) { showToast(`Connection test successful`, 'success', 5000); setTimeout(loadPLCs, 500); }
       else { showToast(`Test failed: ${res.data?.data?.error || 'Error'}`, 'error', 5000); }
-    } catch (err) { showToast(`Error: ${err.message}`, 'error'); } finally { setTestingPLC(null); }
+    } catch (err) { showToast(err.response?.data?.message || 'Could not test the equipment connection', 'error'); } finally { setTestingPLC(null); }
   };
 
   const handleInputChange = (e) => { const { name, value, type } = e.target; setFormData({ ...formData, [name]: type === 'number' ? parseInt(value) : value }); };
 
   const handleStartScan = async () => {
     setScanning(true);
-    setScanPhase('pinging');
+    setScanPhase('queued');
     setScanResults(null);
+    setScanMessage('');
+    scanIdRef.current = null;
+    scanStartedRef.current = Date.now();
+    scanPollErrorsRef.current = 0;
     try {
-      await api.post('/discovery/start', {
+      const res = await discoveryAPI.startScan({
         startIP: customRange.startIP,
         endIP: customRange.endIP,
-        deepProbe: useDeepProbe
+        deepProbe: useDeepProbe,
+        gatewayId: gateway?._id,
       });
+      scanIdRef.current = res.data.scanId;
+      setScanPhase(res.data.phase);
+      setScanResults(res.data);
       showToast('Scan instruction pushed to Factory Connector', 'info');
     } catch (err) {
       setScanning(false);
-      setScanPhase('idle');
-      showToast('Failed to initiate scan', 'error');
+      setScanPhase('failed');
+      setScanMessage(err.response?.data?.message || 'Failed to initiate scan');
+      showToast(err.response?.data?.message || 'Failed to initiate scan', 'error');
     }
+  };
+
+  const handleCancelScan = async () => {
+    setCancellingScan(true);
+    try {
+      const res = await discoveryAPI.cancelScan();
+      setScanPhase(res.data.phase); setScanMessage(res.data.message || 'Scan cancelled'); setScanning(false);
+    } catch (err) { showToast(err.response?.data?.message || 'Could not cancel discovery', 'error'); }
+    finally { setCancellingScan(false); }
   };
 
   const handleAddDiscovered = (dev) => {
@@ -300,10 +303,9 @@ const PLCManagement = () => {
     <div className="space-y-4 font-sans text-slate-800 pb-10">
       {/* ═══ HEADER ═══ */}
       <div className="p-5 rounded-2xl bg-white border shadow-sm flex items-center justify-between flex-wrap gap-4">
-        <div><h1 className="text-2xl font-bold text-slate-900">Equipment Connections</h1><p className="text-sm text-slate-500 mt-1">Manage PLCs and link your factory to the cloud</p></div>
+        <div><h1 className="text-2xl font-bold text-slate-900">Equipment Connections</h1><p className="text-sm text-slate-500 mt-1">Manage equipment and link your factory to the cloud</p></div>
         <div className="flex items-center gap-2 flex-wrap">
           <ActionButton variant="teal" icon={Radar} onClick={() => setShowDiscoveryModal(true)} disabled={!isGatewayOnline} title={!isGatewayOnline ? "Connector must be online to scan local network" : ""}>Discover</ActionButton>
-          <ActionButton variant="purple" icon={Sparkles} onClick={handleQuickSimulation} disabled={creatingSim} loading={creatingSim}>Simulate</ActionButton>
           <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
         </div>
       </div>
@@ -315,7 +317,7 @@ const PLCManagement = () => {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: isGatewayOnline ? '#10B981' : '#F59E0B' }}><Server size={22} /></div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-base text-slate-900">Factory Connector Link</h3>
+                <h3 className="font-bold text-base text-slate-900">PLC Connector Link</h3>
                 <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: isGatewayOnline ? '#DCFCE7' : '#FEF3C7', color: isGatewayOnline ? '#15803D' : '#B45309' }}>
                   {isGatewayOnline ? <CheckCircle size={12} strokeWidth={3} /> : <AlertCircle size={12} strokeWidth={3} />}
                   {isGatewayOnline ? 'System is Online & Connected' : nonSimPlcCount === 0 ? 'Ready for Download' : 'Offline - Setup Required'}
@@ -323,11 +325,11 @@ const PLCManagement = () => {
               </div>
               <p className="text-sm text-slate-700">
                 {isGatewayOnline ? (
-                  <span className="flex items-center gap-1"><CheckCircle2 size={14} className="text-emerald-600" /> Secure bridge active. Streaming from <strong>{nonSimPlcCount} machine(s)</strong>.</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 size={14} className="text-emerald-600" /> Secure bridge active. <strong>{nonSimPlcCount} equipment connection(s)</strong> configured.</span>
                 ) : nonSimPlcCount === 0 ? (
                   `Download the Connector to enable Network Discovery, or add your machine manually below.`
                 ) : (
-                  `Download the Connector to link your ${nonSimPlcCount} machine(s) securely to the cloud. No installation needed!`
+                  `Install the connector on your factory computer to link your ${nonSimPlcCount} equipment connection(s) securely to the cloud.`
                 )}
               </p>
               {gateway && isGatewayOnline && (
@@ -342,11 +344,8 @@ const PLCManagement = () => {
 
           {/* REMOVED: disabled rule blocking download when PLC count is 0 */}
           <div className="flex items-center gap-2 flex-wrap">
-            <ActionButton variant="secondary" icon={KeyRound} onClick={() => setShowSetupModal(true)}>
-              Pair Connector
-            </ActionButton>
-            <ActionButton variant="emerald" icon={FolderArchive} onClick={handleDownloadCompletePackage} disabled={downloadingPackage} loading={downloadingPackage}>
-              {downloadingPackage ? 'Preparing...' : 'Download Connector'}
+            <ActionButton variant="emerald" icon={Download} onClick={handleDownloadInstaller}>
+              Download Connector
             </ActionButton>
           </div>
         </div>
@@ -385,8 +384,8 @@ const PLCManagement = () => {
                   <td className="p-4 font-mono text-slate-600">{plc.ipAddress}:{plc.port}</td>
                   <td className="p-4"><span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-md">{plc.tagCount || 0}</span></td>
                   <td className="p-4 text-right flex items-center justify-end gap-1.5">
-                    <TableActionButton variant={plc.isConnected ? 'orange' : 'green'} icon={plc.isConnected ? Pause : Play} onClick={() => handleStartStop(plc)} title={plc.isConnected ? 'Stop' : 'Start'} />
-                    <TableActionButton variant="teal" icon={testingPLC === plc._id ? Loader2 : CheckCircle} onClick={() => handleTestConnection(plc)} title="Test Connection" disabled={testingPLC === plc._id} loading={testingPLC === plc._id} />
+                    <TableActionButton variant={isEquipmentEnabled(plc) ? 'orange' : 'green'} icon={commandingId === plc._id ? Loader2 : isEquipmentEnabled(plc) ? Pause : Play} onClick={() => handleStartStop(plc)} title={isEquipmentEnabled(plc) ? 'Stop equipment polling' : 'Start equipment polling'} disabled={commandingId !== null || testingPLC === plc._id} loading={commandingId === plc._id} />
+                    <TableActionButton variant="teal" icon={testingPLC === plc._id ? Loader2 : CheckCircle} onClick={() => handleTestConnection(plc)} title="Test connection from factory computer" disabled={testingPLC !== null || commandingId === plc._id} loading={testingPLC === plc._id} />
                     <TableActionButton variant="blue" icon={Edit2} onClick={() => handleOpenEdit(plc)} title="Edit" />
                     <TableActionButton variant="red" icon={Trash2} onClick={() => setDeleteId(plc._id)} title="Delete" />
                   </td>
@@ -410,7 +409,7 @@ const PLCManagement = () => {
                 <option value="OPC_UA">OPC-UA</option>
                  <option value="ETHERNET_IP">Allen-Bradley (Ethernet/IP)</option>
                  <option value="PROFIBUS_GATEWAY">Profibus via Gateway</option>
-                 <option value="SIMULATION">Simulation Mode</option>
+                  {editingPLC?.isSimulation && <option value="SIMULATION">Existing simulation</option>}
               </select>
             </div>
           </div>
@@ -440,7 +439,7 @@ const PLCManagement = () => {
       <FactoryConnectorSetup open={showSetupModal} onClose={() => setShowSetupModal(false)} gateway={gateway} onRefresh={loadGateway} />
 
       {/* ═══════════ DISCOVERY MODAL ═══════════ */}
-      <Modal isOpen={showDiscoveryModal} onClose={() => { setShowDiscoveryModal(false); setScanning(false); setScanResults(null); }} title="Discover Equipment on Network" size="xl">
+      <Modal isOpen={showDiscoveryModal} onClose={() => setShowDiscoveryModal(false)} title="Discover Equipment on Network" size="xl">
         <div className="space-y-4">
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
             <p className="text-sm text-slate-600">The Factory Connector will rapidly probe local IPs for active industrial machines (Siemens, Modbus, OPC-UA, Ethernet/IP).</p>
@@ -458,15 +457,18 @@ const PLCManagement = () => {
 
             <label className="flex items-center gap-2 cursor-pointer pt-2">
               <input type="checkbox" checked={useDeepProbe} onChange={e => setUseDeepProbe(e.target.checked)} disabled={scanning} className="accent-teal-600 w-4 h-4" />
-              <span className="text-sm font-bold text-slate-800">Use Deep Hardware Identification</span>
+              <span className="text-sm font-bold text-slate-800">Verify industrial protocol responses</span>
             </label>
           </div>
 
-          {!scanResults && (
+          {!scanning && (
             <button onClick={handleStartScan} disabled={scanning} className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all flex justify-center items-center gap-2 ${scanning ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
               {scanning ? <><Loader2 size={18} className="animate-spin" /> {PHASE_LABELS[scanPhase] || 'Scanning...'}</> : <><Radar size={18} /> Start Network Scan</>}
             </button>
           )}
+
+          {scanning && <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800"><span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin" />{PHASE_LABELS[scanPhase] || 'Scanning...'}</span><button type="button" onClick={handleCancelScan} disabled={cancellingScan} className="font-semibold underline disabled:opacity-50">{cancellingScan ? 'Cancelling...' : 'Cancel scan'}</button></div>}
+          {scanMessage && <p role="status" className={`rounded-lg border p-3 text-sm ${scanPhase === 'failed' ? 'border-red-200 bg-red-50 text-red-700' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>{scanMessage}</p>}
 
           {scanResults && (
             <div className="space-y-4 animate-in fade-in zoom-in duration-300">
@@ -475,7 +477,7 @@ const PLCManagement = () => {
                 <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center"><p className="text-xl font-bold text-emerald-700">{scanResults.devices?.length || 0}</p><p className="text-xs text-emerald-600 font-semibold uppercase mt-1">Machines Found</p></div>
                 <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center flex flex-col items-center justify-center">
                   {scanning ? <Loader2 size={24} className="animate-spin text-blue-500" /> : <CheckCircle size={24} className="text-blue-500" />}
-                  <p className="text-xs text-blue-600 font-semibold uppercase mt-1">{scanning ? 'Scanning...' : 'Complete'}</p>
+                  <p className="text-xs text-blue-600 font-semibold uppercase mt-1">{PHASE_LABELS[scanPhase] || scanPhase}</p>
                 </div>
               </div>
 
@@ -487,7 +489,7 @@ const PLCManagement = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-mono text-sm font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{dev.ip}</span>
                           <span className="font-bold text-slate-800">{dev.vendorName}</span>
-                          {dev.verified && <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><CheckCircle2 size={12} /> PORT: {dev.port}</span>}
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">{dev.confirmed ? 'Protocol verified' : 'Open port candidate'} · {dev.port}</span>
                         </div>
                         {dev.deepInfo && (
                           <div className="text-xs text-slate-500 mt-2">
@@ -495,11 +497,12 @@ const PLCManagement = () => {
                           </div>
                         )}
                       </div>
-                      <ActionButton variant="primary" icon={Plus} onClick={() => handleAddDiscovered(dev)}>Add Device</ActionButton>
+                      <ActionButton variant="primary" icon={Plus} onClick={() => handleAddDiscovered(dev)} disabled={scanning}>Add Equipment</ActionButton>
                     </div>
                   </div>
                 ))}
               </div>
+              {!scanning && scanPhase === 'done' && scanResults.devices?.length === 0 && <p className="text-sm text-slate-600">No industrial protocols found. Check the factory computer's network adapter, equipment IP range and firewall, or add equipment manually.</p>}
             </div>
           )}
         </div>

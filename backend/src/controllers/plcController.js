@@ -7,10 +7,11 @@ const simulationService = require('../services/simulationService');
 const PLCConnection = require('../models/PLCConnection');
 const Tag = require('../models/Tag');
 const edgeService = require('../services/edgeService');
-const { broadcastConfigUpdate } = require('../services/edgeConfigBroadcaster');
+const { broadcastConfigUpdate, compileLiveConfig } = require('../services/edgeConfigBroadcaster');
 
 const isPlcLiveFromEdge = async (plc, companyId) => {
-  if (plc.isSimulation) return {
+  if (plc.isActive === false) return { connected: false, state: 'stopped', message: 'Equipment is stopped' };
+  if (plc.isSimulation || plc.protocol === 'SIMULATION') return {
     connected: Boolean(plc.isConnected),
     state: plc.isConnected ? 'connected' : 'stopped',
     message: plc.isConnected ? 'Simulation is running' : 'Simulation is stopped',
@@ -21,19 +22,9 @@ const isPlcLiveFromEdge = async (plc, companyId) => {
     message: 'Factory Connector is offline',
   };
 
-  const freshTag = await Tag.findOne({
-    companyId,
-    plcConnection: plc._id,
-    lastUpdated: { $gte: new Date(Date.now() - 15000) },
-  });
-  return freshTag ? {
-    connected: true,
-    state: 'streaming',
-    message: 'Equipment is connected and data is streaming',
-  } : {
-    connected: true,
-    state: 'connected_no_data',
-    message: 'Equipment connection is active, but no recent tag data exists',
+  const status = edgeService.getEquipmentStatus(companyId, plc._id);
+  return status ? { connected: status.isConnected === true, state: status.state, message: status.message } : {
+    connected: false, state: 'connecting', message: 'Waiting for equipment status from Factory Connector',
   };
 };
 
@@ -237,29 +228,20 @@ const testPLCConnection = async (req, res) => {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
 
-    if (plc.protocol === 'SIMULATION') {
-      plc.isConnected = true; plc.lastConnected = Date.now(); await plc.save();
+    if (plc.isSimulation || plc.protocol === 'SIMULATION') {
       return res.json({ success: true, message: 'Connection successful', data: { connected: true } });
     }
 
-    let service;
-    const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
-    switch (effectiveProtocol) {
-      case 'S7': service = require('../services/s7Service'); break;
-      case 'MODBUS_TCP':
-      case 'MODBUS_RTU': service = require('../services/modbusService'); break;
-      case 'OPC_UA': service = require('../services/opcuaService'); break;
-      case 'ETHERNET_IP': service = require('../services/ethernetIpService'); break;
-      default: return res.json({ success: false, message: `Test not supported` });
-    }
-
-    const result = await service.test(plc);
-    if (result.success) {
-      plc.isConnected = true; plc.lastConnected = Date.now(); await plc.save();
-      return res.json({ success: true, message: `Test successful`, data: { connected: true } });
-    } else {
-      return res.json({ success: false, message: `Test failed: ${result.error}`, data: { connected: false, error: result.error } });
-    }
+    const config = (await compileLiveConfig(req.companyId, { equipmentId: plc._id, includeInactive: true })).plcs[0];
+    const result = await edgeService.requestEquipmentCommand(req.companyId, {
+      equipmentId: String(plc._id), action: 'test', payload: { config },
+    });
+    return res.json({
+      success: result.success === true,
+      code: result.code,
+      message: result.message,
+      data: { connected: result.success === true && result.connected === true, error: result.error || (result.success ? null : result.message), requestId: result.requestId || null },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
@@ -269,6 +251,7 @@ const startPLC = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+    if (!plc.isSimulation && plc.protocol !== 'SIMULATION') return require('./equipmentCommandController').startEquipment(req, res);
 
     plc.isActive = true;
     await plc.save();
@@ -293,6 +276,7 @@ const stopPLC = async (req, res) => {
   try {
     const plc = await PLCConnection.findOne({ _id: req.params.id, companyId: req.companyId });
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found in this workspace' });
+    if (!plc.isSimulation && plc.protocol !== 'SIMULATION') return require('./equipmentCommandController').stopEquipment(req, res);
 
     plc.isActive = false;
     plc.isConnected = false;
@@ -317,8 +301,10 @@ const getPLCStatus = async (req, res) => {
     if (!plc) return res.status(404).json({ success: false, message: 'PLC not found' });
 
     const effectiveProtocol = plc.protocol === 'PROFIBUS_GATEWAY' ? plc.transportProtocol : plc.protocol;
-    const isRunning = plcManager.isRunning(plc._id, effectiveProtocol);
     const liveConnected = await isPlcLiveFromEdge(plc, req.companyId);
+    const isRunning = plc.isSimulation || plc.protocol === 'SIMULATION'
+      ? plcManager.isRunning(plc._id, effectiveProtocol)
+      : plc.isActive !== false && edgeService.hasActiveGateway(req.companyId) && Boolean(edgeService.getEquipmentStatus(req.companyId, plc._id));
 
     res.json({
       success: true,
@@ -330,6 +316,7 @@ const getPLCStatus = async (req, res) => {
         connectionState: liveConnected.state,
         connectionMessage: liveConnected.message,
         isRunning,
+        isActive: plc.isActive,
         isSimulation: plc.isSimulation,
       },
     });
