@@ -125,6 +125,8 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
     // Users can reduce it if they want partial tinting.
     // ─────────────────────────────────────────────────────
     svgSymbol: [
+      { key: 'symbolId', label: 'Library Symbol', type: 'text', value: element.symbolId || '', readOnly: true, dynamic: false },
+      { key: 'libraryVersion', label: 'Library Version', type: 'text', value: element.libraryVersion || 'legacy', readOnly: true, dynamic: false },
       { key: 'svgPath', label: 'SVG Source', type: 'text', value: element.svgPath || '', readOnly: true, dynamic: false },
       {
         key: 'symbolTint',
@@ -145,6 +147,9 @@ export const getElementSpecificProperties = (elementType, element = {}) => {
       },
       { key: 'symbolBrightness', label: 'Brightness', type: 'number', value: element.symbolBrightness ?? 1, min: 0.2, max: 2, step: 0.1, dynamic: true },
       { key: 'preserveAspect', label: 'Keep Aspect Ratio', type: 'select', value: element.preserveAspect !== false ? 'Yes' : 'No', options: ['Yes', 'No'], dynamic: false },
+      { key: 'boundTag', label: 'Bound Tag', type: 'tag', value: element.boundTag || '', dynamic: false },
+      { key: 'tooltip', label: 'Tooltip', type: 'text', value: element.tooltip || '', dynamic: false },
+      { key: 'isVisible', label: 'Visible', type: 'select', value: element.isVisible !== false && element.isVisible !== 'No' ? 'Yes' : 'No', options: ['Yes', 'No'], dynamic: true },
     ],
 
     digitalClock: [

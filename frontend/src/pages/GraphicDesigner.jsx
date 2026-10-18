@@ -8,6 +8,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Save, X, Settings2, PanelTop, Star } from 'lucide-react';
 import MenuBar from '../components/designer/MenuBar';
 import DesignerToolbar from '../components/designer/DesignerToolbar';
 import LeftSidebar from '../components/designer/LeftSidebar';
@@ -25,6 +26,7 @@ import { normalizeColor } from '../utils/colorUtils';
 import StatusBar from '../components/designer/StatusBar';
 import BindingDialog from '../components/designer/BindingDialog';
 import { setBinding, removeBinding } from '../utils/bindingUtils';
+import { createLibraryElement, restoreScreenElements, serializeScreenElements } from '../utils/svgLibraryPersistence';
 import DirectConnectionDialog from '../components/designer/DirectConnectionDialog';
 import { useToast } from '../context/ToastContext';
 import COLORS from '../theme/colors';
@@ -62,7 +64,8 @@ const GraphicDesigner = () => {
   const [activePropertyCategory, setActivePropertyCategory] = useState('geometry');
   const [activeTab, setActiveTab] = useState('properties');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [socketConnected, setSocketConnected] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(() => Boolean(socketService.isConnected?.()));
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [rotationAngle, setRotationAngle] = useState(null);
   const [defaultCanvasSettings, setDefaultCanvasSettings] = useState({
     width: 1200, height: 700, bg: '#ffffff', gridSize: 10, showGrid: true,
@@ -102,6 +105,8 @@ const GraphicDesigner = () => {
   const canvasHeightRef = useRef(700);
   const canvasBgRef = useRef('#ffffff');
   const hasUnsavedChangesRef = useRef(false);
+  const performSaveRef = useRef(() => {});
+  const popupSequenceRef = useRef(0);
 
   const navigate = useNavigate();
 
@@ -119,7 +124,7 @@ const GraphicDesigner = () => {
     : null;
   const selectedElements = elements.filter(el => selectedIds.includes(el.id));
 
-  // Auto-switch to Element Specific tab when selecting a specialized element
+  // Auto-switch to Element Specific tab when selecting a specialized element.
   useEffect(() => {
     if (selectedElement) {
       const specialTypes = [
@@ -127,9 +132,26 @@ const GraphicDesigner = () => {
         'numericDisplay', 'button', 'checkBox', 'radioButton',
         'comboBox', 'listBox', 'svgSymbol',
       ];
+      // This is intentional UI synchronization: selecting an object changes
+      // which property group is most useful to show first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActivePropertyCategory(specialTypes.includes(selectedElement.type) ? 'elementSpecific' : 'geometry');
     }
-  }, [selectedIds]);
+  }, [selectedElement]);
+
+  const loadTags = useCallback(async () => {
+    try {
+      const res = await tagAPI.getAll();
+      setTags(res.data.data || []);
+    } catch (err) { console.error('Failed to load tags:', err); }
+  }, []);
+
+  const loadScreens = useCallback(async () => {
+    try {
+      const res = await screenAPI.getAll();
+      setScreens(res.data.data || []);
+    } catch (err) { console.error('Failed to load screens:', err); }
+  }, []);
 
 
   // ✅ Create a new popup screen
@@ -138,7 +160,8 @@ const handleCreatePopup = () => {
   if (currentScreenRef.current && hasUnsavedChangesRef.current) {
     performSave(true);
   }
-  const popupName = prompt('Enter popup screen name:', `Popup_${Date.now()}`);
+  popupSequenceRef.current += 1;
+  const popupName = prompt('Enter popup screen name:', `Popup_${popupSequenceRef.current}`);
   if (!popupName || !popupName.trim()) return;
 
   screenAPI.create({
@@ -211,7 +234,7 @@ const handleCreateTemplate = () => {
       else setAutoSaving(true);
 
       await screenAPI.update(screen._id, {
-        elements: elementsRef.current,
+        elements: serializeScreenElements(elementsRef.current),
         width: canvasWidthRef.current,
         height: canvasHeightRef.current,
         backgroundColor: canvasBgRef.current,
@@ -219,6 +242,7 @@ const handleCreateTemplate = () => {
       });
 
       hasUnsavedChangesRef.current = false;
+      setHasUnsavedChanges(false);
       if (silent) {
         // Show subtle auto-save indicator briefly
         setAutoSaving(false);
@@ -233,18 +257,25 @@ const handleCreateTemplate = () => {
     } finally {
       if (!silent) setSaving(false);
     }
-  }, [showToast]);
+  }, [loadScreens, showToast]);
 
-  // Schedule auto-save whenever elements/canvas change
-  const scheduleAutoSave = useCallback(() => {
-    if (!currentScreenRef.current) return; // Only auto-save if screen is saved (has ID)
+  useEffect(() => {
+    performSaveRef.current = performSave;
+  }, [performSave]);
+
+  // Stable auto-save entry point. The implementation reads the current refs,
+  // while the latest performSave callback is kept in performSaveRef.
+  const scheduleAutoSaveRef = useRef(() => {
+    if (!currentScreenRef.current) return;
     hasUnsavedChangesRef.current = true;
+    setHasUnsavedChanges(true);
 
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
-      performSave(true); // silent auto-save
+      performSaveRef.current(true);
     }, AUTO_SAVE_DELAY);
-  }, [performSave]);
+  });
+  const scheduleAutoSave = scheduleAutoSaveRef.current;
 
   // Auto-save on page unload / navigation away
   useEffect(() => {
@@ -300,8 +331,10 @@ const handleCreateTemplate = () => {
 
   // ─── Load Data ──────────────────────────────────────────
   useEffect(() => {
-    loadTags();
-    loadScreens();
+    void Promise.resolve().then(() => {
+      loadTags();
+      loadScreens();
+    });
     const handleTagsUpdate = (updates) => {
       setLiveValues((prev) => {
         const updated = { ...prev };
@@ -316,7 +349,6 @@ const handleCreateTemplate = () => {
     };
     const handleConnect = () => setSocketConnected(true);
     const handleDisconnect = () => setSocketConnected(false);
-    if (socketService.isConnected && socketService.isConnected()) setSocketConnected(true);
     socketService.on('connect', handleConnect);
     socketService.on('disconnect', handleDisconnect);
     socketService.on('tagsUpdate', handleTagsUpdate);
@@ -325,21 +357,7 @@ const handleCreateTemplate = () => {
       socketService.off('tagsUpdate', handleTagsUpdate);
       socketService.off('initialTags', handleInitialTags);
     };
-  }, []);
-
-  const loadTags = async () => {
-    try {
-      const res = await tagAPI.getAll();
-      setTags(res.data.data || []);
-    } catch (err) { console.error('Failed to load tags:', err); }
-  };
-
-  const loadScreens = async () => {
-    try {
-      const res = await screenAPI.getAll();
-      setScreens(res.data.data || []);
-    } catch (err) { console.error('Failed to load screens:', err); }
-  };
+  }, [loadTags, loadScreens]);
 
   // Load canvas defaults
   useEffect(() => {
@@ -355,7 +373,7 @@ const handleCreateTemplate = () => {
           showGrid: appearance.showGrid !== false,
         };
         setDefaultCanvasSettings(defaults);
-        if (!currentScreen && elements.length === 0) {
+        if (!currentScreenRef.current && elementsRef.current.length === 0) {
           setCanvasWidth(defaults.width);
           setCanvasHeight(defaults.height);
           setCanvasBg(defaults.bg);
@@ -433,7 +451,7 @@ const handleCreateTemplate = () => {
     const id = `el_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const centerX = Math.round(canvasWidth / 2 - (component.template.width || 100) / 2);
     const centerY = Math.round(canvasHeight / 2 - (component.template.height || 100) / 2);
-    const newElement = { ...component.template, id, x: centerX, y: centerY };
+    const newElement = createLibraryElement(component, { id, x: centerX, y: centerY });
     setElements((prev) => {
       const updated = [...prev, newElement];
       scheduleAutoSave();
@@ -457,16 +475,6 @@ const handleCreateTemplate = () => {
       return updated;
     });
   }, [selectedIds, scheduleAutoSave]);
-
-  const handleDeleteElement = useCallback((id) => {
-    pushUndo();
-    setElements((prev) => {
-      const updated = prev.filter((el) => el.id !== id);
-      scheduleAutoSave();
-      return updated;
-    });
-    setSelectedIds(prev => prev.filter(sid => sid !== id));
-  }, [pushUndo, scheduleAutoSave]);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedIds.length === 0) return;
@@ -555,7 +563,11 @@ const handleCreateTemplate = () => {
     const groupIdsToRemove = new Set(groupedSelected.map(el => el.groupId));
     setElements(prev => {
       const updated = prev.map(el => {
-        if (el.groupId && groupIdsToRemove.has(el.groupId)) { const { groupId, ...rest } = el; return rest; }
+        if (el.groupId && groupIdsToRemove.has(el.groupId)) {
+          const rest = { ...el };
+          delete rest.groupId;
+          return rest;
+        }
         return el;
       });
       scheduleAutoSave();
@@ -708,12 +720,14 @@ const handleCreateTemplate = () => {
   };
 
   // ─── Screen Actions ─────────────────────────────────────
-  const handleNewScreen = () => {
+  const handleNewScreen = useCallback(() => {
     if (elements.length > 0 && !confirm('Discard current changes?')) return;
     setElements([]);
     setSelectedIds([]);
     setDirectConnections([]);
     setCurrentScreen(null);
+    hasUnsavedChangesRef.current = false;
+    setHasUnsavedChanges(false);
     setUndoStack([]);
     setRedoStack([]);
 
@@ -722,19 +736,21 @@ const handleCreateTemplate = () => {
     setCanvasBg(defaultCanvasSettings.bg);
     setGridSize(defaultCanvasSettings.gridSize);
     setShowGrid(defaultCanvasSettings.showGrid);
-  };
+  }, [defaultCanvasSettings, elements.length]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (currentScreen) {
       try {
         setSaving(true);
         await screenAPI.update(currentScreen._id, {
-          elements,
+          elements: serializeScreenElements(elements),
           width: canvasWidth,
           height: canvasHeight,
           backgroundColor: canvasBg,
           directConnections,
         });
+        hasUnsavedChangesRef.current = false;
+        setHasUnsavedChanges(false);
         showToast('Screen saved successfully', 'success');
         loadScreens();
       } catch (err) {
@@ -745,7 +761,7 @@ const handleCreateTemplate = () => {
       setScreenName('');
       setShowSaveModal(true);
     }
-  };
+  }, [canvasBg, canvasHeight, canvasWidth, currentScreen, directConnections, elements, loadScreens, showToast]);
 
   const handleSaveAs = async () => {
     if (!screenName.trim()) {
@@ -756,13 +772,15 @@ const handleCreateTemplate = () => {
       setSaving(true);
       const res = await screenAPI.create({
         screenName,
-        elements,
+        elements: serializeScreenElements(elements),
         width: canvasWidth,
         height: canvasHeight,
         backgroundColor: canvasBg,
         directConnections,
       });
       setCurrentScreen(res.data.data);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChanges(false);
       setShowSaveModal(false);
       showToast(`Screen "${screenName}" saved`, 'success');
       loadScreens();
@@ -776,17 +794,19 @@ const handleCreateTemplate = () => {
     try {
       const res = await screenAPI.getOne(screen._id);
       const data = res.data.data;
-      setElements(data.elements || []);
+      setElements(restoreScreenElements(data.elements));
       setCanvasWidth(data.width || defaultCanvasSettings.width);
       setCanvasHeight(data.height || defaultCanvasSettings.height);
       setCanvasBg(data.backgroundColor || defaultCanvasSettings.bg);
       setDirectConnections(data.directConnections || []);
       setCurrentScreen(data);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChanges(false);
       setSelectedIds([]);
       setUndoStack([]);
       setRedoStack([]);
       showToast(`Loaded: ${data.screenName}`, 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to load screen', 'error');
     }
   };
@@ -1009,7 +1029,7 @@ const handleCreateTemplate = () => {
       {/* Property Panel */}
       <div className="flex flex-col" style={{ height: `${panelHeight}px`, minHeight: `${MIN_PANEL_HEIGHT}px`, maxHeight: `${MAX_PANEL_HEIGHT}px`, borderTop: `2px solid ${COLORS.brandAccent}`, background: '#FFFFFF' }}>
         {/* Panel header */}
-        <div className="flex items-center px-1" style={{ background: '#F1F5F9', borderBottom: `1px solid ${COLORS.lineDefault}`, flexShrink: 0 }}>
+      <div className="flex items-center px-1" style={{ background: '#F1F5F9', borderBottom: `1px solid ${COLORS.lineDefault}`, flexShrink: 0 }}>
           <span className="text-[11px] font-bold px-2 py-1.5" style={{ color: COLORS.heading, fontFamily: COLORS.fonts.heading }}>Object Properties</span>
           {selectedForHeader && (
             <span className="text-[10px] px-2" style={{ color: COLORS.inkMuted }}>
@@ -1018,11 +1038,11 @@ const handleCreateTemplate = () => {
           )}
           {/* Auto-save indicator */}
           {autoSaving && (
-            <span className="text-[10px] px-2 ml-2" style={{ color: COLORS.brandAccent }}>
-              💾 Auto-saving…
+            <span className="text-[10px] px-2 ml-2 flex items-center gap-1" style={{ color: COLORS.brandAccent }}>
+              <Save size={11} /> Auto-saving…
             </span>
           )}
-          {currentScreen && !autoSaving && hasUnsavedChangesRef.current && (
+          {currentScreen && !autoSaving && hasUnsavedChanges && (
             <span className="text-[10px] px-2 ml-2" style={{ color: COLORS.warning }}>
               ● Unsaved changes
             </span>
@@ -1033,27 +1053,27 @@ const handleCreateTemplate = () => {
               onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.dangerLight; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
               title={`Delete ${selectedIds.length} element(s)`}>
-              <span className="text-[10px]">✕</span>
+              <X size={11} />
             </button>
           )}
         </div>
 
         {currentScreen?.isTemplate && (
-          <span style={{
+          <span className="flex items-center gap-1" style={{
             marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
             background: 'rgba(147,51,234,0.15)', color: '#9333EA',
             fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
           }}>
-            ⚙ TEMPLATE — elements appear on all screens
+            <Settings2 size={11} /> TEMPLATE — elements appear on all screens
           </span>
         )}
         {currentScreen?.isPopup && (
-          <span style={{
+          <span className="flex items-center gap-1" style={{
             marginLeft: '8px', padding: '2px 8px', borderRadius: '4px',
             background: 'rgba(245,158,11,0.15)', color: '#F59E0B',
             fontSize: '9px', fontWeight: 700, letterSpacing: '0.05em',
           }}>
-            🪟 POPUP {currentScreen.width}×{currentScreen.height}
+            <PanelTop size={11} /> POPUP {currentScreen.width}×{currentScreen.height}
           </span>
         )}
 
@@ -1188,8 +1208,8 @@ const handleCreateTemplate = () => {
                 <div className="flex items-center gap-2">
                   <p className="font-semibold" style={{ color: COLORS.heading }}>{s.screenName}</p>
                   {s.isStartupScreen && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded"
-                      style={{ background: '#FEF3C7', color: '#92400E' }}>⭐ STARTUP</span>
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded flex items-center gap-1"
+                      style={{ background: '#FEF3C7', color: '#92400E' }}><Star size={10} fill="currentColor" /> STARTUP</span>
                   )}
                 </div>
                 <p className="text-xs mt-0.5" style={{ color: COLORS.inkMuted }}>

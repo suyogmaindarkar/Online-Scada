@@ -263,7 +263,7 @@ const ScreenExplorer = ({
         {/* Footer */}
         <div style={{ padding: '6px 12px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB' }}>
           <p style={{ fontSize: '9px', color: '#5F6B7A', margin: 0, lineHeight: 1.4 }}>
-            💡 Right-click any screen for options
+             Right-click any screen for options
           </p>
         </div>
       </div>
@@ -275,8 +275,8 @@ const ScreenExplorer = ({
           <div style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 9999, background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', boxShadow: '0px 8px 24px rgba(8,27,67,0.15)', minWidth: '180px', overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', background: '#F8FAFC' }}>
               <p style={{ fontSize: '11px', fontWeight: 700, color: '#081B43', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{contextMenu.screen.screenName}</p>
-              {contextMenu.screen.isTemplate && (<span style={{ fontSize: '9px', color: '#9333EA', fontWeight: 700 }}>⚙ TEMPLATE</span>)}
-              {contextMenu.screen.isPopup && (<span style={{ fontSize: '9px', color: '#F59E0B', fontWeight: 700 }}>🪟 POPUP</span>)}
+              {contextMenu.screen.isTemplate && (<span style={{ fontSize: '9px', color: '#9333EA', fontWeight: 700 }}>TEMPLATE</span>)}
+              {contextMenu.screen.isPopup && (<span style={{ fontSize: '9px', color: '#F59E0B', fontWeight: 700 }}>POPUP</span>)}
             </div>
             <ContextMenuItem icon={<FileText size={12} />} label="Open Screen" onClick={() => { onLoadScreen(contextMenu.screen); closeContextMenu(); }} color="#334155" />
             {!contextMenu.screen.isTemplate && !contextMenu.screen.isPopup && (
@@ -392,7 +392,7 @@ const GroupHeader = ({ expanded, onToggle, icon, label, count, onAction, actionT
           flexShrink: 0,
           marginRight: '4px',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = `${actionColor}22` || '#EEF6FF'; }}
+         onMouseEnter={(e) => { e.currentTarget.style.background = actionColor ? `${actionColor}22` : '#EEF6FF'; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
       >
         <Plus size={11} />
@@ -406,7 +406,7 @@ const EmptyRow = ({ text }) => (
 );
 
 const ScreenRow = ({ screen, isActive, color, onLoad, onContextMenu }) => {
-  const badge = screen.isTemplate ? '⚙' : screen.isPopup ? '🪟' : null;
+  const badge = screen.isTemplate ? 'T' : screen.isPopup ? 'P' : null;
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '2px', paddingRight: '4px', paddingLeft: '4px' }}>
       <button

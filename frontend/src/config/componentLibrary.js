@@ -1,21 +1,24 @@
-// ═══════════════════════════════════════════════════════════
-// Component Library — Sprint F (Batches 1 + 2)
-// 20 SVG symbols: 5 motors + 5 valves + 5 pumps + 5 tanks
-// ═══════════════════════════════════════════════════════════
+// Original industrial symbol library inspired by the supplied SVG-library
+// screenshots. These assets are authored for WebSCADA and are not copied from
+// WinCC. Legacy SVG files remain on disk so existing saved screens can render,
+// but legacy entries are intentionally no longer exposed in the library UI.
+
+export const LIBRARY_VERSION = 'industrial-original-v2';
 
 export const LIBRARY_CATEGORIES = [
-  { id: 'motors', label: 'Motors & Drives', icon: '⚙️', color: '#8b5cf6' },
-  { id: 'valves', label: 'Valves', icon: '🔧', color: '#f59e0b' },
-  { id: 'pumps', label: 'Pumps', icon: '💧', color: '#06b6d4' },
-  { id: 'tanks', label: 'Tanks & Vessels', icon: '🏗️', color: '#10b981' },
-  { id: 'sensors', label: 'Sensors & Meters', icon: '📡', color: '#3b82f6' },
-  { id: 'piping', label: 'Piping & Flow', icon: '🔩', color: '#64748b' },
-  { id: 'indicators', label: 'Indicators & Lights', icon: '💡', color: '#ef4444' },
-  { id: 'displays', label: 'Displays & Labels', icon: '🖥️', color: '#0ea5e9' },
-  { id: 'controls', label: 'Control Elements', icon: '🎛️', color: '#d946ef' },
-  { id: 'hvac', label: 'HVAC', icon: '❄️', color: '#14b8a6' },
-  { id: 'electrical', label: 'Electrical', icon: '⚡', color: '#eab308' },
-  { id: 'safety', label: 'Safety & Alarms', icon: '🚨', color: '#dc2626' },
+  { id: 'general', label: 'General', icon: 'Shapes', color: '#64748b' },
+  { id: 'buildings', label: 'Buildings & Cabinets', icon: 'Monitor', color: '#475569' },
+  { id: 'process', label: 'Process Equipment', icon: 'Workflow', color: '#0f766e' },
+  { id: 'piping', label: 'Pipes & Fittings', icon: 'GitBranch', color: '#64748b' },
+  { id: 'valves', label: 'Valves', icon: 'Wrench', color: '#b45309' },
+  { id: 'pumps', label: 'Pumps', icon: 'Droplets', color: '#0891b2' },
+  { id: 'motors', label: 'Motors & Drives', icon: 'Cog', color: '#7c3aed' },
+  { id: 'tanks', label: 'Tanks & Vessels', icon: 'Cylinder', color: '#059669' },
+  { id: 'instrumentation', label: 'Flow Meters & Sensors', icon: 'Gauge', color: '#2563eb' },
+  { id: 'controls', label: 'Operating Controls', icon: 'SlidersHorizontal', color: '#c026d3' },
+  { id: 'signal_lamps', label: 'Signal Lamps', icon: 'Lightbulb', color: '#ca8a04' },
+  { id: 'safety', label: 'Safety & Overlays', icon: 'ShieldAlert', color: '#dc2626' },
+  { id: 'electrical', label: 'Electrical', icon: 'Zap', color: '#a16207' },
 ];
 
 const svgTemplate = (svgPath, width = 100, height = 100, extras = {}) => ({
@@ -26,409 +29,112 @@ const svgTemplate = (svgPath, width = 100, height = 100, extras = {}) => ({
   rotation: 0,
   opacity: 1,
   symbolTint: null,
-  symbolTintStrength: 0,
+  symbolTintStrength: 1,
   symbolBrightness: 1,
   preserveAspect: true,
+  boundTag: null,
+  tooltip: '',
+  isVisible: true,
+  libraryVersion: LIBRARY_VERSION,
   ...extras,
 });
 
+const symbol = (id, category, subcategory, name, description, keywords, icon, svgPath, width, height, extras) => ({
+  id,
+  category,
+  subcategory,
+  name,
+  description,
+  keywords,
+  icon,
+  thumbnail: svgPath,
+  template: svgTemplate(svgPath, width, height, {
+    symbolId: id,
+    objectName: name,
+    ...extras,
+  }),
+});
+
 export const LIBRARY_COMPONENTS = [
-  // ═══════════════════════════════════════════════════════
-  // MOTORS (5) — Batch 1
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'motor_b3',
-    category: 'motors',
-    subcategory: 'IEC Standard Motors',
-    name: 'Motor B3 (Foot-mounted)',
-    description: 'IEC B3 foot-mounted electric motor',
-    keywords: ['motor', 'b3', 'foot', 'mounted', 'iec', 'electric'],
-    icon: '⚙️',
-    thumbnail: '/symbols/motors/motor-b3.svg',
-    template: svgTemplate('/symbols/motors/motor-b3.svg', 100, 100),
-  },
-  {
-    id: 'motor_b5',
-    category: 'motors',
-    subcategory: 'IEC Standard Motors',
-    name: 'Motor B5 (Flange-mounted)',
-    description: 'IEC B5 flange-mounted electric motor',
-    keywords: ['motor', 'b5', 'flange', 'mounted', 'iec'],
-    icon: '⚙️',
-    thumbnail: '/symbols/motors/motor-b5.svg',
-    template: svgTemplate('/symbols/motors/motor-b5.svg', 100, 100),
-  },
-  {
-    id: 'motor_vertical',
-    category: 'motors',
-    subcategory: 'Vertical Motors',
-    name: 'Vertical Motor',
-    description: 'Vertically mounted motor',
-    keywords: ['motor', 'vertical', 'v-motor'],
-    icon: '⚙️',
-    thumbnail: '/symbols/motors/motor-vertical.svg',
-    template: svgTemplate('/symbols/motors/motor-vertical.svg', 80, 100),
-  },
-  {
-    id: 'motor_simple',
-    category: 'motors',
-    subcategory: 'Standard Symbols',
-    name: 'Motor Symbol (M)',
-    description: 'ISA standard motor symbol',
-    keywords: ['motor', 'symbol', 'isa', 'standard', 'simple'],
-    icon: 'Ⓜ️',
-    thumbnail: '/symbols/motors/motor-simple.svg',
-    template: svgTemplate('/symbols/motors/motor-simple.svg', 80, 80),
-  },
-  {
-    id: 'motor_servo',
-    category: 'motors',
-    subcategory: 'Servo Motors',
-    name: 'Servo Motor',
-    description: 'Servo motor with encoder',
-    keywords: ['motor', 'servo', 'encoder', 'precision'],
-    icon: '🎯',
-    thumbnail: '/symbols/motors/motor-servo.svg',
-    template: svgTemplate('/symbols/motors/motor-servo.svg', 100, 100),
-  },
+  // General layout and annotation objects.
+  symbol('general_process_boundary', 'general', 'Layout', 'Process Boundary', 'Dashed area boundary for a process section', ['general', 'boundary', 'area', 'layout'], 'Shapes', '/symbols/general/process-boundary.svg', 140, 90),
+  symbol('general_note_callout', 'general', 'Annotations', 'Operator Callout', 'Industrial annotation callout for equipment notes', ['general', 'note', 'callout', 'annotation'], 'MessageSquare', '/symbols/general/operator-callout.svg', 120, 70),
 
-  // ═══════════════════════════════════════════════════════
-  // VALVES (5) — Batch 1
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'valve_gate',
-    category: 'valves',
-    subcategory: 'Gate Valves',
-    name: 'Gate Valve',
-    description: 'Manual gate valve with handwheel',
-    keywords: ['valve', 'gate', 'manual', 'handwheel', 'isa'],
-    icon: '🔧',
-    thumbnail: '/symbols/valves/valve-gate.svg',
-    template: svgTemplate('/symbols/valves/valve-gate.svg', 90, 90),
-  },
-  {
-    id: 'valve_ball',
-    category: 'valves',
-    subcategory: 'Ball Valves',
-    name: 'Ball Valve',
-    description: 'Manual ball valve with lever',
-    keywords: ['valve', 'ball', 'lever', 'quarter-turn'],
-    icon: '🔧',
-    thumbnail: '/symbols/valves/valve-ball.svg',
-    template: svgTemplate('/symbols/valves/valve-ball.svg', 100, 100),
-  },
-  {
-    id: 'valve_butterfly',
-    category: 'valves',
-    subcategory: 'Butterfly Valves',
-    name: 'Butterfly Valve',
-    description: 'Butterfly valve with actuator',
-    keywords: ['valve', 'butterfly', 'actuator', 'flow'],
-    icon: '🦋',
-    thumbnail: '/symbols/valves/valve-butterfly.svg',
-    template: svgTemplate('/symbols/valves/valve-butterfly.svg', 100, 100),
-  },
-  {
-    id: 'valve_check',
-    category: 'valves',
-    subcategory: 'Check Valves',
-    name: 'Check Valve',
-    description: 'Non-return check valve',
-    keywords: ['valve', 'check', 'nrv', 'non-return', 'one-way'],
-    icon: '➡️',
-    thumbnail: '/symbols/valves/valve-check.svg',
-    template: svgTemplate('/symbols/valves/valve-check.svg', 100, 90),
-  },
-  {
-    id: 'valve_solenoid',
-    category: 'valves',
-    subcategory: 'Solenoid Valves',
-    name: 'Solenoid Valve',
-    description: 'Electric solenoid actuated valve',
-    keywords: ['valve', 'solenoid', 'electric', 'actuator'],
-    icon: '⚡',
-    thumbnail: '/symbols/valves/valve-solenoid.svg',
-    template: svgTemplate('/symbols/valves/valve-solenoid.svg', 90, 100),
-  },
+  // Plant hierarchy objects from the reference library categories.
+  symbol('building_control_room', 'buildings', 'Buildings', 'Control Room', 'Simple plant control-room block', ['building', 'control', 'room', 'plant'], 'Monitor', '/symbols/industrial/control-room.svg', 120, 90),
+  symbol('cabinet_drive_panel', 'buildings', 'Cabinets', 'Drive Cabinet', 'Electrical drive and control cabinet', ['cabinet', 'drive', 'panel', 'electrical'], 'Monitor', '/symbols/industrial/drive-cabinet.svg', 90, 120),
 
-  // ═══════════════════════════════════════════════════════
-  // PUMPS (5) — Batch 2 ⭐ NEW
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'pump_centrifugal',
-    category: 'pumps',
-    subcategory: 'Centrifugal Pumps',
-    name: 'Centrifugal Pump',
-    description: 'Standard centrifugal pump with impeller',
-    keywords: ['pump', 'centrifugal', 'water', 'impeller', 'volute'],
-    icon: '💧',
-    thumbnail: '/symbols/pumps/pump-centrifugal.svg',
-    template: svgTemplate('/symbols/pumps/pump-centrifugal.svg', 100, 100),
-  },
-  {
-    id: 'pump_positive_displacement',
-    category: 'pumps',
-    subcategory: 'Positive Displacement',
-    name: 'PD Pump (Gear)',
-    description: 'Positive displacement gear pump',
-    keywords: ['pump', 'positive', 'displacement', 'gear', 'pd'],
-    icon: '⬆️',
-    thumbnail: '/symbols/pumps/pump-positive-displacement.svg',
-    template: svgTemplate('/symbols/pumps/pump-positive-displacement.svg', 100, 100),
-  },
-  {
-    id: 'pump_submersible',
-    category: 'pumps',
-    subcategory: 'Submersible Pumps',
-    name: 'Submersible Pump',
-    description: 'Submersible water pump with cable',
-    keywords: ['pump', 'submersible', 'underwater', 'well', 'borehole'],
-    icon: '🌊',
-    thumbnail: '/symbols/pumps/pump-submersible.svg',
-    template: svgTemplate('/symbols/pumps/pump-submersible.svg', 80, 100),
-  },
-  {
-    id: 'pump_dosing',
-    category: 'pumps',
-    subcategory: 'Metering & Dosing',
-    name: 'Dosing Pump',
-    description: 'Chemical dosing/metering pump with display',
-    keywords: ['pump', 'dosing', 'metering', 'chemical', 'precision'],
-    icon: '💉',
-    thumbnail: '/symbols/pumps/pump-dosing.svg',
-    template: svgTemplate('/symbols/pumps/pump-dosing.svg', 90, 100),
-  },
-  {
-    id: 'pump_vacuum',
-    category: 'pumps',
-    subcategory: 'Vacuum Pumps',
-    name: 'Vacuum Pump',
-    description: 'Vacuum pump with gauge',
-    keywords: ['pump', 'vacuum', 'suction', 'gauge'],
-    icon: '🕳️',
-    thumbnail: '/symbols/pumps/pump-vacuum.svg',
-    template: svgTemplate('/symbols/pumps/pump-vacuum.svg', 100, 100),
-  },
+  // Process equipment.
+  symbol('process_heat_exchanger', 'process', 'Heat Transfer', 'Plate Heat Exchanger', 'Compact plate heat exchanger with flow ports', ['process', 'heat', 'exchanger', 'plate', 'thermal'], 'Workflow', '/symbols/process/heat-exchanger.svg', 110, 100),
+  symbol('process_filter', 'process', 'Separation', 'Process Filter', 'Inline basket filter with drain connection', ['process', 'filter', 'strainer', 'separation'], 'Filter', '/symbols/process/process-filter.svg', 100, 100),
+  symbol('process_vessel', 'process', 'Brewing & Chemical', 'Process Vessel', 'Agitated process vessel with jacket and drain', ['process', 'vessel', 'mixer', 'chemical', 'brewery'], 'Cylinder', '/symbols/industrial/process-vessel.svg', 110, 130),
+  symbol('process_mixer', 'process', 'Mixers', 'Top-entry Mixer', 'Process mixer with motor and shaft', ['mixer', 'agitator', 'process', 'tank'], 'Cog', '/symbols/industrial/process-mixer.svg', 100, 130),
 
-  // ═══════════════════════════════════════════════════════
-  // TANKS (5) — Batch 2 ⭐ NEW
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'tank_vertical',
-    category: 'tanks',
-    subcategory: 'Storage Tanks',
-    name: 'Vertical Tank',
-    description: 'Vertical storage tank with sight glass',
-    keywords: ['tank', 'vertical', 'storage', 'cylinder', 'water'],
-    icon: '🏗️',
-    thumbnail: '/symbols/tanks/tank-vertical.svg',
-    template: svgTemplate('/symbols/tanks/tank-vertical.svg', 90, 100),
-  },
-  {
-    id: 'tank_horizontal',
-    category: 'tanks',
-    subcategory: 'Storage Tanks',
-    name: 'Horizontal Tank',
-    description: 'Horizontal cylindrical tank with saddles',
-    keywords: ['tank', 'horizontal', 'cylinder', 'storage', 'saddle'],
-    icon: '🛢️',
-    thumbnail: '/symbols/tanks/tank-horizontal.svg',
-    template: svgTemplate('/symbols/tanks/tank-horizontal.svg', 100, 100),
-  },
-  {
-    id: 'tank_chemical',
-    category: 'tanks',
-    subcategory: 'Process Vessels',
-    name: 'Chemical Tank',
-    description: 'Chemical storage tank with hazard label',
-    keywords: ['tank', 'chemical', 'hazard', 'corrosive', 'process'],
-    icon: '⚗️',
-    thumbnail: '/symbols/tanks/tank-chemical.svg',
-    template: svgTemplate('/symbols/tanks/tank-chemical.svg', 100, 100),
-  },
-  {
-    id: 'tank_fuel',
-    category: 'tanks',
-    subcategory: 'Fuel Tanks',
-    name: 'Fuel Tank (Diesel)',
-    description: 'Diesel/fuel storage tank with gauge',
-    keywords: ['tank', 'fuel', 'diesel', 'gasoline', 'oil'],
-    icon: '⛽',
-    thumbnail: '/symbols/tanks/tank-fuel.svg',
-    template: svgTemplate('/symbols/tanks/tank-fuel.svg', 100, 100),
-  },
-  {
-    id: 'tank_water_tower',
-    category: 'tanks',
-    subcategory: 'Water Systems',
-    name: 'Water Tower',
-    description: 'Elevated water storage tower',
-    keywords: ['tank', 'water', 'tower', 'elevated', 'H2O'],
-    icon: '💧',
-    thumbnail: '/symbols/tanks/tank-water-tower.svg',
-    template: svgTemplate('/symbols/tanks/tank-water-tower.svg', 100, 100),
-  },
+  // Piping and flow overlays.
+  symbol('pipe_horizontal_run', 'piping', 'Pipe Runs', 'Horizontal Pipe', 'Horizontal pipe run with flange ends', ['pipe', 'horizontal', 'run', 'flange'], 'GitBranch', '/symbols/industrial/pipe-horizontal.svg', 150, 50),
+  symbol('pipe_vertical_run', 'piping', 'Pipe Runs', 'Vertical Pipe', 'Vertical pipe run with flange ends', ['pipe', 'vertical', 'run', 'flange'], 'GitBranch', '/symbols/industrial/pipe-vertical.svg', 50, 150),
+  symbol('pipe_elbow_original', 'piping', 'Fittings', '90 Degree Elbow', 'Original 90-degree pipe elbow', ['pipe', 'elbow', '90', 'fitting'], 'GitBranch', '/symbols/industrial/pipe-elbow.svg', 100, 100),
+  symbol('pipe_tee_original', 'piping', 'Fittings', 'Pipe Tee', 'Original three-way pipe tee', ['pipe', 'tee', 'junction', 'fitting'], 'GitBranch', '/symbols/industrial/pipe-tee.svg', 100, 100),
+  symbol('pipe_flow_arrow', 'piping', 'Overlays & Arrows', 'Flow Arrow', 'Directional flow overlay for a pipe run', ['pipe', 'flow', 'arrow', 'direction'], 'ArrowRight', '/symbols/industrial/flow-arrow.svg', 100, 40),
 
-  // ═══════════════════════════════════════════════════════
-  // SENSORS (4) — Batch 3 ⭐ NEW
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'sensor_temperature',
-    category: 'sensors',
-    subcategory: 'Temperature',
-    name: 'Temperature Sensor',
-    description: 'Thermometer with scale',
-    keywords: ['sensor', 'temperature', 'thermometer', 'thermocouple', 'rtd'],
-    icon: '🌡️',
-    thumbnail: '/symbols/sensors/sensor-temperature.svg',
-    template: svgTemplate('/symbols/sensors/sensor-temperature.svg', 80, 100),
-  },
-  {
-    id: 'sensor_pressure',
-    category: 'sensors',
-    subcategory: 'Pressure',
-    name: 'Pressure Gauge',
-    description: 'Analog pressure gauge with color zones',
-    keywords: ['sensor', 'pressure', 'gauge', 'manometer', 'bar', 'psi'],
-    icon: '🔴',
-    thumbnail: '/symbols/sensors/sensor-pressure.svg',
-    template: svgTemplate('/symbols/sensors/sensor-pressure.svg', 100, 100),
-  },
-  {
-    id: 'sensor_flow',
-    category: 'sensors',
-    subcategory: 'Flow',
-    name: 'Flow Meter',
-    description: 'Digital flow meter with display',
-    keywords: ['sensor', 'flow', 'meter', 'flowmeter', 'volume'],
-    icon: '🌊',
-    thumbnail: '/symbols/sensors/sensor-flow.svg',
-    template: svgTemplate('/symbols/sensors/sensor-flow.svg', 100, 100),
-  },
-  {
-    id: 'sensor_level',
-    category: 'sensors',
-    subcategory: 'Level',
-    name: 'Level Sensor',
-    description: 'Ultrasonic level sensor with tank',
-    keywords: ['sensor', 'level', 'ultrasonic', 'radar', 'liquid'],
-    icon: '📏',
-    thumbnail: '/symbols/sensors/sensor-level.svg',
-    template: svgTemplate('/symbols/sensors/sensor-level.svg', 100, 100),
-  },
+  // Valves and actuators.
+  symbol('valve_hand_original', 'valves', 'Manual Valves', 'Hand Valve', 'Manual hand-wheel valve', ['valve', 'hand', 'manual', 'wheel'], 'Wrench', '/symbols/industrial/hand-valve.svg', 100, 100),
+  symbol('instrumentation_control_valve', 'valves', 'Control Valves', 'Control Valve', 'Pneumatic control valve with positioner', ['valve', 'control', 'pneumatic', 'positioner'], 'Wrench', '/symbols/instrumentation/control-valve.svg', 100, 110),
+  symbol('valve_safety_shutoff', 'valves', 'Safety Valves', 'Safety Shutoff Valve', 'Actuated safety shutoff valve', ['valve', 'safety', 'shutoff', 'actuator'], 'ShieldAlert', '/symbols/industrial/safety-shutoff.svg', 110, 110),
 
-  // ═══════════════════════════════════════════════════════
-  // INDICATORS (3) — Batch 3 ⭐ NEW
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'indicator_warning',
-    category: 'indicators',
-    subcategory: 'Warning Signs',
-    name: 'Warning Triangle',
-    description: 'Yellow warning/caution sign',
-    keywords: ['indicator', 'warning', 'caution', 'triangle', 'safety'],
-    icon: '⚠️',
-    thumbnail: '/symbols/indicators/indicator-warning.svg',
-    template: svgTemplate('/symbols/indicators/indicator-warning.svg', 80, 80),
-  },
-  {
-    id: 'indicator_beacon',
-    category: 'indicators',
-    subcategory: 'Beacons',
-    name: 'Rotating Beacon',
-    description: 'Red rotating warning beacon',
-    keywords: ['indicator', 'beacon', 'rotating', 'flashing', 'red', 'light'],
-    icon: '🚨',
-    thumbnail: '/symbols/indicators/indicator-beacon.svg',
-    template: svgTemplate('/symbols/indicators/indicator-beacon.svg', 90, 100),
-  },
-  {
-    id: 'indicator_alarm_bell',
-    category: 'indicators',
-    subcategory: 'Alarms',
-    name: 'Alarm Bell',
-    description: 'Audible alarm bell with sound waves',
-    keywords: ['indicator', 'alarm', 'bell', 'sound', 'audible', 'siren'],
-    icon: '🔔',
-    thumbnail: '/symbols/indicators/indicator-alarm-bell.svg',
-    template: svgTemplate('/symbols/indicators/indicator-alarm-bell.svg', 100, 100),
-  },
+  // Rotating equipment.
+  symbol('pump_inline_original', 'pumps', 'Pumps', 'Inline Pump', 'Inline centrifugal pump with motor', ['pump', 'centrifugal', 'inline', 'motor'], 'Droplets', '/symbols/industrial/inline-pump.svg', 130, 90),
+  symbol('motor_horizontal_original', 'motors', 'Motors', 'Horizontal Motor', 'Horizontal motor with terminal box', ['motor', 'drive', 'horizontal', 'electric'], 'Cog', '/symbols/industrial/horizontal-motor.svg', 120, 80),
+  symbol('tank_conical_original', 'tanks', 'Tanks', 'Conical Tank', 'Vertical conical-bottom process tank', ['tank', 'conical', 'vessel', 'storage'], 'Cylinder', '/symbols/industrial/conical-tank.svg', 100, 140),
 
-  // ═══════════════════════════════════════════════════════
-  // PIPING (3) — Batch 3 ⭐ NEW
-  // ═══════════════════════════════════════════════════════
-  {
-    id: 'pipe_elbow',
-    category: 'piping',
-    subcategory: 'Fittings',
-    name: 'Pipe Elbow (90°)',
-    description: '90-degree pipe elbow with flanges',
-    keywords: ['pipe', 'elbow', '90', 'bend', 'fitting', 'corner'],
-    icon: '⤴️',
-    thumbnail: '/symbols/misc/pipe-elbow.svg',
-    template: svgTemplate('/symbols/misc/pipe-elbow.svg', 100, 100),
-  },
-  {
-    id: 'pipe_tee',
-    category: 'piping',
-    subcategory: 'Fittings',
-    name: 'Pipe T-Junction',
-    description: '3-way pipe junction (Tee)',
-    keywords: ['pipe', 'tee', 't-junction', '3-way', 'branch', 'fitting'],
-    icon: '🔱',
-    thumbnail: '/symbols/misc/pipe-tee.svg',
-    template: svgTemplate('/symbols/misc/pipe-tee.svg', 100, 100),
-  },
-  {
-    id: 'pipe_junction',
-    category: 'piping',
-    subcategory: 'Fittings',
-    name: 'Pipe Cross (4-way)',
-    description: '4-way pipe junction',
-    keywords: ['pipe', 'cross', 'junction', '4-way', 'fitting', 'intersection'],
-    icon: '➕',
-    thumbnail: '/symbols/misc/pipe-junction.svg',
-    template: svgTemplate('/symbols/misc/pipe-junction.svg', 100, 100),
-  },
+  // Flow measurement and field instrumentation.
+  symbol('instrumentation_transmitter', 'instrumentation', 'Transmitters', 'Pressure Transmitter', 'Field pressure transmitter with impulse line', ['instrumentation', 'pressure', 'transmitter', 'field'], 'Gauge', '/symbols/instrumentation/pressure-transmitter.svg', 90, 110),
+  symbol('instrumentation_flow_meter', 'instrumentation', 'Flow Meters', 'Magnetic Flow Meter', 'Inline magnetic flow meter with transmitter head', ['flow', 'meter', 'magnetic', 'instrumentation'], 'Gauge', '/symbols/industrial/magnetic-flow-meter.svg', 120, 100),
+  symbol('instrumentation_ultrasonic_meter', 'instrumentation', 'Flow Meters', 'Ultrasonic Flow Meter', 'Clamp-on ultrasonic flow meter', ['flow', 'meter', 'ultrasonic', 'instrumentation'], 'Gauge', '/symbols/industrial/ultrasonic-flow-meter.svg', 110, 110),
+  symbol('instrumentation_pressure_gauge', 'instrumentation', 'Sensors', 'Pressure Gauge', 'Analog field pressure gauge', ['sensor', 'pressure', 'gauge', 'analog'], 'Gauge', '/symbols/industrial/pressure-gauge.svg', 90, 90),
 
+  // Operator controls.
+  symbol('control_pushbutton', 'controls', 'Operating Controls', 'Pushbutton', 'Momentary operator pushbutton control', ['control', 'pushbutton', 'operator', 'momentary'], 'CircleDot', '/symbols/controls/pushbutton.svg', 90, 90),
+  symbol('control_selector', 'controls', 'Operating Controls', 'Selector Switch', 'Three-position manual/auto selector', ['control', 'selector', 'switch', 'manual', 'auto'], 'ToggleRight', '/symbols/controls/selector-switch.svg', 100, 100),
+  symbol('control_emergency_stop', 'controls', 'Operating Controls', 'Emergency Stop', 'Emergency stop control with guarded button', ['control', 'emergency', 'stop', 'operator'], 'ShieldAlert', '/symbols/industrial/emergency-stop.svg', 100, 100),
 
+  // Signal and safety overlays.
+  symbol('signal_stack_light', 'signal_lamps', 'Signal Lamps', 'Stack Light', 'Three-colour machine status lamp', ['signal', 'lamp', 'stack', 'status', 'light'], 'Lightbulb', '/symbols/industrial/stack-light.svg', 70, 130),
+  symbol('signal_alarm_beacon', 'signal_lamps', 'Signal Lamps', 'Alarm Beacon', 'Rotating red alarm beacon', ['signal', 'beacon', 'alarm', 'light'], 'Lightbulb', '/symbols/industrial/alarm-beacon.svg', 90, 110),
+  symbol('safety_warning_overlay', 'safety', 'Status Overlays', 'Warning Overlay', 'High-visibility warning overlay', ['safety', 'warning', 'overlay', 'alarm'], 'ShieldAlert', '/symbols/industrial/warning-overlay.svg', 100, 100),
+
+  // Single-line electrical symbols.
+  symbol('electrical_breaker', 'electrical', 'Protection', 'Circuit Breaker', 'Single-line circuit breaker symbol', ['electrical', 'breaker', 'protection', 'switchgear'], 'Zap', '/symbols/electrical/circuit-breaker.svg', 80, 100),
+  symbol('electrical_transformer', 'electrical', 'Power Distribution', 'Transformer', 'Two-winding transformer for single-line diagrams', ['electrical', 'transformer', 'power', 'distribution'], 'Zap', '/symbols/electrical/transformer.svg', 110, 100),
 ];
 
-// ─────────────────────────────────────────────────────────────
-// HELPER FUNCTIONS
-// ─────────────────────────────────────────────────────────────
+export const getComponentsByCategory = (categoryId) => (
+  LIBRARY_COMPONENTS.filter((component) => component.category === categoryId)
+);
 
-export const getComponentsByCategory = (categoryId) => {
-  return LIBRARY_COMPONENTS.filter((c) => c.category === categoryId);
-};
-
-export const getSubcategories = (categoryId) => {
-  const components = getComponentsByCategory(categoryId);
-  const subs = [...new Set(components.map((c) => c.subcategory))];
-  return subs.sort();
-};
+export const getSubcategories = (categoryId) => (
+  [...new Set(getComponentsByCategory(categoryId).map((component) => component.subcategory))].sort()
+);
 
 export const searchComponents = (query) => {
   if (!query || query.trim() === '') return LIBRARY_COMPONENTS;
-  const q = query.toLowerCase().trim();
-  return LIBRARY_COMPONENTS.filter((c) => {
-    return (
-      c.name.toLowerCase().includes(q) ||
-      c.description.toLowerCase().includes(q) ||
-      c.keywords.some((k) => k.includes(q)) ||
-      c.category.includes(q) ||
-      c.subcategory.toLowerCase().includes(q)
-    );
-  });
+  const normalizedQuery = query.toLowerCase().trim();
+  return LIBRARY_COMPONENTS.filter((component) => (
+    component.name.toLowerCase().includes(normalizedQuery)
+    || component.description.toLowerCase().includes(normalizedQuery)
+    || component.keywords.some((keyword) => keyword.includes(normalizedQuery))
+    || component.category.includes(normalizedQuery)
+    || component.subcategory.toLowerCase().includes(normalizedQuery)
+  ));
 };
 
-export const getCategoryStats = () => {
-  return LIBRARY_CATEGORIES.map((cat) => ({
-    ...cat,
-    count: LIBRARY_COMPONENTS.filter((c) => c.category === cat.id).length,
-  }));
-};
+export const getCategoryStats = () => (
+  LIBRARY_CATEGORIES.map((category) => ({
+    ...category,
+    count: getComponentsByCategory(category.id).length,
+  }))
+);
 
-export const getComponentById = (id) => {
-  return LIBRARY_COMPONENTS.find((c) => c.id === id) || null;
-};
+export const getComponentById = (id) => (
+  LIBRARY_COMPONENTS.find((component) => component.id === id) || null
+);

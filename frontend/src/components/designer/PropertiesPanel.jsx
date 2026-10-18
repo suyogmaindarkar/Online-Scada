@@ -16,7 +16,8 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
   });
 
   useEffect(() => {
-    setProps(element || {});
+    const reset = setTimeout(() => setProps(element || {}), 0);
+    return () => clearTimeout(reset);
   }, [element]);
 
   if (!element) {
@@ -201,7 +202,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
           <Section title="Legacy Tag Binding" icon={Link2}>
             <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-300 mb-2 flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-              <span>Legacy field. Prefer using 💡 icon next to each property for per-property bindings.</span>
+               <span>Legacy field. Prefer using the binding icon next to each property for per-property bindings.</span>
             </div>
             <div>
               <label className="block text-xs text-slate-400 mb-1">Bound Tag (whole element)</label>
@@ -273,7 +274,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                     />
                   </div>
                   <div className="p-2 bg-green-500/10 border border-green-500/20 rounded text-xs text-green-300">
-                    💡 Click button → Writes value to {props.action.targetTag}
+                     Click button → Writes value to {props.action.targetTag}
                   </div>
                 </>
               )}
@@ -285,7 +286,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
             <Section title="Legacy Animation">
               <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-300 mb-2 flex items-start gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                <span>Legacy animation. Prefer 💡 → Range Map / Bool Map on Fill Color.</span>
+                 <span>Legacy animation. Prefer property bindings with Range Map or Bool Map on Fill Color.</span>
               </div>
 
               <label className="flex items-center gap-2 text-sm text-slate-300 mb-2">
@@ -310,7 +311,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                       <option value="color">Color Change</option>
                       <option value="visibility">Visibility</option>
                       <option value="fill">Fill Level</option>
-                      <option value="flash">⚡ Flash (Alarm)</option>
+                       <option value="flash">Flash (Alarm)</option>
                     </select>
                   </div>
 
@@ -330,7 +331,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                             )}
                             {isBool && (
                               <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
-                                💡 Boolean tag: FALSE = Min Color, TRUE = Max Color
+                                 Boolean tag: FALSE = Min Color, TRUE = Max Color
                               </div>
                             )}
                             <ColorField label={isBool ? "FALSE Color" : "Min Color"} value={props.animation?.minColor || '#ef4444'} onChange={(v) => handleAnimationChange('minColor', v)} />
@@ -345,7 +346,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                   {props.animation?.type === 'flash' && (
                     <div className="space-y-2 mt-2">
                       <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-300">
-                        ⚡ Element will blink when condition is met
+                         Element will blink when condition is met
                       </div>
                       {(() => {
                         const boundTagData = tags.find(t => t.tagName === props.boundTag);
@@ -360,7 +361,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                             )}
                             {isBool && (
                               <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
-                                💡 Will flash when tag = TRUE
+                                 Will flash when tag = TRUE
                               </div>
                             )}
                             <div>
@@ -384,7 +385,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                   {props.animation?.type === 'visibility' && (
                     <div className="space-y-2 mt-2">
                       <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
-                        💡 Element hides when value is FALSE or below threshold
+                         Element hides when value is FALSE or below threshold
                       </div>
                       <InputField label="Show when value ≥" value={props.animation?.minValue ?? 1} onChange={(v) => handleAnimationChange('minValue', parseFloat(v) || 0)} type="number" />
                     </div>
@@ -394,7 +395,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete, tags, liveValues = {} })
                   {props.animation?.type === 'fill' && (
                     <div className="space-y-2 mt-2">
                       <div className="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded text-xs text-cyan-300">
-                        💧 Use this for Tank fill level
+                        Use this for Tank fill level
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <InputField label="Min Value (0%)" value={props.animation?.minValue ?? 0} onChange={(v) => handleAnimationChange('minValue', parseFloat(v) || 0)} type="number" />

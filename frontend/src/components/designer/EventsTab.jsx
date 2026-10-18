@@ -5,10 +5,11 @@
 //   ✅ closePopup action (no params needed)
 // ═══════════════════════════════════════════════════════════
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Zap, Trash2, ChevronRight, ChevronDown, Plus,
   ArrowUp, ArrowDown, Settings2, AlertTriangle, Monitor, Layout,
+  PenLine, RefreshCw, Copy, PanelTop, X, MessageSquare,
 } from 'lucide-react';
 import { normalizeActions } from '../../utils/eventUtils';
 
@@ -18,6 +19,7 @@ const EventsTab = ({ element, tags, screens = [], onUpdate }) => {
   });
   const [selectedEvent, setSelectedEvent] = useState('onClick');
   const [expandedActions, setExpandedActions] = useState({});
+  const actionId = useRef(0);
 
   if (!element) {
     return (
@@ -67,7 +69,7 @@ const EventsTab = ({ element, tags, screens = [], onUpdate }) => {
   const addAction = () => {
     const newAction = {
       type: 'writeTag', targetTag: '', value: '',
-      _id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      _id: `act_${actionId.current++}`,
     };
     saveActions([...currentActions, newAction]);
     setExpandedActions((prev) => ({ ...prev, [newAction._id]: false }));
@@ -191,7 +193,7 @@ const EventsTab = ({ element, tags, screens = [], onUpdate }) => {
             </button>
           )}
           <div style={{ marginTop: '24px', padding: '8px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '4px', fontSize: '10px', color: '#5F6B7A' }}>
-            <strong>💡 Tip:</strong> Actions execute in order. Use ↑↓ to reorder.
+            <strong>Tip:</strong> Actions execute in order. Use the reorder controls.
           </div>
         </div>
       </div>
@@ -201,11 +203,12 @@ const EventsTab = ({ element, tags, screens = [], onUpdate }) => {
 
 const ActionCard = ({ action, index, total, tags, screens, isAdvancedOpen, onUpdate, onDelete, onMoveUp, onMoveDown, onToggleAdvanced }) => {
   const actionInfo = actionTypeConfig[action.type] || actionTypeConfig.writeTag;
+  const ActionIcon = ACTION_ICONS[actionInfo.icon] || Zap;
   return (
     <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', background: '#FFFFFF', overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
         <span style={{ fontSize: '10px', fontWeight: 700, color: '#334155', width: '24px' }}>#{index + 1}</span>
-        <span style={{ fontSize: '10px', fontWeight: 600, color: actionInfo.color }}>{actionInfo.icon} {actionInfo.label}</span>
+        <span style={{ fontSize: '10px', fontWeight: 600, color: actionInfo.color, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><ActionIcon size={11} /> {actionInfo.label}</span>
         <div style={{ flex: 1 }} />
         <button onClick={onMoveUp} disabled={index === 0} style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index===0?'not-allowed':'pointer', opacity: index===0?0.3:1 }} title="Move up"><ArrowUp size={11} /></button>
         <button onClick={onMoveDown} disabled={index===total-1} style={{ padding: '2px', color: '#5F6B7A', background: 'transparent', border: 'none', cursor: index===total-1?'not-allowed':'pointer', opacity: index===total-1?0.3:1 }} title="Move down"><ArrowDown size={11} /></button>
@@ -298,14 +301,14 @@ const ActionFields = ({ action, tags, screens = [], onUpdate }) => {
         </label>
         {regularScreens.length === 0 ? (
           <div style={{ padding: '6px 8px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: '4px', fontSize: '10px', color: '#78350F' }}>
-            ⚠️ No regular screens found. Create screens in "My Screens" first.
+             No regular screens found. Create screens in "My Screens" first.
           </div>
         ) : (
           <select value={action.screenName || ''} onChange={(e) => onUpdate({ screenName: e.target.value })} style={fieldSelectStyle}>
             <option value="">— Select target screen —</option>
             {regularScreens.map((s) => (
               <option key={s._id} value={s.screenName}>
-                {s.screenName} {s.isStartupScreen ? '⭐' : ''}
+                {s.screenName}
               </option>
             ))}
           </select>
@@ -329,14 +332,14 @@ const ActionFields = ({ action, tags, screens = [], onUpdate }) => {
         </label>
         {popupScreens.length === 0 ? (
           <div style={{ padding: '6px 8px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: '4px', fontSize: '10px', color: '#78350F' }}>
-            ⚠️ No popup screens found. Create popup screens in the Explorer panel.
+             No popup screens found. Create popup screens in the Explorer panel.
           </div>
         ) : (
           <select value={action.popupName || ''} onChange={(e) => onUpdate({ popupName: e.target.value })} style={fieldSelectStyle}>
             <option value="">— Select popup screen —</option>
             {popupScreens.map((s) => (
               <option key={s._id} value={s.screenName}>
-                🪟 {s.screenName}
+                {s.screenName}
               </option>
             ))}
           </select>
@@ -366,10 +369,10 @@ const ActionFields = ({ action, tags, screens = [], onUpdate }) => {
         {action.type === 'showMessage' && (
           <FieldSelect label="Style" value={action.style || 'info'} onChange={(v) => onUpdate({ style: v })}
             options={[
-              { value: 'info', label: 'ℹ Info (Blue)' },
-              { value: 'success', label: '✓ Success (Green)' },
-              { value: 'warning', label: '⚠ Warning (Yellow)' },
-              { value: 'error', label: '✗ Error (Red)' },
+               { value: 'info', label: 'Info (Blue)' },
+               { value: 'success', label: 'Success (Green)' },
+               { value: 'warning', label: 'Warning (Yellow)' },
+               { value: 'error', label: 'Error (Red)' },
             ]} />
         )}
       </>
@@ -432,16 +435,18 @@ const FieldSelect = ({ label, value, onChange, options }) => (
 );
 
 const actionTypeConfig = {
-  writeTag:     { icon: '✏️', label: 'Write Tag',      color: '#2563EB' },
-  toggleTag:    { icon: '🔄', label: 'Toggle Tag',     color: '#9333EA' },
-  incrementTag: { icon: '⬆',  label: 'Increment',      color: '#16A34A' },
-  decrementTag: { icon: '⬇',  label: 'Decrement',      color: '#EA580C' },
-  copyTag:      { icon: '📋', label: 'Copy Tag',       color: '#0891B2' },
-  changeScreen: { icon: '🖥', label: 'Change Screen',  color: '#4F46E5' },
-  openPopup:    { icon: '🪟', label: 'Open Popup',     color: '#F59E0B' },
-  closePopup:   { icon: '✖',  label: 'Close Popup',    color: '#64748B' },
-  showMessage:  { icon: '💬', label: 'Show Message',   color: '#0D9488' },
-  alert:        { icon: '⚠️', label: 'Alert Box',      color: '#DC2626' },
+  writeTag:     { icon: 'PenLine', label: 'Write Tag',      color: '#2563EB' },
+  toggleTag:    { icon: 'RefreshCw', label: 'Toggle Tag',     color: '#9333EA' },
+  incrementTag: { icon: 'ArrowUp',  label: 'Increment',      color: '#16A34A' },
+  decrementTag: { icon: 'ArrowDown',  label: 'Decrement',      color: '#EA580C' },
+  copyTag:      { icon: 'Copy', label: 'Copy Tag',       color: '#0891B2' },
+  changeScreen: { icon: 'Monitor', label: 'Change Screen',  color: '#4F46E5' },
+  openPopup:    { icon: 'PanelTop', label: 'Open Popup',     color: '#F59E0B' },
+  closePopup:   { icon: 'X',  label: 'Close Popup',    color: '#64748B' },
+  showMessage:  { icon: 'MessageSquare', label: 'Show Message',   color: '#0D9488' },
+  alert:        { icon: 'AlertTriangle', label: 'Alert Box',      color: '#DC2626' },
 };
+
+const ACTION_ICONS = { PenLine, RefreshCw, ArrowUp, ArrowDown, Copy, Monitor, PanelTop, X, MessageSquare, AlertTriangle };
 
 export default EventsTab;

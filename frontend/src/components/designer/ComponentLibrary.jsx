@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import {
-  Search, ChevronDown, ChevronRight, Package, X, Layers,
+  Search, ChevronDown, ChevronRight, Package, X, Layers, Shapes, Cog, Wrench, ArrowRight,
+  Droplets, Cylinder, Radio, GitBranch, Lightbulb, Monitor, SlidersHorizontal,
+  Snowflake, Zap, ShieldAlert, Workflow, Gauge, SquareDashed, MessageSquare,
+  PanelsTopLeft, Filter, Power, RadioTower, CircleDot, ToggleRight,
 } from 'lucide-react';
 import {
   LIBRARY_CATEGORIES,
@@ -134,7 +137,7 @@ const ComponentLibrary = ({ onAddComponent }) => {
       >
         <CategoryChip
           label="All"
-          icon="📚"
+           icon="Layers"
           count={LIBRARY_COMPONENTS.length}
           active={selectedCategory === null}
           onClick={() => setSelectedCategory(null)}
@@ -188,7 +191,7 @@ const ComponentLibrary = ({ onAddComponent }) => {
                     borderLeft: `3px solid ${catInfo.color}`,
                   }}
                 >
-                  <span className="text-[11px]">{catInfo.icon}</span>
+                   <LibraryIcon name={catInfo.icon} size={12} />
                   <span
                     className="text-[10px] font-bold uppercase tracking-wide"
                     style={{ color: COLORS.heading }}
@@ -273,7 +276,7 @@ const ComponentLibrary = ({ onAddComponent }) => {
           className="text-[9px] italic leading-tight"
           style={{ color: COLORS.inkMuted }}
         >
-          💡 <strong>Click</strong> to add · <strong>Drag</strong> onto canvas
+           <strong>Click</strong> to add · <strong>Drag</strong> onto canvas
         </p>
       </div>
     </div>
@@ -301,10 +304,22 @@ const CategoryChip = ({ label, icon, count, color, active, onClick }) => (
       if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
     }}
   >
-    <span>{icon}</span>
+    <LibraryIcon name={icon} size={11} />
     <span className="font-mono">{count}</span>
   </button>
 );
+
+const ICONS = {
+  Shapes, Cog, Wrench, Droplets, Cylinder, Radio, GitBranch, Lightbulb, Monitor,
+  SlidersHorizontal, Snowflake, Zap, ShieldAlert, Workflow, Gauge, SquareDashed,
+  MessageSquare, PanelsTopLeft, Filter, Power, RadioTower, CircleDot, ToggleRight,
+  Layers, ArrowRight,
+};
+
+const LibraryIcon = ({ name, size = 14 }) => {
+  const Icon = ICONS[name] || Shapes;
+  return <Icon size={size} aria-hidden="true" />;
+};
 
 // ═══════════════════════════════════════════════════════════
 // COMPONENT ITEM (single row)
@@ -342,7 +357,7 @@ const ComponentItem = ({ component, onClick, onDragStart }) => (
           draggable={false}
         />
       ) : (
-        <span>{component.icon}</span>
+        <LibraryIcon name={component.icon} size={16} />
       )}
     </div>
 

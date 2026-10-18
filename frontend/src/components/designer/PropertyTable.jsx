@@ -733,7 +733,7 @@ const MultiSelectProperties = ({ selectedElements, onUpdateMultiple }) => {
           }}
         >
           <p className="text-[11px] font-semibold" style={{ color: COLORS.brandAccent }}>
-            💡 Multi-edit mode
+                Multi-edit mode
           </p>
           <p className="text-[10px] mt-1" style={{ color: COLORS.inkBody }}>
             Any change here applies to ALL {selectedElements.length} selected elements. To edit individual properties, deselect all and click a single element.

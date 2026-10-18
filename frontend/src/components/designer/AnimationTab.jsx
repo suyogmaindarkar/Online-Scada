@@ -73,7 +73,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {!boundTag && (
           <div style={infoBoxStyle('#FEF3C7', '#F59E0B', '#78350F')}>
-            ⚠️ Bind a tag first in the Miscellaneous section before setting up animation.
+            Bind a tag first in the Miscellaneous section before setting up animation.
           </div>
         )}
 
@@ -105,12 +105,12 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
                 onChange={(e) => handleAnimChange('type', e.target.value)}
                 style={inputStyle}
               >
-                <option value="color">🎨 Color Change</option>
-                <option value="visibility">👁 Visibility</option>
-                <option value="fill">💧 Fill Level (for tanks)</option>
-                <option value="flash">⚡ Flash (Alarm)</option>
-                <option value="rotation">🔄 Rotation</option>
-                <option value="scale">📏 Scale (Size)</option>
+                <option value="color">Color Change</option>
+                <option value="visibility">Visibility</option>
+                <option value="fill">Fill Level (for tanks)</option>
+                <option value="flash">Flash (Alarm)</option>
+                <option value="rotation">Rotation</option>
+                <option value="scale">Scale (Size)</option>
               </select>
             </div>
 
@@ -118,7 +118,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
               <div style={sectionStyle}>
                 {isBool ? (
                   <div style={infoBoxStyle('#EEF6FF', '#2563EB', '#1E40AF')}>
-                    💡 Boolean tag: FALSE = Min Color, TRUE = Max Color
+                    Boolean tag: FALSE = Min Color, TRUE = Max Color
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
@@ -157,7 +157,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
             {animation.type === 'flash' && (
               <div style={sectionStyle}>
                 <div style={infoBoxStyle('#FEF3C7', '#F59E0B', '#78350F')}>
-                  ⚡ Element will blink between two colors when condition is met
+                  Element will blink between two colors when condition is met
                 </div>
 
                 {!isBool && (
@@ -171,7 +171,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
 
                 {isBool && (
                   <div style={infoBoxStyle('#EEF6FF', '#2563EB', '#1E40AF')}>
-                    💡 Will flash when tag = TRUE
+                    Will flash when tag = TRUE
                   </div>
                 )}
 
@@ -207,7 +207,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
             {animation.type === 'visibility' && (
               <div style={sectionStyle}>
                 <div style={infoBoxStyle('#EEF6FF', '#2563EB', '#1E40AF')}>
-                  💡 Element hides when value is FALSE or below threshold
+                    Element hides when value is FALSE or below threshold
                 </div>
                 <div>
                   <label style={labelStyle}>Show when value ≥</label>
@@ -221,7 +221,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
             {animation.type === 'fill' && (
               <div style={sectionStyle}>
                 <div style={infoBoxStyle('#E0F2FE', '#0891B2', '#164E63')}>
-                  💧 Use this for Tank fill level animation
+                  Use this for Tank fill level animation
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   <div>
@@ -241,7 +241,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
             {animation.type === 'rotation' && (
               <div style={sectionStyle}>
                 <div style={infoBoxStyle('#F3E8FF', '#9333EA', '#581C87')}>
-                  🔄 Element rotates based on tag value (in degrees)
+                  Element rotates based on tag value (in degrees)
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   <div>
@@ -261,7 +261,7 @@ const AnimationTab = ({ element, tags, onUpdate }) => {
             {animation.type === 'scale' && (
               <div style={sectionStyle}>
                 <div style={infoBoxStyle('#FFEDD5', '#EA580C', '#7C2D12')}>
-                  📏 Element scales in size based on tag value
+                  Element scales in size based on tag value
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   <div>

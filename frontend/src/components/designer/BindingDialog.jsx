@@ -27,12 +27,13 @@ const BindingDialog = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    if (existingBinding) {
-      setBinding({ ...existingBinding });
-    } else {
-      setBinding({ mode: 'direct', tag: '' });
-    }
-  }, [isOpen, propertyKey, element?.id]);
+    let active = true;
+    const nextBinding = existingBinding ? { ...existingBinding } : { mode: 'direct', tag: '' };
+    void Promise.resolve().then(() => {
+      if (active) setBinding(nextBinding);
+    });
+    return () => { active = false; };
+  }, [isOpen, propertyKey, element?.id, existingBinding]);
 
   if (!isOpen || !binding) return null;
 
@@ -89,7 +90,7 @@ const BindingDialog = ({
               color: '#78350F',
             }}
           >
-            ⚡ Expression mode will be available in <strong>Sprint D</strong>.
+            Expression mode will be available in <strong>Sprint D</strong>.
             <br />For now, the raw tag value will be used.
           </div>
         );

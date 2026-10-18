@@ -309,6 +309,8 @@ const deleteScreen = async (req, res) => {
 };
 
 module.exports = {
+  sanitizeValue,
+  sanitizeElements,
   createScreen,
   getAllScreens,
   getScreen,

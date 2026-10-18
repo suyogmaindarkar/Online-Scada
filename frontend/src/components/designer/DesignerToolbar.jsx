@@ -10,6 +10,34 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+const ToolBtn = ({ icon: Icon, onClick, disabled, active, title }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    style={{
+      padding: '6px', borderRadius: '4px',
+      background: active ? '#2563EB' : 'transparent',
+      color: active ? '#FFFFFF' : disabled ? '#94A3B8' : '#334155',
+      cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
+      border: 'none', transition: 'all 0.15s ease', display: 'flex',
+      alignItems: 'center', justifyContent: 'center',
+    }}
+    onMouseEnter={(e) => {
+      if (!disabled && !active) { e.currentTarget.style.background = '#EEF6FF'; e.currentTarget.style.color = '#2563EB'; }
+    }}
+    onMouseLeave={(e) => {
+      if (!disabled && !active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#334155'; }
+    }}
+  >
+    <Icon size={16} />
+  </button>
+);
+
+const Separator = () => (
+  <div style={{ width: '1px', height: '24px', background: '#E5E7EB', margin: '0 4px' }} />
+);
+
 const DesignerToolbar = ({
   onNew, onOpen, onSave, onRun,
   onUndo, onRedo, canUndo, canRedo,
@@ -34,45 +62,6 @@ const DesignerToolbar = ({
 }) => {
   const [showAlignMenu, setShowAlignMenu] = useState(false);
   const [showZOrderMenu, setShowZOrderMenu] = useState(false);
-
-  const ToolBtn = ({ icon: Icon, onClick, disabled, active, title }) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      style={{
-        padding: '6px',
-        borderRadius: '4px',
-        background: active ? '#2563EB' : 'transparent',
-        color: active ? '#FFFFFF' : disabled ? '#94A3B8' : '#334155',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        border: 'none',
-        transition: 'all 0.15s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-      onMouseEnter={(e) => {
-        if (!disabled && !active) {
-          e.currentTarget.style.background = '#EEF6FF';
-          e.currentTarget.style.color = '#2563EB';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!disabled && !active) {
-          e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = '#334155';
-        }
-      }}
-    >
-      <Icon size={16} />
-    </button>
-  );
-
-  const Separator = () => (
-    <div style={{ width: '1px', height: '24px', background: '#E5E7EB', margin: '0 4px' }} />
-  );
 
   const numberInputStyle = {
     width: '56px',

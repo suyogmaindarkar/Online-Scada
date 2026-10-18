@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Star, Layers } from 'lucide-react';
+import { Star, Layers } from 'lucide-react';
 import { hasElementSpecificProperties, getElementLabel } from '../../config/elementProperties';
 import COLORS from '../../theme/colors';
 

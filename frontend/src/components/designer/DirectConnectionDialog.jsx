@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link2, Copy, Trash2, ArrowRight, Power, PowerOff, Plus } from 'lucide-react';
+import { Link2, Copy, Trash2, ArrowRight, Power, PowerOff, Plus, AlertTriangle } from 'lucide-react';
 import Modal from '../ui/Modal';
 import { createEmptyConnection, validateConnection } from '../../utils/directConnectionUtils';
 
@@ -9,8 +9,11 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
 
   useEffect(() => {
     if (isOpen) {
-      setLocalConnections([...connections]);
-      setSelectedId(connections[0]?.id || null);
+      const reset = setTimeout(() => {
+        setLocalConnections([...connections]);
+        setSelectedId(connections[0]?.id || null);
+      }, 0);
+      return () => clearTimeout(reset);
     }
   }, [isOpen, connections]);
 
@@ -134,7 +137,7 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
                     <span style={{ fontSize: '11px', color: '#081B43', fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {conn.name || <span style={{ fontStyle: 'italic', color: '#94A3B8' }}>Untitled</span>}
                     </span>
-                    {invalid && <span style={{ color: '#DC2626', fontSize: '11px' }} title={validateConnection(conn)}>⚠</span>}
+                    {invalid && <AlertTriangle size={12} style={{ color: '#DC2626' }} title={validateConnection(conn)} />}
                   </div>
                   <div style={{ marginTop: '4px', fontSize: '10px', color: '#5F6B7A', display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
                     <span style={{ fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -197,8 +200,8 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', color: '#5F6B7A', marginBottom: '4px', fontWeight: 700, textTransform: 'uppercase' }}>Trigger</label>
                 <select value={selected.trigger || 'onChange'} onChange={(e) => updateSelected({ trigger: e.target.value })} style={selectStyle}>
-                  <option value="onChange">⚡ On Source Change (real-time)</option>
-                  <option value="onLoad">🚀 On Screen Load (once)</option>
+                  <option value="onChange">On Source Change (real-time)</option>
+                  <option value="onLoad">On Screen Load (once)</option>
                 </select>
                 <p style={{ marginTop: '4px', fontSize: '10px', color: '#94A3B8', fontStyle: 'italic' }}>
                   {selected.trigger === 'onLoad'
@@ -209,13 +212,13 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
 
               <div style={{ padding: '12px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '4px' }}>
                 <label style={{ display: 'block', fontSize: '11px', color: '#2563EB', marginBottom: '8px', fontWeight: 700, textTransform: 'uppercase' }}>
-                  📤 Source (From)
+                  Source (From)
                 </label>
                 <div style={{ marginBottom: '8px' }}>
                   <select value={selected.source?.type || 'tag'} onChange={(e) => updateSourceOrTarget('source', { type: e.target.value })}
                     style={{ ...selectStyle, padding: '6px 12px', fontSize: '11px' }}>
-                    <option value="tag">🏷 Tag Value</option>
-                    <option value="static">🔒 Static Value (constant)</option>
+                    <option value="tag">Tag Value</option>
+                    <option value="static">Static Value (constant)</option>
                   </select>
                 </div>
                 {selected.source?.type === 'tag' && (
@@ -237,7 +240,7 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
 
               <div style={{ padding: '12px', background: '#F8FAFC', border: '1px solid rgba(22, 163, 74, 0.25)', borderRadius: '4px' }}>
                 <label style={{ display: 'block', fontSize: '11px', color: '#16A34A', marginBottom: '8px', fontWeight: 700, textTransform: 'uppercase' }}>
-                  📥 Target (To)
+                  Target (To)
                 </label>
                 <select value={selected.target?.tag || ''} onChange={(e) => updateSourceOrTarget('target', { type: 'tag', tag: e.target.value })} style={selectStyle}>
                   <option value="">— Select target tag —</option>
@@ -250,7 +253,9 @@ const DirectConnectionDialog = ({ isOpen, onClose, connections = [], tags = [], 
 
               {validateConnection(selected) && (
                 <div style={{ padding: '8px', background: '#FEE2E2', border: '1px solid rgba(220, 38, 38, 0.30)', borderRadius: '4px', fontSize: '11px', color: '#B91C1C', fontWeight: 500 }}>
-                  ⚠ {validateConnection(selected)}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <AlertTriangle size={12} /> {validateConnection(selected)}
+                  </span>
                 </div>
               )}
             </div>

@@ -10,11 +10,12 @@ import { Stage, Layer, Rect, Circle, Line, Text, Group, RegularPolygon, Ellipse,
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Konva from 'konva';
 import { tagAPI } from '../../services/api';
-import { resolveElementBindings } from '../../utils/bindingUtils';
-import { snap, snapPoint, snapSize, isBypassSnapKey } from '../../utils/snapUtils';
+import { evaluateBinding } from '../../utils/bindingUtils';
+import { snapPoint, snapSize, isBypassSnapKey } from '../../utils/snapUtils';
 import { Image as KonvaImage } from 'react-konva';
 import useImage from '../../hooks/useImage';
 import { ProcessPictureWidget, isProcessPicture } from '../widgets/ProcessPictureWidgets';
+import { X, ZoomIn } from 'lucide-react';
 
 const MIN_ZOOM = 25;
 const MAX_ZOOM = 300;
@@ -25,7 +26,6 @@ const DesignCanvas = ({
   selectedIds = [],
   onSelect,
   onUpdate,
-  onUpdateMultiple,
   width,
   height,
   backgroundColor,
@@ -167,8 +167,7 @@ const DesignCanvas = ({
 
   const renderElement = (originalEl) => {
     const el = originalEl;
-    const isSelected = selectedIds.includes(el.id);
-    const liveValue = null;
+    const liveValue = el.boundTag ? liveValues[el.boundTag] : null;
     let fillColor = normalizeColor(el.fill);
     let isVisible = true;
 
@@ -193,6 +192,11 @@ const DesignCanvas = ({
       }
     }
 
+    if (el.isVisible === false || el.isVisible === 'No') isVisible = false;
+    if (el.dynamicBindings?.isVisible) {
+      const value = evaluateBinding(el.dynamicBindings.isVisible, liveValues, []);
+      if (value !== undefined) isVisible = !!value;
+    }
     if (!isVisible) return null;
 
     const handleElementClick = async (e) => {
@@ -522,8 +526,8 @@ const DesignCanvas = ({
             key={el.id}
             el={el}
             commonProps={commonProps}
-            elementRefs={elementRefs}
-          />
+            liveValues={liveValues}
+           />
         );
 
       case 'digitalClock': {
@@ -568,13 +572,13 @@ const DesignCanvas = ({
           fontSize: '11px', fontWeight: 700, fontFamily: 'monospace',
           backdropFilter: 'blur(2px)',
         }}>
-          🔍 {canvasZoom}%
+          <ZoomIn size={11} /> {canvasZoom}%
           <button
             style={{ marginLeft: '4px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#FFF', fontSize: '11px', pointerEvents: 'all' }}
             onPointerDown={(e) => { e.stopPropagation(); setCanvasZoom(100); }}
             title="Reset zoom to 100%"
           >
-            ✕
+            <X size={11} />
           </button>
         </div>
       )}
@@ -675,39 +679,44 @@ const DesignCanvas = ({
 // ═══════════════════════════════════════════════════════════
 // SVG SYMBOL — ✅ FIXED: uses merged ref (Transformer + filter cache)
 // ═══════════════════════════════════════════════════════════
-const SvgSymbolElement = ({ el, commonProps, elementRefs }) => {
+const SvgSymbolElement = ({ el, commonProps, liveValues }) => {
   const [image, status] = useImage(el.svgPath);
   const imageRef = useRef(null);
 
   // ✅ Merged ref callback: registers node for BOTH Transformer AND filter cache
   const mergedRef = useCallback((node) => {
     imageRef.current = node;
-    // Also register in elementRefs so Transformer can find this node
-    if (elementRefs && elementRefs.current) {
-      if (node) elementRefs.current[el.id] = node;
-      else delete elementRefs.current[el.id];
-    }
-  }, [el.id, elementRefs]);
+    commonProps.ref(node);
+  }, [commonProps]);
 
   // Static tint preview for design mode
   let tintColor = null;
   if (typeof el.symbolTint === 'string' && el.symbolTint.startsWith('#')) tintColor = el.symbolTint;
   else if (el.symbolTint === true)  tintColor = '#10b981';
   else if (el.symbolTint === false) tintColor = '#ef4444';
+  const tintBinding = el.dynamicBindings?.symbolTint;
+  const boundTint = tintBinding ? evaluateBinding(tintBinding, liveValues, []) : undefined;
+  if (typeof boundTint === 'string' && boundTint.startsWith('#')) tintColor = boundTint;
 
+  const strengthBinding = el.dynamicBindings?.symbolTintStrength;
+  const boundStrength = strengthBinding ? evaluateBinding(strengthBinding, liveValues, []) : undefined;
   let tintStrength;
-  if (el.symbolTintStrength !== undefined && el.symbolTintStrength !== null && el.symbolTintStrength !== '') {
-    tintStrength = Math.max(0, Math.min(1, Number(el.symbolTintStrength) || 0));
+  if (boundStrength !== undefined) {
+     tintStrength = Math.max(0, Math.min(1, Number(boundStrength) || 0));
+  } else if (el.symbolTintStrength !== undefined && el.symbolTintStrength !== null && el.symbolTintStrength !== '') {
+     tintStrength = Math.max(0, Math.min(1, Number(el.symbolTintStrength) || 0));
   } else {
     tintStrength = tintColor ? 1 : 0;
   }
-  const brightness = el.symbolBrightness ?? 1;
+  const brightnessBinding = el.dynamicBindings?.symbolBrightness;
+  const boundBrightness = brightnessBinding ? evaluateBinding(brightnessBinding, liveValues, []) : undefined;
+  const brightness = Number(boundBrightness ?? el.symbolBrightness ?? 1);
   const safeTint   = tintColor || '#3b82f6';
 
   useEffect(() => {
     if (!imageRef.current || !image) return;
     const node = imageRef.current;
-    try { node.clearCache(); } catch {}
+     node.clearCache();
     node.cache();
     const filters = [];
     if (tintStrength > 0) filters.push(Konva.Filters.RGB);
@@ -724,9 +733,6 @@ const SvgSymbolElement = ({ el, commonProps, elementRefs }) => {
     node.getLayer()?.batchDraw();
   }, [image, tintStrength, brightness, safeTint, el.width, el.height]);
 
-  // Remove the ref from commonProps — we use mergedRef instead
-  const { ref: _origRef, ...restProps } = commonProps;
-
   if (status === 'loading') return (
     <Group {...commonProps}>
       <Rect width={el.width} height={el.height} fill="#EEF6FF" stroke="#2563EB" strokeWidth={1} dash={[4,4]} />
@@ -742,7 +748,7 @@ const SvgSymbolElement = ({ el, commonProps, elementRefs }) => {
 
   return (
     <KonvaImage
-      {...restProps}
+       {...commonProps}
       ref={mergedRef}
       image={image}
       width={el.width}
@@ -793,17 +799,18 @@ function formatClockText(date, el) {
   const monthNamesLong=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const monthNamesShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const weekdayLong=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
-  let dateStr='';
-  switch(dateFormat){
-    case 'DD/MM/YYYY':dateStr=`${day}/${month}/${year}`;break;
-    case 'MM/DD/YYYY':dateStr=`${month}/${day}/${year}`;break;
-    case 'YYYY-MM-DD':dateStr=`${year}-${month}-${day}`;break;
-    case 'Long':dateStr=`${monthNamesLong[date.getMonth()]} ${day}, ${year}`;break;
-    case 'Short':dateStr=`${monthNamesShort[date.getMonth()]} ${day}, ${year}`;break;
-    default:dateStr=`${day}/${month}/${year}`;
-  }
+  const dateStr = (() => {
+    switch(dateFormat){
+      case 'DD/MM/YYYY':return `${day}/${month}/${year}`;
+      case 'MM/DD/YYYY':return `${month}/${day}/${year}`;
+      case 'YYYY-MM-DD':return `${year}-${month}-${day}`;
+      case 'Long':return `${monthNamesLong[date.getMonth()]} ${day}, ${year}`;
+      case 'Short':return `${monthNamesShort[date.getMonth()]} ${day}, ${year}`;
+      default:return `${day}/${month}/${year}`;
+    }
+  })();
   let tzStr='';
-  if(el.clockShowTimezone){try{const m=date.toString().match(/\(([^)]+)\)/);tzStr=m?` ${m[1].split(' ').map(w=>w[0]).join('')}`:'';} catch{}}
+  if(el.clockShowTimezone){try{const m=date.toString().match(/\(([^)]+)\)/);tzStr=m?` ${m[1].split(' ').map(w=>w[0]).join('')}`:'';} catch{tzStr='';}}
   switch(displayMode){
     case 'timeOnly':return timeStr+tzStr;
     case 'dateOnly':return dateStr;

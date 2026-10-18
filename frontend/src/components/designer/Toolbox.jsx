@@ -7,7 +7,7 @@ import { useState } from 'react';
 import {
   Square, Circle, Minus, Type, Pentagon, Triangle,
   Cylinder, Droplet, Cog, ToggleLeft, Gauge, Activity,
-  MousePointer2, BarChart3, ListChecks, Hash, TextCursor,
+  BarChart3, ListChecks, Hash, TextCursor,
   Radio, Clock,
   CheckSquare, MousePointerClick, CircleDot,
   ChevronDown, ChevronRight, Search, Grid3X3,
@@ -229,7 +229,7 @@ const Toolbox = ({ onAddElement }) => {
       {/* Footer */}
       <div className="px-3 py-2" style={{ background: '#F8FAFC', borderTop: `1px solid ${COLORS.lineDefault}` }}>
         <p className="text-[9px] italic leading-tight" style={{ color: COLORS.inkMuted }}>
-          💡 Click any object to add it to the canvas
+          Click any object to add it to the canvas
         </p>
       </div>
     </div>
@@ -254,5 +254,3 @@ const ToolboxItem = ({ item, onClick }) => (
 );
 
 export default Toolbox;
-
-export { getDefaults };
