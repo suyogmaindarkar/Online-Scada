@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isEquipmentEnabled, mergeEquipmentStatus, selectConnector, isTerminalScan, matchesCommand } from '../src/utils/equipmentState.mjs';
+import { isEquipmentEnabled, mergeEquipmentStatus, selectConnector, isTerminalScan, isKnownScanPhase, matchesCommand } from '../src/utils/equipmentState.mjs';
 
 test('unreachable enabled equipment still offers Stop, disabled equipment offers Start', () => {
   assert.equal(isEquipmentEnabled({ isActive: true, isConnected: false }), true);
@@ -22,6 +22,7 @@ test('connector overview selects an online connector even if a newer offline pro
 test('all terminal discovery states stop polling', () => {
   for (const phase of ['done', 'failed', 'cancelled']) assert.equal(isTerminalScan(phase), true);
   assert.equal(isTerminalScan('probing'), false);
+  for (const phase of ['queued', 'pinging', 'probing', 'done', 'failed', 'cancelled']) assert.equal(isKnownScanPhase(phase), true);
 });
 
 test('command acknowledgements must match equipment, action and assigned request', () => {
@@ -29,4 +30,5 @@ test('command acknowledgements must match equipment, action and assigned request
   assert.equal(matchesCommand(pending, { ...pending }), true);
   assert.equal(matchesCommand(pending, { ...pending, requestId: 'two' }), false);
   assert.equal(matchesCommand(pending, { ...pending, equipmentId: 'b' }), false);
+  assert.equal(matchesCommand({ ...pending, requestId: null }, { equipmentId: 'a', action: 'stop' }), false);
 });

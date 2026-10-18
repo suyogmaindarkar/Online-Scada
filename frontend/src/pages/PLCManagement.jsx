@@ -12,7 +12,7 @@ import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import FactoryConnectorSetup from '../components/FactoryConnectorSetup';
 import {
-  Plus, Edit2, Trash2, Play, Pause, Cpu, Wifi, WifiOff, Loader2, Sparkles,
+  Plus, Edit2, Trash2, Play, Pause, Cpu, Wifi, WifiOff, Loader2,
   Download, Radar, Signal, SignalLow, CheckCircle2, Server, CheckCircle,
   Info, Key, MapPin, Monitor, AlertCircle
 } from 'lucide-react';
@@ -91,7 +91,7 @@ const PLCManagement = () => {
   const liveStatusesRef = useRef(new Map());
 
   const [formData, setFormData] = useState({
-    name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 4840,
+    name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '', port: 4840,
     rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: ''
   });
 
@@ -182,14 +182,14 @@ const PLCManagement = () => {
     document.body.appendChild(link); link.click(); link.remove();
   };
 
-  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '192.168.1.100', port: 4840, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
+  const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '', port: 4840, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
   const handleOpenEdit = (plc) => { setEditingPLC(plc); setFormData({ ...plc }); setShowModal(true); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingPLC) await plcAPI.update(editingPLC._id, formData);
-      else await plcAPI.create(formData);
+      else await plcAPI.create({ ...formData, ipAddress: formData.ipAddress.trim() || undefined });
       showToast('Equipment saved', 'success'); setShowModal(false); loadPLCs(); loadGateway();
     } catch { showToast('Operation failed', 'error'); }
   };
@@ -251,8 +251,8 @@ const PLCManagement = () => {
     scanPollErrorsRef.current = 0;
     try {
       const res = await discoveryAPI.startScan({
-        startIP: customRange.startIP,
-        endIP: customRange.endIP,
+        ...(customRange.startIP.trim() ? { startIP: customRange.startIP.trim() } : {}),
+        ...(customRange.endIP.trim() ? { endIP: customRange.endIP.trim() } : {}),
         deepProbe: useDeepProbe,
         gatewayId: gateway?._id,
       });
@@ -293,20 +293,25 @@ const PLCManagement = () => {
       opcuaUsername: '',
       opcuaPassword: ''
     });
+    if (dev.supported === false) {
+      showToast(`${dev.protocol} was detected, but this connector does not yet read it. Configure a supported gateway or protocol adapter manually.`, 'warning', 8000);
+      return;
+    }
     setShowModal(true);
   };
 
-  const isGatewayOnline = gateway?.status === 'online';
+    const isGatewayOnline = gateway?.status === 'online';
   const nonSimPlcCount = plcs.filter(p => !p.isSimulation).length;
 
   return (
     <div className="space-y-4 font-sans text-slate-800 pb-10">
       {/* ═══ HEADER ═══ */}
       <div className="p-5 rounded-2xl bg-white border shadow-sm flex items-center justify-between flex-wrap gap-4">
-        <div><h1 className="text-2xl font-bold text-slate-900">Equipment Connections</h1><p className="text-sm text-slate-500 mt-1">Manage equipment and link your factory to the cloud</p></div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <ActionButton variant="teal" icon={Radar} onClick={() => setShowDiscoveryModal(true)} disabled={!isGatewayOnline} title={!isGatewayOnline ? "Connector must be online to scan local network" : ""}>Discover</ActionButton>
-          <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
+          <div><h1 className="text-2xl font-bold text-slate-900">Equipment Connections</h1><p className="text-sm text-slate-500 mt-1">Manage equipment through your Factory Connector</p></div>
+          <div className="flex items-center gap-2 flex-wrap">
+           {!isGatewayOnline && <ActionButton variant="emerald" icon={Download} onClick={handleDownloadInstaller}>Download Windows Installer</ActionButton>}
+           <ActionButton variant={isGatewayOnline ? 'primary' : 'teal'} icon={Radar} onClick={() => setShowDiscoveryModal(true)} disabled={!isGatewayOnline} title={!isGatewayOnline ? "Discover is available after the Factory Connector is online" : ""}>Discover</ActionButton>
+           <ActionButton variant="primary" icon={Plus} onClick={handleOpenAdd}>Add Equipment</ActionButton>
         </div>
       </div>
 
@@ -317,21 +322,22 @@ const PLCManagement = () => {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: isGatewayOnline ? '#10B981' : '#F59E0B' }}><Server size={22} /></div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-base text-slate-900">PLC Connector Link</h3>
+                 <h3 className="font-bold text-base text-slate-900">PLC Connector Link</h3>
                 <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: isGatewayOnline ? '#DCFCE7' : '#FEF3C7', color: isGatewayOnline ? '#15803D' : '#B45309' }}>
                   {isGatewayOnline ? <CheckCircle size={12} strokeWidth={3} /> : <AlertCircle size={12} strokeWidth={3} />}
-                  {isGatewayOnline ? 'System is Online & Connected' : nonSimPlcCount === 0 ? 'Ready for Download' : 'Offline - Setup Required'}
+                   {isGatewayOnline ? 'Connector online' : nonSimPlcCount === 0 ? 'Ready for download' : 'Offline - setup required'}
                 </span>
               </div>
               <p className="text-sm text-slate-700">
-                {isGatewayOnline ? (
-                  <span className="flex items-center gap-1"><CheckCircle2 size={14} className="text-emerald-600" /> Secure bridge active. <strong>{nonSimPlcCount} equipment connection(s)</strong> configured.</span>
+                 {isGatewayOnline ? (
+                   <span className="flex items-center gap-1"><CheckCircle2 size={14} className="text-emerald-600" /> Secure bridge active. <strong>{nonSimPlcCount} equipment connection(s)</strong> configured; equipment status is shown below.</span>
                 ) : nonSimPlcCount === 0 ? (
                   `Download the Connector to enable Network Discovery, or add your machine manually below.`
                 ) : (
                   `Install the connector on your factory computer to link your ${nonSimPlcCount} equipment connection(s) securely to the cloud.`
                 )}
               </p>
+              {!isGatewayOnline && <p className="mt-2 text-xs font-semibold text-amber-800">Discover is disabled until the Factory Connector is online. Install it on the factory computer, then refresh this page.</p>}
               {gateway && isGatewayOnline && (
                 <div className="flex items-center gap-4 mt-2.5 text-[11px] text-slate-500 bg-white/50 px-3 py-1.5 rounded-lg border border-slate-200/50 w-fit">
                   <span className="flex items-center gap-1"><Key size={12} /> Prefix: <span className="font-mono font-bold text-slate-700">{gateway.apiKeyPrefix}</span></span>
@@ -344,8 +350,8 @@ const PLCManagement = () => {
 
           {/* REMOVED: disabled rule blocking download when PLC count is 0 */}
           <div className="flex items-center gap-2 flex-wrap">
-            <ActionButton variant="emerald" icon={Download} onClick={handleDownloadInstaller}>
-              Download Connector
+             <ActionButton variant={isGatewayOnline ? 'secondary' : 'emerald'} icon={Download} onClick={handleDownloadInstaller}>
+               Download Windows Installer
             </ActionButton>
           </div>
         </div>
@@ -378,7 +384,6 @@ const PLCManagement = () => {
                    </td>
                   <td className="p-4">
                     <p className="font-semibold text-slate-800">{plc.name}</p>
-                    {plc.isSimulation && <span className="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded mt-1 inline-flex items-center gap-1"><Sparkles size={10} /> SIM</span>}
                   </td>
                   <td className="p-4"><span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-1 rounded">{plc.protocol}</span></td>
                   <td className="p-4 font-mono text-slate-600">{plc.ipAddress}:{plc.port}</td>
@@ -409,7 +414,6 @@ const PLCManagement = () => {
                 <option value="OPC_UA">OPC-UA</option>
                  <option value="ETHERNET_IP">Allen-Bradley (Ethernet/IP)</option>
                  <option value="PROFIBUS_GATEWAY">Profibus via Gateway</option>
-                  {editingPLC?.isSimulation && <option value="SIMULATION">Existing simulation</option>}
               </select>
             </div>
           </div>
@@ -421,7 +425,7 @@ const PLCManagement = () => {
             </div>
           </div>}
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-semibold mb-1">IP Address</label><input name="ipAddress" value={formData.ipAddress} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
+             <div><label className="block text-sm font-semibold mb-1">IP Address <span className="font-normal text-slate-500">(Optional)</span></label><input name="ipAddress" value={formData.ipAddress || ''} onChange={handleInputChange} placeholder="Blank uses connector local subnet" className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
             <div><label className="block text-sm font-semibold mb-1">Port</label><input type="number" name="port" value={formData.port} onChange={handleInputChange} className="w-full p-2 border rounded bg-slate-50 outline-none focus:border-blue-500" /></div>
           </div>
        <div className="grid grid-cols-4 gap-4">
@@ -442,7 +446,7 @@ const PLCManagement = () => {
       <Modal isOpen={showDiscoveryModal} onClose={() => setShowDiscoveryModal(false)} title="Discover Equipment on Network" size="xl">
         <div className="space-y-4">
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-            <p className="text-sm text-slate-600">The Factory Connector will rapidly probe local IPs for active industrial machines (Siemens, Modbus, OPC-UA, Ethernet/IP).</p>
+             <p className="text-sm text-slate-600">The Factory Connector scans its local factory networks for common industrial protocols. Leave the range blank to use the detected local IPv4 subnets, or enter a smaller range for a faster scan.</p>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -489,7 +493,7 @@ const PLCManagement = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-mono text-sm font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{dev.ip}</span>
                           <span className="font-bold text-slate-800">{dev.vendorName}</span>
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">{dev.confirmed ? 'Protocol verified' : 'Open port candidate'} · {dev.port}</span>
+                          <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${dev.supported === false ? 'text-amber-700 bg-amber-50 border border-amber-200' : 'text-blue-700 bg-blue-50 border border-blue-200'}`}>{dev.supported === false ? 'Detected; adapter required' : dev.confirmed ? 'Protocol verified' : 'Open port candidate'} · {dev.port}</span>
                         </div>
                         {dev.deepInfo && (
                           <div className="text-xs text-slate-500 mt-2">
@@ -497,7 +501,7 @@ const PLCManagement = () => {
                           </div>
                         )}
                       </div>
-                      <ActionButton variant="primary" icon={Plus} onClick={() => handleAddDiscovered(dev)} disabled={scanning}>Add Equipment</ActionButton>
+                      <ActionButton variant={dev.supported === false ? 'secondary' : 'primary'} icon={Plus} onClick={() => handleAddDiscovered(dev)} disabled={scanning || dev.supported === false}>{dev.supported === false ? 'Manual setup required' : 'Add Equipment'}</ActionButton>
                     </div>
                   </div>
                 ))}

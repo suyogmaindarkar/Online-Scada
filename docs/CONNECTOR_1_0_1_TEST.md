@@ -3,7 +3,7 @@
 ## Deployment order
 
 1. Deploy the updated backend on Render and wait for Live.
-2. Publish the newly compiled installer at `frontend/public/OnlineSCADA-Factory-Connector-Setup.exe` (already tracked by this repository).
+2. Publish the newly compiled installer at `frontend/public/OnlineSCADA-Factory-Connector-Setup.exe` (already tracked by this repository). The installer must be rebuilt after connector source changes; an already-installed older connector does not gain discovery support automatically.
 3. Deploy the updated frontend on Vercel. Keep `VITE_API_URL=https://onlinescada-api.onrender.com/api` and the working public installer URL. The page falls back to the same-origin installer file when the installer URL is not configured.
 4. Download the new installer only after the deployment is Ready. Older downloaded installers do not contain these fixes.
 
@@ -61,6 +61,8 @@ Scan only a network you are authorized to administer. The connector performs rea
 6. Cancel an active scan, then start another. Late reports must not revive the cancelled scan.
 7. Disconnect the connector during a scan. Expect failure rather than endless scanning.
 8. Leave both IPs blank only when the connector's first non-loopback IPv4 adapter is the intended factory LAN; otherwise provide the explicit range. Scans are capped at 1024 addresses.
+
+The current scanner checks common TCP industrial services: Siemens S7 (102), Modbus TCP (502), OPC UA (4840), EtherNet/IP (44818), Mitsubishi MC candidates (5000), Omron FINS/TCP (9600), IEC 60870-5-104 candidates (2404), DNP3 candidates (20000), and Beckhoff ADS candidates (48898). A verified result means the connector received the protocol handshake it knows how to validate. An open-port candidate is not proof of a PLC. Modbus RTU, PROFIBUS without a TCP gateway, vendor-specific serial protocols, and arbitrary proprietary PLC protocols require an explicit gateway/protocol adapter and cannot be guaranteed by generic network discovery.
 
 ## Automated verification
 

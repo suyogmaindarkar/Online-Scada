@@ -51,7 +51,7 @@ exports.updateStatus = (companyId, data, gatewayId) => {
     for (const key of ['scannedIPs', 'aliveHosts', 'totalIPs']) {
         if (Number.isInteger(results[key]) && results[key] >= 0 && results[key] <= 1024) scan[key] = Math.max(scan[key], results[key]);
     }
-    if (Array.isArray(results.devices)) scan.devices = results.devices.slice(0, 4096).filter((device) => device && typeof device.ip === 'string').map(({ ip, port, protocol, vendorName, confirmed, evidence }) => ({ ip, port, protocol, vendorName, confirmed: confirmed === true, evidence }));
+    if (Array.isArray(results.devices)) scan.devices = results.devices.slice(0, 4096).filter((device) => device && typeof device.ip === 'string').map(({ ip, port, protocol, vendorName, confirmed, evidence, supported }) => ({ ip, port, protocol, vendorName, confirmed: confirmed === true, evidence, supported: supported === true }));
     scan.phase = data.phase;
     if (!ACTIVE.has(data.phase)) finish(scan, data.phase, typeof data.message === 'string' ? data.message.slice(0, 300) : '');
     return true;

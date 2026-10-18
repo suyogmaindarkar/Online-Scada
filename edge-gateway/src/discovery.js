@@ -2,27 +2,44 @@ const net = require('net');
 const os = require('os');
 
 const SERVICES = [
-    { port: 102, protocol: 'S7', vendorName: 'Siemens-compatible equipment' },
-    { port: 502, protocol: 'MODBUS_TCP', vendorName: 'Modbus TCP equipment' },
-    { port: 4840, protocol: 'OPC_UA', vendorName: 'OPC UA equipment' },
-    { port: 44818, protocol: 'ETHERNET_IP', vendorName: 'EtherNet/IP equipment' },
+    { port: 102, protocol: 'S7', vendorName: 'Siemens-compatible equipment', supported: true },
+    { port: 502, protocol: 'MODBUS_TCP', vendorName: 'Modbus TCP equipment', supported: true },
+    { port: 4840, protocol: 'OPC_UA', vendorName: 'OPC UA equipment', supported: true },
+    { port: 44818, protocol: 'ETHERNET_IP', vendorName: 'EtherNet/IP equipment', supported: true },
+    { port: 5000, protocol: 'MITSUBISHI_MC', vendorName: 'Mitsubishi MC-compatible equipment', deepProbe: false, supported: false },
+    { port: 9600, protocol: 'OMRON_FINS_TCP', vendorName: 'Omron FINS/TCP-compatible equipment', supported: false },
+    { port: 2404, protocol: 'IEC_60870_5_104', vendorName: 'IEC 60870-5-104 equipment', deepProbe: false, supported: false },
+    { port: 20000, protocol: 'DNP3', vendorName: 'DNP3 equipment', deepProbe: false, supported: false },
+    { port: 48898, protocol: 'BECKHOFF_ADS', vendorName: 'Beckhoff ADS-compatible equipment', deepProbe: false, supported: false },
 ];
+
+const ipToNumber = (ip) => ip.split('.').reduce((n, part) => n * 256 + Number(part), 0) >>> 0;
+const numberToIp = (value) => [24, 16, 8, 0].map((shift) => (value >>> shift) & 255).join('.');
+const maskToNumber = (mask) => ipToNumber(mask || '255.255.255.0');
 
 function range(options, interfaces = os.networkInterfaces()) {
     let { startIP, endIP } = options;
     if (!startIP && !endIP) {
-        const local = Object.values(interfaces).flat().find((nic) => !nic.internal && (nic.family === 'IPv4' || nic.family === 4));
-        if (!local) throw new Error('No factory IPv4 network is available. Enter a scan range.');
-        const prefix = local.address.split('.').slice(0, 3).join('.');
-        startIP = `${prefix}.1`;
-        endIP = `${prefix}.254`;
+        const locals = Object.values(interfaces).flat().filter((nic) => !nic.internal && (nic.family === 'IPv4' || nic.family === 4));
+        if (!locals.length) throw new Error('No factory IPv4 network is available. Enter a scan range.');
+        const addresses = [];
+        for (const local of locals) {
+            const mask = maskToNumber(local.netmask);
+            const network = (ipToNumber(local.address) & mask) >>> 0;
+            const broadcast = (network | (~mask >>> 0)) >>> 0;
+            const first = broadcast - network > 1 ? network + 1 : network;
+            const last = broadcast - network > 1 ? broadcast - 1 : broadcast;
+            for (let value = first; value <= last; value += 1) addresses.push(numberToIp(value));
+        }
+        const unique = [...new Set(addresses)];
+        if (unique.length > 1024) throw new Error('The detected factory networks contain more than 1024 addresses. Enter a smaller scan range.');
+        return unique;
     }
     if (!net.isIPv4(startIP || '') || !net.isIPv4(endIP || '')) throw new Error('Invalid factory scan range');
-    const numeric = (ip) => ip.split('.').reduce((n, part) => n * 256 + Number(part), 0);
-    const start = numeric(startIP);
-    const count = numeric(endIP) - start + 1;
+    const start = ipToNumber(startIP);
+    const count = ipToNumber(endIP) - start + 1;
     if (count < 1 || count > 1024) throw new Error('Scan range must contain between 1 and 1024 addresses');
-    return Array.from({ length: count }, (_, i) => [24, 16, 8, 0].map((shift) => ((start + i) >>> shift) & 255).join('.'));
+    return Array.from({ length: count }, (_, i) => numberToIp(start + i));
 }
 
 // Read-only protocol identification. An open TCP port alone is a candidate,
@@ -31,6 +48,7 @@ function identifyRequest(protocol, ip, port) {
     if (protocol === 'S7') return Buffer.from('0300001611e00000000100c1020100c2020100c0010a', 'hex');
     if (protocol === 'MODBUS_TCP') return Buffer.from('000100000005012b0e0100', 'hex');
     if (protocol === 'ETHERNET_IP') { const packet = Buffer.alloc(24); packet.writeUInt16LE(0x63); return packet; }
+    if (protocol === 'OMRON_FINS_TCP') return Buffer.from('46494e530000000c000000000000000000000000', 'hex');
     const endpoint = Buffer.from(`opc.tcp://${ip}:${port}`);
     const packet = Buffer.alloc(32 + endpoint.length);
     packet.write('HELF'); packet.writeUInt32LE(packet.length, 4);
@@ -43,6 +61,8 @@ function validReply(protocol, buffer) {
     if (protocol === 'S7') return buffer.length >= 11 && buffer[0] === 3 && buffer[1] === 0 && buffer.readUInt16BE(2) >= 11 && buffer.length >= buffer.readUInt16BE(2) && buffer[4] >= 6 && buffer[5] === 0xd0;
     if (protocol === 'MODBUS_TCP') return buffer.length >= 9 && buffer.readUInt16BE(0) === 1 && buffer.readUInt16BE(2) === 0 && buffer.readUInt16BE(4) >= 3 && buffer.length >= 6 + buffer.readUInt16BE(4) && buffer[6] === 1 && (buffer[7] === 0xab || (buffer[7] === 0x2b && buffer[8] === 0x0e));
     if (protocol === 'ETHERNET_IP') return buffer.length >= 30 && buffer.readUInt16LE(0) === 0x63 && buffer.readUInt16LE(2) >= 6 && buffer.length >= 24 + buffer.readUInt16LE(2) && buffer.readUInt32LE(8) === 0 && buffer.readUInt16LE(24) > 0 && buffer.readUInt16LE(26) === 0x0c;
+    if (protocol === 'OMRON_FINS_TCP') return buffer.length >= 16 && buffer.subarray(0, 4).toString() === 'FINS';
+    if (protocol === 'IEC_60870_5_104') return buffer.length >= 6 && buffer[0] === 0x68 && buffer[1] >= 4 && buffer.length >= buffer[1] + 2;
     return buffer.length >= 28 && buffer.subarray(0, 4).toString() === 'ACKF' && buffer.readUInt32LE(4) === 28;
 }
 
@@ -71,7 +91,7 @@ function probe(ip, service, { deepProbe, signal, timeoutMs = 700 }) {
             if (validReply(service.protocol, received)) finish({ ip, ...service, confirmed: true, evidence: 'protocol_handshake' });
         });
         socket.connect(service.port, ip, () => {
-            if (!deepProbe) return finish({ ip, ...service, confirmed: false, evidence: 'open_tcp_port' });
+            if (!deepProbe || service.deepProbe === false) return finish({ ip, ...service, confirmed: false, evidence: 'open_tcp_port' });
             socket.write(identifyRequest(service.protocol, ip, service.port));
         });
     });

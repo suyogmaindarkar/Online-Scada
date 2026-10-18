@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const { Discovery, range, validReply } = require('../src/discovery');
 
 test('factory scan derives its default subnet locally and rejects invalid or oversized ranges', () => {
-    assert.equal(range({}, { eth0: [{ family: 'IPv4', internal: false, address: '192.168.8.40' }] })[0], '192.168.8.1');
+    assert.equal(range({}, { eth0: [{ family: 'IPv4', internal: false, address: '192.168.8.40', netmask: '255.255.255.0' }] })[0], '192.168.8.1');
+    assert.deepEqual(range({}, { eth0: [{ family: 'IPv4', internal: false, address: '10.0.0.5', netmask: '255.255.255.252' }] }), ['10.0.0.5', '10.0.0.6']);
     assert.throws(() => range({ startIP: 'bad', endIP: '192.168.0.1' }));
     assert.throws(() => range({ startIP: '10.0.0.1', endIP: '10.0.8.1' }));
 });
@@ -32,7 +33,7 @@ test('cancel aborts in-flight probes and replacement scan does not get silently 
         return new Promise((resolve) => { if (signal.aborted) resolve(null); else signal.addEventListener('abort', () => resolve(null), { once: true }); });
     } });
     const first = scan.start({ scanId: 'old', startIP: '192.168.1.1', endIP: '192.168.1.1' });
-    assert.equal(probes, 4);
+    assert.equal(probes, 9);
     scan.cancel('old');
     scan.probeHost = async () => null;
     const second = scan.start({ scanId: 'new', startIP: '192.168.1.2', endIP: '192.168.1.2' });
@@ -53,10 +54,12 @@ test('discovery reports finite timeout and validation failure', async () => {
 });
 
 test('deep probing requires a protocol reply, not a generic open HTTP/TCP service', () => {
-    for (const protocol of ['S7', 'MODBUS_TCP', 'OPC_UA', 'ETHERNET_IP']) assert.equal(validReply(protocol, Buffer.from('HTTP/1.1 200 OK\r\n')), false);
+    for (const protocol of ['S7', 'MODBUS_TCP', 'OPC_UA', 'ETHERNET_IP', 'OMRON_FINS_TCP', 'IEC_60870_5_104']) assert.equal(validReply(protocol, Buffer.from('HTTP/1.1 200 OK\r\n')), false);
     assert.equal(validReply('S7', Buffer.from('0300001611d000', 'hex')), false);
     assert.equal(validReply('S7', Buffer.from('0300000b06d00001000100', 'hex')), true);
     assert.equal(validReply('MODBUS_TCP', Buffer.from('00010000000301ab01', 'hex')), true);
     const ack = Buffer.alloc(28); ack.write('ACKF'); ack.writeUInt32LE(28, 4);
     assert.equal(validReply('OPC_UA', ack), true);
+    assert.equal(validReply('OMRON_FINS_TCP', Buffer.from('FINS\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0', 'binary')), true);
+    assert.equal(validReply('IEC_60870_5_104', Buffer.from([0x68, 0x04, 0x0b, 0x00, 0x00, 0x00])), true);
 });

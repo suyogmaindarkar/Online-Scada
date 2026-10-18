@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://onlinescada-api.onrender.com/api');
 
 const api = axios.create({
   baseURL: API_URL,
@@ -15,7 +15,7 @@ api.interceptors.request.use(
     if (url.includes('/super-admin') && !url.includes('/super-admin/login')) {
       token = localStorage.getItem('superAdminToken');
     } else if (url.includes('/workspace/verify')) {
-      token = null;
+      // Workspace verification is intentionally unauthenticated.
     } else if (url.includes('/workspace/login-user') || url.includes('/workspace/users')) {
       token = localStorage.getItem('workspaceToken');
     } else {

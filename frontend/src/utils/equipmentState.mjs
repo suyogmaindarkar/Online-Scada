@@ -13,7 +13,8 @@ export function selectConnector(gateways) {
 }
 
 export const isTerminalScan = (phase) => ['done', 'failed', 'cancelled'].includes(phase);
+export const isKnownScanPhase = (phase) => ['queued', 'pinging', 'probing', 'done', 'failed', 'cancelled'].includes(phase);
 
 export function matchesCommand(pending, result) {
-  return Boolean(pending && result && pending.equipmentId === result.equipmentId && pending.action === result.action && (!pending.requestId || pending.requestId === result.requestId));
+  return Boolean(pending && result && pending.requestId && pending.equipmentId === result.equipmentId && pending.action === result.action && pending.requestId === result.requestId);
 }

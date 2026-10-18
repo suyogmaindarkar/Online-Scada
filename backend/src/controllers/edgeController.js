@@ -175,16 +175,19 @@ const downloadCompletePackage = async (req, res) => {
     archive.on('error', (err) => { if (!res.headersSent) res.status(500).json({ success: false, message: err.message }); });
     archive.pipe(res);
 
-    const templateDir = path.join(__dirname, '../../edge-gateway-template');
+    // Keep the support ZIP on the same tested connector source as the Windows
+    // installer. The legacy backend/edge-gateway-template had a different
+    // discovery protocol and could appear online while ignoring scan commands.
+    const templateDir = path.join(__dirname, '../../../edge-gateway');
     
     if (!fs.existsSync(templateDir)) {
       throw new Error(`Template directory not found on server at: ${templateDir}`);
     }
 
     const filesToInclude = [
-      'package.json', 'Start.bat', 'Run-In-Background.vbs', 'README.txt',
-      'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/healthMonitor.js', 'src/serviceRuntime.js', 'src/service-entry.js', 'src/pair-connector.js', 'src/secretStore.js',
-      'src/readers/s7Reader.js', 'src/readers/modbusReader.js', 
+      'package.json', 'package-lock.json', 'Start.bat', 'Run-In-Background.vbs', 'README.txt',
+      'src/index.js', 'src/cloudBridge.js', 'src/plcReader.js', 'src/discovery.js', 'src/healthMonitor.js', 'src/serviceRuntime.js', 'src/service-entry.js', 'src/pair-connector.js', 'src/pairing-ui.js', 'src/install-flow.js', 'src/service-install.js', 'src/service-uninstall.js', 'src/service-lifecycle.js', 'src/secretStore.js',
+      'src/readers/s7Reader.js', 'src/readers/modbusReader.js',
       'src/readers/opcuaReader.js', 'src/readers/ethernetIpReader.js', 'src/utils/opcuaNodeId.js'
     ];
 
