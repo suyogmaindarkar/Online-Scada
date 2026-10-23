@@ -5,6 +5,7 @@ import {
   createLibraryElement,
   restoreScreenElements,
   serializeScreenElements,
+  serializeDirectConnections,
 } from '../src/utils/svgLibraryPersistence.js';
 
 test('Phase 2 add-from-library preserves SVG identity and placement metadata', () => {
@@ -64,4 +65,16 @@ test('Phase 2 persistence seams fail safely for empty or invalid collections', (
   assert.deepEqual(serializeScreenElements(null), []);
   assert.deepEqual(restoreScreenElements(null), []);
   assert.deepEqual(restoreScreenElements([null, undefined]), []);
+});
+
+test('screen serialization removes non-JSON runtime values and circular references', () => {
+  const element = { id: 'safe', width: Number.NaN, onClick: () => {}, nested: { value: 4 } };
+  element.circular = element;
+
+  assert.deepEqual(serializeScreenElements([element]), [
+    { id: 'safe', width: 0, nested: { value: 4 } },
+  ]);
+  assert.deepEqual(serializeDirectConnections([{ source: 'A', target: undefined }]), [
+    { source: 'A' },
+  ]);
 });

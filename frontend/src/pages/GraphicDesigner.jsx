@@ -26,7 +26,7 @@ import { normalizeColor } from '../utils/colorUtils';
 import StatusBar from '../components/designer/StatusBar';
 import BindingDialog from '../components/designer/BindingDialog';
 import { setBinding, removeBinding } from '../utils/bindingUtils';
-import { createLibraryElement, restoreScreenElements, serializeScreenElements } from '../utils/svgLibraryPersistence';
+import { createLibraryElement, restoreScreenElements, serializeScreenElements, serializeDirectConnections } from '../utils/svgLibraryPersistence';
 import DirectConnectionDialog from '../components/designer/DirectConnectionDialog';
 import { useToast } from '../context/ToastContext';
 import COLORS from '../theme/colors';
@@ -238,7 +238,7 @@ const handleCreateTemplate = () => {
         width: canvasWidthRef.current,
         height: canvasHeightRef.current,
         backgroundColor: canvasBgRef.current,
-        directConnections: directConnectionsRef.current,
+         directConnections: serializeDirectConnections(directConnectionsRef.current),
       });
 
       hasUnsavedChangesRef.current = false;
@@ -747,7 +747,7 @@ const handleCreateTemplate = () => {
           width: canvasWidth,
           height: canvasHeight,
           backgroundColor: canvasBg,
-          directConnections,
+           directConnections: serializeDirectConnections(directConnections),
         });
         hasUnsavedChangesRef.current = false;
         setHasUnsavedChanges(false);
@@ -776,7 +776,7 @@ const handleCreateTemplate = () => {
         width: canvasWidth,
         height: canvasHeight,
         backgroundColor: canvasBg,
-        directConnections,
+         directConnections: serializeDirectConnections(directConnections),
       });
       setCurrentScreen(res.data.data);
       hasUnsavedChangesRef.current = false;
