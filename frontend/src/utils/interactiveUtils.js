@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { tagAPI } from '../services/api';
+import socketService from '../services/socket';
 
 // ─────────────────────────────────────────────────────────────
 // VALUE COERCION (consistent across all interactive elements)
@@ -86,6 +87,7 @@ export const writeInteractiveValue = async ({
 
   try {
     await tagAPI.writeValue(targetTag, coerced);
+    socketService.emit('writeTag', { tagName: targetTag, value: coerced });
     console.log(`✓ Interactive write: ${targetTag} = ${coerced}`);
     if (showToast) showToast(`${targetTag} = ${coerced}`, 'success');
     return { success: true, wrote: { tag: targetTag, value: coerced } };
@@ -95,6 +97,13 @@ export const writeInteractiveValue = async ({
     return { success: false, error: err.message };
   }
 };
+
+// Single runtime write path: API, socket update, and user feedback are kept in
+// the same success/error boundary so widgets cannot report a false success or
+// emit a value that the API rejected.
+export const writeRuntimeValue = async (options = {}) => (
+  writeInteractiveValue(options)
+);
 
 // ─────────────────────────────────────────────────────────────
 // COMPARE VALUES (for RadioButton "isSelected" check)

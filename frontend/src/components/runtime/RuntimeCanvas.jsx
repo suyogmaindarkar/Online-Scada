@@ -9,13 +9,11 @@ import {
   Stage, Layer, Rect, Circle, Line, Text,
   Group, RegularPolygon, Ellipse, Arc, Path,
 } from 'react-konva';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Konva from 'konva';
-import { tagAPI } from '../../services/api';
-import socketService from '../../services/socket';
 import { resolveElementBindings } from '../../utils/bindingUtils';
 import { executeEvent, normalizeActions } from '../../utils/eventUtils';
-import { writeInteractiveValue, valuesEqual, parseOptions } from '../../utils/interactiveUtils';
+import { writeRuntimeValue, valuesEqual, parseOptions } from '../../utils/interactiveUtils';
 import InteractiveOverlay from './InteractiveOverlay';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +21,7 @@ import { Image as KonvaImage } from 'react-konva';
 import useImage from '../../hooks/useImage';
 import { useServerTime } from '../../context/ServerTimeContext';
 import { ProcessPictureWidget, isProcessPicture } from '../widgets/ProcessPictureWidgets';
+import { getAuthoredOptions } from '../../utils/runtimeContentPolicy';
 
 const RuntimeCanvas = ({
   elements,
@@ -31,7 +30,6 @@ const RuntimeCanvas = ({
   backgroundColor,
   liveValues = {},
   tags = [],
-  screens = [],
   onChangeScreen,
   onOpenPopup,
   onClosePopup,
@@ -48,7 +46,9 @@ const RuntimeCanvas = ({
   const { serverTime } = useServerTime();
   const [localTime, setLocalTime] = useState(new Date());
   const [overlay, setOverlay] = useState(null);
+  const [tooltip, setTooltip] = useState(null);
   const canvasContainerRef = useRef(null);
+  const inputEventRef = useRef({ lastType: null, at: 0 });
 
   useEffect(() => {
     const tick = setInterval(() => setLocalTime(new Date()), 1000);
@@ -68,7 +68,7 @@ const RuntimeCanvas = ({
     return () => { if (flashIntervalRef.current) clearInterval(flashIntervalRef.current); };
   }, [elements]);
 
-  const runEvent = async (element, eventName) => {
+  const runEvent = useCallback(async (element, eventName) => {
     const eventValue = element?.events?.[eventName];
     const actions = normalizeActions(eventValue);
 
@@ -77,7 +77,7 @@ const RuntimeCanvas = ({
       liveValues,
       navigate,
       showToast: (msg, type) => toast?.showToast ? toast.showToast(msg, type) : alert(msg),
-      showConfirm: ({ title, message, onConfirm }) => {
+      showConfirm: ({ message, onConfirm }) => {
         if (window.confirm(message)) onConfirm();
       },
       currentElement: element,
@@ -100,7 +100,7 @@ const RuntimeCanvas = ({
         console.error(`Event ${eventName} failed:`, err);
       }
     }
-  };
+  }, [liveValues, navigate, toast, elements, onChangeScreen, onOpenPopup, onClosePopup]);
 
   useEffect(() => {
     const prevValues = prevLiveValuesRef.current;
@@ -118,7 +118,7 @@ const RuntimeCanvas = ({
       if (hasChange) runEvent(el, 'onValueChange');
     });
     prevLiveValuesRef.current = { ...liveValues };
-  }, [liveValues, elements]);
+  }, [liveValues, elements, runEvent]);
 
   const handleButtonPress = async (el) => {
     if (!el.action?.targetTag && !el.buttonType) return;
@@ -134,8 +134,7 @@ const RuntimeCanvas = ({
       else if (type === 'Reset') valToWrite = false;
 
       if (valToWrite !== undefined) {
-        await tagAPI.writeValue(targetTag, valToWrite);
-        socketService.emit('writeTag', { tagName: targetTag, value: valToWrite });
+        await writeRuntimeValue({ targetTag, value: valToWrite, tags, showToast: (msg, kind) => toast.showToast(msg, kind) });
       }
     } catch (err) { console.error('Button press failed:', err); }
   };
@@ -145,8 +144,7 @@ const RuntimeCanvas = ({
     const type = el.buttonType || 'Momentary';
     if (type === 'Momentary' && el.action?.targetTag) {
       try {
-        await tagAPI.writeValue(el.action.targetTag, false);
-        socketService.emit('writeTag', { tagName: el.action.targetTag, value: false });
+        await writeRuntimeValue({ targetTag: el.action.targetTag, value: false, tags, showToast: (msg, kind) => toast.showToast(msg, kind) });
       } catch (err) { console.error('Button release failed:', err); }
     }
   };
@@ -154,20 +152,17 @@ const RuntimeCanvas = ({
   const handleCheckBoxClick = async (el) => {
     if (!el.checkBoxTargetTag) { toast.warning('CheckBox has no target tag'); return; }
     const val = !liveValues[el.checkBoxTargetTag];
-    await writeInteractiveValue({ targetTag: el.checkBoxTargetTag, value: val, tags, requireConfirm: !!el.checkBoxRequireConfirm, confirmMessage: el.checkBoxConfirmMessage || `Set ${el.checkBoxTargetTag}?`, showToast: (msg, type) => toast.showToast(msg, type) });
-    socketService.emit('writeTag', { tagName: el.checkBoxTargetTag, value: val });
+    await writeRuntimeValue({ targetTag: el.checkBoxTargetTag, value: val, tags, requireConfirm: !!el.checkBoxRequireConfirm, confirmMessage: el.checkBoxConfirmMessage || `Set ${el.checkBoxTargetTag}?`, showToast: (msg, type) => toast.showToast(msg, type) });
   };
 
   const handleRadioButtonClick = async (el) => {
     if (!el.radioTargetTag) { toast.warning('RadioButton has no target tag'); return; }
-    await writeInteractiveValue({ targetTag: el.radioTargetTag, value: el.radioValue, tags, requireConfirm: !!el.radioRequireConfirm, confirmMessage: `Set ${el.radioTargetTag} to "${el.radioValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
-    socketService.emit('writeTag', { tagName: el.radioTargetTag, value: el.radioValue });
+    await writeRuntimeValue({ targetTag: el.radioTargetTag, value: el.radioValue, tags, requireConfirm: !!el.radioRequireConfirm, confirmMessage: `Set ${el.radioTargetTag} to "${el.radioValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
   };
 
   const handleListBoxItemClick = async (el, optionValue) => {
     if (!el.listTargetTag) { toast.warning('ListBox has no target tag'); return; }
-    await writeInteractiveValue({ targetTag: el.listTargetTag, value: optionValue, tags, requireConfirm: !!el.listRequireConfirm, confirmMessage: `Select "${optionValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
-    socketService.emit('writeTag', { tagName: el.listTargetTag, value: optionValue });
+    await writeRuntimeValue({ targetTag: el.listTargetTag, value: optionValue, tags, requireConfirm: !!el.listRequireConfirm, confirmMessage: `Select "${optionValue}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
   };
 
   const getElementScreenPos = (el) => {
@@ -197,8 +192,27 @@ const RuntimeCanvas = ({
     const targetTag = isIoField ? el.ioTargetTag : el.comboTargetTag;
     const requireConfirm = isIoField ? !!el.ioRequireConfirm : !!el.comboRequireConfirm;
     setOverlay(null);
-    await writeInteractiveValue({ targetTag, value, tags, requireConfirm, confirmMessage: `Set ${targetTag} to "${value}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
-    socketService.emit('writeTag', { tagName: targetTag, value });
+    await writeRuntimeValue({ targetTag, value, tags, requireConfirm, confirmMessage: `Set ${targetTag} to "${value}"?`, showToast: (msg, type) => toast.showToast(msg, type) });
+  };
+
+  const isDuplicateInput = (type) => {
+    // Event timestamps are intentionally sampled only from Konva input handlers.
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    const previous = inputEventRef.current;
+    inputEventRef.current = { lastType: type, at: now };
+    return type === 'click' && previous.lastType === 'tap' && now - previous.at < 500;
+  };
+
+  const handleElementClick = async (el, e) => {
+    if (isDuplicateInput(e.type === 'tap' ? 'tap' : 'click')) return;
+    e.cancelBubble = true;
+    if (el.events?.onClick) await runEvent(el, 'onClick');
+    if (el.action?.targetTag) {
+      let value = el.action.targetValue;
+      if (value === undefined || value === '') value = !liveValues[el.boundTag];
+      await writeRuntimeValue({ targetTag: el.action.targetTag, value, tags, showToast: (msg, kind) => toast.showToast(msg, kind) });
+    }
   };
 
   const renderElement = (originalEl, overlayHandlers = {}) => {
@@ -255,34 +269,8 @@ const RuntimeCanvas = ({
 
     const commonProps = {
       x: el.x, y: el.y, draggable: false,
-      onClick: async (e) => {
-        e.cancelBubble = true;
-        if (el.events?.onClick) {
-          await runEvent(el, 'onClick');
-        }
-        if (el.action?.targetTag) {
-          try {
-            let value = el.action.targetValue;
-            if (value === undefined || value === '') value = !liveValue;
-            await tagAPI.writeValue(el.action.targetTag, value);
-            socketService.emit('writeTag', { tagName: el.action.targetTag, value });
-          } catch (err) { console.error('Element action failed:', err); }
-        }
-      },
-      onTap: async (e) => {
-        e.cancelBubble = true;
-        if (el.events?.onClick) {
-          await runEvent(el, 'onClick');
-        }
-        if (el.action?.targetTag) {
-          try {
-            let value = el.action.targetValue;
-            if (value === undefined || value === '') value = !liveValue;
-            await tagAPI.writeValue(el.action.targetTag, value);
-            socketService.emit('writeTag', { tagName: el.action.targetTag, value });
-          } catch (err) { console.error('Element action failed:', err); }
-        }
-      },
+      onClick: (e) => handleElementClick(el, e),
+      onTap: (e) => handleElementClick(el, e),
       onDblClick: async (e) => { e.cancelBubble = true; await runEvent(el, 'onDoubleClick'); },
       onDblTap: async (e) => { e.cancelBubble = true; await runEvent(el, 'onDoubleClick'); },
       onMouseDown: async (e) => {
@@ -296,11 +284,16 @@ const RuntimeCanvas = ({
       onMouseEnter: async (e) => {
         const container = e.target.getStage().container();
         container.style.cursor = hasClickEvent ? 'pointer' : 'default';
+        if (el.tooltip) {
+          const pointer = e.target.getStage().getPointerPosition();
+          setTooltip(pointer ? { text: el.tooltip, x: pointer.x, y: pointer.y } : null);
+        }
         await runEvent(el, 'onMouseEnter');
       },
       onMouseLeave: async (e) => {
         const container = e.target.getStage().container();
         container.style.cursor = 'default';
+        if (el.tooltip) setTooltip(null);
         await runEvent(el, 'onMouseLeave');
       },
       stroke: normalizeColor(el.stroke),
@@ -330,7 +323,7 @@ const RuntimeCanvas = ({
             {liveValue !== null && liveValue !== undefined && (<Rect x={3} y={el.height * (1 - fillRatio)} width={el.width - 6} height={el.height * fillRatio} fill={liquidColor} />)}
             {el.tankShowScale && (<Line points={[0, el.height * (1 - (warningHigh - minLevel) / (maxLevel - minLevel)), el.width, el.height * (1 - (warningHigh - minLevel) / (maxLevel - minLevel))]} stroke="#f59e0b" strokeWidth={1} dash={[4, 2]} />)}
             {el.tankShowScale && (<Line points={[0, el.height * (1 - (warningLow - minLevel) / (maxLevel - minLevel)), el.width, el.height * (1 - (warningLow - minLevel) / (maxLevel - minLevel))]} stroke="#fbbf24" strokeWidth={1} dash={[4, 2]} />)}
-            {el.tankShowPercentage !== false && (<Text x={0} y={el.height + 5} width={el.width} text={liveValue !== null && liveValue !== undefined ? `${Number(liveValue).toFixed(1)} ${el.tankUnit || '%'}` : 'TANK'} fontSize={12} fill="#1a1612" align="center" fontStyle="bold" />)}
+            {el.tankShowPercentage !== false && liveValue !== null && liveValue !== undefined && (<Text x={0} y={el.height + 5} width={el.width} text={`${Number(liveValue).toFixed(1)} ${el.tankUnit || '%'}`} fontSize={12} fill="#1a1612" align="center" fontStyle="bold" />)}
           </Group>
         );
       }
@@ -340,7 +333,7 @@ const RuntimeCanvas = ({
           <Group key={el.id} {...commonProps}>
             <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2} fill={el.boundTag && liveValue !== null ? liveValue ? '#10b981' : '#ef4444' : fillColor || '#475569'} stroke="#1e293b" strokeWidth={3} shadowBlur={liveValue ? 15 : 0} shadowColor={liveValue ? '#10b981' : 'transparent'} />
             <Text x={0} y={el.height / 2 - 8} width={el.width} text="P" fontSize={24} fontStyle="bold" fill="#ffffff" align="center" />
-            <Text x={0} y={el.height + 5} width={el.width} text={liveValue ? 'PUMP ON' : 'PUMP OFF'} fontSize={11} fill="#000000" align="center" fontStyle="bold" />
+            {liveValue !== null && liveValue !== undefined && (<Text x={0} y={el.height + 5} width={el.width} text={liveValue ? 'PUMP ON' : 'PUMP OFF'} fontSize={11} fill="#000000" align="center" fontStyle="bold" />)}
           </Group>
         );
 
@@ -371,13 +364,13 @@ const RuntimeCanvas = ({
         return (
           <Group key={el.id} {...commonProps}>
             <Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2} fill="#1e293b" stroke="#475569" strokeWidth={3} />
-            <Text x={0} y={el.height / 2 - 12} width={el.width} text={liveValue !== null && liveValue !== undefined ? Math.round(Number(liveValue)).toString() : '0'} fontSize={24} fontStyle="bold" fill="#3b82f6" align="center" />
-            <Text x={0} y={el.height / 2 + 12} width={el.width} text="GAUGE" fontSize={10} fill="#94a3b8" align="center" />
+            <Text x={0} y={el.height / 2 - 12} width={el.width} text={liveValue !== null && liveValue !== undefined ? Math.round(Number(liveValue)).toString() : ''} fontSize={24} fontStyle="bold" fill="#3b82f6" align="center" />
+            {liveValue !== null && liveValue !== undefined && (<Text x={0} y={el.height / 2 + 12} width={el.width} text="GAUGE" fontSize={10} fill="#94a3b8" align="center" />)}
           </Group>
         );
 
       case 'numericDisplay': {
-        let displayText = '0';
+        let displayText = '';
         if (liveValue !== null && liveValue !== undefined) {
           const num = Number(liveValue); const decimals = el.numDecimals ?? 2;
           if (el.numFormat === 'Integer') displayText = Math.round(num).toString();
@@ -399,7 +392,7 @@ const RuntimeCanvas = ({
         return (
           <Group key={el.id} {...commonProps}>
             <Rect width={el.width} height={el.height} fill="#0f172a" stroke="#475569" strokeWidth={1} cornerRadius={4} />
-            <Text x={5} y={el.height / 2 - 8} width={el.width - 10} text={liveValue !== null && liveValue !== undefined ? String(liveValue) : el.text || '---'} fontSize={14} fill="#ffffff" align="left" />
+            <Text x={5} y={el.height / 2 - 8} width={el.width - 10} text={liveValue !== null && liveValue !== undefined ? String(liveValue) : (el.text || '')} fontSize={14} fill="#ffffff" align="left" />
           </Group>
         );
 
@@ -412,13 +405,13 @@ const RuntimeCanvas = ({
         const bgColor = showPressed ? normalizeColor(el.buttonPressedColor) || '#2563eb' : fillColor || '#3b82f6';
         return (
           <Group key={el.id} {...commonProps}
-            onMouseDown={async (e) => { if (e.evt?.button === 0) { await runEvent(el, 'onPressLeft'); handleButtonPress(el); } else if (e.evt?.button === 2) await runEvent(el, 'onPressRight'); }}
-            onMouseUp={async (e) => { if (e.evt?.button === 0) { await runEvent(el, 'onReleaseLeft'); handleButtonRelease(el); } else if (e.evt?.button === 2) await runEvent(el, 'onReleaseRight'); }}
+            onMouseDown={async (e) => { if (inputEventRef.current.lastType === 'touch') return; if (e.evt?.button === 0) { await runEvent(el, 'onPressLeft'); handleButtonPress(el); } else if (e.evt?.button === 2) await runEvent(el, 'onPressRight'); }}
+            onMouseUp={async (e) => { if (inputEventRef.current.lastType === 'touch') return; if (e.evt?.button === 0) { await runEvent(el, 'onReleaseLeft'); handleButtonRelease(el); } else if (e.evt?.button === 2) await runEvent(el, 'onReleaseRight'); }}
             onMouseLeave={async (e) => { const container = e.target.getStage().container(); container.style.cursor = 'default'; await runEvent(el, 'onMouseLeave'); if (isPressed) handleButtonRelease(el); }}
-            onTouchStart={() => handleButtonPress(el)} onTouchEnd={() => handleButtonRelease(el)}>
+            onTouchStart={() => { inputEventRef.current = { lastType: 'touch', at: Date.now() }; window.setTimeout(() => { if (inputEventRef.current.lastType === 'touch') inputEventRef.current = { lastType: null, at: 0 }; }, 700); handleButtonPress(el); }} onTouchEnd={() => handleButtonRelease(el)}>
             <Rect width={el.width} height={el.height} fill={bgColor} cornerRadius={6} shadowColor="black" shadowBlur={showPressed ? 2 : 8} shadowOpacity={showPressed ? 0.2 : 0.4} shadowOffsetY={showPressed ? 1 : 3} y={showPressed ? 1 : 0} />
             {buttonIcon !== 'None' && iconPaths[buttonIcon] && (<Path x={el.text ? el.width / 2 - 40 : el.width / 2 - 10} y={el.height / 2 - 10 + (showPressed ? 1 : 0)} data={iconPaths[buttonIcon]} fill={normalizeColor(el.fontColor) || '#ffffff'} scale={{ x: 0.83, y: 0.83 }} />)}
-            <Text x={buttonIcon !== 'None' && iconPaths[buttonIcon] ? 20 : 0} y={el.height / 2 - 8 + (showPressed ? 1 : 0)} width={buttonIcon !== 'None' && iconPaths[buttonIcon] ? el.width - 20 : el.width} text={el.text || 'BUTTON'} fontSize={el.fontSize || 14} fontStyle="bold" fill={normalizeColor(el.fontColor) || '#ffffff'} align="center" />
+            {(el.text || '') && (<Text x={buttonIcon !== 'None' && iconPaths[buttonIcon] ? 20 : 0} y={el.height / 2 - 8 + (showPressed ? 1 : 0)} width={buttonIcon !== 'None' && iconPaths[buttonIcon] ? el.width - 20 : el.width} text={el.text} fontSize={el.fontSize || 14} fontStyle="bold" fill={normalizeColor(el.fontColor) || '#ffffff'} align="center" />)}
             {toggledOn && (<Circle x={el.width - 10} y={10} radius={3} fill="#10b981" shadowBlur={4} shadowColor="#10b981" />)}
           </Group>
         );
@@ -433,7 +426,7 @@ const RuntimeCanvas = ({
 
       case 'ioField': {
         const ioValue = el.ioTargetTag ? liveValues[el.ioTargetTag] : liveValue;
-        let displayText = '0';
+        let displayText = '';
         if (ioValue !== null && ioValue !== undefined) {
           const num = Number(ioValue); const decimals = el.ioDecimals ?? 2;
           if (el.ioFormat === 'Integer') displayText = Math.round(num).toString();
@@ -459,7 +452,7 @@ const RuntimeCanvas = ({
       case 'bar': {
         const min = el.barMin ?? 0; const max = el.barMax ?? 100;
         const warningHigh = el.barWarningHigh ?? 80; const warningLow = el.barWarningLow ?? 20;
-        const current = liveValue !== null && liveValue !== undefined ? Math.min(Math.max(Number(liveValue), min), max) : (min + max) / 2;
+        const current = liveValue !== null && liveValue !== undefined ? Math.min(Math.max(Number(liveValue), min), max) : min;
         const ratio = max !== min ? (current - min) / (max - min) : 0.5;
         let barColor = normalizeColor(el.barNormalColor) || '#10b981';
         if (current >= warningHigh || current <= warningLow) barColor = normalizeColor(el.barWarningColor) || '#f59e0b';
@@ -469,14 +462,14 @@ const RuntimeCanvas = ({
           <Group key={el.id} {...commonProps}>
             <Rect width={el.width} height={el.height} fill="#f5f0e8" stroke="#c9a876" strokeWidth={1} cornerRadius={2} />
             {isVertical ? (<Rect x={2} y={el.height - (el.height - 4) * ratio} width={el.width - 4} height={(el.height - 4) * ratio} fill={barColor} />) : (<Rect x={2} y={2} width={(el.width - 4) * ratio} height={el.height - 4} fill={barColor} />)}
-            {el.barShowValue !== false && (<Text x={0} y={el.height + 5} width={el.width} text={liveValue !== null && liveValue !== undefined ? `${Number(liveValue).toFixed(1)}` : `${((min + max) / 2).toFixed(1)}`} fontSize={11} fill="#1a1612" align="center" fontStyle="bold" />)}
+            {el.barShowValue !== false && liveValue !== null && liveValue !== undefined && (<Text x={0} y={el.height + 5} width={el.width} text={`${Number(liveValue).toFixed(1)}`} fontSize={11} fill="#1a1612" align="center" fontStyle="bold" />)}
           </Group>
         );
       }
 
-      case 'graphicObject': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#e8e0d0'} stroke="#c9a876" strokeWidth={1} dash={[6, 4]} /><Text x={0} y={el.height / 2 - 6} width={el.width} text="Graphic" fontSize={11} fill="#7a6f60" align="center" /></Group>);
+      case 'graphicObject': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#e8e0d0'} stroke="#c9a876" strokeWidth={1} dash={[6, 4]} />{el.text && (<Text x={0} y={el.height / 2 - 6} width={el.width} text={el.text} fontSize={11} fill="#7a6f60" align="center" />)}</Group>);
 
-      case 'statusDisplay': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#0f172a'} stroke="#3b82f6" strokeWidth={1} cornerRadius={2} /><Circle x={12} y={el.height / 2} radius={5} fill={liveValue ? '#10b981' : '#ef4444'} shadowBlur={8} shadowColor={liveValue ? '#10b981' : '#ef4444'} /><Text x={24} y={el.height / 2 - 6} width={el.width - 30} text={liveValue !== null && liveValue !== undefined ? liveValue ? 'ONLINE' : 'OFFLINE' : el.text || 'STATUS'} fontSize={12} fill={normalizeColor(el.fontColor) || '#10b981'} fontStyle="bold" fontFamily="monospace" /></Group>);
+      case 'statusDisplay': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#0f172a'} stroke="#3b82f6" strokeWidth={1} cornerRadius={2} />{liveValue !== null && liveValue !== undefined && (<><Circle x={12} y={el.height / 2} radius={5} fill={liveValue ? '#10b981' : '#ef4444'} shadowBlur={8} shadowColor={liveValue ? '#10b981' : '#ef4444'} /><Text x={24} y={el.height / 2 - 6} width={el.width - 30} text={liveValue ? 'ONLINE' : 'OFFLINE'} fontSize={12} fill={normalizeColor(el.fontColor) || '#10b981'} fontStyle="bold" fontFamily="monospace" /></>)}</Group>);
 
       case 'comboBox': {
         const options = parseOptions(el.comboOptions);
@@ -499,7 +492,7 @@ const RuntimeCanvas = ({
         const options = parseOptions(el.listOptions);
         const currentValue = el.listTargetTag ? liveValues[el.listTargetTag] : undefined;
         const selectionColor = normalizeColor(el.listSelectionColor) || '#3b82f6';
-        const itemsToRender = options.length > 0 ? options : [{ label: 'Option A', value: 'A' }, { label: 'Option B', value: 'B' }, { label: 'Option C', value: 'C' }];
+        const itemsToRender = getAuthoredOptions(options);
         const itemHeight = 20;
         return (
           <Group key={el.id} {...commonProps}>
@@ -544,11 +537,11 @@ const RuntimeCanvas = ({
         );
       }
 
-      case 'roundButton': return (<Group key={el.id} {...commonProps}><Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2} fill={fillColor || '#3b82f6'} shadowColor="black" shadowBlur={6} shadowOpacity={0.3} /><Text x={0} y={el.height / 2 - 6} width={el.width} text={el.text || 'BTN'} fontSize={el.fontSize || 12} fontStyle="bold" fill={normalizeColor(el.fontColor) || '#ffffff'} align="center" /></Group>);
+      case 'roundButton': return (<Group key={el.id} {...commonProps}><Circle x={el.width / 2} y={el.height / 2} radius={el.width / 2} fill={fillColor || '#3b82f6'} shadowColor="black" shadowBlur={6} shadowOpacity={0.3} />{el.text && (<Text x={0} y={el.height / 2 - 6} width={el.width} text={el.text} fontSize={el.fontSize || 12} fontStyle="bold" fill={normalizeColor(el.fontColor) || '#ffffff'} align="center" />)}</Group>);
 
       case 'pipe': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#94a3b8'} stroke={normalizeColor(el.stroke) || '#475569'} strokeWidth={el.strokeWidth || 2} /><Line points={[0, el.height / 2, el.width, el.height / 2]} stroke="#475569" strokeWidth={1} dash={[8, 4]} /></Group>);
 
-      case 'conveyor': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#475569'} stroke="#1e293b" strokeWidth={2} cornerRadius={4} />{[0.25, 0.5, 0.75].map((pos, i) => (<Line key={i} points={[el.width * pos, 4, el.width * pos, el.height - 4]} stroke="#94a3b8" strokeWidth={1} />))}<Text x={0} y={el.height + 5} width={el.width} text="CONVEYOR" fontSize={10} fill="#1a1612" align="center" /></Group>);
+      case 'conveyor': return (<Group key={el.id} {...commonProps}><Rect width={el.width} height={el.height} fill={fillColor || '#475569'} stroke="#1e293b" strokeWidth={2} cornerRadius={4} />{[0.25, 0.5, 0.75].map((pos, i) => (<Line key={i} points={[el.width * pos, 4, el.width * pos, el.height - 4]} stroke="#94a3b8" strokeWidth={1} />))}{el.text && (<Text x={0} y={el.height + 5} width={el.width} text={el.text} fontSize={10} fill="#1a1612" align="center" />)}</Group>);
 
       case 'svgSymbol':
         return <RuntimeSvgSymbol key={el.id} el={el} commonProps={commonProps} />;
@@ -578,6 +571,7 @@ const RuntimeCanvas = ({
     <>
       <Stage width={width} height={height} style={{ background: normalizeColor(backgroundColor) || '#ffffff', position: 'absolute', top: 0, left: 0 }}>
         <Layer>
+          {/* eslint-disable-next-line react-hooks/refs -- handlers read refs only after input events */}
           {elements.map((el) => renderElement(el, { openIoFieldOverlay, openComboBoxOverlay }))}
         </Layer>
       </Stage>
@@ -595,6 +589,30 @@ const RuntimeCanvas = ({
       })}
 
       <InteractiveOverlay overlay={overlay} tags={tags} onSave={handleOverlaySave} onCancel={() => setOverlay(null)} />
+      {tooltip && (
+        <div
+          role="tooltip"
+          style={{
+            position: 'absolute',
+            left: `${Math.min(Math.max(tooltip.x + 12, 4), Math.max(4, width - 236))}px`,
+            top: `${Math.min(Math.max(tooltip.y + 12, 4), Math.max(4, height - 52))}px`,
+            maxWidth: '220px',
+            padding: '6px 8px',
+            borderRadius: '4px',
+            background: 'rgba(15, 23, 42, 0.96)',
+            border: '1px solid rgba(148, 163, 184, 0.55)',
+            color: '#f8fafc',
+            fontSize: '11px',
+            lineHeight: 1.35,
+            whiteSpace: 'pre-wrap',
+            pointerEvents: 'none',
+            zIndex: 30,
+            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
+          }}
+        >
+          {tooltip.text}
+        </div>
+      )}
     </>
   );
 
@@ -640,14 +658,14 @@ const RuntimeSvgSymbol = ({ el, commonProps }) => {
     tintStrength = tintColor ? 1 : 0;
   }
 
-  const brightness = el.symbolBrightness ?? 1;
+  const brightness = Number(el.symbolBrightness ?? 1);
   const safeTint = tintColor || '#3b82f6';
 
   useEffect(() => {
     if (!imageRef.current || !image) return;
     const node = imageRef.current;
 
-    try { node.clearCache(); } catch { }
+    try { node.clearCache(); } catch { /* cache may not exist on first paint */ }
     node.cache();
 
     const filters = [];
@@ -670,29 +688,27 @@ const RuntimeSvgSymbol = ({ el, commonProps }) => {
     node.getLayer()?.batchDraw();
   }, [image, tintStrength, brightness, safeTint, el.width, el.height]);
 
-  if (status === 'loading') return (
-    <Group {...commonProps}>
-      <Rect width={el.width} height={el.height} fill="#f0ece4" stroke="#c9a876" strokeWidth={1} dash={[4, 4]} />
-      <Text x={0} y={el.height / 2 - 6} width={el.width} text="Loading..." fontSize={11} fill="#7a6f60" align="center" />
-    </Group>
-  );
-  if (status === 'error' || !image) return (
-    <Group {...commonProps}>
-      <Rect width={el.width} height={el.height} fill="#fee2e2" stroke="#dc2626" strokeWidth={1} dash={[4, 4]} />
-      <Text x={0} y={el.height / 2 - 6} width={el.width} text="SVG not found" fontSize={10} fill="#dc2626" align="center" />
-    </Group>
-  );
+  if (status === 'loading') return null;
+  if (status === 'error' || !image) return null;
 
+  const fit = el.preserveAspect === false ? { x: 0, y: 0, width: el.width, height: el.height } : fitImage(image, el.width, el.height);
   return (
-    <KonvaImage
-      {...commonProps}
-      ref={imageRef}
-      image={image}
-      width={el.width}
-      height={el.height}
-    />
+    <Group {...commonProps}>
+      <KonvaImage
+        ref={imageRef}
+        image={image}
+        x={fit.x} y={fit.y} width={fit.width} height={fit.height}
+      />
+    </Group>
   );
 };
+
+function fitImage(image, width, height) {
+  const ratio = image?.width && image?.height ? Math.min(width / image.width, height / image.height) : 1;
+  const w = image?.width ? image.width * ratio : width;
+  const h = image?.height ? image.height * ratio : height;
+  return { x: (width - w) / 2, y: (height - h) / 2, width: w, height: h };
+}
 
 function normalizeColor(color) {
   if (!color || typeof color !== 'string') return color;
@@ -733,10 +749,15 @@ function formatClockText(date, el) {
   const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const weekdayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
-  let dateStr = '';
-  switch (dateFormat) { case 'DD/MM/YYYY': dateStr = `${day}/${month}/${year}`; break; case 'MM/DD/YYYY': dateStr = `${month}/${day}/${year}`; break; case 'YYYY-MM-DD': dateStr = `${year}-${month}-${day}`; break; case 'Long': dateStr = `${monthNamesLong[date.getMonth()]} ${day}, ${year}`; break; case 'Short': dateStr = `${monthNamesShort[date.getMonth()]} ${day}, ${year}`; break; default: dateStr = `${day}/${month}/${year}`; }
+  const dateStr = ({
+     'DD/MM/YYYY': `${day}/${month}/${year}`,
+     'MM/DD/YYYY': `${month}/${day}/${year}`,
+     'YYYY-MM-DD': `${year}-${month}-${day}`,
+     Long: `${monthNamesLong[date.getMonth()]} ${day}, ${year}`,
+     Short: `${monthNamesShort[date.getMonth()]} ${day}, ${year}`,
+   })[dateFormat] || `${day}/${month}/${year}`;
   let tzStr = '';
-  if (el.clockShowTimezone) { try { const m = date.toString().match(/\(([^)]+)\)/); tzStr = m ? ` ${m[1].split(' ').map(w => w[0]).join('')}` : ''; } catch { } }
+  if (el.clockShowTimezone) { try { const m = date.toString().match(/\(([^)]+)\)/); tzStr = m ? ` ${m[1].split(' ').map(w => w[0]).join('')}` : ''; } catch { /* timezone name is optional */ } }
   switch (displayMode) { case 'timeOnly': return timeStr + tzStr; case 'dateOnly': return dateStr; case 'longFormat': return `${timeStr}${tzStr}  ·  ${weekdayLong}, ${dateStr}`; default: return `${timeStr}${tzStr}  ·  ${dateStr}`; }
 }
 

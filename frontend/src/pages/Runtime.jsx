@@ -4,14 +4,13 @@
 //   ✅ #2 Template elements NOT merged into startup screen
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 import RuntimeCanvas from '../components/runtime/RuntimeCanvas';
 import {
   screenAPI, tagAPI,
-  mergeTemplateElements, getTemplateScreen,
-  getRegularScreens, getPopupScreens,
+  getRegularScreens,
 } from '../services/api';
 import socketService from '../services/socket';
 import { Monitor, Loader2, Play, X, Move } from 'lucide-react';
@@ -20,6 +19,7 @@ import {
   executeOnChangeConnections,
 } from '../utils/directConnectionUtils';
 import { useNavigate } from 'react-router-dom';
+import { getRuntimeElements } from '../utils/runtimeContentPolicy';
 
 const Runtime = () => {
   const navigate = useNavigate();
@@ -29,7 +29,6 @@ const Runtime = () => {
   const [currentScreen,       setCurrentScreen]       = useState(null);
   const [liveValues,          setLiveValues]          = useState({});
   const [loading,             setLoading]             = useState(true);
-  const [connected,           setConnected]           = useState(false);
   const [tags,                setTags]                = useState([]);
   const [showStartupSelector, setShowStartupSelector] = useState(false);
   const [selectedStartupId,   setSelectedStartupId]   = useState('');
@@ -69,8 +68,11 @@ const Runtime = () => {
     };
     enterFullscreen();
     return () => {
-      if (document.fullscreenElement)
-        document.exitFullscreen().catch(() => {});
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch((err) => {
+          console.debug('[Runtime] Could not exit fullscreen during cleanup:', err);
+        });
+      }
     };
   }, []);
 
@@ -80,7 +82,9 @@ const Runtime = () => {
         e.preventDefault();
         const doExit = async () => {
           if (document.fullscreenElement) {
-            try { await document.exitFullscreen(); } catch {}
+            try { await document.exitFullscreen(); } catch (err) {
+              console.debug('[Runtime] Could not exit fullscreen:', err);
+            }
           }
 
           // ✅ MULTI-TENANT: Behavior based on role
@@ -107,37 +111,13 @@ const Runtime = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate]);
+  }, [navigate, logoutUser, userData?.role]);
 
-  const loadScreens = async () => {
-    try {
-      setLoading(true);
-      const res = await screenAPI.getAll();
-      const allScreens = res?.data?.data || [];
-      setScreens(allScreens);
-
-      const regularScreens = getRegularScreens(allScreens);
-      if (regularScreens.length > 0) {
-        const startup = regularScreens.find(s => s.isStartupScreen === true);
-        if (startup) {
-          setCurrentScreen(startup);
-        } else {
-          setShowStartupSelector(true);
-          setSelectedStartupId(regularScreens[0]._id);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load screens:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStartupConfirm = () => {
+  const handleStartupConfirm = useCallback(() => {
     const selected = screens.find(s => s._id === selectedStartupId);
     if (selected) setCurrentScreen(selected);
     setShowStartupSelector(false);
-  };
+  }, [screens, selectedStartupId]);
 
   useEffect(() => {
     tagAPI.getAll()
@@ -146,12 +126,27 @@ const Runtime = () => {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    const loadScreens = async () => {
+      try {
+        setLoading(true);
+        const res = await screenAPI.getAll();
+        if (cancelled) return;
+        const allScreens = res?.data?.data || [];
+        const regularScreens = getRegularScreens(allScreens);
+        const startup = regularScreens.find(s => s.isStartupScreen === true);
+        setScreens(allScreens);
+        setCurrentScreen(startup || null);
+        setShowStartupSelector(!startup && regularScreens.length > 0);
+        setSelectedStartupId(startup ? '' : (regularScreens[0]?._id || ''));
+      } catch (err) {
+        if (!cancelled) console.error('Failed to load screens:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
     loadScreens();
     socketService.connect();
-    if (socketService.isConnected()) setConnected(true);
-
-    const handleConnect    = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
     const handleTagsUpdate = (updates) => {
       if (!Array.isArray(updates) || updates.length === 0) return;
       updateCountRef.current += 1;
@@ -172,14 +167,11 @@ const Runtime = () => {
       setLiveValues(values);
     };
 
-    socketService.on('connect',     handleConnect);
-    socketService.on('disconnect',  handleDisconnect);
     socketService.on('tagsUpdate',  handleTagsUpdate);
     socketService.on('initialTags', handleInitialTags);
 
     return () => {
-      socketService.off('connect',     handleConnect);
-      socketService.off('disconnect',  handleDisconnect);
+      cancelled = true;
       socketService.off('tagsUpdate',  handleTagsUpdate);
       socketService.off('initialTags', handleInitialTags);
     };
@@ -193,13 +185,19 @@ const Runtime = () => {
       );
       if (target) {
         setCurrentScreen(target);
-        onLoadFiredRef.current.delete(target._id);
       } else {
         console.warn(`[Runtime] Screen not found: "${screenName}"`);
       }
       return prevScreens;
     });
   }, []);
+
+  // A screen change starts a new direct-connection lifecycle. Do not compare
+  // the new screen's values with the previous screen's last values.
+  useEffect(() => {
+    prevLiveValuesRef.current = {};
+    if (currentScreen?._id) onLoadFiredRef.current.delete(currentScreen._id);
+  }, [currentScreen?._id]);
 
   const openPopupByName = useCallback((popupName) => {
     setScreens(prevScreens => {
@@ -239,14 +237,12 @@ const Runtime = () => {
     }
 
     const screenId = currentScreen._id;
-    if (
-      !onLoadFiredRef.current.has(screenId) &&
-      Object.keys(liveValues).length > 0
-    ) {
+    const isFirstSnapshot = !onLoadFiredRef.current.has(screenId);
+    if (isFirstSnapshot && Object.keys(liveValues).length > 0) {
       onLoadFiredRef.current.add(screenId);
       executeOnLoadConnections(connections, liveValues);
     }
-    if (changedTags.size > 0)
+    if (!isFirstSnapshot && changedTags.size > 0)
       executeOnChangeConnections(connections, liveValues, changedTags);
     prevLiveValuesRef.current = { ...liveValues };
   }, [liveValues, currentScreen]);
@@ -258,21 +254,10 @@ const Runtime = () => {
     return Math.min(viewportSize.w / cw, viewportSize.h / ch);
   };
 
-  const templateScreen = useMemo(() => getTemplateScreen(screens), [screens]);
-
-  // ✅ #2 FIX: Template elements are NOT applied to:
-  //   - popups, templates themselves, AND the startup screen.
-  const mergedElements = useMemo(() => {
-    if (!currentScreen) return [];
-    if (
-      currentScreen.isPopup ||
-      currentScreen.isTemplate ||
-      currentScreen.isStartupScreen   // ← startup screen excluded from template
-    ) {
-      return currentScreen.elements || [];
-    }
-    return mergeTemplateElements(currentScreen.elements || [], templateScreen);
-  }, [currentScreen, templateScreen]);
+  // Runtime renders only the elements persisted on the selected screen.
+  // Template composition is a Designer concern; it must never inject objects
+  // into a user-authored runtime screen.
+  const runtimeElements = getRuntimeElements(currentScreen);
 
   if (loading) {
     return (
@@ -356,13 +341,12 @@ const Runtime = () => {
           flexShrink: 0,
         }}>
           <RuntimeCanvas
-            elements={mergedElements}
+            elements={runtimeElements}
             width={cw}
             height={ch}
             backgroundColor={currentScreen.backgroundColor || '#ffffff'}
             liveValues={liveValues}
             tags={tags}
-            screens={screens}
             onChangeScreen={goToScreenByName}
             onOpenPopup={openPopupByName}
             onClosePopup={closeTopPopup}
@@ -377,7 +361,6 @@ const Runtime = () => {
           popup={popup}
           liveValues={liveValues}
           tags={tags}
-          screens={screens}
           zIndex={100000 + idx * 10}
           onClose={() => closePopupById(popup._id)}
           onChangeScreen={goToScreenByName}
@@ -386,8 +369,6 @@ const Runtime = () => {
           viewportSize={viewportSize}
         />
       ))}
-
-      <CtrlQHint />
 
       {showStartupSelector && (
         <StartupSelector
@@ -408,7 +389,6 @@ const PopupOverlay = ({
   popup,
   liveValues,
   tags,
-  screens,
   zIndex,
   onClose,
   onChangeScreen,
@@ -500,6 +480,9 @@ const PopupOverlay = ({
       window.removeEventListener('mousemove', handleDragMove);
       window.removeEventListener('mouseup', handleDragEnd);
     };
+  // These handlers are intentionally local to the popup instance; cleanup
+  // runs on unmount and removes the exact handlers registered by this effect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -626,7 +609,6 @@ const PopupOverlay = ({
             backgroundColor={popup.backgroundColor || '#FFFFFF'}
             liveValues={liveValues}
             tags={tags}
-            screens={screens}
             onChangeScreen={onChangeScreen}
             onOpenPopup={onOpenPopup}
             onClosePopup={onClosePopup}
@@ -637,30 +619,6 @@ const PopupOverlay = ({
         </div>
       </div>
     </>
-  );
-};
-
-const CtrlQHint = () => {
-  const [visible, setVisible] = useState(true);
-  const [opacity, setOpacity] = useState(1);
-  useEffect(() => {
-    const fadeTimer = setTimeout(() => setOpacity(0), 3000);
-    const hideTimer = setTimeout(() => setVisible(false), 5000);
-    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
-  }, []);
-  if (!visible) return null;
-  return (
-    <div style={{
-      position: 'absolute', bottom: '16px', right: '16px',
-      padding: '6px 12px', background: 'rgba(0,0,0,0.6)',
-      backdropFilter: 'blur(8px)', borderRadius: '6px',
-      border: '1px solid rgba(255,255,255,0.1)',
-      color: 'rgba(255,255,255,0.5)', fontSize: '11px',
-      fontFamily: 'monospace', pointerEvents: 'none',
-      transition: 'opacity 2s ease', opacity, zIndex: 999999,
-    }}>
-      Press <strong style={{ color: 'rgba(255,255,255,0.8)' }}>Ctrl+Q</strong> to exit runtime
-    </div>
   );
 };
 

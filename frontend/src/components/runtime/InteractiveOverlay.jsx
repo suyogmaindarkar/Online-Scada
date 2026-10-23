@@ -136,7 +136,7 @@ const IoFieldOverlay = ({ overlay, tags, onSave, onCancel }) => {
           value={value}
           onChange={(e) => { setValue(e.target.value); setError(''); }}
           onKeyDown={handleKeyDown}
-          onBlur={handleSave}
+          onBlur={() => onCancel()}
           style={inputStyle}
         >
           <option value="">— select —</option>
@@ -150,7 +150,7 @@ const IoFieldOverlay = ({ overlay, tags, onSave, onCancel }) => {
           value={value}
           onChange={(e) => { setValue(e.target.value); setError(''); }}
           onKeyDown={handleKeyDown}
-          onBlur={handleSave}
+          onBlur={() => onCancel()}
           step={isNumeric ? 'any' : undefined}
           min={element.ioMinValue !== '' ? element.ioMinValue : undefined}
           max={element.ioMaxValue !== '' ? element.ioMaxValue : undefined}
@@ -177,7 +177,7 @@ const IoFieldOverlay = ({ overlay, tags, onSave, onCancel }) => {
             zIndex: 101,
           }}
         >
-          ⚠ {error}
+          {error}
         </div>
       )}
 
