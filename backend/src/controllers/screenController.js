@@ -144,6 +144,13 @@ const createScreen = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ CREATE SCREEN ERROR:', error.message);
+    if (error?.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'A screen with this name already exists in this workspace.',
+        code: 'SCREEN_NAME_EXISTS',
+      });
+    }
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create screen',

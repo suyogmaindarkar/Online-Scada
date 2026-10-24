@@ -36,6 +36,13 @@ const MIN_PANEL_HEIGHT = 150;
 const MAX_PANEL_HEIGHT = 600;
 const DEFAULT_PANEL_HEIGHT = 280;
 
+const getSaveErrorMessage = (err) => (
+  err?.response?.data?.message
+  || (err?.request ? 'Unable to reach the server. Check your connection and try again.' : null)
+  || err?.message
+  || 'Save failed'
+);
+
 // ── Auto-save debounce delay (ms) ──
 const AUTO_SAVE_DELAY = 2000;
 
@@ -764,14 +771,22 @@ const handleCreateTemplate = () => {
   }, [canvasBg, canvasHeight, canvasWidth, currentScreen, directConnections, elements, loadScreens, showToast]);
 
   const handleSaveAs = async () => {
-    if (!screenName.trim()) {
+    const requestedName = screenName.trim();
+    if (!requestedName) {
       showToast('Please enter a screen name', 'warning');
+      return;
+    }
+    const duplicate = screens.some((screen) => (
+      screen.screenName?.trim().toLowerCase() === requestedName.toLowerCase()
+    ));
+    if (duplicate) {
+      showToast(`Screen "${requestedName}" already exists. Choose a different name.`, 'warning');
       return;
     }
     try {
       setSaving(true);
       const res = await screenAPI.create({
-        screenName,
+        screenName: requestedName,
         elements: serializeScreenElements(elements),
         width: canvasWidth,
         height: canvasHeight,
@@ -782,10 +797,10 @@ const handleCreateTemplate = () => {
       hasUnsavedChangesRef.current = false;
       setHasUnsavedChanges(false);
       setShowSaveModal(false);
-      showToast(`Screen "${screenName}" saved`, 'success');
+      showToast(`Screen "${requestedName}" saved`, 'success');
       loadScreens();
     } catch (err) {
-      showToast(err.response?.data?.message || 'Save failed', 'error');
+      showToast(getSaveErrorMessage(err), 'error');
     }
     finally { setSaving(false); }
   };
