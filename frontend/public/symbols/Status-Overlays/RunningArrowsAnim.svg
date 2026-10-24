@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.333333)">
+    </hmi:self>
+     <defs>
+     </defs>
+  <linearGradient id="Button_1_" gradientUnits="userSpaceOnUse" x1="-56.4531" y1="-56.3271" x2="410.061" y2="410.187">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <circle id="Button" fill="url(#Button_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="150.1" cy="150.2" r="148" />
+  <path id="Arrows0" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" hmi-bind:display="{{ le( ParamProps.ArrowsPosition, 0 ) ? 'inline' : 'none' }}"/>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<g id="Arrows">
+			<path id="Arrows1" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M88.7,72.7L64,48h74l0,74l-27.2-27.2c-17.3,12.3-28.6,32.5-28.6,55.3c0,33.3,24.1,61.1,55.8,66.8l0,31.4  c-48.9-6-86.8-47.7-86.8-98.1C51.2,118.8,65.9,90.9,88.7,72.7z M211.5,227.7c22.8-18.1,37.5-46.1,37.5-77.5  c0-50.4-38-92.2-86.8-98.2l0,31.4c31.7,5.7,55.8,33.5,55.8,66.8c0,22.8-11.3,43-28.6,55.3l-27.2-27.2v74h74L211.5,227.7z" hmi-bind:display="{{ eq( ParamProps.ArrowsPosition, 1 ) ? 'inline' : 'none' }}"/>
+			<path id="Arrows2" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M161.4,52l0-34.9l52.3,52.3l-52.3,52.3l0-38.4c-20.9-3.5-43.2,2.7-59.4,18.9c-23.6,23.6-26.1,60.3-7.8,86.7l-22.2,22.2  c-30.3-38.8-27.7-95.1,8-130.8C102.3,58.1,132.5,48.7,161.4,52z M138.7,248.4c29,3.3,59.1-6.1,81.3-28.3c35.7-35.7,38.3-92,8-130.8  l-22.2,22.2c18.4,26.5,15.8,63.1-7.8,86.7c-16.1,16.1-38.4,22.4-59.4,18.9l0-38.4L86.4,231l52.3,52.3L138.7,248.4z" hmi-bind:display="{{ eq( ParamProps.ArrowsPosition, 2 ) ? 'inline' : 'none' }}"/>
+			<path id="Arrows3" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M227.5,88.8l24.7-24.7v74h-74l27.2-27.2c-12.3-17.3-32.5-28.6-55.3-28.6c-33.3,0-61.1,24.1-66.8,55.8l-31.4,0  c6-48.9,47.7-86.8,98.1-86.8C181.4,51.3,209.4,66,227.5,88.8z M72.6,211.6c18.1,22.8,46.1,37.5,77.5,37.5c50.4,0,92.2-38,98.2-86.8  l-31.4,0c-5.7,31.7-33.5,55.8-66.8,55.8c-22.8,0-43-11.3-55.3-28.6l27.2-27.2l-74,0v74L72.6,211.6z" hmi-bind:display="{{ eq( ParamProps.ArrowsPosition, 3 ) ? 'inline' : 'none' }}"/>
+			<path id="Arrows4" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M248.3,161.6h34.9l-52.3,52.3l-52.3-52.3l38.4,0c3.5-20.9-2.7-43.2-18.9-59.4c-23.6-23.6-60.3-26.1-86.7-7.8L89.2,72.3  c38.8-30.3,95.1-27.7,130.8,8C242.2,102.4,251.6,132.6,248.3,161.6z M51.9,138.8c-3.3,29,6.1,59.1,28.3,81.3  c35.7,35.7,92,38.3,130.8,8L188.8,206c-26.5,18.4-63.1,15.8-86.7-7.8c-16.1-16.1-22.4-38.4-18.9-59.4l38.4,0L69.3,86.5L17,138.8  L51.9,138.8z" hmi-bind:display="{{ ge( ParamProps.ArrowsPosition, 4 ) ? 'inline' : 'none' }}"/>
+		</g>
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<g id="ArrowsAnim">
+			<path id="Arrows1Anim" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M88.7,72.7L64,48h74l0,74l-27.2-27.2c-17.3,12.3-28.6,32.5-28.6,55.3c0,33.3,24.1,61.1,55.8,66.8l0,31.4  c-48.9-6-86.8-47.7-86.8-98.1C51.2,118.8,65.9,90.9,88.7,72.7z M211.5,227.7c22.8-18.1,37.5-46.1,37.5-77.5  c0-50.4-38-92.2-86.8-98.2l0,31.4c31.7,5.7,55.8,33.5,55.8,66.8c0,22.8-11.3,43-28.6,55.3l-27.2-27.2v74h74L211.5,227.7z"/>
+		</g>
+	</g>
+        </hmi-animations:storyboard>
+    </hmi-animations:animations>
+  </g>
+</svg>

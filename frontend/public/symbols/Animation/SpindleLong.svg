@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.612903, 0.333333)">
+    <defs id="defs1">
+    <linearGradient xlink:href="#Blade_Bottom_1_" id="linearGradient42" gradientUnits="userSpaceOnUse" x1="35.9473" y1="255.6362" x2="27.1973" y2="300.3862" gradientTransform="translate(0,32.8)"/>
+    <linearGradient xlink:href="#Spindle_Sides_1_" id="linearGradient43" gradientUnits="userSpaceOnUse" x1="4.3745" y1="149.6484" x2="51.7818" y2="149.6484" gradientTransform="translate(0,65.472493)"/>
+    <linearGradient xlink:href="#Blade_Top_1_" id="linearGradient44" gradientUnits="userSpaceOnUse" x1="35.9468" y1="-6.8906002" x2="27.196899" y2="37.858799" gradientTransform="translate(0,-32.8)"/>
+    <linearGradient xlink:href="#Spindle_Sides_1_" id="linearGradient45" gradientUnits="userSpaceOnUse" x1="4.3745" y1="149.6484" x2="51.7818" y2="149.6484" gradientTransform="translate(0,-32.799507)"/>
+    <linearGradient xlink:href="#Blade_Bottom_1_" id="linearGradient55" gradientUnits="userSpaceOnUse" gradientTransform="translate(0,65.6)" x1="35.9473" y1="255.6362" x2="27.1973" y2="300.3862"/>
+  </defs>
+  <linearGradient id="Rod_1_" gradientUnits="userSpaceOnUse" x1="25.7095" y1="149.9771" x2="36.5425" y2="149.9771" gradientTransform="matrix(0.99957602,0,0,1.0133599,0.01314313,-1.9533109)">
+    <stop offset="0" stop-color="#52525b" id="stop1"/>
+    <stop offset="4.758149e-02" stop-color="#71717a" id="stop2"/>
+    <stop offset="0.1509" stop-color="#71717a" id="stop3"/>
+    <stop offset="0.2395" stop-color="#a1a1aa" id="stop4"/>
+    <stop offset="0.3025" stop-color="#a1a1aa" id="stop5"/>
+    <stop offset="0.4074" stop-color="#a1a1aa" id="stop6"/>
+    <stop offset="0.514" stop-color="#a1a1aa" id="stop7"/>
+    <stop offset="0.6214" stop-color="#71717a" id="stop8"/>
+    <stop offset="0.7294" stop-color="#52525b" id="stop9"/>
+    <stop offset="0.8378" stop-color="#52525b" id="stop10"/>
+    <stop offset="0.9452" stop-color="#3f3f46" id="stop11"/>
+    <stop offset="1" stop-color="#3f3f46" id="stop12"/>
+  </linearGradient>
+  <rect id="Rod" x="25.302416" y="0.37741685" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="0.754834" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.395166" height="299.24518" display="inline"/>
+  <linearGradient id="Spindle_Sides_1_" gradientUnits="userSpaceOnUse" x1="4.3745" y1="149.6484" x2="51.7818" y2="149.6484">
+    <stop offset="0" stop-color="#52525b" id="stop31"/>
+    <stop offset="4.758149e-02" stop-color="#71717a" id="stop32"/>
+    <stop offset="0.1509" stop-color="#71717a" id="stop33"/>
+    <stop offset="0.2395" stop-color="#a1a1aa" id="stop34"/>
+    <stop offset="0.3025" stop-color="#a1a1aa" id="stop35"/>
+    <stop offset="0.4074" stop-color="#a1a1aa" id="stop36"/>
+    <stop offset="0.514" stop-color="#a1a1aa" id="stop37"/>
+    <stop offset="0.6214" stop-color="#71717a" id="stop38"/>
+    <stop offset="0.7294" stop-color="#52525b" id="stop39"/>
+    <stop offset="0.8378" stop-color="#52525b" id="stop40"/>
+    <stop offset="0.9452" stop-color="#3f3f46" id="stop41"/>
+    <stop offset="1" stop-color="#3f3f46" id="stop42"/>
+  </linearGradient>
+  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+	<g id="Spindle_No_Anim">
+		<g id="Spindle_Blades" display="inline">
+		  <linearGradient id="Blade_Bottom_OV_2_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="321.2362" x2="27.1973" y2="365.9862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop1300"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop1400"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Bottom_2" fill="url(#Blade_Bottom_OV_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 363.2v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_Bottom_OV_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="288.4362" x2="27.1973" y2="333.1862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop130"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop140"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Bottom" fill="url(#Blade_Bottom_OV_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 330.4v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_Bottom_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="255.6362" x2="27.1973" y2="300.3862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop13"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop14"/>
+		  </linearGradient>
+		  <path id="Blade_Bottom" fill="url(#Blade_Bottom_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 297.6V289c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_8_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="222.8208" x2="27.196899" y2="267.57019">
+			<stop offset="0" stop-color="#d4d4d8" id="stop15"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop16"/>
+		  </linearGradient>
+		  <path id="Blade_8" fill="url(#Blade_8_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 264.8v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_7_1_" gradientUnits="userSpaceOnUse" x1="35.946301" y1="190.00391" x2="27.1964" y2="234.7533">
+			<stop offset="0" stop-color="#d4d4d8" id="stop17"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop18"/>
+		  </linearGradient>
+		  <path id="Blade_7" fill="url(#Blade_7_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 232v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_6_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="157.18851" x2="27.1973" y2="201.93851">
+			<stop offset="0" stop-color="#d4d4d8" id="stop19"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop20"/>
+		  </linearGradient>
+		  <path id="Blade_6" fill="url(#Blade_6_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 199.2v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_5_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="124.3726" x2="27.1968" y2="169.1226">
+			<stop offset="0" stop-color="#d4d4d8" id="stop21"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop22"/>
+		  </linearGradient>
+		  <path id="Blade_5" fill="url(#Blade_5_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 166.4v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_4_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="91.557602" x2="27.197399" y2="136.30701">
+			<stop offset="0" stop-color="#d4d4d8" id="stop23"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop24"/>
+		  </linearGradient>
+		  <path id="Blade_4" fill="url(#Blade_4_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 133.6V125c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_3_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="58.741199" x2="27.196899" y2="103.4906">
+			<stop offset="0" stop-color="#d4d4d8" id="stop25"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop26"/>
+		  </linearGradient>
+		  <path id="Blade_3" fill="url(#Blade_3_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 100.8v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_2_1_" gradientUnits="userSpaceOnUse" x1="35.946301" y1="25.924801" x2="27.196301" y2="70.674797">
+			<stop offset="0" stop-color="#d4d4d8" id="stop27"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop28"/>
+		  </linearGradient>
+		  <path id="Blade_2" fill="url(#Blade_2_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 67.9v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_Top_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="-6.8906002" x2="27.196899" y2="37.858799">
+			<stop offset="0" stop-color="#d4d4d8" id="stop29"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop30"/>
+		  </linearGradient>
+		  <path id="Blade_Top" fill="url(#Blade_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 35.1v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_Top_OV_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="-39.6906002" x2="27.196899" y2="5.058799">
+			<stop offset="0" stop-color="#d4d4d8" id="stop29"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop30"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Top" fill="url(#Blade_Top_OV_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 2.3v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		</g>
+		<g id="Spindle_Sides_Group">
+		  <path id="Spindle_Sides" fill="url(#Spindle_Sides_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 279.1c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3C4.4 85 33.8 85 33.8 85c11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		  <path id="Spindle_Extension_Bottom" fill="url(#linearGradient43)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 344.572c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		  <path id="Spindle_Extension_Top" fill="url(#linearGradient45)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 246.3c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		</g>
+	  </g>
+  </g>
+  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+	<g id="Spindle">
+		<g id="Spindle_Blades" display="inline">
+		  <linearGradient id="Blade_Bottom_OV_2_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="321.2362" x2="27.1973" y2="365.9862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop1300"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop1400"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Bottom_2" fill="url(#Blade_Bottom_OV_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 363.2v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_Bottom_OV_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="288.4362" x2="27.1973" y2="333.1862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop130"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop140"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Bottom" fill="url(#Blade_Bottom_OV_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 330.4v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_Bottom_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="255.6362" x2="27.1973" y2="300.3862">
+			<stop offset="0" stop-color="#d4d4d8" id="stop13"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop14"/>
+		  </linearGradient>
+		  <path id="Blade_Bottom" fill="url(#Blade_Bottom_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 297.6V289c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_8_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="222.8208" x2="27.196899" y2="267.57019">
+			<stop offset="0" stop-color="#d4d4d8" id="stop15"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop16"/>
+		  </linearGradient>
+		  <path id="Blade_8" fill="url(#Blade_8_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 264.8v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z" display="inline"/>
+		  <linearGradient id="Blade_7_1_" gradientUnits="userSpaceOnUse" x1="35.946301" y1="190.00391" x2="27.1964" y2="234.7533">
+			<stop offset="0" stop-color="#d4d4d8" id="stop17"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop18"/>
+		  </linearGradient>
+		  <path id="Blade_7" fill="url(#Blade_7_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 232v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_6_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="157.18851" x2="27.1973" y2="201.93851">
+			<stop offset="0" stop-color="#d4d4d8" id="stop19"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop20"/>
+		  </linearGradient>
+		  <path id="Blade_6" fill="url(#Blade_6_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 199.2v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_5_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="124.3726" x2="27.1968" y2="169.1226">
+			<stop offset="0" stop-color="#d4d4d8" id="stop21"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop22"/>
+		  </linearGradient>
+		  <path id="Blade_5" fill="url(#Blade_5_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 166.4v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_4_1_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="91.557602" x2="27.197399" y2="136.30701">
+			<stop offset="0" stop-color="#d4d4d8" id="stop23"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop24"/>
+		  </linearGradient>
+		  <path id="Blade_4" fill="url(#Blade_4_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 133.6V125c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_3_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="58.741199" x2="27.196899" y2="103.4906">
+			<stop offset="0" stop-color="#d4d4d8" id="stop25"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop26"/>
+		  </linearGradient>
+		  <path id="Blade_3" fill="url(#Blade_3_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 100.8v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.7 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_2_1_" gradientUnits="userSpaceOnUse" x1="35.946301" y1="25.924801" x2="27.196301" y2="70.674797">
+			<stop offset="0" stop-color="#d4d4d8" id="stop27"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop28"/>
+		  </linearGradient>
+		  <path id="Blade_2" fill="url(#Blade_2_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 67.9v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_Top_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="-6.8906002" x2="27.196899" y2="37.858799">
+			<stop offset="0" stop-color="#d4d4d8" id="stop29"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop30"/>
+		  </linearGradient>
+		  <path id="Blade_Top" fill="url(#Blade_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 35.1v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		  <linearGradient id="Blade_Top_OV_1_" gradientUnits="userSpaceOnUse" x1="35.9468" y1="-39.6906002" x2="27.196899" y2="5.058799">
+			<stop offset="0" stop-color="#d4d4d8" id="stop29"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop30"/>
+		  </linearGradient>
+		  <path id="Blade_Outside_Viewbox_Top" fill="url(#Blade_Top_OV_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.2 2.3v-8.6c0-7.1 8.6-7.1 8.6-7.1 11.4 0 25.7-4.3 25.7-8.6 0-4.7-15.7-8.6-22.8-8.6v8.6c0 4.3-8.6 5.8-8.6 5.8-11.4 0-25.7 4.2-25.7 9.9 0 4.8 15.7 8.6 22.8 8.6z"/>
+		</g>
+		<g id="Spindle_Sides_Group">
+		  <path id="Spindle_Sides" fill="url(#Spindle_Sides_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 279.1c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3C4.4 85 33.8 85 33.8 85c11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		  <path id="Spindle_Extension_Bottom" fill="url(#linearGradient43)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 344.572c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		  <path id="Spindle_Extension_Top" fill="url(#linearGradient45)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M28.1 246.3c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.2-31.4 5.7-31.4 5.7zm0-32.9c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7zm0-32.8c-11 0-24.5 3.9-25.6 9.3 1.9-6.5 31.3-6.5 31.3-6.5 11.4 0 25.6-4.3 25.7-8.5-.2 4.3-31.4 5.7-31.4 5.7z" display="inline"/>
+		</g>
+	  </g>
+  </g>
+		</hmi-animations:storyboard>
+   </hmi-animations:animations>
+  </g>
+</svg>

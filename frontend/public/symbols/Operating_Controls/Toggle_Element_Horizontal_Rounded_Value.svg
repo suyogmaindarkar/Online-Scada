@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(2.564103, 5.882353)">
+    <defs>
+	<clipPath id="BorderCut">
+		<rect x="0.5" y="1.5" width="38" height="14" rx="7" ry="7"/>
+	</clipPath>
+  </defs>
+  <g hmi-bind:display="{{ eq(ParamProps.Animated, false) ? 'inline' : 'none' }}" hmi-bind:stroke-width="{{ le((20 / HmiProps.Width), (9 / HmiProps.Height)) ? ((20 / HmiProps.Width) * (HmiProps.Width / 39)) : ((9 / HmiProps.Height) * (HmiProps.Height / 17)) }}">
+	  <g id="Toggle_Element_Horizontal_Rounded" stroke-miterlimit="10">
+	  <linearGradient id="Unbenannter_Verlauf_199" x1="19.5" y1="15.5" x2="19.5" y2="1.5" gradientUnits="userSpaceOnUse">
+		<stop offset=".1" stop-color="#a1a1aa" />
+		<stop offset=".14" stop-color="#a1a1aa" />
+		<stop offset=".27" stop-color="#71717a" />
+		<stop offset=".43" stop-color="#71717a" />
+		<stop offset=".75" stop-color="#71717a" />
+		<stop offset=".82" stop-color="#71717a" />
+		<stop offset=".87" stop-color="#71717a" />
+		<stop offset=".92" stop-color="#52525b" />
+		<stop offset=".97" stop-color="#52525b" />
+		<stop offset="1" stop-color="#3f3f46" />
+	  </linearGradient>
+	  <linearGradient id="Unbenannter_Verlauf_164" x1="8.5" y1="16.5" x2="8.5" y2=".5" gradientUnits="userSpaceOnUse">
+		<stop offset="0" stop-color="#71717a" />
+		<stop offset=".05" stop-color="#71717a" />
+		<stop offset=".13" stop-color="#71717a" />
+		<stop offset=".2" stop-color="#71717a" />
+		<stop offset=".27" stop-color="#71717a" />
+		<stop offset=".39" stop-color="#71717a" />
+		<stop offset=".55" stop-color="#71717a" />
+		<stop offset="1" stop-color="#71717a" />
+	  </linearGradient>
+	  <linearGradient id="Unbenannter_Verlauf_206" x1="19.5" y1="15.5" x2="19.5" y2="1.5" gradientUnits="userSpaceOnUse">
+		<stop offset="0" stop-color="#a1a1aa" />
+		<stop offset=".01" stop-color="#a1a1aa" />
+		<stop offset=".1" stop-color="#a1a1aa" />
+		<stop offset=".17" stop-color="#a1a1aa"/>
+		<stop offset=".24" stop-color="#a1a1aa"/>
+		<stop offset=".32" stop-color="#71717a"/>
+		<stop offset=".41" stop-color="#71717a"/>
+		<stop offset=".53" stop-color="#71717a"/>
+		<stop offset=".75" stop-color="#71717a"/>
+		<stop offset=".82" stop-color="#71717a"/>
+		<stop offset=".87" stop-color="#71717a"/>
+		<stop offset=".92" stop-color="#71717a"/>
+		<stop offset=".96" stop-color="#52525b"/>
+		<stop offset="1" stop-color="#52525b"/>
+	  </linearGradient>
+		<g id="Toggle_Off" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" hmi-bind:display="{{ LocalProps.Activated ? 'none' : 'inline' }}">
+		  <rect x=".5" y="1.5" width="38" height="14" rx="7" ry="7" fill="url(#Unbenannter_Verlauf_199)" />
+		  <circle cx="8.5" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)" />
+		</g>
+		<g id="Toggle_On" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" hmi-bind:display="{{ LocalProps.Activated ? 'inline' : 'none' }}">
+		  <rect x=".5" y="1.5" width="38" height="14" rx="7" ry="7" fill="url(#Unbenannter_Verlauf_206)"/>
+		  <circle cx="30.5" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)"/>
+		</g>
+	  </g>
+  </g>
+  <g hmi-bind:display="{{ eq(ParamProps.Animated, true) ? 'inline' : 'none' }}" hmi-bind:stroke-width="{{ le((200 / HmiProps.Width), (87 / HmiProps.Height)) ? (200 / HmiProps.Width) : (87 / HmiProps.Height) }}">
+	<g id="KnobBackgroundAnim" clip-path="url(#BorderCut)">
+		<rect id="ActiveBackgroundAnim" x=".5" y="1.5" width="38" height="14" rx="7" ry="7" fill="url(#Unbenannter_Verlauf_206)"/>
+		<rect id="DisabledBackgroundAnim" x=".5" y="1.5" width="38" height="14" rx="7" ry="7" fill="url(#Unbenannter_Verlauf_199)" />
+	</g>
+	<rect id="BorderAnim" x=".5" y="1.5" width="38" height="14" rx="7" ry="7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" fill="none"/>
+	<circle id="KnobAnim" cx="8.5" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}"/>
+  </g>
+  <rect x="0.5" y="0.286" width="38" height="16" rx="8" ry="8" fill="red" fill-opacity="0" hmi-event:up="url(#onMouseClickEvent)" id="ClickArea"/>
+	</hmi-animations:animations>
+  </g>
+</svg>

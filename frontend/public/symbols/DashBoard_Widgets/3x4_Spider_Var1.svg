@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.5, 0.5)">
+    <defs>
+</defs>
+  <g id="Frame">
+	<rect id="Frame_Box" x="1" y="1" width="200" height="200" stroke="#0058B0" stroke-width="0" fill="none" />
+	<line id="Zero_Line" x1="1" y1="100" x2="199" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
+	<line id="Zero_Line" x1="100" y1="1" x2="100" y2="199" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
+    <text id="Text_Dim1" x="104" y="13" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="start"></text>
+    <text id="Text_Dim2" x="197" y="114" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="end"></text>
+    <text id="Text_Dim3" x="103" y="197" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="start"></text>
+    <text id="Text_Dim4" x="3" y="97" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="start"></text>
+  </g>
+ <g id="Dimension1_UP">
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<circle cx="100" hmi-bind:cy="{{ 100 - ((LocalProps.IntValue1Dim1) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle cx="100" hmi-bind:cy="{{ 100 - ((LocalProps.IntValue2Dim1) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle cx="100" hmi-bind:cy="{{ 100 - ((LocalProps.IntValue3Dim1) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<circle id="D1U1" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle id="D1U2" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle id="D1U3" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+ </g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<line x1="100" hmi-bind:y1="{{ 100 - ((LocalProps.IntValue1Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 + ((LocalProps.IntValue1Dim2) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line x1="100" hmi-bind:y1="{{ 100 - ((LocalProps.IntValue2Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 + ((LocalProps.IntValue2Dim2) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line x1="100" hmi-bind:y1="{{ 100 - ((LocalProps.IntValue3Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 + ((LocalProps.IntValue3Dim2) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<line id="LineVal11" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line id="LineVal21" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line id="LineVal31" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+ <g id="Dimension2_RIGHT">
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<circle hmi-bind:cx="{{ 100 + ((LocalProps.IntValue1Dim2) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle hmi-bind:cx="{{ 100 + ((LocalProps.IntValue2Dim2) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle hmi-bind:cx="{{ 100 + ((LocalProps.IntValue3Dim2) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+ 	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<circle id="D2R1" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle id="D2R2" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle id="D2R3" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+ </g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<line hmi-bind:x1="{{ 100 + ((LocalProps.IntValue1Dim2) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 + ((LocalProps.IntValue1Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line hmi-bind:x1="{{ 100 + ((LocalProps.IntValue2Dim2) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 + ((LocalProps.IntValue2Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line hmi-bind:x1="{{ 100 + ((LocalProps.IntValue3Dim2) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 + ((LocalProps.IntValue3Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<line id="LineValR1" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line id="LineValR2" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line id="LineValR3" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>	
+ <g id="Dimension3_DOWN">
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<circle cx="100" hmi-bind:cy="{{ 100 + ((LocalProps.IntValue1Dim3) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />	
+		<circle cx="100" hmi-bind:cy="{{ 100 + ((LocalProps.IntValue2Dim3) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />	
+		<circle cx="100" hmi-bind:cy="{{ 100 + ((LocalProps.IntValue3Dim3) / (ParamProps.MaxRange) * 100) }}" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<circle id="D3D1" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />	
+		<circle id="D3D2" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />	
+		<circle id="D3D3" cx="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+ </g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<line x1="100" hmi-bind:y1="{{ 100 + ((LocalProps.IntValue1Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 - ((LocalProps.IntValue1Dim4) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line x1="100" hmi-bind:y1="{{ 100 + ((LocalProps.IntValue2Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 - ((LocalProps.IntValue2Dim4) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line x1="100" hmi-bind:y1="{{ 100 + ((LocalProps.IntValue3Dim3) / (ParamProps.MaxRange) * 100) }}" hmi-bind:x2="{{ 100 - ((LocalProps.IntValue3Dim4) / (ParamProps.MaxRange) * 100) }}" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<line id="LineValD1" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line id="LineValD2" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line id="LineValD3" x1="100" y2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+  <g id="Dimension4_LEFT">
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<circle hmi-bind:cx="{{ 100 - ((LocalProps.IntValue1Dim4) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle hmi-bind:cx="{{ 100 - ((LocalProps.IntValue2Dim4) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle hmi-bind:cx="{{ 100 - ((LocalProps.IntValue3Dim4) / (ParamProps.MaxRange) * 100) }}" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<circle id="D4L1" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+		<circle id="D4L2" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+		<circle id="D4L3" cy="100" r="3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	</g>
+  </g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<line hmi-bind:x1="{{ 100 - ((LocalProps.IntValue1Dim4) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 - ((LocalProps.IntValue1Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line hmi-bind:x1="{{ 100 - ((LocalProps.IntValue2Dim4) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 - ((LocalProps.IntValue2Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line hmi-bind:x1="{{ 100 - ((LocalProps.IntValue3Dim4) / (ParamProps.MaxRange) * 100) }}" y1="100" x2="100" hmi-bind:y2="{{ 100 - ((LocalProps.IntValue3Dim1) / (ParamProps.MaxRange) * 100) }}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<line id="LineValL1" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+		<line id="LineValL2" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+		<line id="LineValL3" y1="100" x2="100" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="1.5" />
+	</g>
+	</hmi-animations:animations>
+  </g>
+</svg>

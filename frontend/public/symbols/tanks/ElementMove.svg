@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.333333)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_Inside_1_" gradientUnits="userSpaceOnUse" x1="95.4717" y1="95.0293" x2="314.1095" y2="313.6671">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <circle id="Shape_Inside" fill="url(#Shape_Inside_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="150" cy="149.6" r="117.3" />
+  <linearGradient id="Symbol_1_" gradientUnits="userSpaceOnUse" x1="44.4722" y1="44.0298" x2="150.9851" y2="150.5427">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#71717a" />
+  </linearGradient>
+  <path id="Symbol" fill="url(#Symbol_1_)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M150,26.2  c-68.1,0-123.3,55.2-123.3,123.3S81.9,272.9,150,272.9s123.3-55.2,123.3-123.3S218.1,26.2,150,26.2z M150,149.6v117.3  c-64.8,0-117.3-52.5-117.3-117.3L150,149.6l0-117.3h0c64.8,0,117.3,52.5,117.3,117.3H150z" />
+  <linearGradient id="Ring_Outside_1_" gradientUnits="userSpaceOnUse" x1="-56.5278" y1="-56.9702" x2="409.9853" y2="409.5429">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <path id="Ring_Outside" fill="url(#Ring_Outside_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M150,1.6  C68.3,1.6,2,67.8,2,149.6s66.3,148,148,148s148-66.3,148-148S231.7,1.6,150,1.6z M150,272.9c-68.1,0-123.3-55.2-123.3-123.3  S81.9,26.2,150,26.2s123.3,55.2,123.3,123.3S218.1,272.9,150,272.9z" />
+  </g>
+</svg>

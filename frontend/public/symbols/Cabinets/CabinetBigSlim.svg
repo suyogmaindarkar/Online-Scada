@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(2.325581, 0.333333)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="21.4854" y1="3.2651" x2="21.4853" y2="297.156">
+    <stop offset="0" stop-color="#a1a1aa" />
+    <stop offset="1.877390e-02" stop-color="#d4d4d8" />
+    <stop offset="3.010660e-02" stop-color="#a1a1aa" />
+    <stop offset="0.4905" stop-color="#a1a1aa" />
+    <stop offset="0.9509" stop-color="#71717a" />
+    <stop offset="0.9628" stop-color="#71717a" />
+    <stop offset="0.9749" stop-color="#71717a" />
+    <stop offset="0.9871" stop-color="#52525b" />
+    <stop offset="0.9992" stop-color="#52525b" />
+    <stop offset="1" stop-color="#52525b" />
+  </linearGradient>
+  <rect id="Shape" x="2.4" y="2.3" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="38.2" height="295.3" />
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.421941)">
+    <defs>
+     </defs>
+  <g id="Box">
+    <linearGradient id="Right_1_" gradientUnits="userSpaceOnUse" x1="244.0684" y1="342.7378" x2="244.0683" y2="70.835">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Right" fill="url(#Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="226.6,234.5 261.6,197.9 261.6,40.5 226.6,77.2" />
+    <linearGradient id="Inside_Front_1_" gradientUnits="userSpaceOnUse" x1="168.3315" y1="-1.8716" x2="168.3315" y2="102.0386">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Inside_Front" fill="url(#Inside_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="75.1,77.2 75.1,40.5 261.6,40.5 226.6,77.2" />
+    <linearGradient id="Front_1_" gradientUnits="userSpaceOnUse" x1="143.5283" y1="315.6445" x2="118.0525" y2="-83.4796">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <rect id="Front" x="40.1" y="77.2" fill="url(#Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="186.5" height="157.3" />
+    <linearGradient id="Inside_Left_1_" gradientUnits="userSpaceOnUse" x1="42.9253" y1="6.8179" x2="63.9136" y2="81.2904">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Inside_Left" fill="url(#Inside_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="75.1,40.5 75.1,77.2 40.1,77.2" />
+    <polyline id="Shadow" fill="#77787A" stroke="#77787A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="75.1,40.5 75.1,77.2 91.4,77.2" />
+  </g>
+  <g id="Flaps">
+    <polygon id="Shadow_Small_Flap" fill="#77787A" stroke="#77787A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="226.6,77.2 261.6,92 261.6,95.5 243.3,114.6" />
+    <polygon id="Shadow_Big_Flap" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="226.6,77.2 206.2,122.8 40.1,122.8 40.1,137 209.6,137" />
+    <linearGradient id="Flap_Small_Right_1_" gradientUnits="userSpaceOnUse" x1="204.0625" y1="102.9531" x2="363.6804" y2="5.0963">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Flap_Small_Right" fill="url(#Flap_Small_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="261.6,40.5 226.6,77.2 264.3,93.2 299.6,56.2" />
+    <linearGradient id="Flap_Small_Left_1_" gradientUnits="userSpaceOnUse" x1="21.8584" y1="53.0605" x2="77.2784" y2="98.6594">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Flap_Small_Left" fill="url(#Flap_Small_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="40.1,77.2 75.1,40.5 35.7,58.1 2.2,93.2" />
+    <linearGradient id="Flap_Big_Front_1_" gradientUnits="userSpaceOnUse" x1="181.1826" y1="197.6167" x2="-143.2457" y2="-318.8491">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Flap_Big_Front" fill="url(#Flap_Big_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="226.6,77.2 40.1,77.2 13.1,122.8 206.3,122.8" />
+    <linearGradient id="Flap_Big_Behind_1_" gradientUnits="userSpaceOnUse" x1="173.7056" y1="57.1733" x2="173.7056" y2="-90.8952">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Flap_Big_Behind" fill="url(#Flap_Big_Behind_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="75.1,40.5 261.6,40.5 272.3,2.6 90,2.6" />
+  </g>
+  </g>
+</svg>

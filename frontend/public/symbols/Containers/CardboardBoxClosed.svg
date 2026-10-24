@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.379507)">
+    <defs>
+     </defs>
+  <g id="Box_1_">
+    <linearGradient id="Small_Side_1_" gradientUnits="userSpaceOnUse" x1="395.4893" y1="654.0889" x2="225.1591" y2="-79.6418">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Small_Side" fill="url(#Small_Side_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="250.9,261.1 297.5,212.3 297.5,2.4 250.9,51.2" />
+    <linearGradient id="Front_Side_1_" gradientUnits="userSpaceOnUse" x1="380.8193" y1="382.5771" x2="-474.7511" y2="-379.3815">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <rect id="Front_Side" x="2.2" y="51.2" fill="url(#Front_Side_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="248.7" height="209.9" />
+    <linearGradient id="Top_1_" gradientUnits="userSpaceOnUse" x1="701.0625" y1="-125.855" x2="-1558.9363" y2="500.1462">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Top" fill="url(#Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="2.2,51.2 250.9,51.2 297.5,2.4 48.9,2.4" />
+  </g>
+  <line id="Devider_Line_Flaps" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="26.4" y1="26" x2="275.1" y2="26" />
+  </g>
+</svg>

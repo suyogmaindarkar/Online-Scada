@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.813008)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="-96.9004" y1="-34.3496" x2="263.2856" y2="78.1463">
+    <stop offset="0" stop-color="#52525b" />
+    <stop offset="7.102013e-02" stop-color="#71717a" />
+    <stop offset="0.2252" stop-color="#71717a" />
+    <stop offset="0.3574" stop-color="#a1a1aa" />
+    <stop offset="0.4515" stop-color="#a1a1aa" />
+    <stop offset="0.534" stop-color="#a1a1aa" />
+    <stop offset="0.6178" stop-color="#a1a1aa" />
+    <stop offset="0.7023" stop-color="#71717a" />
+    <stop offset="0.7872" stop-color="#52525b" />
+    <stop offset="0.8725" stop-color="#52525b" />
+    <stop offset="0.9569" stop-color="#3f3f46" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <polygon id="Shape_4_" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="178.8,120.7 121.6,120.7 2.2,2.2 298.2,2.2" />
+  <linearGradient id="Reflection_Gradation_1_" gradientUnits="userSpaceOnUse" x1="113.0635" y1="22.187" x2="30.8015" y2="89.5568">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <polyline id="Reflection_Gradation_3_" fill="url(#Reflection_Gradation_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="127.9,120.7 121.6,120.7 2.2,2.2 32.6,2.2" />
+  <linearGradient id="Reflection_White_1_" gradientUnits="userSpaceOnUse" x1="118.6304" y1="38.4092" x2="-19.5603" y2="133.0449">
+    <stop offset="0" stop-color="#e4e4e7" />
+    <stop offset="1" stop-color="#52525b" />
+  </linearGradient>
+  <polygon id="Reflection_White_3_" fill="url(#Reflection_White_1_)" points="32.6,2.8 127.5,120.2 137.2,120.2 83.2,2.8" />
+  <line id="Reflection_Line" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-miterlimit="10" x1="2.2" y1="3" x2="297.5" y2="3" />
+  <line id="Devider_Line" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="2.2" y1="2.2" x2="298.2" y2="2.2" />
+  </g>
+</svg>

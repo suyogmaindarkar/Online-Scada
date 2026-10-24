@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.357143, 0.333333)">
+    <defs>
+		<clipPath id="ReflectionFillingCut">
+			<polygon points="10.1,10.1 265,10.1 36.3,259.4 36.3,289.5 10.1,289.5 " />
+		</clipPath>
+	</defs>
+  <linearGradient id="Hopper_Inside_1_" gradientUnits="userSpaceOnUse" x1="390.8975" y1="71.2856" x2="-81.3401" y2="71.2857" >
+    <stop offset="0" stop-color="white" />
+    <stop offset="1" stop-color="#52525b" />
+  </linearGradient>
+  <polygon id="Hopper_Inside" fill="url(#Hopper_Inside_1_)" points="10.1,10.1 265,10.1 36.3,259.4 36.3,289.5 10.1,289.5 " />
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<linearGradient id="Filling" gradientUnits="userSpaceOnUse" x1="0" y1="290.2" x2="0"  y2="10.1" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<stop offset="0" stop-color="#71717a" />
+			<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}" stop-color="#71717a" />
+			<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0" />
+			<stop offset="1" stop-color="white" stop-opacity="0.0" />
+		</linearGradient>
+		<polygon id="Product" fill="url(#Filling)" hmi-bind:display="{{ le( LocalProps.FluidRotation, -90 ) ? 'none' : 'inline' }}" points="10.1,10.1 265,10.1 36.3,259.4 36.3,290.2 10.1,290.2 " />
+		<linearGradient id="Filling_Vertical" gradientUnits="userSpaceOnUse" x1="0" y1="266.2" x2="0"  y2="10.1" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<stop offset="0" stop-color="#71717a" />
+			<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="#71717a" />
+			<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0" />
+			<stop offset="1" stop-color="white" stop-opacity="0.0" />
+		</linearGradient>
+		<polygon id="Product_Vertical" fill="url(#Filling_Vertical)" hmi-bind:display="{{ le( LocalProps.FluidRotation, -90 ) ? 'inline' : 'none' }}" points="10.1,10.1 266.2,10.1 36.3,259.4 36.3,289.5 10.1,289.5 " />
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<linearGradient id="FillingAnim" gradientUnits="userSpaceOnUse" x1="0" y1="290.2" x2="0"  y2="10.1" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<stop offset="0" stop-color="white" stop-opacity="0.0" />
+			<stop hmi-bind:offset="{{1 - LocalProps.FillLevelValue}}" stop-color="#71717a" />
+			<stop offset="1" stop-color="#71717a" />	
+		</linearGradient>
+		<g clip-path="url(#ReflectionFillingCut)">
+			<rect id="ReflectionFillingAnim" fill="url(#FillingAnim)" x="10.371905" y="10.472662" width="257.35223" transform="translate(257.35223, 279.03317) rotate(180, 10.371905, 10.472662)"/>
+		</g>
+	</g>
+  <linearGradient id="Frame_1_" gradientUnits="userSpaceOnUse" x1="-124.8203" y1="150.0137" x2="479.1622" y2="150.0137">
+    <stop offset="0" stop-color="#d4d4d8" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <path id="Frame" fill="url(#Frame_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M40.2,297.6L40.2,297.6l-34,0c-2.1,0-3.9-1.7-3.9-3.9V6.3c0-2.1,1.7-3.9,3.9-3.9h267.6c1.5,0,2.9,0.9,3.5,2.3s0.3,3-0.7,4.2  L44.1,260.9v32.8c0,1-0.4,2-1.1,2.7C42.2,297.2,41.2,297.6,40.2,297.6z M10.1,289.9l26.2,0v-30.5c0-1,0.4-1.9,1-2.6L265,10.1H10.1  V289.9z" />
+	</hmi-animations:animations>
+  </g>
+</svg>

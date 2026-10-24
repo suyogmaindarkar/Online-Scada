@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.578035, 0.333333)">
+    <defs>
+     </defs>
+  <g id="Open_Cabinet">
+    <linearGradient id="Opening_1_" gradientUnits="userSpaceOnUse" x1="91.1685" y1="150.063" x2="3.3521" y2="150.063">
+      <stop offset="0" stop-color="#3f3f46" />
+      <stop offset="1" stop-color="#434343" />
+    </linearGradient>
+    <rect id="Opening_4_" x="8.7" y="31.8" fill="url(#Opening_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="66" height="236.6" />
+    <linearGradient id="Frame_1_" gradientUnits="userSpaceOnUse" x1="-163.7549" y1="150.063" x2="291.7144" y2="150.063">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Frame_4_" fill="url(#Frame_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="74.7,25.6 74.7,31.8 8.7,31.8 8.7,268.3 74.7,268.3 74.7,274.6 2.5,274.6 2.5,274.6 2.5,25.6" />
+  </g>
+  <g id="Door_4_">
+    <linearGradient id="Gradation_Bottom_1_" gradientUnits="userSpaceOnUse" x1="105.1719" y1="117.1519" x2="141.1747" y2="281.8311">
+      <stop offset="0" stop-color="#71717a" />
+      <stop offset="0.928" stop-color="#71717a" />
+      <stop offset="0.9422" stop-color="#71717a" />
+      <stop offset="0.9566" stop-color="#71717a" />
+      <stop offset="0.9711" stop-color="#52525b" />
+      <stop offset="0.9856" stop-color="#52525b" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <path id="Gradation_Bottom_4_" fill="url(#Gradation_Bottom_1_)" d="M77.7,293.9V103.3h92.8v167.9c0,2.6-0.6,3.3-1.1,3.5l-0.1,0   l-93,22.8l-0.1,0C76.6,297.6,77.7,297.3,77.7,293.9z" />
+    <linearGradient id="Gradation_Top_1_" gradientUnits="userSpaceOnUse" x1="132.689" y1="16.083" x2="111.1816" y2="103.9517">
+      <stop offset="0" stop-color="#52525b" />
+      <stop offset="1.680084e-02" stop-color="#d4d4d8" />
+      <stop offset="0.1008" stop-color="#71717a" />
+    </linearGradient>
+    <path id="Gradation_Top_4_" fill="url(#Gradation_Top_1_)" d="M77.7,104.9v-99c0-2.7-0.7-3.4-1.2-3.6l92.8,22.8   c0.4,0.2,1.2,0.8,1.2,3.6v76.3H77.7z" />
+    <path id="Outline_4_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M169.3,25.1l-93-22.8l-0.1,0c0.3,0,1.4,0.2,1.4,3.6v288c0,3.9-1.5,3.6-1.5,3.6l0.2,0l93-22.8l0.1,0c0.4-0.2,1.1-1,1.1-3.5V28.7   C170.5,25.9,169.8,25.2,169.3,25.1z" />
+    <path id="Side_Door_4_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M74.7,297.3l1.5,0.2c0,0,1.5,0.3,1.5-3.6V5.9c0-3.9-1.5-3.6-1.5-3.6l-1.5,0.2V297.3z" />
+    <g id="Handle_3_">
+      <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="89.6323" y1="217.75" x2="89.6323" y2="-56.3669">
+        <stop offset="0" stop-color="#d4d4d8" />
+        <stop offset="1" stop-color="#3f3f46" />
+      </linearGradient>
+      <polygon id="Shape_5_" fill="url(#Shape_1_)" points="92.6,48.9 86.7,47.9 86.7,86 92.6,86.6" />
+      <polygon id="Shadow_3_" fill="#18181b" points="92.6,46.2 86.7,45.1 86.7,47.9 86.7,86 88.1,86.1 88.1,48.1 92.6,48.9" />
+      <polyline id="Reflection_Line_3_" fill="none" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" points="92.6,46.2 92.6,86.6 86.7,86" />
+    </g>
+  </g>
+  </g>
+</svg>

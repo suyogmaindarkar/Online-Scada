@@ -3,6 +3,8 @@
 // WinCC. Legacy SVG files remain on disk so existing saved screens can render,
 // but legacy entries are intentionally no longer exposed in the library UI.
 
+import { PASTED_LIBRARY_COMPONENTS, PASTED_LIBRARY_CATEGORIES } from './pastedSymbolLibrary.js';
+
 export const LIBRARY_VERSION = 'industrial-original-v2';
 
 export const LIBRARY_CATEGORIES = [
@@ -19,6 +21,7 @@ export const LIBRARY_CATEGORIES = [
   { id: 'signal_lamps', label: 'Signal Lamps', icon: 'Lightbulb', color: '#ca8a04' },
   { id: 'safety', label: 'Safety & Overlays', icon: 'ShieldAlert', color: '#dc2626' },
   { id: 'electrical', label: 'Electrical', icon: 'Zap', color: '#a16207' },
+  ...PASTED_LIBRARY_CATEGORIES,
 ];
 
 const svgTemplate = (svgPath, width = 100, height = 100, extras = {}) => ({
@@ -111,6 +114,7 @@ export const LIBRARY_COMPONENTS = [
   // Single-line electrical symbols.
   symbol('electrical_breaker', 'electrical', 'Protection', 'Circuit Breaker', 'Single-line circuit breaker symbol', ['electrical', 'breaker', 'protection', 'switchgear'], 'Zap', '/symbols/electrical/circuit-breaker.svg', 80, 100),
   symbol('electrical_transformer', 'electrical', 'Power Distribution', 'Transformer', 'Two-winding transformer for single-line diagrams', ['electrical', 'transformer', 'power', 'distribution'], 'Zap', '/symbols/electrical/transformer.svg', 110, 100),
+  ...PASTED_LIBRARY_COMPONENTS,
 ];
 
 export const getComponentsByCategory = (categoryId) => (

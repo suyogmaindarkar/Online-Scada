@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.333333)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_2_" gradientUnits="userSpaceOnUse" x1="5.252" y1="150" x2="294.454" y2="150">
+    <stop offset="0" stop-color="#52525b" />
+    <stop offset="4.758149e-02" stop-color="#71717a" />
+    <stop offset="0.1509" stop-color="#71717a" />
+    <stop offset="0.2395" stop-color="#a1a1aa" />
+    <stop offset="0.3025" stop-color="#a1a1aa" />
+    <stop offset="0.4074" stop-color="#a1a1aa" />
+    <stop offset="0.514" stop-color="#a1a1aa" />
+    <stop offset="0.6214" stop-color="#71717a" />
+    <stop offset="0.7294" stop-color="#52525b" />
+    <stop offset="0.8378" stop-color="#52525b" />
+    <stop offset="0.9452" stop-color="#3f3f46" />
+    <stop offset="1" stop-color="#3f3f46" />
+  </linearGradient>
+  <rect id="Shape_1_" x="2.2" y="2" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="296" height="296" />
+  <linearGradient id="Reflection_1_" gradientUnits="userSpaceOnUse" x1="30.624" y1="149.9922" x2="47.1153" y2="149.9922">
+    <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
+    <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
+  </linearGradient>
+  <path id="Reflection" fill="url(#Reflection_1_)" d="M32.6,2.4c0,37.2,0,275,0,295.1h50.6c0-19.3,0-236.5,0-295.1H32.6z" />
+  </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.333333)">
+    </hmi:self>
+	<defs>
+	</defs>
+	<linearGradient id="Button_1_" gradientUnits="userSpaceOnUse" x1="-56.4912" y1="-56.4287" x2="410.0245" y2="410.087">
+		<stop offset="0" stop-color="#d4d4d8" />
+		<stop offset="1" stop-color="#3f3f46" />
+	</linearGradient>
+	<circle id="Button" fill="url(#Button_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="150" cy="150.1" r="148" />
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<rect id="L" x="43.299999" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="M" x="128.3" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="R" x="213.3" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 1) ? 'inline' : 'none' }}">
+			<rect id="LB" x="24.5" y="109.5" width="81" height="81" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 2) ? 'inline' : 'none' }}">
+			<rect id="MB" x="109.5" y="109.5" width="81" height="81" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 3) ? 'inline' : 'none' }}">
+			<rect id="RB" x="194.5" y="109.5" width="81" height="81" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<rect id="LAnim" x="43.299999" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="MAnim" x="128.3" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="RAnim" x="213.3" y="128.3" width="43.5" height="43.5" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+	</g>
+        </hmi-animations:storyboard>
+    </hmi-animations:animations>
+  </g>
+</svg>

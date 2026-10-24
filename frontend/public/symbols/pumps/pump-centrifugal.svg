@@ -1,32 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
-    <radialGradient id="pumpVolute" cx="0.4" cy="0.4">
+    <radialGradient id="pump90Housing" cx="0.4" cy="0.38" r="0.6">
       <stop offset="0%" stop-color="#a1a1aa"/>
+      <stop offset="35%" stop-color="#71717a"/>
       <stop offset="100%" stop-color="#3f3f46"/>
     </radialGradient>
+    <radialGradient id="pump90Inner" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#71717a"/>
+      <stop offset="100%" stop-color="#27272a"/>
+    </radialGradient>
+    <linearGradient id="pump90VPipe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#52525b"/>
+      <stop offset="30%" stop-color="#a1a1aa"/>
+      <stop offset="100%" stop-color="#3f3f46"/>
+    </linearGradient>
+    <linearGradient id="pump90HPipe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#52525b"/>
+      <stop offset="30%" stop-color="#a1a1aa"/>
+      <stop offset="100%" stop-color="#3f3f46"/>
+    </linearGradient>
+    <linearGradient id="pump90FlangeV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a1a1aa"/>
+      <stop offset="100%" stop-color="#52525b"/>
+    </linearGradient>
+    <linearGradient id="pump90FlangeH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a1a1aa"/>
+      <stop offset="100%" stop-color="#52525b"/>
+    </linearGradient>
   </defs>
 
-  <!-- Main volute casing (circular) -->
-  <circle cx="45" cy="50" r="30" fill="url(#pumpVolute)" stroke="#18181b" stroke-width="2"/>
+  <!-- ====== PIPES (Drawn FIRST so they perfectly tuck behind the housing) ====== -->
+  
+  <!-- Vertical Pipe -->
+  <rect x="54" y="4" width="15" height="45" rx="1" fill="url(#pump90VPipe)" stroke="#18181b" stroke-width="0.8"/>
+  <rect x="56.5" y="5" width="2.5" height="43" rx="0.5" fill="#d4d4d8" opacity="0.18"/>
+  
+  <!-- Horizontal Pipe (Changed to rect reaching into the center) -->
+  <rect x="4" y="45" width="35" height="22" rx="1" fill="url(#pump90HPipe)" stroke="#18181b" stroke-width="0.8"/>
+  <rect x="5" y="47.5" width="33" height="2.5" rx="0.5" fill="#d4d4d8" opacity="0.18"/>
 
-  <!-- Inner circle (impeller housing) -->
-  <circle cx="45" cy="50" r="20" fill="#52525b" stroke="#18181b" stroke-width="1"/>
+  <!-- Vertical Flange -->
+  <rect x="50" y="0" width="23" height="5.5" rx="1" fill="url(#pump90FlangeV)" stroke="#18181b" stroke-width="0.8"/>
+  <line x1="51" y1="1.5" x2="72" y2="1.5" stroke="#d4d4d8" stroke-width="0.3" opacity="0.4"/>
 
-  <!-- Impeller blades -->
-  <path d="M 45 35 Q 55 40 55 50 Q 55 60 45 65 Q 35 60 35 50 Q 35 40 45 35"
-    fill="#71717a" stroke="#27272a" stroke-width="0.5"/>
-  <circle cx="45" cy="50" r="4" fill="#18181b"/>
+  <!-- Horizontal Flange -->
+  <rect x="0" y="43" width="5.5" height="26" rx="1" fill="url(#pump90FlangeH)" stroke="#18181b" stroke-width="0.8"/>
+  <line x1="1.5" y1="44" x2="1.5" y2="68" stroke="#d4d4d8" stroke-width="0.3" opacity="0.4"/>
 
-  <!-- Discharge pipe (going up) -->
-  <rect x="42" y="15" width="8" height="12" fill="#9ca3af" stroke="#18181b" stroke-width="1"/>
-  <rect x="38" y="10" width="16" height="6" fill="#71717a" stroke="#18181b" stroke-width="1"/>
-
-  <!-- Suction pipe (going right) -->
-  <rect x="72" y="47" width="20" height="8" fill="#9ca3af" stroke="#18181b" stroke-width="1"/>
-  <rect x="88" y="43" width="8" height="16" fill="#71717a" stroke="#18181b" stroke-width="1"/>
-
-  <!-- Base -->
-  <rect x="20" y="80" width="50" height="8" fill="#525252" stroke="#18181b" stroke-width="1"/>
-  <circle cx="27" cy="84" r="1.5" fill="#18181b"/>
-  <circle cx="63" cy="84" r="1.5" fill="#18181b"/>
+  <!-- ====== HOUSING (Drawn LAST to smoothly cover pipe ends) ====== -->
+  <circle cx="44" cy="56" r="26" fill="url(#pump90Housing)" stroke="#18181b" stroke-width="1"/>
+  <circle cx="44" cy="56" r="20" fill="url(#pump90Inner)" stroke="#27272a" stroke-width="0.5"/>
+  <circle cx="44" cy="56" r="5.5" fill="#52525b" stroke="#27272a" stroke-width="0.5"/>
+  <circle cx="44" cy="56" r="1.8" fill="#18181b"/>
+  <path d="M54,40 Q66,48 64,60 Q62,72 50,78 Q60,72 62,60 Q64,48 54,40z" fill="#27272a" opacity="0.15"/>
 </svg>

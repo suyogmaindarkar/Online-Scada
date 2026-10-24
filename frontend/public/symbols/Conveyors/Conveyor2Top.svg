@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.953125, 0.754148)">
+    <g>
+    <g>
+      <g id="Roller_1_00000132056695424355294060000014940035436001253295_">
+        <linearGradient id="Shape_00000103266383355922695760000003073418537048923785_" gradientUnits="userSpaceOnUse" x1="6.1163" y1="68.6228" x2="20.2638" y2="68.6228" gradientTransform="matrix(1,0,0,-1,0,134.8478)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_00000095306285032547090140000003864312690681800834_" d="M21.5,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H4.7v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C21.7,113.7,21.5,113.3,21.5,112.7z" fill="url(#Shape_00000103266383355922695760000003073418537048923785_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_00000027580497235420336390000002771209000507952547_" d="M4.7,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H4.7z M22,20.8c-0.3,0-0.5-0.4-0.5-1     s0.2-1,0.5-1H4.7c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H22z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_00000158021640350970456440000011163598021981429910_" d="M4.7,12.2h17.2 M4.7,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+      <g id="Roller_1_00000109031807854817059010000000754386554940648100_">
+        <linearGradient id="Shape_00000072997793463394233900000006553540430658921625_" gradientUnits="userSpaceOnUse" x1="30.716" y1="68.6228" x2="44.8635" y2="68.6228" gradientTransform="matrix(1,0,0,-1,0,134.8478)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_00000026128763820608691560000004574701056835350436_" d="M46.1,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H29.3v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C46.3,113.7,46.1,113.3,46.1,112.7z" fill="url(#Shape_00000072997793463394233900000006553540430658921625_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_00000064332475772184792100000009834649184334550937_" d="M29.3,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H29.3z M46.6,20.8     c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1H29.3c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H46.6z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_00000168088797887619686630000008082303820789107880_" d="M29.3,12.2h17.2 M29.3,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect id="Frame_Top_00000145026176139029045880000017866194243797712311_" x="0" y="0.4" width="51.2" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+        <rect x="0.1" y="6.6" width="51.1" height="2" fill="#18181b" />
+      </g>
+      <line x1="0" y1="10.5" x2="51.2" y2="10.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0" y1="0.4" x2="51.2" y2="0.4" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+    <g>
+      <g>
+        <rect id="Frame_Top_00000005946106931661822590000015256926891145184157_" y="122.1" width="51.2" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+        <rect x="0.1" y="123.9" transform="matrix(-1,-1.224647e-16,1.224647e-16,-1,51.2493,249.8599)" width="51.1" height="2" fill="#18181b" />
+      </g>
+      <line x1="51.2" y1="122.1" x2="0" y2="122.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="51.2" y1="132.2" x2="0" y2="132.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+  </g>
+  </g>
+</svg>

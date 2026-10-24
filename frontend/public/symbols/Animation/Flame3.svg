@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.854701, 0.333333)">
+    <defs>
+     </defs> 
+  <g  id="FlameDefault" hmi-bind:transform="translate({{54 - LocalProps.NormalizedValue*54}}, {{LocalProps.NormalizedValue*300}}) scale({{LocalProps.NormalizedValue}}, {{-LocalProps.NormalizedValue}})" hmi-bind:display="{{ eq(ParamProps.PlayAnimation, false) ? 'inline' : 'none' }}">
+  <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="0.4497" y1="35.1074" x2="58.4497" y2="330.6361">
+    <stop offset="0" stop-color="#71717a" />
+    <stop offset="1" stop-color="#71717a" />
+  </linearGradient>
+  <path id="Shape" fill="url(#Shape_1_)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.FlameBorderColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
+	M110.5,148.3c-5.6-24.5-12.8-33.8-17.7-42.7C81,84.5,93.1,68,91.6,69.2c-9.2,7.4-16.5,18-11.7,36c3.8,14.3-4.8,31-13,28.9
+	c-9-2.4-14.9-27.6,1.8-51.2C96.1,44,47.6,2.1,47.6,2.1c18.3,33.2,7.2,67.3-8.9,67.3c-24.2,0-6.9-41.8-6.9-41.8
+	c-37.7,30.9-34.3,63.8-16.6,89c31.5,44.8-55.6,66.5,36.7,181.4C114,246.4,121.1,209.8,110.5,148.3z"/>
+  </g>
+  <g  id="Flame2" hmi-bind:transform="translate({{54 - LocalProps.NormalizedValue*54}}, {{LocalProps.NormalizedValue*300}}) scale({{LocalProps.NormalizedValue}}, {{-LocalProps.NormalizedValue}})" hmi-bind:display="{{ eq(ParamProps.PlayAnimation, true) ? 'inline' : 'none' }}">
+  <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="0.4497" y1="35.1074" x2="58.4497" y2="330.6361">
+    <stop offset="0" stop-color="#71717a" />
+    <stop offset="1" stop-color="#71717a" />
+  </linearGradient>
+  <path id="Shape" fill="url(#Shape_1_)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.FlameBorderColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
+	M110.5,148.3c-5.6-24.5-12.8-33.8-17.7-42.7C81,84.5,93.1,68,91.6,69.2c-9.2,7.4-16.5,18-11.7,36c3.8,14.3-4.8,31-13,28.9
+	c-9-2.4-14.9-27.6,1.8-51.2C96.1,44,47.6,2.1,47.6,2.1c18.3,33.2,7.2,67.3-8.9,67.3c-24.2,0-6.9-41.8-6.9-41.8
+	c-37.7,30.9-34.3,63.8-16.6,89c31.5,44.8-55.6,66.5,36.7,181.4C114,246.4,121.1,209.8,110.5,148.3z"/>
+  </g>
+  <g  id="Flame3" hmi-bind:transform="translate(116, 0) scale(-1, 1) translate({{54 - LocalProps.NormalizedValue*54}}, {{LocalProps.NormalizedValue*300}}) scale({{LocalProps.NormalizedValue}}, {{-LocalProps.NormalizedValue}})" hmi-bind:display="{{ eq(ParamProps.PlayAnimation, true) ? 'inline' : 'none' }}">
+  <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="0.4497" y1="35.1074" x2="58.4497" y2="330.6361">
+    <stop offset="0" stop-color="#71717a" />
+    <stop offset="1" stop-color="#71717a" />
+  </linearGradient>
+  <path id="Shape" fill="url(#Shape_1_)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.FlameBorderColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
+	M110.5,148.3c-5.6-24.5-12.8-33.8-17.7-42.7C81,84.5,93.1,68,91.6,69.2c-9.2,7.4-16.5,18-11.7,36c3.8,14.3-4.8,31-13,28.9
+	c-9-2.4-14.9-27.6,1.8-51.2C96.1,44,47.6,2.1,47.6,2.1c18.3,33.2,7.2,67.3-8.9,67.3c-24.2,0-6.9-41.8-6.9-41.8
+	c-37.7,30.9-34.3,63.8-16.6,89c31.5,44.8-55.6,66.5,36.7,181.4C114,246.4,121.1,209.8,110.5,148.3z"/>
+  </g>
+        </hmi-animations:storyboard>
+    </hmi-animations:animations>
+  </g>
+</svg>

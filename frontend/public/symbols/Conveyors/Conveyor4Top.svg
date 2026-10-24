@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.015228, 0.754148)">
+    <g>
+    <g>
+      <g id="Roller_1_11_">
+        <linearGradient id="Shape_00000097478618461240468030000002335456810177412499_" gradientUnits="userSpaceOnUse" x1="5.1407" y1="68.6223" x2="19.2884" y2="68.6223" gradientTransform="matrix(1,0,0,-1,0,134.8473)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_227_" d="M20.5,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H3.7v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C20.7,113.7,20.5,113.3,20.5,112.7z" fill="url(#Shape_00000097478618461240468030000002335456810177412499_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_99_" d="M3.7,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H3.7z M21,20.8c-0.3,0-0.5-0.4-0.5-1     s0.2-1,0.5-1H3.7c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H21z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_99_" d="M3.7,12.2h17.2 M3.7,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+      <g id="Roller_1_10_">
+        <linearGradient id="Shape_00000120535518745963278410000018412503186108662972_" gradientUnits="userSpaceOnUse" x1="29.7407" y1="68.6223" x2="43.8884" y2="68.6223" gradientTransform="matrix(1,0,0,-1,0,134.8473)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_226_" d="M45.1,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H28.3v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C45.3,113.7,45.1,113.3,45.1,112.7z" fill="url(#Shape_00000120535518745963278410000018412503186108662972_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_98_" d="M28.3,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H28.3z M45.6,20.8     c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1H28.3c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H45.6z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_98_" d="M28.3,12.2h17.2 M28.3,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+      <g id="Roller_1_9_">
+        <linearGradient id="Shape_00000070090632044660144920000001780249710470959271_" gradientUnits="userSpaceOnUse" x1="54.3407" y1="68.6223" x2="68.4884" y2="68.6223" gradientTransform="matrix(1,0,0,-1,0,134.8473)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_225_" d="M69.7,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H52.9v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C69.9,113.7,69.7,113.3,69.7,112.7z" fill="url(#Shape_00000070090632044660144920000001780249710470959271_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_97_" d="M52.9,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H52.9z M70.2,20.8     c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1H52.9c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H70.2z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_97_" d="M52.9,12.2h17.2 M52.9,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+      <g id="Roller_1_8_">
+        <linearGradient id="Shape_00000036950363370427790090000005917070728388701840_" gradientUnits="userSpaceOnUse" x1="78.9407" y1="68.6223" x2="93.0884" y2="68.6223" gradientTransform="matrix(1,0,0,-1,0,134.8473)">
+          <stop offset="0" stop-color="#B3B3B3" />
+          <stop offset="0.2564" stop-color="#E6E6E6" />
+          <stop offset="0.4197" stop-color="#E4E4E4" />
+          <stop offset="0.4784" stop-color="#DDDDDD" />
+          <stop offset="0.5202" stop-color="#D2D2D2" />
+          <stop offset="0.5334" stop-color="#CCCCCC" />
+          <stop offset="1" stop-color="#18181b" />
+        </linearGradient>
+        <path id="Shape_213_" d="M94.3,112.7c0-0.5,0.2-1,0.5-1V20.8c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1v-8.4H77.5v8.4c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v90.9     c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1v8.4h17.2v-8.4C94.5,113.7,94.3,113.3,94.3,112.7z" fill="url(#Shape_00000036950363370427790090000005917070728388701840_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Hollow_85_" d="M77.5,113.7c0.3,0,0.5-0.4,0.5-1s-0.2-1-0.5-1h17.2c-0.3,0-0.5,0.4-0.5,1c0,0.5,0.2,1,0.5,1H77.5z M94.8,20.8     c-0.3,0-0.5-0.4-0.5-1s0.2-1,0.5-1H77.5c0.3,0,0.5,0.4,0.5,1s-0.2,1-0.5,1H94.8z" fill="#999999" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <path id="Devider_Line_85_" d="M77.5,12.2h17.2 M77.5,120.4h17.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect id="Frame_Top_28_" y="0.4" width="98.5" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+        <rect x="0.1" y="6.6" width="98.3" height="2" fill="#18181b" />
+      </g>
+      <line x1="0" y1="10.5" x2="98.5" y2="10.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0" y1="0.4" x2="98.5" y2="0.4" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+    <g>
+      <g>
+        <rect id="Frame_Top_27_" y="122.1" width="98.5" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+        <rect x="0.1" y="123.9" transform="matrix(-1,-1.224647e-16,1.224647e-16,-1,98.5,249.8588)" width="98.3" height="2" fill="#18181b" />
+      </g>
+      <line x1="98.5" y1="122.1" x2="0" y2="122.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="98.5" y1="132.2" x2="0" y2="132.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+  </g>
+  </g>
+</svg>

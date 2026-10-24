@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.785714, 0.333333)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_Door_2_" gradientUnits="userSpaceOnUse" x1="27.9751" y1="3.3457" x2="27.9751" y2="297.1977">
+    <stop offset="0" stop-color="#a1a1aa" />
+    <stop offset="2.788180e-02" stop-color="#d4d4d8" />
+    <stop offset="4.347950e-02" stop-color="#a1a1aa" />
+    <stop offset="0.4907" stop-color="#a1a1aa" />
+    <stop offset="0.9379" stop-color="#71717a" />
+    <stop offset="0.9529" stop-color="#71717a" />
+    <stop offset="0.9682" stop-color="#71717a" />
+    <stop offset="0.9836" stop-color="#52525b" />
+    <stop offset="0.999" stop-color="#52525b" />
+    <stop offset="1" stop-color="#52525b" />
+  </linearGradient>
+  <rect id="Shape_Door_1_" x="2.5" y="2.4" fill="url(#Shape_Door_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="50.9" height="295.2" />
+  </g>
+</svg>

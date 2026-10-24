@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.132275, 0.132275)">
+    <defs>
+  </defs>
+  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'none' : 'inline' }}">
+	<g id="circle" hmi-bind:display="{{ParamProps.ShowRange ? 'inline':'none'}}">
+		<line x1="378.1" y1="288.1" x2="378.1" y2="468.1"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		<circle cx="378.1" cy="378.1" r="378"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		<line x1="468.1" y1="378.1" x2="288.1" y2="378.1"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+	  </g>
+	  <g id="Roboter_x5F_Draufsicht">
+		<g id="Sockel" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}} )" >
+		<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="-50" x2="0" y2="50">
+			<stop offset="0" stop-color="#52525b" />
+			<stop offset="1" stop-color="#e4e4e7" />
+		  </linearGradient>
+		  <path d="M46.1,50h-92c-2.2,0-4-1.8-4-4v-92c0-2.2,1.8-4,4-4h92c2.2,0,4,1.8,4,4v92C50.1,48.2,48.4,50,46.1,50z" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="-37" y1="0" x2="37" y2="0" >
+			<stop offset="0" stop-color="#a1a1aa" />
+			<stop offset="4.758149e-02" stop-color="#a1a1aa" />
+			<stop offset="0.1509" stop-color="#a1a1aa" />
+			<stop offset="0.2395" stop-color="#d4d4d8" />
+			<stop offset="0.3025" stop-color="#d4d4d8" />
+			<stop offset="0.4074" stop-color="#d4d4d8" />
+			<stop offset="0.514" stop-color="#a1a1aa" />
+			<stop offset="0.6214" stop-color="#C7C7C7" />
+			<stop offset="0.7294" stop-color="#71717a" />
+			<stop offset="0.8378" stop-color="#52525b" />
+			<stop offset="0.9452" stop-color="#27272a" />
+			<stop offset="1" stop-color="#18181b" />		
+		  </linearGradient>
+		  <circle cx="0.1" cy="0" r="37" fill="url(#SVGID_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="0" y1="-34" x2="0" y2="34" >
+			<stop offset="0" stop-color="#52525b" />
+			<stop offset="1" stop-color="#3f3f46" />
+		  </linearGradient>
+		  <circle cx="0.1" cy="0" r="34" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="-42.6" cy="-42.7" r="3" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="42.9" cy="-42.7" r="3" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <g>
+			<circle cx="-42.6" cy="42.8" r="3" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="42.9" cy="42.8" r="3" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  </g>
+		  <line x1="-43.9" y1="-49.2" x2="44.1" y2="-49.2" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
+		  <path d="M-49.1,44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
+		  <path d="M-49.1-44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
+		</g>
+		<g id="Arm_x5F_01_1_No_Anim" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}} ) rotate( {{ LocalProps.SDeg }} )" >
+		  <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="5" y2="50">
+			<stop offset="0" stop-color="#d4d4d8" />
+			<stop offset="1" stop-color="#3f3f46" />
+		  </linearGradient>
+		  <path d="M0-15h190c8.3,0,15,6.8,15,15l0,0c0,8.3-6.8,15-15,15H0c-8.2,0-15-6.8-15-15l0,0C-15-8.3-8.2-15,0-15z" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <g>
+			<circle cx="190" cy="0" r="9" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="190" cy="0" r="3" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  </g>
+		  <path d="M190-14.3c7.9,0,14.3,6.4,14.3,14.3s-6.4,14.3-14.3,14.3H0" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <path d="M0,14.2c-7.9,0-14.3-6.4-14.3-14.3S-7.9-14.4,0-14.4h190" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <g>
+			<circle cx="0.1" cy="0" r="9" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="0.1" cy="0" r="3" fill="#18181b" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  </g>
+		</g>
+		<g id="Arm_x5F_03_1_No_Anim" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}}) rotate({{ LocalProps.SDeg }}) translate( {{LocalProps.L1}}, 0) rotate( {{ LocalProps.EDeg }})" >
+		  <g id="Greifer_1_">
+			<g>
+			  <linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="-34">
+				<stop offset="0" stop-color="#18181b" />
+				<stop offset="1.586480e-02" stop-color="#27272a" />
+				<stop offset="0.1171" stop-color="#52525b" />
+				<stop offset="0.2183" stop-color="#8D8D8C" />
+				<stop offset="0.3189" stop-color="#71717a" />
+				<stop offset="0.4178" stop-color="#71717a" />
+				<stop offset="0.5402" stop-color="#979696" />
+				<stop offset="0.7122" stop-color="#848484" />
+				<stop offset="0.9127" stop-color="#3f3f46" />
+				<stop offset="1" stop-color="#18181b" />
+			  </linearGradient>
+			  <path d="M169.5,34.6c-2.3,0-4.1-1.8-4.1-4.1v-61.1c0-2.3,1.8-4.1,4.1-4.1h1.1c2.3,0,4.1,1.8,4.1,4.1v61.1      c0,2.3-1.8,4.1-4.1,4.1H169.5z" fill="url(#SVGID_5_)" />
+			  <path d="M170.5-34.3c2.1,0,3.7,1.7,3.7,3.7v61.1c0,2.1-1.7,3.7-3.7,3.7h-1.1c-2.1,0-3.7-1.7-3.7-3.7v-61.1      c0-2.1,1.7-3.7,3.7-3.7H170.5 M170.5-35h-1.1c-2.5,0-4.5,2-4.5,4.5v61.1c0,2.5,2,4.5,4.5,4.5h1.1c2.5,0,4.5-2,4.5-4.5v-61.1      C175-33,173-35,170.5-35L170.5-35z" fill="#18181b" />
+			</g>
+			<g id="Kreise">
+			  <circle cx="170" cy="-29" r="2.5" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <circle cx="170" cy="29" r="2.5" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			</g>
+		  </g>
+		  <linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0" >
+			<stop offset="0" stop-color="#d4d4d8" />
+			<stop offset="1" stop-color="#3f3f46" />
+		  </linearGradient>
+		  <path d="M0-15h170c8.2,0,15,6.7,15,15l0,0c0,8.2-6.7,15-15,15H0c-8.2,0-15-6.7-15-15l0,0C-15-8.3-8.3-15,0-15z" fill="url(#SVGID_6_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <g display="none">
+			<circle cx="0" cy="0" r="9" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="0" cy="0" r="3" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  </g>
+		  <g display="none">
+			<circle cx="170" cy="0" r="9" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="170" cy="0" r="3" fill="#18181b" stroke="#e6e6e6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  </g>
+		  <path d="M170.1-14.3c7.9,0,14.3,6.4,14.3,14.3s-6.4,14.3-14.3,14.3H-0.1" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <path d="M-0.1,14.2c-7.9,0-14.3-6.4-14.3-14.3S-8-14.4-0.1-14.4h170.2" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <linearGradient id="SVGID_7_" gradientUnits="userSpaceOnUse" x1="185" y1="0" x2="149" y2="0" >
+			<stop offset="0" stop-color="#d4d4d8" />
+			<stop offset="1" stop-color="#3f3f46" />
+		  </linearGradient>
+		  <path d="M149.4,15H170c8.2,0,15-6.7,15-15l0,0c0-8.2-6.7-15-15-15h-20.6c-2.2,0-4,1.8-4,4v22    C145.4,13.2,147.2,15,149.4,15z" fill="url(#SVGID_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <linearGradient id="SVGID_8_" gradientUnits="userSpaceOnUse" x1="149" y1="0" x2="185" y2="0" >
+			<stop offset="0" stop-color="#d4d4d8" stop-opacity="0.7" />
+			<stop offset="1" stop-color="#a1a1aa" stop-opacity="0.4" />
+		  </linearGradient>
+		  <path d="M152.4-11H170c6.1,0,11,4.9,11,11s-4.9,11-11,11h-17.6l-3.9,3.9c0.3,0.1,0.6,0.1,0.9,0.1H170    c8.2,0,15-6.7,15-15l0,0c0-8.2-6.7-15-15-15h-20.6c-0.3,0-0.6,0-0.9,0.1L152.4-11z" fill="url(#SVGID_8_)" />
+		  <path d="M149.4,15H170c8.2,0,15-6.7,15-15l0,0c0-8.2-6.7-15-15-15h-20.6c-2.2,0-4,1.8-4,4v22    C145.4,13.2,147.2,15,149.4,15z" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		</g>
+	  </g>
+  </g>
+  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'inline' : 'none' }}">
+	<g id="circle" hmi-bind:display="{{ParamProps.ShowRange ? 'inline':'none'}}" fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+		<path id="line1" d="M378.1 288.1v180"/>
+		<circle cx="378.1" cy="378.1" r="378" id="circle1"/>
+		<path id="line2" d="M468.1 378.1h-180"/>
+	  </g>
+	  <g id="Roboter_x5F_Draufsicht" transform="translate(378, 378)">
+		<g id="Sockel">
+		  <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="-50" x2="0" y2="50">
+			<stop offset="0" stop-color="#52525b" id="stop2"/>
+			<stop offset="1" stop-color="#FFF" id="stop3"/>
+		  </linearGradient>
+		  <path d="M46.1 50h-92c-2.2 0-4-1.8-4-4v-92c0-2.2 1.8-4 4-4h92c2.2 0 4 1.8 4 4v92c0 2.2-1.7 4-4 4z" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path3"/>
+		  <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="-37" y1="0" x2="37" y2="0">
+			<stop offset="0" stop-color="#a1a1aa" id="stop4"/>
+			<stop offset="4.758149e-02" stop-color="#a1a1aa" id="stop5"/>
+			<stop offset="0.1509" stop-color="#a1a1aa" id="stop6"/>
+			<stop offset="0.2395" stop-color="#d4d4d8" id="stop7"/>
+			<stop offset="0.3025" stop-color="#d4d4d8" id="stop8"/>
+			<stop offset="0.4074" stop-color="#d4d4d8" id="stop9"/>
+			<stop offset="0.514" stop-color="#a1a1aa" id="stop10"/>
+			<stop offset="0.6214" stop-color="#C7C7C7" id="stop11"/>
+			<stop offset="0.7294" stop-color="#71717a" id="stop12"/>
+			<stop offset="0.8378" stop-color="#52525b" id="stop13"/>
+			<stop offset="0.9452" stop-color="#27272a" id="stop14"/>
+			<stop offset="1" stop-color="#18181b" id="stop15"/>
+		  </linearGradient>
+		  <circle cx="0.1" cy="0" r="37" fill="url(#SVGID_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle15"/>
+		  <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="0" y1="-34" x2="0" y2="34">
+			<stop offset="0" stop-color="#52525b" id="stop16"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop17"/>
+		  </linearGradient>
+		  <circle cx="0.1" cy="0" r="34" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle17"/>
+		  <circle cx="-42.599998" cy="-42.700001" r="3" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle18"/>
+		  <circle cx="42.900002" cy="-42.700001" r="3" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle19"/>
+		  <g id="g21" fill="#18181b" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+			<circle cx="-42.599998" cy="42.799999" r="3" id="circle20"/>
+			<circle cx="42.900002" cy="42.799999" r="3" id="circle21"/>
+		  </g>
+		  <path fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="line21" d="M-43.9-49.2h88"/>
+		  <path d="M-49.1 44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="path21"/>
+		  <path d="M-49.1-44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="path22"/>
+		</g>
+		<g id="Arm_x5F_01_1_">
+		  <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="5" y2="50">
+			<stop offset="0" stop-color="#d4d4d8" id="stop22"/>
+			<stop offset="1" stop-color="#3f3f46" id="stop23"/>
+		  </linearGradient>
+		  <path d="M0-15h190c8.3 0 15 6.8 15 15v0c0 8.3-6.8 15-15 15H0c-8.2 0-15-6.8-15-15v0c0-8.3 6.8-15 15-15z" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path23"/>
+		  <g id="g24" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+			<circle cx="190" cy="0" r="9" fill="none" id="circle23"/>
+			<circle cx="190" cy="0" r="3" fill="#4d4d4d" id="circle24"/>
+		  </g>
+		  <path d="M190-14.3c7.9 0 14.3 6.4 14.3 14.3s-6.4 14.3-14.3 14.3H0" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path24"/>
+		  <path d="M0 14.2c-7.9 0-14.3-6.4-14.3-14.3S-7.9-14.4 0-14.4h190" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path25"/>
+		  <g id="g26" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+			<circle cx="0.1" cy="0" r="9" fill="none" id="circle25"/>
+			<circle cx="0.1" cy="0" r="3" fill="#18181b" id="circle26"/>
+		  </g>
+		  <g id="Arm_x5F_03_1_" transform="translate(190)">
+			<g id="Greifer_1_">
+			  <g id="g36">
+				<linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="-34">
+				  <stop offset="0" stop-color="#18181b" id="stop26"/>
+				  <stop offset="1.586480e-02" stop-color="#27272a" id="stop27"/>
+				  <stop offset="0.1171" stop-color="#52525b" id="stop28"/>
+				  <stop offset="0.2183" stop-color="#8D8D8C" id="stop29"/>
+				  <stop offset="0.3189" stop-color="#71717a" id="stop30"/>
+				  <stop offset="0.4178" stop-color="#71717a" id="stop31"/>
+				  <stop offset="0.5402" stop-color="#979696" id="stop32"/>
+				  <stop offset="0.7122" stop-color="#848484" id="stop33"/>
+				  <stop offset="0.9127" stop-color="#3f3f46" id="stop34"/>
+				  <stop offset="1" stop-color="#18181b" id="stop35"/>
+				</linearGradient>
+				<path d="M169.5 34.6c-2.3 0-4.1-1.8-4.1-4.1v-61.1c0-2.3 1.8-4.1 4.1-4.1h1.1c2.3 0 4.1 1.8 4.1 4.1v61.1c0 2.3-1.8 4.1-4.1 4.1z" fill="url(#SVGID_5_)" id="path35"/>
+				<path d="M170.5-34.3c2.1 0 3.7 1.7 3.7 3.7v61.1c0 2.1-1.7 3.7-3.7 3.7h-1.1c-2.1 0-3.7-1.7-3.7-3.7v-61.1c0-2.1 1.7-3.7 3.7-3.7h1.1m0-.7h-1.1c-2.5 0-4.5 2-4.5 4.5v61.1c0 2.5 2 4.5 4.5 4.5h1.1c2.5 0 4.5-2 4.5-4.5v-61.1c0-2.5-2-4.5-4.5-4.5z" fill="#18181b" id="path36"/>
+			  </g>
+			  <g id="Kreise" fill="#4d4d4d" stroke="gray" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+				<circle cx="170" cy="-29" r="2.5" id="circle36"/>
+				<circle cx="170" cy="29" r="2.5" id="circle37"/>
+			  </g>
+			</g>
+			<linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
+			  <stop offset="0" stop-color="#d4d4d8" id="stop37"/>
+			  <stop offset="1" stop-color="#3f3f46" id="stop38"/>
+			</linearGradient>
+			<path d="M0-15h170c8.2 0 15 6.7 15 15v0c0 8.2-6.7 15-15 15H0c-8.2 0-15-6.7-15-15v0c0-8.3 6.7-15 15-15z" fill="url(#SVGID_6_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path38"/>
+			<g display="none" id="g39" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+			  <circle cx="0" cy="0" r="9" fill="none" id="circle38"/>
+			  <circle cx="0" cy="0" r="3" fill="#4d4d4d" id="circle39"/>
+			</g>
+			<g display="none" id="g41" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+			  <circle cx="170" cy="0" r="9" fill="none" stroke="#d8d8d8" id="circle40"/>
+			  <circle cx="170" cy="0" r="3" fill="#18181b" stroke="#e6e6e6" id="circle41"/>
+			</g>
+			<path d="M170.1-14.3c7.9 0 14.3 6.4 14.3 14.3s-6.4 14.3-14.3 14.3H-.1" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path41"/>
+			<path d="M-.1 14.2C-8 14.2-14.4 7.8-14.4-.1S-8-14.4-.1-14.4h170.2" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path42"/>
+			<linearGradient id="SVGID_7_" gradientUnits="userSpaceOnUse" x1="185" y1="0" x2="149" y2="0">
+			  <stop offset="0" stop-color="#d4d4d8" id="stop42"/>
+			  <stop offset="1" stop-color="#3f3f46" id="stop43"/>
+			</linearGradient>
+			<path d="M149.4 15H170c8.2 0 15-6.7 15-15v0c0-8.2-6.7-15-15-15h-20.6c-2.2 0-4 1.8-4 4v22c0 2.2 1.8 4 4 4z" fill="url(#SVGID_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path43"/>
+			<linearGradient id="SVGID_8_" gradientUnits="userSpaceOnUse" x1="149" y1="0" x2="185" y2="0">
+			  <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.7" id="stop44"/>
+			  <stop offset="1" stop-color="#a1a1aa" stop-opacity="0.4" id="stop45"/>
+			</linearGradient>
+			<path d="M152.4-11H170c6.1 0 11 4.9 11 11s-4.9 11-11 11h-17.6l-3.9 3.9c.3.1.6.1.9.1H170c8.2 0 15-6.7 15-15 0-8.2-6.7-15-15-15h-20.6c-.3 0-.6 0-.9.1z" fill="url(#SVGID_8_)" id="path45"/>
+			<path d="M149.4 15H170c8.2 0 15-6.7 15-15v0c0-8.2-6.7-15-15-15h-20.6c-2.2 0-4 1.8-4 4v22c0 2.2 1.8 4 4 4z" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path46"/>
+		  </g>
+		</g>
+	  </g>
+  </g>
+	</hmi-animations:animations>
+  </g>
+</svg>

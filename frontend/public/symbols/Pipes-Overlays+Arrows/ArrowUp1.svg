@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.819672, 0.333333)">
+    <defs>
+     </defs>
+  <g id="Arrow2" >
+  <polygon id="Arrow_Bottom_1_" fill="#e4e4e7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="10" stroke-miterlimit="10" points="80.6,292.6   80.6,223.9 108.7,223.9 61,172.4 13.3,223.9 41.4,223.9 41.4,292.6" />
+  <polygon id="Arrow_Top_1_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="10" stroke-miterlimit="10" points="80.6,129 80.6,60.3   108.7,60.3 61,8.8 13.3,60.3 41.4,60.3 41.4,129" />
+  </g>
+  <g id="Arrow1" hmi-bind:display="{{ ParamProps.HighlightToggle ? 'inline' : 'none' }}">
+  <polygon id="Arrow_Bottom_2_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="10" stroke-miterlimit="10" points="80.6,292.6   80.6,223.9 108.7,223.9 61,172.4 13.3,223.9 41.4,223.9 41.4,292.6" />
+  <polygon id="Arrow_Top_2_" fill="#e4e4e7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="10" stroke-miterlimit="10" points="80.6,129 80.6,60.3   108.7,60.3 61,8.8 13.3,60.3 41.4,60.3 41.4,129" />
+  </g>
+  </g>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.25, 0.25)">
+    <defs>
+	 </defs>
+	<g>
+      <path fill="none" stroke="#BBBBBB" stroke-width="6" d="M316.6,358.1c48.5-35.8,79.9-93.4,79.9-158.3C396.5,91.1,308.4,3,199.8,3    C91.1,3,3,91.1,3,199.8c0,65,31.5,122.6,80,158.4" />
+    </g>
+    <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="20.0938" y1="182.2539" x2="379.4424" y2="182.2539">
+      <stop offset="0" stop-color="#71717a" />
+      <stop offset="1" stop-color="#71717a" />
+    </linearGradient>
+    <path fill="url(#SVGID_1_)" d="M199.8,20.1c-99.2,0-179.7,80.4-179.7,179.7c0,59.2,28.7,111.7,72.8,144.5l26.2-36.9   c-32.7-24.5-53.8-63.6-53.8-107.6c0-74.3,60.2-134.4,134.4-134.4s134.4,60.2,134.4,134.4c0,44.5-21.6,84-55,108.4l27.1,36.2   c44.3-32.7,73.1-85.3,73.1-144.6C379.4,100.5,299,20.1,199.8,20.1z" />
+    <path id="gruener_Bereich" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorWarning)}}" d="M286.6,81.2l-7.3,10.2c33.3,24.5,54.9,63.9,54.9,108.4c0,44.4-21.5,83.8-54.7,108.2   l7.1,10.3c36.5-26.7,60.2-69.9,60.2-118.6C346.7,151.1,323.1,107.9,286.6,81.2z" />
+    <g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}" hmi-bind:transform="rotate({{-143+LocalProps.NormalizedValue*286.5}},200,200)">
+		<polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorIndicator)}}" points="184.3,178.9 199.8,199.8 215.2,178.9 199.8,46.4" />
+	</g>
+	<g id="ZeigerGruppe">
+		<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+			<polygon id="Zeiger" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorIndicator)}}" points="184.3,178.9 199.8,199.8 215.2,178.9 199.8,46.4" />
+		</g>
+    </g>
+    <path id="Abdeckung_Zeiger" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" d="M199.8,297.8c54.1,0,98-43.9,98-98c0-54.1-43.9-98-98-98s-98,43.9-98,98   C101.8,253.9,145.6,297.8,199.8,297.8" />
+    <g id="Skala_3_">
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="199.8" y1="20.9"  x2="199.8" y2="37.6" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="94.6" 	y1="55"    x2="104.4" y2="68.6" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="29.6" 	y1="144.5" x2="45.5"  y2="149.7" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="354" 	y1="249.9" x2="369.9" y2="255.1" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="29.6" 	y1="255.1" x2="45.5"  y2="249.9" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="354" 	y1="149.7" x2="369.9" y2="144.5" />
+      <line fill="none" stroke="#e4e4e7" stroke-width="6" stroke-linecap="round" x1="295.1" y1="68.6"  x2="304.9" y2="55" />
+    </g>
+    <text x="200" y="225" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="95" letter-spacing="-3" text-anchor="middle"></text>
+    <text x="200" y="280" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="45" text-anchor="middle">  </text>
+    <text x="200" y="375" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="40" letter-spacing="3" text-anchor="middle"></text>
+	</hmi-animations:animations>
+  </g>
+</svg>

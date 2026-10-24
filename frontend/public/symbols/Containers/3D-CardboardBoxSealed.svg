@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.359066, 0.333333)">
+    <defs>
+     </defs>
+  <g id="Box">
+    <linearGradient id="Small_Side_1_" gradientUnits="userSpaceOnUse" x1="-45.5205" y1="-164.3877" x2="245.465" y2="761.0659">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Small_Side" fill="url(#Small_Side_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="2.4,58.1 2.4,246.6 116.7,297.9 116.7,92.9" />
+    <linearGradient id="Front_Side_1_" gradientUnits="userSpaceOnUse" x1="289.4922" y1="837.3848" x2="137.5991" y2="-264.9924">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Front_Side" fill="url(#Front_Side_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="116.7,297.9 276.1,199.7 276.1,25.7 116.7,92.9" />
+    <linearGradient id="Top_2_" gradientUnits="userSpaceOnUse" x1="476.7461" y1="52.4453" x2="-616.0973" y2="36.6876">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Top_1_" fill="url(#Top_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="2.4,58.1 116.7,92.9 276.1,25.7 169.1,2.4" />
+  </g>
+  <g id="Tape">
+    <linearGradient id="Top_3_" gradientUnits="userSpaceOnUse" x1="419.0449" y1="44.6226" x2="134.8216" y2="44.6225">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Top" fill="url(#Top_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="41.7,69.9 71.6,79 234.6,16.4 206.6,10.2" />
+    <linearGradient id="Side_1_" gradientUnits="userSpaceOnUse" x1="-36.0059" y1="-21.3154" x2="81.7907" y2="144.7704">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Side" fill="url(#Side_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="71.6,79 71.6,150.6 41.7,139.6 41.7,69.9" />
+  </g>
+  </g>
+</svg>

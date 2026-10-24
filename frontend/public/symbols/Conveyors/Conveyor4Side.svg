@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.015228, 3.717472)">
+    <g>
+	<g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+		<g id="LL_No_Anim">
+		  <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="3.7" y1="14.7963" x2="20.9" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="12.3" cy="14.8" r="8.6" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="12.3" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="12.3" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+		<g id="LM_No_Anim">
+		  <linearGradient id="SVGID_00000145040157530060499740000014726272956334595236_" gradientUnits="userSpaceOnUse" x1="28.4" y1="14.7963" x2="45.6" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="37" cy="14.8" r="8.6" fill="url(#SVGID_00000145040157530060499740000014726272956334595236_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="37" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="37" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+	</g>
+	<g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+		<g id="LL">
+		  <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="3.7" y1="14.7963" x2="20.9" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="12.3" cy="14.8" r="8.6" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="12.3" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="12.3" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+		<g id="LM">
+		  <linearGradient id="SVGID_00000145040157530060499740000014726272956334595236_" gradientUnits="userSpaceOnUse" x1="28.4" y1="14.7963" x2="45.6" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="37" cy="14.8" r="8.6" fill="url(#SVGID_00000145040157530060499740000014726272956334595236_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="37" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="37" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+	</g>
+    <rect y="2" width="2" height="22" fill="#18181b" />
+    <rect x="23.6" y="-23.6" transform="matrix(6.123234e-17,-1,1,6.123234e-17,23.625,27.625)" width="4" height="51.2" fill="#18181b" />
+    <g>
+      <g>
+        <rect id="Frame_Top_00000086662742247744057180000014349922905234178434_" y="14.5" width="51.2" height="12" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+      </g>
+      <line x1="51.2" y1="14.5" x2="0" y2="14.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="51.2" y1="26.5" x2="0" y2="26.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="51.2" y1="23.5" x2="0" y2="23.5" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Darker(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0.1" y1="15.3" x2="51.2" y2="15.3" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0.1" y1="24.2" x2="51.2" y2="24.2" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+    <line x1="2" y1="4" x2="49.2" y2="4" fill="none" stroke="#18181b" stroke-miterlimit="10" />
+  </g>
+  <g>
+	<g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+		<g id="RM_No_Anim">
+		  <linearGradient id="SVGID_00000134251187100242507390000016890153654259313041_" gradientUnits="userSpaceOnUse" x1="50.95" y1="14.7963" x2="68.15" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="59.5" cy="14.8" r="8.6" fill="url(#SVGID_00000134251187100242507390000016890153654259313041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="59.5" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="59.5" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+		<g id="RR_No_Anim">
+		  <linearGradient id="SVGID_00000000216671359276735950000001973553647284716206_" gradientUnits="userSpaceOnUse" x1="75.65" y1="14.7963" x2="92.85" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="84.2" cy="14.8" r="8.6" fill="url(#SVGID_00000000216671359276735950000001973553647284716206_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="84.2" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="84.2" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+	</g>
+	<g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+		<g id="RM">
+		  <linearGradient id="SVGID_00000134251187100242507390000016890153654259313041_" gradientUnits="userSpaceOnUse" x1="50.95" y1="14.7963" x2="68.15" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="59.5" cy="14.8" r="8.6" fill="url(#SVGID_00000134251187100242507390000016890153654259313041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="59.5" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="59.5" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+		<g id="RR">
+		  <linearGradient id="SVGID_00000000216671359276735950000001973553647284716206_" gradientUnits="userSpaceOnUse" x1="75.65" y1="14.7963" x2="92.85" y2="14.7963">
+			<stop offset="0" stop-color="#B3B3B3" />
+			<stop offset="0.2564" stop-color="#E6E6E6" />
+			<stop offset="0.4197" stop-color="#E4E4E4" />
+			<stop offset="0.4784" stop-color="#DDDDDD" />
+			<stop offset="0.5202" stop-color="#D2D2D2" />
+			<stop offset="0.5334" stop-color="#CCCCCC" />
+			<stop offset="1" stop-color="#18181b" />
+		  </linearGradient>
+		  <circle cx="84.2" cy="14.8" r="8.6" fill="url(#SVGID_00000000216671359276735950000001973553647284716206_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="84.2" cy="14.8" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+		  <circle cx="84.2" cy="14.8" r="1.5" fill="#18181b" />
+		</g>
+	</g>
+    <rect x="96.5" y="2" width="2" height="22" fill="#18181b" />
+    <rect x="47.2" y="2" width="2" height="22" fill="#18181b" />
+    <rect x="70.9" y="-23.6" transform="matrix(6.123234e-17,-1,1,6.123234e-17,70.875,74.875)" width="4" height="51.2" fill="#18181b" />
+    <g>
+      <g>
+        <rect id="Frame_Top_00000102527700284889826190000011455523456623195047_" x="47.2" y="14.5" width="51.2" height="12" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+      </g>
+      <line x1="98.4" y1="14.5" x2="47.2" y2="14.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="98.4" y1="26.5" x2="47.2" y2="26.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="98.4" y1="23.5" x2="47.2" y2="23.5" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Darker(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="47.3" y1="15.3" x2="98.5" y2="15.3" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="47.3" y1="24.2" x2="98.5" y2="24.2" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+    </g>
+    <line x1="49.2" y1="4" x2="96.5" y2="4" fill="none" stroke="#18181b" stroke-miterlimit="10" />
+  </g>
+        </hmi-animations:storyboard>
+    </hmi-animations:animations>
+  </g>
+</svg>

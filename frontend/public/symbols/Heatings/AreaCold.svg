@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.333333)">
+    <defs>
+     </defs>   
+  <linearGradient id="Gradation_1_" gradientUnits="userSpaceOnUse" x1="150.0005" y1="298" x2="150.0005" y2="1.6358">
+    <stop offset="0" stop-color="#71717a" />
+    <stop offset="1" stop-color="#71717a" />
+  </linearGradient>
+  <rect id="Gradation" x="2" y="2" fill="url(#Gradation_1_)" width="296" height="296" />
+  </g>
+</svg>

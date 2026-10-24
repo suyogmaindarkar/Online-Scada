@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 1.315789)">
+    </hmi:self>
+    <defs>
+    </defs>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+		<rect id="LL" x="18.914" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="ML" x="93.6138" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="MR" x="168.3" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="RR" x="243.0276" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 1) ? 'inline' : 'none' }}">
+			<rect id="LLB" x="2.4" y="2.4" width="71.199997" height="71.199997" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 2) ? 'inline' : 'none' }}">
+			<rect id="MLB" x="76.953796" y="2.4" width="71.199997" height="71.199997" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 3) ? 'inline' : 'none' }}">
+			<rect id="MRB" x="151.78619" y="2.4" width="71.199997" height="71.199997" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+		<g hmi-bind:display="{{ eq(ParamProps.ImpulsePosition, 4) ? 'inline' : 'none' }}">
+			<rect id="RRB" x="226.61859" y="2.4" width="71.199997" height="71.199997" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		</g>
+	</g>
+	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+		<rect id="LLAnim" x="18.914" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="MLAnim" x="93.6138" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="MRAnim" x="168.3" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+		<rect id="RRAnim" x="243.0276" y="18.914" width="38.172398" height="38.172398" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+	</g>
+        </hmi-animations:storyboard>
+    </hmi-animations:animations>
+  </g>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.490196, 0.333333)">
+    <defs>
+     </defs>
+  <linearGradient id="Shape_Door_1_" gradientUnits="userSpaceOnUse" x1="102.0151" y1="3.3354" x2="102.0151" y2="297.2263">
+    <stop offset="0" stop-color="#a1a1aa" />
+    <stop offset="1.877390e-02" stop-color="#d4d4d8" />
+    <stop offset="3.010660e-02" stop-color="#a1a1aa" />
+    <stop offset="0.4905" stop-color="#a1a1aa" />
+    <stop offset="0.9509" stop-color="#71717a" />
+    <stop offset="0.9628" stop-color="#71717a" />
+    <stop offset="0.9749" stop-color="#71717a" />
+    <stop offset="0.9871" stop-color="#52525b" />
+    <stop offset="0.9992" stop-color="#52525b" />
+    <stop offset="1" stop-color="#52525b" />
+  </linearGradient>
+  <rect id="Shape_Door" x="2.4" y="2.4" fill="url(#Shape_Door_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="199.2" height="295.3" />
+  <g id="Handle">
+    <linearGradient id="Shape_Handle_1_" gradientUnits="userSpaceOnUse" x1="202.0215" y1="187.7188" x2="156.5204" y2="-68.7876">
+      <stop offset="0" stop-color="#d4d4d8" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <rect id="Shape_Handle" x="176.3" y="46.5" fill="url(#Shape_Handle_1_)" width="8.3" height="38.6" />
+    <polygon id="Shadow" fill="#18181b" points="173.5,43.8 173.5,85.2 176.3,85.2 176.3,46.5 184.5,46.5 184.5,43.8" />
+    <polyline id="Reflection_Line" fill="none" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" points="184.5,43.8 184.5,85.2 173.5,85.2" />
+  </g>
+  </g>
+</svg>

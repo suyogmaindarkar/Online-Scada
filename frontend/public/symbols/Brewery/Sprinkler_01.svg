@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(1.724138, 1.724138)">
+    <defs />
+  <g id="Sprinkler_x5F_01_1_">
+    <radialGradient id="SVGID_1_" cx="27.4644" cy="27.6063" r="7.9333" fx="27.2879" fy="28.598" gradientUnits="userSpaceOnUse">
+      <stop offset="7.065785e-02" stop-color="#e4e4e7" />
+      <stop offset="0.1769" stop-color="#F8F8F8" />
+      <stop offset="0.3299" stop-color="#d4d4d8" />
+      <stop offset="0.5113" stop-color="#C6C6C6" />
+      <stop offset="0.7126" stop-color="#9B9B9B" />
+      <stop offset="0.8742" stop-color="#737373" />
+    </radialGradient>
+    <circle cx="29" cy="29" r="6.5" fill="url(#SVGID_1_)" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+    <g id="Sprinkler_x5F_Active_3_" hmi-bind:display="{{ ParamProps.Active ? 'inline' : 'none' }}">
+      <g>
+        <line x1="29" y1="57.3" x2="29" y2="40.3" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+        <line x1="29" y1="17.7" x2="29" y2="0.7" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+      </g>
+      <g>
+        <line x1="57.3" y1="29" x2="40.3" y2="29" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+        <line x1="17.7" y1="29" x2="0.7" y2="29" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+      </g>
+      <g>
+        <line x1="49" y1="49" x2="37" y2="37" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+        <line x1="21" y1="21" x2="9" y2="9" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+      </g>
+      <g>
+        <line x1="49" y1="9" x2="37" y2="21" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+        <line x1="21" y1="37" x2="9" y2="49" fill="#000000" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="5,6" />
+      </g>
+    </g>
+  </g>
+  </g>
+</svg>

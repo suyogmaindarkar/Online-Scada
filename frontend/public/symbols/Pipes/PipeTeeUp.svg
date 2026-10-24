@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g transform="scale(0.333333, 0.440529)">
+    <defs>
+     </defs>
+  <g id="Pipe_Horizontal">
+    <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="149.8853" y1="75.5254" x2="149.8853" y2="223.823">
+      <stop offset="0" stop-color="#52525b" />
+      <stop offset="4.758149e-02" stop-color="#71717a" />
+      <stop offset="0.1509" stop-color="#71717a" />
+      <stop offset="0.2395" stop-color="#a1a1aa" />
+      <stop offset="0.3025" stop-color="#a1a1aa" />
+      <stop offset="0.4074" stop-color="#a1a1aa" />
+      <stop offset="0.514" stop-color="#a1a1aa" />
+      <stop offset="0.6214" stop-color="#71717a" />
+      <stop offset="0.7294" stop-color="#52525b" />
+      <stop offset="0.8378" stop-color="#52525b" />
+      <stop offset="0.9452" stop-color="#3f3f46" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <rect id="Shape_2_" x="2.2" y="75.3" fill="url(#Shape_1_)" width="295.3" height="149.4" />
+    <linearGradient id="Reflection_1_" gradientUnits="userSpaceOnUse" x1="149.8853" y1="85.6108" x2="149.8853" y2="106.6867">
+      <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
+      <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
+    </linearGradient>
+    <rect id="Reflection_2_" x="2.2" y="90.6" fill="url(#Reflection_1_)" width="295.3" height="25.5" />
+  </g>
+  <g id="Pipe_Up">
+    <linearGradient id="Shape_3_" gradientUnits="userSpaceOnUse" x1="75.1758" y1="76.145" x2="224.0059" y2="76.145">
+      <stop offset="0" stop-color="#52525b" />
+      <stop offset="4.758149e-02" stop-color="#71717a" />
+      <stop offset="0.1509" stop-color="#71717a" />
+      <stop offset="0.2395" stop-color="#a1a1aa" />
+      <stop offset="0.3025" stop-color="#a1a1aa" />
+      <stop offset="0.4074" stop-color="#a1a1aa" />
+      <stop offset="0.514" stop-color="#a1a1aa" />
+      <stop offset="0.6214" stop-color="#71717a" />
+      <stop offset="0.7294" stop-color="#52525b" />
+      <stop offset="0.8378" stop-color="#52525b" />
+      <stop offset="0.9452" stop-color="#3f3f46" />
+      <stop offset="1" stop-color="#3f3f46" />
+    </linearGradient>
+    <polygon id="Shape" fill="url(#Shape_3_)" points="224.6,75.3 149.9,150 75.2,75.3 75.2,2.3 224.6,2.3" />
+    <linearGradient id="Reflection_3_" gradientUnits="userSpaceOnUse" x1="90.8438" y1="59.1807" x2="103.7264" y2="59.1807">
+      <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
+      <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
+    </linearGradient>
+    <path id="Reflection" fill="url(#Reflection_3_)" d="M116,116c-12.7-12.7-25.5-25.5-25.5-25.5V2.3H116C116,2.3,116,112.7,116,116z" />
+  </g>
+  <path id="Outline" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M297.5,75.3h-72.9V2.3 M2.2,75.3  h72.9V2.3 M297.5,224.7H2.2" />
+  </g>
+</svg>
