@@ -48,6 +48,18 @@ test('original industrial library has screenshot-inspired categories and valid a
   }
 });
 
+test('pump collection contains five original adaptable symbols', () => {
+  const pumps = LIBRARY_COMPONENTS.filter((component) => component.category === 'pumps');
+  assert.ok(pumps.length >= 6);
+  for (const pump of pumps) {
+    assert.equal(pump.template.type, 'svgSymbol');
+    assert.equal(pump.template.libraryVersion, LIBRARY_VERSION);
+    assert.equal(pump.template.symbolId, pump.id);
+    assert.match(pump.template.svgPath, /^\/symbols\//);
+    assert.equal(pump.template.preserveAspect, true);
+  }
+});
+
 test('SVG object properties expose the persisted binding and presentation controls', () => {
   const keys = getElementSpecificProperties('svgSymbol', {}).map((property) => property.key);
   for (const key of ['symbolId', 'libraryVersion', 'svgPath', 'symbolTint', 'symbolTintStrength', 'symbolBrightness', 'preserveAspect', 'boundTag', 'tooltip', 'isVisible']) {

@@ -84,6 +84,11 @@ export const LIBRARY_COMPONENTS = [
 
   // Rotating equipment.
   symbol('pump_inline_original', 'pumps', 'Pumps', 'Inline Pump', 'Inline centrifugal pump with motor', ['pump', 'centrifugal', 'inline', 'motor'], 'Droplets', '/symbols/industrial/inline-pump.svg', 130, 90),
+  symbol('pump_end_suction_original', 'pumps', 'Centrifugal Pumps', 'End-Suction Pump', 'Original end-suction centrifugal pump with motor and base', ['pump', 'centrifugal', 'end suction', 'motor'], 'Droplets', '/symbols/pumps/pump-end-suction-original.svg', 160, 110),
+  symbol('pump_vertical_inline_original', 'pumps', 'Vertical Pumps', 'Vertical Inline Pump', 'Original vertical inline process pump', ['pump', 'vertical', 'inline', 'process'], 'Droplets', '/symbols/pumps/pump-vertical-inline-original.svg', 110, 160),
+  symbol('pump_split_case_original', 'pumps', 'Centrifugal Pumps', 'Split-Case Pump', 'Original horizontal split-case centrifugal pump', ['pump', 'split case', 'centrifugal', 'horizontal'], 'Droplets', '/symbols/pumps/pump-split-case-original.svg', 180, 105),
+  symbol('pump_dosing_original', 'pumps', 'Metering Pumps', 'Dosing Pump', 'Original compact chemical dosing pump', ['pump', 'dosing', 'metering', 'chemical'], 'Droplets', '/symbols/pumps/pump-dosing-original.svg', 120, 150),
+  symbol('pump_magnetic_original', 'pumps', 'Specialty Pumps', 'Magnetic-Drive Pump', 'Original sealless magnetic-drive process pump', ['pump', 'magnetic', 'sealless', 'chemical'], 'Droplets', '/symbols/pumps/pump-magnetic-original.svg', 155, 105),
   symbol('motor_horizontal_original', 'motors', 'Motors', 'Horizontal Motor', 'Horizontal motor with terminal box', ['motor', 'drive', 'horizontal', 'electric'], 'Cog', '/symbols/industrial/horizontal-motor.svg', 120, 80),
   symbol('tank_conical_original', 'tanks', 'Tanks', 'Conical Tank', 'Vertical conical-bottom process tank', ['tank', 'conical', 'vessel', 'storage'], 'Cylinder', '/symbols/industrial/conical-tank.svg', 100, 140),
 
