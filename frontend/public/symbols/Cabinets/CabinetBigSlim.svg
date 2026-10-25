@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(2.325581, 0.333333)">
     <defs>
      </defs>
@@ -14,6 +18,6 @@
     <stop offset="0.9992" stop-color="#52525b" />
     <stop offset="1" stop-color="#52525b" />
   </linearGradient>
-  <rect id="Shape" x="2.4" y="2.3" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="38.2" height="295.3" />
+  <rect rx="3" ry="3" id="Shape" x="2.4" y="2.3" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="38.2" height="295.3" />
   </g>
 </svg>

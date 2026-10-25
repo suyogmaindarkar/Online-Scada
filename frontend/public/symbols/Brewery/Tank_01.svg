@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.699301, 0.403226)">
     <defs />
   <g id="Tank_x5F_01_2_">
@@ -7,13 +11,13 @@
         <g id="Bottom_18_">
           <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="0.5002" y1="218.098" x2="142.5002" y2="218.098">
             <stop offset="0" stop-color="#71717a"  />
-            <stop offset="0.24" stop-color="#71717a"  />
-            <stop offset="0.42" stop-color="#71717a"  />
-            <stop offset="0.4904" stop-color="#71717a"  />
+            <stop offset="0.24" stop-color="#a1a1aa"  />
+            <stop offset="0.42" stop-color="#a1a1aa"  />
+            <stop offset="0.4904" stop-color="#a1a1aa"  />
             <stop offset="0.6155" stop-color="#71717a"  />
-            <stop offset="0.7808" stop-color="#71717a"  />
-            <stop offset="0.978" stop-color="#71717a"  />
-            <stop offset="1" stop-color="#71717a"  />
+            <stop offset="0.7808" stop-color="#52525b"  />
+            <stop offset="0.978" stop-color="#3f3f46"  />
+            <stop offset="1" stop-color="#3f3f46"  />
           </linearGradient>
           <path id="Shape_199_" d="M0.5,206.8c0,14.1,31.8,22.5,71,22.5c39.2,0,71-8.4,71-22.5H0.5z" fill="url(#Shape_1_)" />
           <linearGradient id="Reflection_1_" gradientUnits="userSpaceOnUse" x1="15.4172" y1="218.0069" x2="73.4699" y2="218.0069">
@@ -27,20 +31,20 @@
         <g id="Middle_10_">
           <linearGradient id="Shape_2_" gradientUnits="userSpaceOnUse" x1="0.5" y1="115.098" x2="142.5" y2="115.098">
             <stop offset="0" stop-color="#71717a"  />
-            <stop offset="0.24" stop-color="#71717a"  />
-            <stop offset="0.42" stop-color="#71717a"  />
-            <stop offset="0.4904" stop-color="#71717a"  />
+            <stop offset="0.24" stop-color="#a1a1aa"  />
+            <stop offset="0.42" stop-color="#a1a1aa"  />
+            <stop offset="0.4904" stop-color="#a1a1aa"  />
             <stop offset="0.6155" stop-color="#71717a"  />
-            <stop offset="0.7808" stop-color="#71717a"  />
-            <stop offset="0.978" stop-color="#71717a"  />
-            <stop offset="1" stop-color="#71717a"  />
+            <stop offset="0.7808" stop-color="#52525b"  />
+            <stop offset="0.978" stop-color="#3f3f46"  />
+            <stop offset="1" stop-color="#3f3f46"  />
           </linearGradient>
           <polyline id="Shape_198_" points="0.5,23.3 0.5,206.8 142.5,206.8 142.5,23.3" fill="url(#Shape_2_)" />
           <linearGradient id="Reflection_2_" gradientUnits="userSpaceOnUse" x1="15.4171" y1="115.098" x2="49.4171" y2="115.098">
             <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
             <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
           </linearGradient>
-          <rect id="Reflection_269_" x="15.4" y="23.3" width="34" height="183.5" fill="url(#Reflection_2_)" />
+          <rect rx="3" ry="3" id="Reflection_269_" x="15.4" y="23.3" width="34" height="183.5" fill="url(#Reflection_2_)" />
           <line id="Separation_Line_19_" x1="0.5" y1="206.4" x2="142.5" y2="206.4" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <line id="Separation_Line_18_" x1="0.5" y1="23.9" x2="142.5" y2="23.9" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <line id="Outline_217_" x1="142.5" y1="206.8" x2="142.5" y2="23.3" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -49,13 +53,13 @@
         <g id="Top_14_">
           <linearGradient id="Shape_3_" gradientUnits="userSpaceOnUse" x1="0.5" y1="12.098" x2="142.5" y2="12.098">
             <stop offset="0" stop-color="#71717a"  />
-            <stop offset="0.24" stop-color="#71717a"  />
-            <stop offset="0.42" stop-color="#71717a"  />
-            <stop offset="0.4904" stop-color="#71717a"  />
+            <stop offset="0.24" stop-color="#a1a1aa"  />
+            <stop offset="0.42" stop-color="#a1a1aa"  />
+            <stop offset="0.4904" stop-color="#a1a1aa"  />
             <stop offset="0.6155" stop-color="#71717a"  />
-            <stop offset="0.7808" stop-color="#71717a"  />
-            <stop offset="0.978" stop-color="#71717a"  />
-            <stop offset="1" stop-color="#71717a"  />
+            <stop offset="0.7808" stop-color="#52525b"  />
+            <stop offset="0.978" stop-color="#3f3f46"  />
+            <stop offset="1" stop-color="#3f3f46"  />
           </linearGradient>
           <path id="Shape_197_" d="M142.5,23.3c0-14.1-31.8-22.5-71-22.5s-71,8.4-71,22.5H142.5z" fill="url(#Shape_3_)" />
           <linearGradient id="Reflection_3_" gradientUnits="userSpaceOnUse" x1="15.4171" y1="12.1891" x2="73.4701" y2="12.1891">
@@ -68,54 +72,54 @@
         </g>
       </g>
     </g>
-    <g id="Uprights_39_" hmi-bind:display="{{ ParamProps.Uprights ? 'inline' : 'none' }}">
+    <g id="Uprights_39_">
       <g id="Upright_Right_39_">
         <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="111.4615" y1="245.752" x2="136.1891" y2="245.752">
-          <stop offset="0" stop-color="#71717a"  />
+          <stop offset="0" stop-color="#52525b"  />
           <stop offset="2.959107e-02" stop-color="#71717a"  />
           <stop offset="9.382090e-02" stop-color="#71717a"  />
-          <stop offset="0.1489" stop-color="#71717a"  />
-          <stop offset="0.1881" stop-color="#71717a"  />
+          <stop offset="0.1489" stop-color="#a1a1aa"  />
+          <stop offset="0.1881" stop-color="#a1a1aa"  />
           <stop offset="0.355" stop-color="#71717a"  />
-          <stop offset="0.7166" stop-color="#71717a"  />
-          <stop offset="1" stop-color="#71717a"  />
+          <stop offset="0.7166" stop-color="#52525b"  />
+          <stop offset="1" stop-color="#3f3f46"  />
         </linearGradient>
-        <rect x="111.5" y="244.4" width="24.7" height="2.8" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-        <rect id="Floor_Plate_Base_79_" x="111.5" y="246.3" width="24.7" height="0.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" x="111.5" y="244.4" width="24.7" height="2.8" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" id="Floor_Plate_Base_79_" x="111.5" y="246.3" width="24.7" height="0.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
         <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="115.9268" y1="230.5213" x2="131.5471" y2="230.5213">
           <stop offset="0" stop-color="#71717a"  />
-          <stop offset="0.24" stop-color="#71717a"  />
-          <stop offset="0.42" stop-color="#71717a"  />
-          <stop offset="0.4904" stop-color="#71717a"  />
+          <stop offset="0.24" stop-color="#a1a1aa"  />
+          <stop offset="0.42" stop-color="#a1a1aa"  />
+          <stop offset="0.4904" stop-color="#a1a1aa"  />
           <stop offset="0.6155" stop-color="#71717a"  />
-          <stop offset="0.7808" stop-color="#71717a"  />
-          <stop offset="0.978" stop-color="#71717a"  />
-          <stop offset="1" stop-color="#71717a"  />
+          <stop offset="0.7808" stop-color="#52525b"  />
+          <stop offset="0.978" stop-color="#3f3f46"  />
+          <stop offset="1" stop-color="#3f3f46"  />
         </linearGradient>
         <polygon points="115.5,221.7 115.5,244.4      132.2,244.4 132.2,216.7" fill="url(#SVGID_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       </g>
       <g id="Upright_Left_39_">
         <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="6.8647" y1="245.752" x2="31.4703" y2="245.752">
           <stop offset="0" stop-color="#71717a"  />
-          <stop offset="0.24" stop-color="#71717a"  />
-          <stop offset="0.42" stop-color="#71717a"  />
-          <stop offset="0.4904" stop-color="#71717a"  />
+          <stop offset="0.24" stop-color="#a1a1aa"  />
+          <stop offset="0.42" stop-color="#a1a1aa"  />
+          <stop offset="0.4904" stop-color="#a1a1aa"  />
           <stop offset="0.6155" stop-color="#71717a"  />
-          <stop offset="0.7808" stop-color="#71717a"  />
-          <stop offset="0.978" stop-color="#71717a"  />
-          <stop offset="1" stop-color="#71717a"  />
+          <stop offset="0.7808" stop-color="#52525b"  />
+          <stop offset="0.978" stop-color="#3f3f46"  />
+          <stop offset="1" stop-color="#3f3f46"  />
         </linearGradient>
-        <rect x="6.8" y="244.4" width="24.7" height="2.8" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-        <rect id="Floor_Plate_Base_78_" x="6.8" y="246.3" width="24.7" height="0.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" x="6.8" y="244.4" width="24.7" height="2.8" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" id="Floor_Plate_Base_78_" x="6.8" y="246.3" width="24.7" height="0.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
         <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="10.8564" y1="230.5213" x2="27.5922" y2="230.5213">
           <stop offset="0" stop-color="#71717a"  />
-          <stop offset="0.24" stop-color="#71717a"  />
-          <stop offset="0.42" stop-color="#71717a"  />
-          <stop offset="0.4904" stop-color="#71717a"  />
+          <stop offset="0.24" stop-color="#a1a1aa"  />
+          <stop offset="0.42" stop-color="#a1a1aa"  />
+          <stop offset="0.4904" stop-color="#a1a1aa"  />
           <stop offset="0.6155" stop-color="#71717a"  />
-          <stop offset="0.7808" stop-color="#71717a"  />
-          <stop offset="0.978" stop-color="#71717a"  />
-          <stop offset="1" stop-color="#71717a"  />
+          <stop offset="0.7808" stop-color="#52525b"  />
+          <stop offset="0.978" stop-color="#3f3f46"  />
+          <stop offset="1" stop-color="#3f3f46"  />
         </linearGradient>
         <polygon points="10.8,216.7 10.8,244.4      27.6,244.4 27.6,221.7" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       </g>

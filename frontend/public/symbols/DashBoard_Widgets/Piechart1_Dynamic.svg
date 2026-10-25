@@ -1,76 +1,78 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
-    </hmi:self>
-	<defs>
+    <defs>
 	</defs>
-  <g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+  <g>
 	<g id="Indicators">
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value1Swap}},1,{{LocalProps.Value1CircleX}},{{LocalProps.Value1CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value2Swap}},1,{{LocalProps.Value2CircleX}},{{LocalProps.Value2CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" hmi-bind:transform="rotate({{LocalProps.rotation2}},150,150)" />
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value3Swap}},1,{{LocalProps.Value3CircleX}},{{LocalProps.Value3CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" hmi-bind:transform="rotate({{LocalProps.rotation3}},150,150)" />
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value4Swap}},1,{{LocalProps.Value4CircleX}},{{LocalProps.Value4CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color4)}}" hmi-bind:transform="rotate({{LocalProps.rotation4}},150,150)" />
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value5Swap}},1,{{LocalProps.Value5CircleX}},{{LocalProps.Value5CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color5)}}" hmi-bind:transform="rotate({{LocalProps.rotation5}},150,150)" />
-		<path hmi-bind:d="M150,240a90,90,0,{{LocalProps.Value6Swap}},1,{{LocalProps.Value6CircleX}},{{LocalProps.Value6CircleY}}L150,150" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color6)}}" hmi-bind:transform="rotate({{LocalProps.rotation6}},150,150)" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
 	 </g>
   </g>
-  <g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="Circle6" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color6)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)" hmi-bind:display="{{ gt(ParamProps.NumberOfValues,3) ? 'inline' : 'none' }}"/>
-		<circle id="Circle5" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color5)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)" hmi-bind:display="{{ gt(ParamProps.NumberOfValues,2) ? 'inline' : 'none' }}"/>
-		<circle id="Circle4" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color4)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)" hmi-bind:display="{{ gt(ParamProps.NumberOfValues,1) ? 'inline' : 'none' }}"/>
-		<circle id="Circle3" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 150, 150)" hmi-bind:display="{{ gt(ParamProps.NumberOfValues,0) ? 'inline' : 'none' }}"/>
-		<circle id="Circle2" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 150, 150)"/>
-		<circle id="Circle1" cx="150" cy="150" r="45" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 150, 150)" />
+  <g>
+		<circle id="Circle6" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)"/>
+		<circle id="Circle5" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)"/>
+		<circle id="Circle4" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="20" transform="rotate(90, 150, 150)"/>
+		<circle id="Circle3" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 150, 150)"/>
+		<circle id="Circle2" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 150, 150)"/>
+		<circle id="Circle1" cx="150" cy="150" r="45" stroke-width="90" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 150, 150)" />
   </g>
- <g id="Legend6" hmi-bind:display="{{ and(ParamProps.ShowLegend,eq(ParamProps.NumberOfValues , 4.0)) ? 'inline' : 'none' }}">
-	<circle cx="40" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="120" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<circle cx="200" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
-	<circle cx="40" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color4)}}" />
-	<circle cx="120" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color5)}}" />
-	<circle cx="200" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color6)}}" />
-	<text x="50" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="210" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="50" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="210" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+ <g id="Legend6">
+	<circle cx="40" cy="25" r="5" />
+	<circle cx="120" cy="25" r="5" />
+	<circle cx="200" cy="25" r="5" />
+	<circle cx="40" cy="45" r="5" />
+	<circle cx="120" cy="45" r="5" />
+	<circle cx="200" cy="45" r="5" />
+	<text x="50" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="210" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="50" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="210" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
  </g>
-  <g id="Legend5" hmi-bind:display="{{ and(ParamProps.ShowLegend,eq(ParamProps.NumberOfValues , 3.0)) ? 'inline' : 'none' }}">
-	<circle cx="40" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="120" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<circle cx="200" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
-	<circle cx="80" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color4)}}" />
-	<circle cx="160" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color5)}}" />
-	<text x="50" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="210" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="90" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="170" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+  <g id="Legend5">
+	<circle cx="40" cy="25" r="5" />
+	<circle cx="120" cy="25" r="5" />
+	<circle cx="200" cy="25" r="5" />
+	<circle cx="80" cy="45" r="5" />
+	<circle cx="160" cy="45" r="5" />
+	<text x="50" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="210" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="90" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="170" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
  </g>
-  <g id="Legend4" hmi-bind:display="{{ and(ParamProps.ShowLegend,eq(ParamProps.NumberOfValues , 2.0)) ? 'inline' : 'none' }}">
-	<circle cx="40" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="120" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<circle cx="200" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
-	<circle cx="120" cy="45" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color4)}}" />
-	<text x="50" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="210" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="50" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+  <g id="Legend4">
+	<circle cx="40" cy="25" r="5" />
+	<circle cx="120" cy="25" r="5" />
+	<circle cx="200" cy="25" r="5" />
+	<circle cx="120" cy="45" r="5" />
+	<text x="50" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="210" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="50" font-family="Arial" font-size="12"  text-anchor="start"></text>
  </g>
-  <g id="Legend3" hmi-bind:display="{{ and(ParamProps.ShowLegend,eq(ParamProps.NumberOfValues , 1.0)) ? 'inline' : 'none' }}">
-	<circle cx="40" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="120" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<circle cx="200" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
-	<text x="50" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="130" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="210" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+  <g id="Legend3">
+	<circle cx="40" cy="25" r="5" />
+	<circle cx="120" cy="25" r="5" />
+	<circle cx="200" cy="25" r="5" />
+	<text x="50" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="130" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="210" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
  </g>
-  <g id="Legend2" hmi-bind:display="{{ and(ParamProps.ShowLegend,eq(ParamProps.NumberOfValues , 0.0)) ? 'inline' : 'none' }}">
-	<circle cx="80" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="160" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<text x="90" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="170" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+  <g id="Legend2">
+	<circle cx="80" cy="25" r="5" />
+	<circle cx="160" cy="25" r="5" />
+	<text x="90" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="170" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
  </g>
-	</hmi-animations:animations>
   </g>
 </svg>

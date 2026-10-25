@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.395257)">
     <defs>
      </defs>
@@ -70,7 +74,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Footing_Right" x="280.2" y="197.9" fill="url(#Footing_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="10.4" height="3" />
+    <rect rx="3" ry="3" id="Footing_Right" x="280.2" y="197.9" fill="url(#Footing_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="10.4" height="3" />
     <linearGradient id="Footing_Left_1_" gradientUnits="userSpaceOnUse" x1="205.7085" y1="199.418" x2="216.9585" y2="199.418">
       <stop offset="0" stop-color="#a1a1aa" />
       <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -85,7 +89,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Footing_Left" x="214" y="197.9" fill="url(#Footing_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="10.4" height="3" />
+    <rect rx="3" ry="3" id="Footing_Left" x="214" y="197.9" fill="url(#Footing_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="10.4" height="3" />
     <linearGradient id="Shape_1_" gradientUnits="userSpaceOnUse" x1="205.6377" y1="31.7695" x2="266.9712" y2="121.7695">
       <stop offset="0" stop-color="#71717a" />
       <stop offset="0.2404" stop-color="#d4d4d8" />
@@ -107,12 +111,12 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Drive_Below" x="218.9" y="44.4" fill="url(#Drive_Below_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="66.8" height="8.3" />
+    <rect rx="3" ry="3" id="Drive_Below" x="218.9" y="44.4" fill="url(#Drive_Below_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="66.8" height="8.3" />
     <linearGradient id="Drive_Top_1_" gradientUnits="userSpaceOnUse" x1="309.8584" y1="32.8999" x2="153.5008" y2="32.8999">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Drive_Top" x="218.9" y="28.8" fill="url(#Drive_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="66.8" height="8.3" />
+    <rect rx="3" ry="3" id="Drive_Top" x="218.9" y="28.8" fill="url(#Drive_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="66.8" height="8.3" />
     <linearGradient id="Frame_Loaudspeaker_1_" gradientUnits="userSpaceOnUse" x1="255.2197" y1="123.9868" x2="235.0162" y2="103.7832">
       <stop offset="0" stop-color="#F4F4F4" />
       <stop offset="1" stop-color="#52525b" />
@@ -138,7 +142,7 @@
       <stop offset="0" stop-color="#F4F4F4" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Power_Light" x="283.2" y="182.5" fill="url(#Power_Light_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="4.5" height="4.5" />
+    <rect rx="3" ry="3" id="Power_Light" x="283.2" y="182.5" fill="url(#Power_Light_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="4.5" height="4.5" />
   </g>
   <g id="Keyboard_1_">
     <linearGradient id="Shape_Case_1_" gradientUnits="userSpaceOnUse" x1="91.1602" y1="208.29" x2="260.1604" y2="279.2902">
@@ -158,7 +162,7 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Base_Front" x="47.6" y="183" fill="url(#Base_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="98" height="1.7" />
+    <rect rx="3" ry="3" id="Base_Front" x="47.6" y="183" fill="url(#Base_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="98" height="1.7" />
     <linearGradient id="Base_1_" gradientUnits="userSpaceOnUse" x1="96.5547" y1="189.3008" x2="96.5547" y2="161.9626">
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
@@ -169,12 +173,12 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Frame_1_" x="2.4" y="26.1" fill="url(#Frame_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="188.2" height="132.1" />
+    <rect rx="3" ry="3" id="Frame_1_" x="2.4" y="26.1" fill="url(#Frame_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="188.2" height="132.1" />
     <linearGradient id="Screen_2_" gradientUnits="userSpaceOnUse" x1="-27.147" y1="37.0054" x2="102.0268" y2="89.9397">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Screen_1_" x="6.8" y="30.8" fill="url(#Screen_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="179.4" height="113.7" />
+    <rect rx="3" ry="3" id="Screen_1_" x="6.8" y="30.8" fill="url(#Screen_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="179.4" height="113.7" />
     <polygon id="Refection_Monitor_1_" fill="#71717a" points="39,144.2 7.2,144.2 7.2,31.2 117,31.2" />
     <linearGradient id="Company_Sign_1_" gradientUnits="userSpaceOnUse" x1="93.5864" y1="147.334" x2="102.0035" y2="158.5267">
       <stop offset="0" stop-color="#71717a" />
@@ -182,7 +186,7 @@
       <stop offset="0.7771" stop-color="#52525b" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Company_Sign_2_" x="87.2" y="148.9" fill="url(#Company_Sign_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="18.7" height="4.6" />
+    <rect rx="3" ry="3" id="Company_Sign_2_" x="87.2" y="148.9" fill="url(#Company_Sign_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="18.7" height="4.6" />
     <polyline id="Shadow_1_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="6.8,144.5 6.8,30.8 186.2,30.8" />
     <polyline id="Refection_Line_1_" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="186.2,30.8 186.2,144.5 6.8,144.5" />
   </g>

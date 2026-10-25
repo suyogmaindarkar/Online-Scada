@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.428571, 2.173913)">
     <defs />
   <g id="Manhole_x5F_Closed_x5F_02_1_">
-    <g id="Open_2_" hmi-bind:display="{{ ParamProps.Open ? 'inline' : 'none' }}">
+    <g id="Open_2_">
       <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="8.8118" y1="19.5" x2="69.5" y2="19.5">
         <stop offset="0" stop-color="#B2B2B2" />
         <stop offset="0.1258" stop-color="#737373" />
@@ -27,9 +31,9 @@
         <stop offset="1" stop-color="#B2B2B2" />
       </linearGradient>
       <path d="M66,38.5H4c-1.9,0-3.5,1.6-3.5,3.5    c0,1.9,1.6,3.5,3.5,3.5h62c1.9,0,3.5-1.6,3.5-3.5C69.5,40.1,67.9,38.5,66,38.5z" fill="url(#SVGID_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-      <circle cx="65.5" cy="34.5" r="1" />
+      <circle cx="65.5" cy="34.5" r="0" />
     </g>
-    <g id="Closed_2_" hmi-bind:display="{{ ParamProps.Open ? 'none' : 'inline' }}">
+    <g id="Closed_2_">
       <g >
         <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="0.5" y1="34.7473" x2="69.5" y2="34.7473">
           <stop offset="0" stop-color="#B2B2B2" />
@@ -43,7 +47,7 @@
           <stop offset="1" stop-color="#B2B2B2" />
         </linearGradient>
         <path d="M66,38.2H4c-1.9,0-3.5-1.6-3.5-3.5     v0c0-1.9,1.6-3.5,3.5-3.5h62c1.9,0,3.5,1.6,3.5,3.5v0C69.5,36.7,67.9,38.2,66,38.2z" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-        <circle cx="65.5" cy="34.7" r="1" />
+        <circle cx="65.5" cy="34.7" r="0" />
       </g>
       <g >
         <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="0.5" y1="41.9973" x2="69.5" y2="41.9973">

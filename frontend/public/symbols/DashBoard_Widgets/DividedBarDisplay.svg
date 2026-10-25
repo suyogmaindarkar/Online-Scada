@@ -1,52 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.2, 0.740741)">
     <defs>
   </defs> 
   <g id="Balkenanzeige1_1_">
 	<g id="Hintergrund">
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="0,134.565 0,135 75,135 75,114.38" />
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="85,111.689 85,135 160,135 160,91.504" />
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="170,88.813 170,135 245,135 245,68.628" />
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="255,65.937 255,135 330,135 330,45.752" />
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="340,43.061 340,135 415,135 415,22.876" />
-      <polygon hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" points="425,20.185 425,135 500,135 500,0" />
+      <polygon points="0,134.565 0,135 75,135 75,114.38" />
+      <polygon points="85,111.689 85,135 160,135 160,91.504" />
+      <polygon points="170,88.813 170,135 245,135 245,68.628" />
+      <polygon points="255,65.937 255,135 330,135 330,45.752" />
+      <polygon points="340,43.061 340,135 415,135 415,22.876" />
+      <polygon points="425,20.185 425,135 500,135 500,0" />
     </g>
-	<g id="Marker_1" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.0833) ? 'inline' : 'none' }}">
+	<g id="Marker_1">
       <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="-0.9707" y1="124.6899" x2="498.6373" y2="124.6899">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />
       </linearGradient>
       <polygon fill="url(#SVGID_1_)" points="0,134.565 0,135 75,135 75,114.38" />
 	  </g>
-	<g id="Marker_2" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.2499) ? 'inline' : 'none' }}">
+	<g id="Marker_2">
       <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="-0.9712" y1="113.2515" x2="498.6368" y2="113.2515">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />
       </linearGradient>
       <polygon fill="url(#SVGID_2_)" points="85,111.689 85,135 160,135 160,91.504" />
 	  </g>
-	<g id="Marker_3" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.4165) ? 'inline' : 'none' }}">
+	<g id="Marker_3">
       <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="-0.9707" y1="101.814" x2="498.6373" y2="101.814">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />
       </linearGradient>
       <polygon fill="url(#SVGID_3_)" points="170,88.813 170,135 245,135 245,68.628" />
       </g>
-	<g id="Marker_4" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.5831) ? 'inline' : 'none' }}">
+	<g id="Marker_4">
 	  <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="-0.9707" y1="90.3765" x2="498.6373" y2="90.3765">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />
       </linearGradient>
       <polygon fill="url(#SVGID_4_)" points="255,65.937 255,135 330,135 330,45.752" />
       </g>
-	<g id="Marker_5" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.7497) ? 'inline' : 'none' }}">
+	<g id="Marker_5">
 	  <linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="-0.9712" y1="78.938" x2="498.6368" y2="78.938">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />
       </linearGradient>
       <polygon fill="url(#SVGID_5_)" points="340,43.061 340,135 415,135 415,22.876" />
       </g>
-	<g id="Marker_6" hmi-bind:display="{{ gt(LocalProps.NormalizedValue, 0.9163) ? 'inline' : 'none' }}">
+	<g id="Marker_6">
 	  <linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="-0.9707" y1="67.4995" x2="498.6373" y2="67.4995">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1" stop-color="#71717a" />

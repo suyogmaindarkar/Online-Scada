@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.628931, 0.333333)">
     <defs>
      </defs>
@@ -16,12 +20,12 @@
     <stop offset="0" stop-color="#e4e4e7" />
     <stop offset="1" stop-color="#18181b" />
   </linearGradient>
-  <rect id="Touchscreen_4_" x="10.1" y="24.3" fill="url(#Touchscreen_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="139.4" height="224" />
+  <rect rx="3" ry="3" id="Touchscreen_4_" x="10.1" y="24.3" fill="url(#Touchscreen_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="139.4" height="224" />
   <linearGradient id="Loudspeaker_1_" gradientUnits="userSpaceOnUse" x1="92.7573" y1="27.1792" x2="60.3561" y2="-5.2221">
     <stop offset="0" stop-color="#e4e4e7" />
     <stop offset="1" stop-color="#18181b" />
   </linearGradient>
-  <rect id="Loudspeaker_2_" x="69.2" y="11.8" fill="url(#Loudspeaker_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="4.7" />
+  <rect rx="3" ry="3" id="Loudspeaker_2_" x="69.2" y="11.8" fill="url(#Loudspeaker_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="4.7" />
   <polygon id="Reflection_Touchscreen_4_" fill="#71717a" points="10.1,24.3 10.1,186.2 121.7,24.3" />
   <polyline id="Reflection_Line_Touchscreen_2_" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="149.4,24.3 149.4,248.3 10.1,248.3" />
   <polyline id="Shadow_Line_2_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="10.1,248.3 10.1,24.3 149.4,24.3" />

@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.124069, 0.395257)">
     <defs />
   <g id="Truck_x5F_02_1_">
@@ -35,12 +39,12 @@
             <stop offset="0.978" stop-color="#3f3f46"  />
             <stop offset="1" stop-color="#3f3f46"  />
           </linearGradient>
-          <rect x="202.5" y="0.6" width="575.7" height="170" fill="url(#SVGID_3_)" />
+          <rect rx="3" ry="3" x="202.5" y="0.6" width="575.7" height="170" fill="url(#SVGID_3_)" />
           <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="490.3757" y1="18.4467" x2="490.3757" y2="59.1509">
             <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
             <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
           </linearGradient>
-          <rect x="202.5" y="18.4" width="575.7" height="40.7" fill="url(#SVGID_4_)" />
+          <rect rx="3" ry="3" x="202.5" y="18.4" width="575.7" height="40.7" fill="url(#SVGID_4_)" />
           <line id="Separation_Line_2_" x1="203" y1="0.6" x2="203" y2="170.6" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <line id="Separation_Line_1_" x1="777.5" y1="0.6" x2="777.5" y2="170.6" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <line id="Outline_113_" x1="202.5" y1="170.6" x2="778.2" y2="170.6" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -69,8 +73,8 @@
       </g>
     </g>
     <g id="Truck_2_">
-      <rect x="747.3" y="174.7" width="27.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
-      <rect x="35.7" y="177" width="94.6" height="55.8" />
+      <rect rx="3" ry="3" x="747.3" y="174.7" width="27.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="35.7" y="177" width="94.6" height="55.8" />
       <polygon points="359.3,232.7 264.7,232.7 268.7,196 287.1,177.9 326.8,177.1 359.3,197" />
       <linearGradient id="SVGID_7_" gradientUnits="userSpaceOnUse" x1="74.8825" y1="96.5115" x2="159.4343" y2="96.5115">
         <stop offset="0" stop-color="#52525b"  />
@@ -162,11 +166,11 @@
       <line x1="130.6" y1="224.8" x2="266.6" y2="224.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="357.6" y1="224.8" x2="367.6" y2="224.8" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="7.6" y1="224.8" x2="39.6" y2="224.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
-      <rect x="384.2" y="174.7" width="152.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="384.2" y="174.7" width="152.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="385.6" y1="175.7" x2="535.6" y2="175.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="748.7" y1="175.7" x2="773.7" y2="175.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <g>
-        <rect x="555.4" y="177.1" width="174.1" height="55" />
+        <rect rx="3" ry="3" x="555.4" y="177.1" width="174.1" height="55" />
         <g id="Wheel3">
           <linearGradient id="SVGID_14_" gradientUnits="userSpaceOnUse" x1="572.5274" y1="199.9494" x2="623.704" y2="239.933">
             <stop offset="0" stop-color="#000000" />
@@ -255,7 +259,5 @@
       <line x1="85.4" y1="24.7" x2="156.8" y2="24.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
     </g>
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

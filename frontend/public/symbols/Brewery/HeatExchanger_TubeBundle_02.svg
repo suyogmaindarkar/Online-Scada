@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.06383, 0.826446)">
     <defs />
   <g id="HeatExchanger_x5F_TubeBundle_x5F_02_1_">
@@ -14,12 +18,12 @@
           <stop offset="0.978" stop-color="#484848" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect x="14" y="3.5" width="66" height="114" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" x="14" y="3.5" width="66" height="114" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
         <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="47" y1="6.196" x2="47" y2="16.196">
           <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
           <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
         </linearGradient>
-        <rect x="14.6" y="6.2" width="64.9" height="10" fill="url(#SVGID_2_)" />
+        <rect rx="3" ry="3" x="14.6" y="6.2" width="64.9" height="10" fill="url(#SVGID_2_)" />
       </g>
       <g id="Grid_4_">
         <line x1="1" y1="23.5" x2="93" y2="23.5" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" />
@@ -37,12 +41,12 @@
             <stop offset="0.76" stop-color="#E6E6E6" />
             <stop offset="1" stop-color="#B3B3B3" />
           </linearGradient>
-          <rect x="5" y="0.5" width="12" height="120" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+          <rect rx="3" ry="3" x="5" y="0.5" width="12" height="120" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="11" y1="16.196" x2="11" y2="6.196">
             <stop offset="0" stop-color="#F6F6F6" stop-opacity="0.7" />
             <stop offset="1" stop-color="#F1F1F1" stop-opacity="0.4" />
           </linearGradient>
-          <rect x="5.5" y="6.2" width="11" height="10" fill="url(#SVGID_4_)" />
+          <rect rx="3" ry="3" x="5.5" y="6.2" width="11" height="10" fill="url(#SVGID_4_)" />
         </g>
         <g id="Side_7_">
           <linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="83" y1="120.5" x2="83" y2="0.5">
@@ -55,39 +59,39 @@
             <stop offset="0.76" stop-color="#E6E6E6" />
             <stop offset="1" stop-color="#B3B3B3" />
           </linearGradient>
-          <rect x="77" y="0.5" width="12" height="120" fill="url(#SVGID_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+          <rect rx="3" ry="3" x="77" y="0.5" width="12" height="120" fill="url(#SVGID_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
           <linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="83" y1="16.196" x2="83" y2="6.196">
             <stop offset="0" stop-color="#F6F6F6" stop-opacity="0.7" />
             <stop offset="1" stop-color="#F1F1F1" stop-opacity="0.4" />
           </linearGradient>
-          <rect x="77.5" y="6.2" width="11" height="10" fill="url(#SVGID_6_)" />
+          <rect rx="3" ry="3" x="77.5" y="6.2" width="11" height="10" fill="url(#SVGID_6_)" />
         </g>
       </g>
     </g>
     <g id="TubeBundle">
       <linearGradient id="SVGID_7_" gradientUnits="userSpaceOnUse" x1="25.0002" y1="111" x2="25.0002" y2="10">
-        <stop offset="0" stop-color="#71717a"  />
-        <stop offset="1" stop-color="#71717a"  />
+        <stop offset="0" stop-color="#52525b"  />
+        <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
       <path d="M27,109c0,1.1-0.9,2-2,2l0,0    c-1.1,0-2-0.9-2-2V12c0-1.1,0.9-2,2-2l0,0c1.1,0,2,0.9,2,2V109z" fill="url(#SVGID_7_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="SVGID_8_" gradientUnits="userSpaceOnUse" x1="36.0001" y1="111" x2="36.0001" y2="10">
-        <stop offset="0" stop-color="#71717a"  />
-        <stop offset="1" stop-color="#71717a"  />
+        <stop offset="0" stop-color="#52525b"  />
+        <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
       <path d="M38,109c0,1.1-0.9,2-2,2l0,0    c-1.1,0-2-0.9-2-2V12c0-1.1,0.9-2,2-2l0,0c1.1,0,2,0.9,2,2V109z" fill="url(#SVGID_8_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="SVGID_9_" gradientUnits="userSpaceOnUse" x1="47" y1="111" x2="47" y2="10">
-        <stop offset="0" stop-color="#71717a"  />
-        <stop offset="1" stop-color="#71717a"  />
+        <stop offset="0" stop-color="#52525b"  />
+        <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
       <path d="M49,109c0,1.1-0.9,2-2,2l0,0    c-1.1,0-2-0.9-2-2V12c0-1.1,0.9-2,2-2l0,0c1.1,0,2,0.9,2,2V109z" fill="url(#SVGID_9_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="SVGID_10_" gradientUnits="userSpaceOnUse" x1="57.9999" y1="111" x2="57.9999" y2="10">
-        <stop offset="0" stop-color="#71717a"  />
-        <stop offset="1" stop-color="#71717a"  />
+        <stop offset="0" stop-color="#52525b"  />
+        <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
       <path d="M60,109c0,1.1-0.9,2-2,2l0,0    c-1.1,0-2-0.9-2-2V12c0-1.1,0.9-2,2-2l0,0c1.1,0,2,0.9,2,2V109z" fill="url(#SVGID_10_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="SVGID_11_" gradientUnits="userSpaceOnUse" x1="68.9997" y1="111" x2="68.9997" y2="10">
-        <stop offset="0" stop-color="#71717a"  />
-        <stop offset="1" stop-color="#71717a"  />
+        <stop offset="0" stop-color="#52525b"  />
+        <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
       <path d="M71,109c0,1.1-0.9,2-2,2l0,0    c-1.1,0-2-0.9-2-2V12c0-1.1,0.9-2,2-2l0,0c1.1,0,2,0.9,2,2V109z" fill="url(#SVGID_11_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <g id="Reflection_68_">

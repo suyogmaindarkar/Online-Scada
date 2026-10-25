@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.129032, 0.396825)">
     <defs />
   <g id="Truck_x5F_01_1_">
@@ -7,13 +11,13 @@
         <stop offset="0.6397" stop-color="#a1a1aa"  />
         <stop offset="1" stop-color="#52525b"  />
       </linearGradient>
-      <rect x="173.6" y="0.4" width="600.9" height="169.4" fill="url(#SVGID_1_)" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="173.6" y="0.4" width="600.9" height="169.4" fill="url(#SVGID_1_)" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="180.8" y1="160.2" x2="767.4" y2="160.2" fill-opacity="0.2" fill="none" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="180.8" y1="9.2" x2="767.4" y2="9.2" fill-opacity="0.2" fill="none" stroke-width="1.5" stroke-miterlimit="10" />
     </g>
     <g id="Truck_3_">
-      <rect x="746.9" y="173.9" width="27.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
-      <rect x="35.3" y="176.2" width="94.6" height="55.8" />
+      <rect rx="3" ry="3" x="746.9" y="173.9" width="27.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="35.3" y="176.2" width="94.6" height="55.8" />
       <polygon points="358.9,231.9 264.3,231.9 268.3,195.2 286.6,177.1 326.4,176.3 358.9,196.2" />
       <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="74.448" y1="95.7174" x2="158.9997" y2="95.7174">
         <stop offset="0" stop-color="#52525b"  />
@@ -105,11 +109,11 @@
       <line x1="130.1" y1="224" x2="266.1" y2="224" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="357.1" y1="224" x2="367.1" y2="224" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="7.1" y1="224" x2="39.1" y2="224" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
-      <rect x="383.8" y="173.9" width="152.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="383.8" y="173.9" width="152.7" height="10.8" fill="#575757" stroke="#000000" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="385.1" y1="174.9" x2="535.1" y2="174.9" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <line x1="748.2" y1="174.9" x2="773.2" y2="174.9" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       <g>
-        <rect x="555" y="176.3" width="174.1" height="55" />
+        <rect rx="3" ry="3" x="555" y="176.3" width="174.1" height="55" />
         <g id="Wheel3">
           <linearGradient id="SVGID_9_" gradientUnits="userSpaceOnUse" x1="572.0928" y1="199.1553" x2="623.2695" y2="239.1388">
             <stop offset="0" stop-color="#000000" />
@@ -198,7 +202,5 @@
       <line x1="84.9" y1="24" x2="156.4" y2="24" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
     </g>
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

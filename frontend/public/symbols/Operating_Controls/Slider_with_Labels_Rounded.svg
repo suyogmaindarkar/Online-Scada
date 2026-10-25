@@ -1,114 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.645161, 2.530364)">
-    </hmi:self>
-  <defs>
+    <defs>
   </defs>
-  <g id="Slider_with_Labels_Rounded" hmi-bind:stroke-width="{{ le((79 / HmiProps.Width), (20 / HmiProps.Height)) ? ((79 / HmiProps.Width) * (HmiProps.Width / 155)) : ((20 / HmiProps.Height) * (HmiProps.Height / 39.52)) }}">
+  <g id="Slider_with_Labels_Rounded">
     <g id="OneHandle">
-		<svg hmi-bind:x="{{ LocalProps.XPosArrow }}" hmi-bind:display="{{ eq(ParamProps.ShowCurrentValue, true) ? 'inline' : 'none' }}">
+		<svg>
 			<g transform="translate(0, -7)">
-				<path hmi-bind:fill="{{Converter.RGBA(ParamProps.IconBasicColor)}}" d="M 6.203125,7.8046875 8.4999997,10.6875 11.042122,7.8520738 Z" />
-				<path hmi-bind:fill="{{Converter.RGBA(ParamProps.LineColor)}}" d="M 5.7304688 7.0507812 A 0.51795083 0.50000006 0 0 0 5.2109375 7.5507812 A 0.51795083 0.50000006 0 0 0 5.3496094 7.8886719 L 8.0820312 11.222656 A 0.51795083 0.55026126 0 0 0 8.1484375 11.304688 A 0.51795083 0.55026126 0 0 0 8.5 11.453125 A 0.51795083 0.55026126 0 0 0 8.9316406 11.205078 A 0.51795083 0.55026126 0 0 0 8.9355469 11.199219 L 11.689453 7.8476562 L 11.685547 7.8476562 A 0.51795083 0.50000024 0 0 0 11.789062 7.5507812 A 0.51795083 0.50000024 0 0 0 11.271484 7.0507812 L 5.7304688 7.0507812 z M 6.7734375 8.0507812 L 10.228516 8.0507812 L 8.5039062 10.160156 L 6.7734375 8.0507812 z" />
+				<path d="M 6.203125,7.8046875 8.4999997,10.6875 11.042122,7.8520738 Z" />
+				<path d="M 5.7304688 7.0507812 A 0.51795083 0.50000006 0 0 0 5.2109375 7.5507812 A 0.51795083 0.50000006 0 0 0 5.3496094 7.8886719 L 8.0820312 11.222656 A 0.51795083 0.55026126 0 0 0 8.1484375 11.304688 A 0.51795083 0.55026126 0 0 0 8.5 11.453125 A 0.51795083 0.55026126 0 0 0 8.9316406 11.205078 A 0.51795083 0.55026126 0 0 0 8.9355469 11.199219 L 11.689453 7.8476562 L 11.685547 7.8476562 A 0.51795083 0.50000024 0 0 0 11.789062 7.5507812 A 0.51795083 0.50000024 0 0 0 11.271484 7.0507812 L 5.7304688 7.0507812 z M 6.7734375 8.0507812 L 10.228516 8.0507812 L 8.5039062 10.160156 L 6.7734375 8.0507812 z" />
 			</g>
-		</svg>
-	  <linearGradient id="Unbenannter_Verlauf_244" x1="77.5" y1="12.5" x2="77.5" y2="4.5" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#a1a1aa" />
-			<stop offset=".02" stop-color="#a1a1aa" />
-			<stop offset=".14" stop-color="#71717a" />
-			<stop offset=".28" stop-color="#71717a" />
-			<stop offset=".5" stop-color="#71717a" />
-			<stop offset=".67" stop-color="#71717a" />
-			<stop offset=".77" stop-color="#71717a" />
-			<stop offset=".86" stop-color="#52525b" />
-			<stop offset=".93" stop-color="#52525b" />
-			<stop offset="1" stop-color="#3f3f46" />
-			<stop offset="1" stop-color="#3f3f46" />
-		</linearGradient>
-      <rect id="Base" x="7.5" y="4.5" width="140" height="8" rx="4" ry="4" fill="url(#Unbenannter_Verlauf_244)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-	  <linearGradient id="Unbenannter_Verlauf_259" x1="42.5" y1="12.5" x2="42.5" y2="4.5" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#a1a1aa" />
-			<stop offset=".01" stop-color="#a1a1aa" />
-			<stop offset=".1" stop-color="#a1a1aa" />
-			<stop offset=".18" stop-color="#a1a1aa" />
-			<stop offset=".26" stop-color="#a1a1aa" />
-			<stop offset=".34" stop-color="#71717a" />
-			<stop offset=".42" stop-color="#71717a" />
-			<stop offset=".5" stop-color="#71717a" />
-			<stop offset=".67" stop-color="#71717a" />
-			<stop offset=".76" stop-color="#71717a" />
-			<stop offset=".85" stop-color="#71717a" />
-			<stop offset=".92" stop-color="#71717a" />
-			<stop offset=".98" stop-color="#52525b" />
-			<stop offset="1" stop-color="#52525b" />
-		</linearGradient>
-	  <rect id="ProcessBar" hmi-bind:x="{{ LocalProps.XPos1 }}" y="4.5" hmi-bind:width="{{ LocalProps.ProcessFillWidth - LocalProps.XPos1 + 4 }}" height="8" rx="4" ry="4" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-	  <linearGradient id="Unbenannter_Verlauf_164" x1="77.5" y1="16.5" x2="77.5" y2=".5" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#71717a" />
-			<stop offset=".05" stop-color="#71717a" />
-			<stop offset=".13" stop-color="#71717a" />
-			<stop offset=".2" stop-color="#71717a" />
-			<stop offset=".27" stop-color="#71717a" />
-			<stop offset=".39" stop-color="#71717a" />
-			<stop offset=".55" stop-color="#71717a" />
-			<stop offset="1" stop-color="#71717a" />
-		</linearGradient>
-      <linearGradient id="Unbenannter_Verlauf_44" x1="77.5" y1="39.02" x2="77.5" y2="21.09" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#71717a" />
-        <stop offset=".06" stop-color="#71717a" />
-        <stop offset=".13" stop-color="#71717a" />
-        <stop offset=".26" stop-color="#71717a" />
-        <stop offset=".45" stop-color="#71717a" />
-        <stop offset="1" stop-color="#71717a" />
-      </linearGradient>
-      <g id="Label" hmi-bind:display="{{ ge(LocalProps.ValuePercent2 * 100, 50.5) ? 'inline' : 'none' }}">
-        <g id="Handle" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" hmi-event:pan="url(#onSlider2PanEvent)">
-          <circle hmi-bind:cx="{{ LocalProps.XPos2 }}" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)" />
-          <circle hmi-bind:cx="{{ LocalProps.XPos2 }}" cy="8.5" r="2" hmi-bind:fill="{{Converter.RGBA(ParamProps.IconContrastColor)}}" />
-        </g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label2X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 0) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(LocalProps.ValuePercent2 * 100, 99.5) ? 5.5 : (lt(LocalProps.ValuePercent2 * 100, 9.5) ? 10 : 8) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label2X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 1) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(ParamProps.ProcessValue2, 99.5) ? 8.5 : (lt(ParamProps.ProcessValue2, 9.5) ? 13 : 11) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-      </g>
-      <g id="Label-2">
-        <g id="Handle-2" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" hmi-event:pan="url(#onSlider1PanEvent)">
-          <circle hmi-bind:cx="{{ LocalProps.XPos1 }}" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)" />
-          <circle hmi-bind:cx="{{ LocalProps.XPos1 }}" cy="8.5" r="2" hmi-bind:fill="{{Converter.RGBA(ParamProps.IconContrastColor)}}" />
-        </g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label1X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 0) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(LocalProps.ValuePercent * 100, 99.5) ? 5.5 : (lt(LocalProps.ValuePercent * 100, 9.5) ? 10 : 8) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label1X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 1) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(ParamProps.ProcessValue1, 99.5) ? 8.5 : (lt(ParamProps.ProcessValue1, 9.5) ? 13 : 11) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-      </g>
-	  <g id="Label12" hmi-bind:display="{{ lt(LocalProps.ValuePercent2 * 100, 50.5) ? 'inline' : 'none' }}">
-        <g id="Handle" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" hmi-event:pan="url(#onSlider2PanEvent)">
-          <circle hmi-bind:cx="{{ LocalProps.XPos2 }}" cy="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)" />
-          <circle hmi-bind:cx="{{ LocalProps.XPos2 }}" cy="8.5" r="2" hmi-bind:fill="{{Converter.RGBA(ParamProps.IconContrastColor)}}" />
-        </g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label2X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 0) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(LocalProps.ValuePercent2 * 100, 99.5) ? 5.5 : (lt(LocalProps.ValuePercent2 * 100, 9.5) ? 10 : 8) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-		<g hmi-bind:transform="translate({{ LocalProps.Label2X }}, 0)" hmi-bind:display="{{ eq(ParamProps.LabelType, 1) ? 'inline' : 'none' }}">
-			<path d="M28.5 23.02H17.84l-1.64-1.64a.996.996 0 0 0-1.41 0l-1.64 1.64H2.5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h26c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2Z" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10" />
-			<text hmi-bind:transform="translate({{ ge(ParamProps.ProcessValue2, 99.5) ? 8.5 : (lt(ParamProps.ProcessValue2, 9.5) ? 13 : 11) }} 0)" y="33.6" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="8" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.TextColor)}}">
-			</text>
-		</g>
-      </g>
-    </g>
-  </g>
   </g>
 </svg>

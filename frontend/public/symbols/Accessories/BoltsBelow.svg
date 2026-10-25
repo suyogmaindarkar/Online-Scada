@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 4.166667)">
     <defs>
      </defs>
@@ -8,7 +12,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_11_" x="267.1" y="14.6" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_11_" x="267.1" y="14.6" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_1_" gradientUnits="userSpaceOnUse" x1="276.1914" y1="25.3228" x2="278.3342" y2="22.1086">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -30,7 +34,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_6_" x="217.4" y="14.6" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_6_" x="217.4" y="14.6" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_2_" gradientUnits="userSpaceOnUse" x1="226.4756" y1="25.3232" x2="228.6184" y2="22.1091">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -52,7 +56,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_7_" x="167.7" y="14.6" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_7_" x="167.7" y="14.6" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_3_" gradientUnits="userSpaceOnUse" x1="176.7607" y1="25.3232" x2="178.9035" y2="22.1091">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -74,7 +78,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_8_" x="118" y="14.6" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_8_" x="118" y="14.6" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_4_" gradientUnits="userSpaceOnUse" x1="127.0444" y1="25.3232" x2="129.1872" y2="22.1091">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -96,7 +100,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_9_" x="68.3" y="14.6" fill="url(#Shape_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_9_" x="68.3" y="14.6" fill="url(#Shape_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_5_" gradientUnits="userSpaceOnUse" x1="77.3296" y1="25.3237" x2="79.4724" y2="22.1096">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -118,7 +122,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Shape_10_" x="18.6" y="14.6" fill="url(#Shape_12_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
+      <rect rx="3" ry="3" id="Shape_10_" x="18.6" y="14.6" fill="url(#Shape_12_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.3" height="7.1" />
       <linearGradient id="Shape_Side_Right_10_" gradientUnits="userSpaceOnUse" x1="27.6123" y1="25.3232" x2="29.7551" y2="22.1091">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -140,6 +144,6 @@
     <stop offset="0" stop-color="#d4d4d8" />
     <stop offset="1" stop-color="#3f3f46" />
   </linearGradient>
-  <rect id="Plate" x="2.4" y="2.4" fill="url(#Plate_1_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="295.2" height="12.2" />
+  <rect rx="3" ry="3" id="Plate" x="2.4" y="2.4" fill="url(#Plate_1_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="295.2" height="12.2" />
   </g>
 </svg>

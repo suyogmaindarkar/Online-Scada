@@ -1,19 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.5, 0.5)">
     <defs>
 	</defs>
  <g id="Indicators">
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<path hmi-bind:d="M100,199a99,99,0,{{LocalProps.Value3Swap}},1,{{LocalProps.Value3CircleX}},{{LocalProps.Value3CircleY}}L100,100" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" hmi-bind:transform="rotate({{LocalProps.rotation3}},100,100)" />
-		<path hmi-bind:d="M100,199a99,99,0,{{LocalProps.Value2Swap}},1,{{LocalProps.Value2CircleX}},{{LocalProps.Value2CircleY}}L100,100" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" hmi-bind:transform="rotate({{LocalProps.rotation2}},100,100)" />
-		<path hmi-bind:d="M100,199a99,99,0,{{LocalProps.Value1Swap}},1,{{LocalProps.Value1CircleX}},{{LocalProps.Value1CircleY}}L100,100" stroke="none" stroke-width="2.0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+	<g>
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
+		<path stroke="none" stroke-width="2.0" />
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="Circle3" cx="100" cy="100" r="50" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 100, 100)" />
-		<circle id="Circle2" cx="100" cy="100" r="50" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 100, 100)"/>
-		<circle id="Circle1" cx="100" cy="100" r="50" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 100, 100)" />
+	<g>
+		<circle id="Circle3" cx="100" cy="100" r="50" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 100, 100)" />
+		<circle id="Circle2" cx="100" cy="100" r="50" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 100, 100)"/>
+		<circle id="Circle1" cx="100" cy="100" r="50" stroke-width="100" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 100, 100)" />
 	</g>
  </g>
-	</hmi-animations:animations>
   </g>
 </svg>

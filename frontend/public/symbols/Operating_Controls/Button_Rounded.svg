@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.052632, 3.448276)">
-    </hmi:self>
-	<defs>
+    <defs>
 	</defs>
 	<linearGradient id="Unbenannter_Verlauf_44" x1="47.5" y1="28.5" x2="47.5" y2=".5" gradientUnits="userSpaceOnUse">
 		<stop offset="0" stop-color="#d4d4d8" />
@@ -12,60 +15,60 @@
 		<stop offset="1" stop-color="#a1a1aa" />
 	</linearGradient>
 	<linearGradient id="Unbenannter_Verlauf_126" x1="47.5" y1="28.5" x2="47.5" y2=".5" gradientUnits="userSpaceOnUse">
-		<stop offset="0" stop-color="#71717a" />
-		<stop offset=".05" stop-color="#71717a" />
-		<stop offset=".13" stop-color="#71717a" />
-		<stop offset=".2" stop-color="#71717a" />
-		<stop offset=".27" stop-color="#71717a" />
-		<stop offset=".39" stop-color="#71717a" />
+		<stop offset="0" stop-color="#d4d4d8" />
+		<stop offset=".05" stop-color="#d4d4d8" />
+		<stop offset=".13" stop-color="#d4d4d8" />
+		<stop offset=".2" stop-color="#d4d4d8" />
+		<stop offset=".27" stop-color="#a1a1aa" />
+		<stop offset=".39" stop-color="#a1a1aa" />
 		<stop offset=".55" stop-color="#71717a" />
-		<stop offset="1" stop-color="#71717a" />
+		<stop offset="1" stop-color="#52525b" />
 	</linearGradient>
 	<linearGradient id="Unbenannter_Verlauf_137" x1="47.5" y1="28.5" x2="47.5" y2=".5" gradientUnits="userSpaceOnUse">
-		<stop offset="0" stop-color="#71717a" />
-		<stop offset=".05" stop-color="#71717a" />
-		<stop offset=".13" stop-color="#71717a" />
-		<stop offset=".2" stop-color="#71717a" />
-		<stop offset=".27" stop-color="#71717a" />
-		<stop offset=".39" stop-color="#71717a" />
+		<stop offset="0" stop-color="#d4d4d8" />
+		<stop offset=".05" stop-color="#d4d4d8" />
+		<stop offset=".13" stop-color="#d4d4d8" />
+		<stop offset=".2" stop-color="#d4d4d8" />
+		<stop offset=".27" stop-color="#a1a1aa" />
+		<stop offset=".39" stop-color="#a1a1aa" />
 		<stop offset=".55" stop-color="#71717a" />
-		<stop offset="1" stop-color="#71717a" />
+		<stop offset="1" stop-color="#52525b" />
 	</linearGradient>
-    <g id="SlightRounding" hmi-bind:display="{{ eq(ParamProps.DegreeOfRounding, 1) ? 'inline' : 'none' }}"  hmi-bind:stroke-width="{{ le((79 / HmiProps.Width), (24 / HmiProps.Height)) ? ((79 / HmiProps.Width) * (HmiProps.Width / 95)) : ((24 / HmiProps.Height) * (HmiProps.Height / 29)) }}">
-        <g id="SlightBasic" hmi-bind:display="{{ and(eq(ParamProps.Active, false), eq(ParamProps.DegreeOfRounding, 1)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicLineColor)}}" stroke-miterlimit="10"/>
-            <text x="23.82" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicTextColor)}}">
+    <g id="SlightRounding">
+        <g id="SlightBasic" >
+            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_44)" stroke-miterlimit="10"/>
+            <text x="23.82" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <g id="SlightActive" hmi-bind:display="{{ and(eq(ParamProps.Active, true), eq(ParamProps.DegreeOfRounding, 1)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_137)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ActiveLineColor)}}" stroke-miterlimit="10"/>
-            <text x="30.18" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.ActiveTextColor)}}">
+        <g id="SlightActive" >
+            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_137)" stroke-miterlimit="10"/>
+            <text x="30.18" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <g id="SlightPressed" hmi-bind:display="{{ and(eq(LocalProps.Pressed, true), eq(ParamProps.DegreeOfRounding, 1)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_126)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.PressedLineColor)}}" stroke-miterlimit="10"/>
-            <text x="26.15" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.PressedTextColor)}}">
+        <g id="SlightPressed" >
+            <rect x=".5" y=".5" width="94" height="28" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_126)" stroke-miterlimit="10"/>
+            <text x="26.15" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <rect x="0" y="0" width="95" height="29" rx="2" ry="2" fill-opacity="0" hmi-event:down="url(#onMouseDown)" hmi-event:up="url(#onMouseUp)"/>
+        <rect x="0" y="0" width="95" height="29" rx="2" ry="2" fill-opacity="0"/>
     </g>
-    <g id="HeavyRounding" hmi-bind:display="{{ eq(ParamProps.DegreeOfRounding, 0) ? 'inline' : 'none' }}"  hmi-bind:stroke-width="{{ le((79 / HmiProps.Width), (24 / HmiProps.Height)) ? ((79 / HmiProps.Width) * (HmiProps.Width / 95)) : ((24 / HmiProps.Height) * (HmiProps.Height / 29)) }}">
-        <g id="HeavyBasic" hmi-bind:display="{{ and(eq(ParamProps.Active, false), eq(ParamProps.DegreeOfRounding, 0)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_44)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicLineColor)}}" stroke-miterlimit="10"/>
-            <text x="23.82" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicTextColor)}}">
+    <g id="HeavyRounding">
+        <g id="HeavyBasic" >
+            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_44)" stroke-miterlimit="10"/>
+            <text x="23.82" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <g id="HeavyActive" hmi-bind:display="{{ and(eq(ParamProps.Active, true), eq(ParamProps.DegreeOfRounding, 0)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_137)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ActiveLineColor)}}" stroke-miterlimit="10"/>
-            <text x="30.18" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.ActiveTextColor)}}">
+        <g id="HeavyActive" >
+            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_137)" stroke-miterlimit="10"/>
+            <text x="30.18" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <g id="HeavyPressed" hmi-bind:display="{{ and(eq(LocalProps.Pressed, true), eq(ParamProps.DegreeOfRounding, 0)) ? 'inline' : 'none' }}" >
-            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_126)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.PressedLineColor)}}" stroke-miterlimit="10"/>
-            <text x="26.15" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700" hmi-bind:fill="{{Converter.RGBA(ParamProps.PressedTextColor)}}">
+        <g id="HeavyPressed" >
+            <rect x=".5" y=".5" width="94" height="28" rx="14" ry="14" fill="url(#Unbenannter_Verlauf_126)" stroke-miterlimit="10"/>
+            <text x="26.15" y="19.18" font-family="SiemensSans-Bold, 'Siemens Sans'" font-size="12" font-weight="700">
             </text>
         </g>
-        <rect x="0" y="0" width="95" height="29" rx="14" ry="14" fill-opacity="0" hmi-event:down="url(#onMouseDown)" hmi-event:up="url(#onMouseUp)"/>
+        <rect x="0" y="0" width="95" height="29" rx="14" ry="14" fill-opacity="0"/>
     </g>
   </g>
 </svg>

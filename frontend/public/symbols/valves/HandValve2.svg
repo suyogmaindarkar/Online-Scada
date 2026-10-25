@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.355872)">
     <defs>
      </defs>
@@ -28,7 +32,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_10_" x="270.1" y="98.4" fill="url(#Reflection_2_)" width="20" height="34.3" />
+      <rect rx="3" ry="3" id="Reflection_10_" x="270.1" y="98.4" fill="url(#Reflection_2_)" width="20" height="34.3" />
       <linearGradient id="Edge_Right_1_" gradientUnits="userSpaceOnUse" x1="291.2695" y1="79.0337" x2="291.2695" y2="278.7007">
         <stop offset="0" stop-color="#52525b" />
         <stop offset="1" stop-color="#3f3f46" />
@@ -80,12 +84,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_9_" x="38.7" y="109.6" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="222.7" height="137.7" />
+      <rect rx="3" ry="3" id="Shape_9_" x="38.7" y="109.6" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="222.7" height="137.7" />
       <linearGradient id="Reflection_3_" gradientUnits="userSpaceOnUse" x1="150.0327" y1="121.5625" x2="150.0327" y2="135.0852">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_9_" x="39.6" y="123.5" fill="url(#Reflection_3_)" width="220.9" height="23.5" />
+      <rect rx="3" ry="3" id="Reflection_9_" x="39.6" y="123.5" fill="url(#Reflection_3_)" width="220.9" height="23.5" />
     </g>
     <linearGradient id="Weld_Seam_Left_1_" gradientUnits="userSpaceOnUse" x1="35.561" y1="110.1489" x2="35.561" y2="248.7689">
       <stop offset="0" stop-color="#52525b" />
@@ -127,7 +131,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_8_" x="10" y="98.4" fill="url(#Reflection_4_)" width="20.1" height="34.3" />
+      <rect rx="3" ry="3" id="Reflection_8_" x="10" y="98.4" fill="url(#Reflection_4_)" width="20.1" height="34.3" />
       <linearGradient id="Edge_Right_2_" gradientUnits="userSpaceOnUse" x1="31.2241" y1="79.0337" x2="31.2241" y2="278.7007">
         <stop offset="0" stop-color="#52525b" />
         <stop offset="1" stop-color="#3f3f46" />
@@ -207,12 +211,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape" x="132.8" y="21.3" fill="url(#Shape_7_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="34.6" height="49.2" />
+      <rect rx="3" ry="3" id="Shape" x="132.8" y="21.3" fill="url(#Shape_7_)" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" width="34.6" height="49.2" />
       <linearGradient id="Reflection_6_" gradientUnits="userSpaceOnUse" x1="135.8628" y1="45.8843" x2="138.0648" y2="45.8843">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection" x="136.4" y="21.8" fill="url(#Reflection_6_)" width="5.9" height="48.1" />
+      <rect rx="3" ry="3" id="Reflection" x="136.4" y="21.8" fill="url(#Reflection_6_)" width="5.9" height="48.1" />
     </g>
     <g id="Handle_Wheel_1_">
       <linearGradient id="Shape_12_" gradientUnits="userSpaceOnUse" x1="69.6562" y1="11.8311" x2="230.5533" y2="11.8311">

@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.666667, 2.638522)">
     <g id="Schaltschrank_x5F_Test_x5F_01">
     <g id="Objektschlitten">
-      <rect hmi-bind:display="{{ ParamProps.WorkpieceCarrierLoaded ? 'inline' : 'none' }}" id="Objekt" x="10" y="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.WorkpieceColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" />
+      <rect rx="3" ry="3" id="Objekt" x="10" y="0" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" />
       <linearGradient id="Schlitten_00000032611143516061074690000007891419144201264055_" gradientUnits="userSpaceOnUse" x1="91" y1="334.3429" x2="151" y2="334.3429">
         <stop offset="0" stop-color="#18181b" />
         <stop offset="0.1" stop-color="#575757" />

@@ -1,15 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.557103, 0.557103)">
     <g id="Curve_x5F_Small">
     <g>
-      <path d="M178.9,179.1h-10c0-92.9-75.6-168.5-168.5-168.5v-10C98.8,0.6,178.9,80.7,178.9,179.1z" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+      <path d="M178.9,179.1h-10c0-92.9-75.6-168.5-168.5-168.5v-10C98.8,0.6,178.9,80.7,178.9,179.1z" />
     </g>
     <path d="M0.4,10.4c93.2,0,168.8,75.6,168.8,168.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
     <path d="M168.9,179.1c0-93.1-75.4-168.5-168.5-168.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
     <path d="M179.1,179.1c0-98.7-80-178.8-178.8-178.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
     <path d="M171.9,179.1C171.9,84.4,95.1,7.6,0.4,7.6" fill="none" stroke="#18181b" stroke-width="2" stroke-miterlimit="10" />
     <g>
-      <path d="M47.4,179.1c0-26-21-47-47-47V122c31.5,0,57.1,25.6,57.1,57.1H47.4z" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+      <path d="M47.4,179.1c0-26-21-47-47-47V122c31.5,0,57.1,25.6,57.1,57.1H47.4z" />
     </g>
     <g>
       <path d="M57.5,179.1c0-31.5-25.6-57.1-57.1-57.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />

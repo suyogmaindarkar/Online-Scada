@@ -1,38 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.5, 0.5)">
     <defs>
   </defs> 
   <g id="Frame">
-	<rect id="Frame_Box" x="1" y="1" width="200" height="200" stroke="#0058B0" stroke-width="0" fill="none" />
-	<line id="Zero_Line" x1="1" y1="1" x2="1" y2="199" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
-	<line id="Zero_Line" x1="1" y1="199" x2="199" y2="199" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
-	<text x="5" y="13" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="start"></text>
-	<text x="195" y="195" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="11"  text-anchor="end"></text>
+	<rect rx="3" ry="3" id="Frame_Box" x="1" y="1" width="200" height="200" stroke="#0058B0" stroke-width="0" fill="none" />
+	<line id="Zero_Line" x1="1" y1="1" x2="1" y2="199" stroke-width="2.0" />
+	<line id="Zero_Line" x1="1" y1="199" x2="199" y2="199" stroke-width="2.0" />
+	<text x="5" y="13" font-family="Arial" font-size="11"  text-anchor="start"></text>
+	<text x="195" y="195" font-family="Arial" font-size="11"  text-anchor="end"></text>
   </g>
  <g id="Bubble1">
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<circle hmi-bind:cx="{{((LocalProps.IntValue1DimX) / (ParamProps.MaxRangeX) * 199) }}" hmi-bind:cy="{{199 - ((LocalProps.IntValue1DimY) / (ParamProps.MaxRangeY) * 199) }}" hmi-bind:r="{{((LocalProps.IntValue1) / (ParamProps.MaxRange) * 50) }}" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+	<g>
+		<circle />
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="CircleB1" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
+	<g>
+		<circle id="CircleB1" />
 	</g>
  </g>
  <g id="Bubble2">
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<circle hmi-bind:cx="{{((LocalProps.IntValue2DimX) / (ParamProps.MaxRangeX) * 199) }}" hmi-bind:cy="{{199 - ((LocalProps.IntValue2DimY) / (ParamProps.MaxRangeY) * 199) }}" hmi-bind:r="{{((LocalProps.IntValue2) / (ParamProps.MaxRange) * 50) }}" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+	<g>
+		<circle />
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="CircleB2" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
+	<g>
+		<circle id="CircleB2" />
 	</g>
  </g>
  <g id="Bubble3">
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<circle hmi-bind:cx="{{((LocalProps.IntValue3DimX) / (ParamProps.MaxRangeX) * 199) }}" hmi-bind:cy="{{199 - ((LocalProps.IntValue3DimY) / (ParamProps.MaxRangeY) * 199) }}" hmi-bind:r="{{((LocalProps.IntValue3) / (ParamProps.MaxRange) * 50) }}" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	<g>
+		<circle />
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="CircleB3" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	<g>
+		<circle id="CircleB3" />
 	</g>
  </g>
-	</hmi-animations:animations>
   </g>
 </svg>

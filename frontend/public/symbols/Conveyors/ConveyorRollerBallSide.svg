@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.758725, 3.717472)">
     <g>
     <g>
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+	  <g>
 		  <g id="B1_No_Anim">
 			<circle cx="18.9" cy="16.6" r="6.4" fill="#B3B3B3" />
 			<path d="M22.9,11.7c0.9,1.1,1.4,2.5,1.4,4c0,3.5-2.8,6.4-6.4,6.4c-1.5,0-2.9-0.5-4-1.4     c1.2,1.5,3,2.4,5,2.4c3.5,0,6.4-2.8,6.4-6.4C25.3,14.6,24.3,12.8,22.9,11.7z" fill="#808080" />
@@ -39,7 +43,7 @@
 			<ellipse transform="matrix(0.5831,-0.8124,0.8124,0.5831,34.4077,94.8775)" cx="109.6" cy="13.9" rx="1.7" ry="1.1" fill="#F1F1F1" />
 		  </g>
 	  </g>
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+	  <g>
 		  <g id="B1">
 			<circle cx="18.9" cy="16.6" r="6.4" fill="#B3B3B3" />
 			<path d="M22.9,11.7c0.9,1.1,1.4,2.5,1.4,4c0,3.5-2.8,6.4-6.4,6.4c-1.5,0-2.9-0.5-4-1.4     c1.2,1.5,3,2.4,5,2.4c3.5,0,6.4-2.8,6.4-6.4C25.3,14.6,24.3,12.8,22.9,11.7z" fill="#808080" />
@@ -77,22 +81,20 @@
 		  </g>
 	  </g>
     </g>
-    <rect y="2" width="2" height="22" fill="#18181b" />
-    <rect x="129.7" y="2" width="2" height="22" fill="#18181b" />
-    <rect x="63.9" y="-63.9" transform="matrix(6.123234e-17,-1,1,6.123234e-17,63.9,67.9)" width="4" height="131.8" fill="#18181b" />
+    <rect rx="3" ry="3" y="2" width="2" height="22" fill="#18181b" />
+    <rect rx="3" ry="3" x="129.7" y="2" width="2" height="22" fill="#18181b" />
+    <rect rx="3" ry="3" x="63.9" y="-63.9" transform="matrix(6.123234e-17,-1,1,6.123234e-17,63.9,67.9)" width="4" height="131.8" fill="#18181b" />
     <g>
       <g>
-        <rect id="Frame_Top_00000070092737184718499270000014509220385480523934_" y="14.5" width="131.6" height="12" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
+        <rect rx="3" ry="3" id="Frame_Top_00000070092737184718499270000014509220385480523934_" y="14.5" width="131.6" height="12" />
       </g>
       <line x1="131.6" y1="14.5" x2="0" y2="14.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="131.6" y1="26.5" x2="0" y2="26.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-      <line x1="131.6" y1="23.5" x2="0" y2="23.5" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Darker(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
-      <line x1="0.2" y1="15.3" x2="131.8" y2="15.3" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
-      <line x1="0.2" y1="24.2" x2="131.8" y2="24.2" fill="none" hmi-bind:stroke="{{Converter.RGBA(Converter.Lighter(ParamProps.BasicColor, 0.2))}}" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="131.6" y1="23.5" x2="0" y2="23.5" fill="none" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0.2" y1="15.3" x2="131.8" y2="15.3" fill="none" stroke-width="1.5" stroke-miterlimit="10" />
+      <line x1="0.2" y1="24.2" x2="131.8" y2="24.2" fill="none" stroke-width="1.5" stroke-miterlimit="10" />
     </g>
     <line x1="2" y1="4" x2="129.7" y2="4" fill="none" stroke="#18181b" stroke-miterlimit="10" />
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

@@ -1,20 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.060386, 0.088106)">
     <defs>
 </defs>
-<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+<g>
 	<g id="Kran_x5F_04" transform="translate(0,70)">
-		<g id="Trolley_00000090252742185868937540000013657635669726587789_No_Anim" hmi-bind:transform="translate({{0-LocalProps.NormalizedValuePositionHorizontal*1317.5}},-70)">
+		<g id="Trolley_00000090252742185868937540000013657635669726587789_No_Anim">
 			<g id="CabinLarge_00000173860415434652687890000010458358954963471758_">
 				<g>
 						<linearGradient id="BasicColor_x5F_Element_00000123412572316428635850000001155301414868332213_" gradientUnits="userSpaceOnUse" x1="1515.6395" y1="621.2518" x2="1515.6395" y2="568.6825">
 						<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 					</linearGradient>
 						<path id="BasicColor_x5F_Element_00000179634174689665782860000006991098358241610394_" fill="url(#BasicColor_x5F_Element_00000123412572316428635850000001155301414868332213_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="
 						M1536,621.3h-21c-0.8,0-1.5-0.2-2.2-0.7l-16.1-11.5c-1-0.7-1.6-1.8-1.6-3v-37.4h40.8V621.3z"/>
@@ -36,40 +40,40 @@
 				</g>
 					<linearGradient id="HighlightColor_x5F_Element_00000072256545522979393480000014980205675983235467_" gradientUnits="userSpaceOnUse" x1="1543.9011" y1="621.2518" x2="1543.9011" y2="568.6825">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path id="HighlightColor_x5F_Element_00000009590214470650512010000005353480496604002959_" fill="url(#HighlightColor_x5F_Element_00000072256545522979393480000014980205675983235467_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1551.6,621.3h-17.5v-52.6h19.5v50.6C1553.6,620.4,1552.7,621.3,1551.6,621.3z"/>
 			</g>
-			<g id="Cables_x5F_Small" hmi-bind:display="{{ and(or(or(eq(ParamProps.HookSelection , 2.0),eq(ParamProps.HookSelection , 3.0)),eq(ParamProps.HookSelection , 4.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Cables_x5F_Small">
 				<g>
-						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1436.9" hmi-bind:y1="{{668.7+LocalProps.NormalizedValuePositionVertical*360}}" x2="1436.9" y2="558.7"/>
-						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1450.5" hmi-bind:y1="{{668.7+LocalProps.NormalizedValuePositionVertical*360}}" x2="1450.5" y2="558.7"/>
+						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1436.9" x2="1436.9" y2="558.7"/>
+						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1450.5" x2="1450.5" y2="558.7"/>
 				</g>
 				<path fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M1413.7,575.1
 					c5.9,6.2,17.1,10.3,30,10.3c12.9,0,24.1-4.2,30-10.3"/>
 			</g>
-			<g id="Cables_x5F_Breit" hmi-bind:display="{{ and(or(or(eq(ParamProps.HookSelection , 0.0),eq(ParamProps.HookSelection , 1.0)),eq(ParamProps.HookSelection , 5.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Cables_x5F_Breit">
 				<g>
-						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1412.9" hmi-bind:y1="{{668.7+LocalProps.NormalizedValuePositionVertical*360}}" x2="1412.9" y2="558.7"/>
+						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1412.9" x2="1412.9" y2="558.7"/>
 					<path fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1419.9,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
-						c1.5,0,2.8,1.2,2.8,2.8V668.7z" hmi-bind:transform="translate(0,{{0+LocalProps.NormalizedValuePositionVertical*360}})"/>
+						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/>
 				</g>
 				<g>
-						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1474.5" hmi-bind:y1="{{668.7+LocalProps.NormalizedValuePositionVertical*360}}" x2="1474.5" y2="558.7"/>
+						<line fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1474.5" x2="1474.5" y2="558.7"/>
 					<path fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1481.5,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
-						c1.5,0,2.8,1.2,2.8,2.8V668.7z" hmi-bind:transform="translate(0,{{0+LocalProps.NormalizedValuePositionVertical*360}})"/>
+						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/>
 				</g>
 				<path fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M1413.7,575.1
 					c5.9,6.2,17.1,10.3,30,10.3c12.9,0,24.1-4.2,30-10.3" />
 			</g>
-			<g id= "HakenGesammelt_No_Anim" hmi-bind:transform="translate(0,{{0+LocalProps.NormalizedValuePositionVertical*360}})">
-			<g id="Haken_00000141421502232437176800000018240455732068943749_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 2.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id= "HakenGesammelt_No_Anim">
+			<g id="Haken_00000141421502232437176800000018240455732068943749_">
 				<g id="Haken_00000181061558456818993060000002425940276952312990_">
 						<linearGradient id="SVGID_00000051382111378453683220000018376223704067883699_" gradientUnits="userSpaceOnUse" x1="1452.9482" y1="725.2223" x2="1435.5891" y2="707.8632">
 						<stop  offset="0" stop-color="#898989"/>
@@ -111,7 +115,7 @@
 				</g>
 			</g>
 			<g id="Bagger_00000121967232876788334280000010360374590707253694_">
-				<g id="Schaufel_x5F_zu_00000160149916224683671640000012925215035605293731_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 4.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+				<g id="Schaufel_x5F_zu_00000160149916224683671640000012925215035605293731_">
 						<linearGradient id="SVGID_00000036959147795001432800000016227608535840874648_" gradientUnits="userSpaceOnUse" x1="1440.5063" y1="686.0644" x2="1446.8727" y2="686.0644">
 						<stop  offset="0" stop-color="#B3B3B3"/>
 						<stop  offset="0.24" stop-color="#E6E6E6"/>
@@ -194,8 +198,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000052813507337004006840000004055373113114157454_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
-							<circle fill="#18181b" cx="1438.4" cy="705" r="1"/>
+								<circle fill="url(#SVGID_00000052813507337004006840000004055373113114157454_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
+							<circle fill="#18181b" cx="1438.4" cy="705" r="0"/>
 								<line fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1409.1" y1="718.7" x2="1426.2" y2="718.7"/>
 						</g>
 						<g>
@@ -239,8 +243,8 @@
 								<stop  offset="0.9" stop-color="#18181b"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000176045370319459219430000002590815432870076319_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="2.8"/>
-							<circle fill="#18181b" cx="1449" cy="705" r="1"/>
+								<circle fill="url(#SVGID_00000176045370319459219430000002590815432870076319_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="0"/>
+							<circle fill="#18181b" cx="1449" cy="705" r="0"/>
 								<line fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1478.2" y1="718.7" x2="1461.2" y2="718.7"/>
 						</g>
 					</g>
@@ -262,8 +266,8 @@
 									<stop  offset="0.7811" stop-color="#5C5C5C"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000125604284789579113100000002738971686401299598_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1413" cy="722" r="3"/>
-								<circle fill="#18181b" cx="1413" cy="722" r="1.1"/>
+									<circle fill="url(#SVGID_00000125604284789579113100000002738971686401299598_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1413" cy="722" r="0"/>
+								<circle fill="#18181b" cx="1413" cy="722" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000141457533606478627880000013207700217013285041_" gradientUnits="userSpaceOnUse" x1="796.4904" y1="495.4306" x2="802.4904" y2="495.4306" gradientTransform="matrix(0.9415,0.337,-0.337,0.9415,845.5715,-65.024)">
@@ -274,8 +278,8 @@
 									<stop  offset="0.7811" stop-color="#5C5C5C"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000141457533606478627880000013207700217013285041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1431.3" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000141457533606478627880000013207700217013285041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1431.3" cy="670.9" r="0"/>
 							</g>
 						</g>
 						<g>
@@ -295,8 +299,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000136372531323852301320000004178599400226053307_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.4" cy="722" r="3"/>
-								<circle fill="#18181b" cx="1474.4" cy="722" r="1.1"/>
+									<circle fill="url(#SVGID_00000136372531323852301320000004178599400226053307_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.4" cy="722" r="0"/>
+								<circle fill="#18181b" cx="1474.4" cy="722" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000000181997370382493780000015444006680692361125_" gradientUnits="userSpaceOnUse" x1="-755.2482" y1="1050.895" x2="-749.2482" y2="1050.895" gradientTransform="matrix(-0.9415,0.337,0.337,0.9415 393.6469,-65.024)">
@@ -307,13 +311,13 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000000181997370382493780000015444006680692361125_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1456.1" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000000181997370382493780000015444006680692361125_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1456.1" cy="670.9" r="0"/>
 							</g>
 						</g>
 					</g>
 				</g>
-				<g id="Schaufel_x5F_offen_00000029005859220005370550000003093467229453504693_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 3.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+				<g id="Schaufel_x5F_offen_00000029005859220005370550000003093467229453504693_">
 						<linearGradient id="SVGID_00000179613708968816995400000006058928843925200000_" gradientUnits="userSpaceOnUse" x1="1440.5063" y1="686.0644" x2="1446.8727" y2="686.0644">
 						<stop  offset="0" stop-color="#B3B3B3"/>
 						<stop  offset="0.24" stop-color="#E6E6E6"/>
@@ -398,7 +402,7 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000026851058883503712890000007977728857927434399_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000026851058883503712890000007977728857927434399_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
 						<g>
 								<linearGradient id="SVGID_00000090981332629343636150000016647594873859649684_" gradientUnits="userSpaceOnUse" x1="322.0652" y1="2115.033" x2="328.0652" y2="2115.033" gradientTransform="matrix(0.4274,0.904,-0.904,0.4274,3181.5889,-498.8435)">
@@ -409,8 +413,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000090981332629343636150000016647594873859649684_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="3"/>
-							<circle fill="#18181b" cx="1408.4" cy="699.1" r="1.1"/>
+								<circle fill="url(#SVGID_00000090981332629343636150000016647594873859649684_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="0"/>
+							<circle fill="#18181b" cx="1408.4" cy="699.1" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -456,7 +460,7 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000089551699540936908250000015786529359960280710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000089551699540936908250000015786529359960280710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -469,9 +473,9 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000163752527960001056970000016362008989240331137_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000163752527960001056970000016362008989240331137_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
-						<circle fill="#18181b" cx="1438.4" cy="705" r="1"/>
+						<circle fill="#18181b" cx="1438.4" cy="705" r="0"/>
 					</g>
 					<g >
 							<linearGradient id="SVGID_00000113317388681013516730000005904699352371583875_" gradientUnits="userSpaceOnUse" x1="439.6084" y1="808.2919" x2="443.6084" y2="808.2919" gradientTransform="matrix(0.7759,0.6308,-0.4246,0.5223,1420.592,-15.9241)">
@@ -490,8 +494,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000130638957278058042590000003388147976385391785_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="3"/>
-							<circle fill="#18181b" cx="1431.3" cy="670.9" r="1.1"/>
+								<circle fill="url(#SVGID_00000130638957278058042590000003388147976385391785_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="0"/>
+							<circle fill="#18181b" cx="1431.3" cy="670.9" r="0"/>
 						</g>
 						<g>
 								<linearGradient id="SVGID_00000121999055525406960200000002437986941964406710_" gradientUnits="userSpaceOnUse" x1="322.0652" y1="2115.033" x2="328.0652" y2="2115.033" gradientTransform="matrix(0.4274,0.904,-0.904,0.4274,3181.5889,-498.8435)">
@@ -502,8 +506,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000121999055525406960200000002437986941964406710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="3"/>
-							<circle fill="#18181b" cx="1408.4" cy="699.1" r="1.1"/>
+								<circle fill="url(#SVGID_00000121999055525406960200000002437986941964406710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="0"/>
+							<circle fill="#18181b" cx="1408.4" cy="699.1" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -559,8 +563,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000139289569361058103430000014506615716694183088_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1456.1" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000139289569361058103430000014506615716694183088_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1456.1" cy="670.9" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000124859324867088739750000015523645048096144051_" gradientUnits="userSpaceOnUse" x1="1253.6172" y1="144.7218" x2="1259.6172" y2="144.7218" gradientTransform="matrix(-0.4274,0.904,0.904,0.4274,1885.215,-498.8435)">
@@ -571,8 +575,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000124859324867088739750000015523645048096144051_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1478.9" cy="699.1" r="3"/>
-								<circle fill="#18181b" cx="1478.9" cy="699.1" r="1.1"/>
+									<circle fill="url(#SVGID_00000124859324867088739750000015523645048096144051_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1478.9" cy="699.1" r="0"/>
+								<circle fill="#18181b" cx="1478.9" cy="699.1" r="0"/>
 							</g>
 						</g>
 					</g>
@@ -585,12 +589,12 @@
 							<stop  offset="0.7811" stop-color="#5C5C5C"/>
 							<stop  offset="1" stop-color="#575757"/>
 						</linearGradient>
-							<circle fill="url(#SVGID_00000067225605446385893680000013285950539052622731_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="2.8"/>
-						<circle fill="#18181b" cx="1449" cy="705" r="1"/>
+							<circle fill="url(#SVGID_00000067225605446385893680000013285950539052622731_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="0"/>
+						<circle fill="#18181b" cx="1449" cy="705" r="0"/>
 					</g>
 				</g>
 			</g>
-			<g id="Greifer_x5F_01" hmi-bind:display="{{ and(or(eq(ParamProps.HookSelection , 0.0),eq(ParamProps.HookSelection , 1.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" >
+			<g id="Greifer_x5F_01" >
 				<g id="HighlightColor_x5F_Element_00000074419574667552725990000001600751466788748984_">
 					<g>
 							<linearGradient id="SVGID_00000109002150898742999640000003309652289500311681_" gradientUnits="userSpaceOnUse" x1="1403.631" y1="707.5417" x2="1403.631" y2="686.8116">
@@ -622,7 +626,7 @@
 						<stop  offset="0.7811" stop-color="#5C5C5C"/>
 						<stop  offset="1" stop-color="#575757"/>
 					</linearGradient>
-						<rect x="1389.7" y="682.3" fill="url(#SVGID_00000141446385547355639020000008812219394813783220_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="108" height="8.9"/>
+						<rect rx="3" ry="3" x="1389.7" y="682.3" fill="url(#SVGID_00000141446385547355639020000008812219394813783220_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="108" height="8.9"/>
 						<linearGradient id="SVGID_00000154391940880977253800000010648166924026912946_" gradientUnits="userSpaceOnUse" x1="1397.7865" y1="674.8627" x2="1489.4348" y2="674.8627">
 						<stop  offset="0" stop-color="#575757"/>
 						<stop  offset="0.1" stop-color="#18181b"/>
@@ -638,9 +642,9 @@
 					<stop  offset="0.6397" stop-color="#EBEBEB"/>
 					<stop  offset="1" stop-color="#B2B2B2"/>
 				</linearGradient>
-					<rect id="Container" x="1411.5" y="694.8" fill="url(#Container_00000067211012337407339460000014261157270956322945_)" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 1.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" stroke="#000000" stroke-width="0.9017" stroke-miterlimit="10" width="64.4" height="76.4"/>
+					<rect rx="3" ry="3" id="Container" x="1411.5" y="694.8" fill="url(#Container_00000067211012337407339460000014261157270956322945_)" stroke="#000000" stroke-width="0.9017" stroke-miterlimit="10" width="64.4" height="76.4"/>
 			</g>
-			<g id="Magnet_00000041256340147912963030000012999871522122770324_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 5.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Magnet_00000041256340147912963030000012999871522122770324_">
 				<g>
 						<linearGradient id="SVGID_00000012468490953843694390000010136109830697250205_" gradientUnits="userSpaceOnUse" x1="1408.4841" y1="664.6065" x2="1416.4841" y2="664.6065">
 						<stop  offset="0" stop-color="#575757"/>
@@ -652,7 +656,7 @@
 					</linearGradient>
 						<path fill="url(#SVGID_00000012468490953843694390000010136109830697250205_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 						M1416.5,672.6h-8v-12c0-2.2,1.8-4,4-4l0,0c2.2,0,4,1.8,4,4V672.6z"/>
-						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1412.5" cy="661.1" r="2"/>
+						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1412.5" cy="661.1" r="0"/>
 				</g>
 				<g>
 						<linearGradient id="SVGID_00000088101228113575950330000000689889293154933662_" gradientUnits="userSpaceOnUse" x1="1470.8949" y1="664.6065" x2="1478.8949" y2="664.6065">
@@ -665,7 +669,7 @@
 					</linearGradient>
 						<path fill="url(#SVGID_00000088101228113575950330000000689889293154933662_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 						M1478.9,672.6h-8v-12c0-2.2,1.8-4,4-4l0,0c2.2,0,4,1.8,4,4V672.6z"/>
-						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.9" cy="661.1" r="2"/>
+						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.9" cy="661.1" r="0"/>
 				</g>
 					<linearGradient id="SVGID_00000060735287359894391270000000444162120749996204_" gradientUnits="userSpaceOnUse" x1="1400.6896" y1="671.3436" x2="1486.6896" y2="671.3436">
 					<stop  offset="0" stop-color="#B3B3B3"/>
@@ -693,23 +697,23 @@
 			<g id="HighlightColor_x5F_Element_00000067957251424535841670000009123824257715233927_">
 					<linearGradient id="SVGID_00000025429796477737320270000011200699682597532062_" gradientUnits="userSpaceOnUse" x1="1407.6896" y1="552.2842" x2="1479.6896" y2="552.2842">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path fill="url(#SVGID_00000025429796477737320270000011200699682597532062_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1475.7,574.8h-64c-2.2,0-4-1.8-4-4v-18.5c0-2.2,1.8-4,4-4h64c2.2,0,4,1.8,4,4v18.5C1479.7,573,1477.9,574.8,1475.7,574.8z"/>
 					<linearGradient id="SVGID_00000042018434151143858320000006637869612200429196_" gradientUnits="userSpaceOnUse" x1="1393.6896" y1="552.2842" x2="1558.3004" y2="552.2842">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path fill="url(#SVGID_00000042018434151143858320000006637869612200429196_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1556.3,570.3h-160.6c-1.1,0-2-0.9-2-2v-16c0-1.1,0.9-2,2-2h160.6c1.1,0,2,0.9,2,2v16C1558.3,569.4,1557.4,570.3,1556.3,570.3z"
@@ -725,8 +729,9 @@
 				<stop  offset="0.7811" stop-color="#5C5C5C"/>
 				<stop  offset="1" stop-color="#575757"/>
 			</linearGradient>
-				<line fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="5.5" stroke-linecap="round" stroke-miterlimit="10" x1="848.6" y1="147.1" hmi-bind:x2="{{805-(668.8*cos(LocalProps.NormalizedValueBoomArm*0.7853981634))}}" hmi-bind:y2="{{486.7-(668.8*sin(LocalProps.NormalizedValueBoomArm*0.7853981634))}}"/>
-			<g hmi-bind:transform="rotate({{LocalProps.NormalizedValueBoomArm*45}},805,486.7)">
+				<line fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="5.5" stroke-linecap="round" stroke-miterlimit="10" x1="848.6" y1="147.1"/>
+				<!--<polygon fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"/> -->
+			<g>
 					<linearGradient id="SVGID_00000163781086353259651700000015556380423105211274_" gradientUnits="userSpaceOnUse" x1="77.3362" y1="488.7072" x2="77.3362" y2="439.6763">
 					<stop  offset="0" stop-color="#18181b"/>
 					<stop  offset="0.4134" stop-color="#AEAEAD"/>
@@ -1181,20 +1186,20 @@
 			<linearGradient id="MachineRoom_00000065774441421088825810000000802536877778074542_" gradientUnits="userSpaceOnUse" x1="1291.501" y2="437.3255" x2="1291.501" y1="383.8206">
 			<stop offset="0" stop-color="#71717a"  />
 			  <stop offset="0.5" stop-color="#71717a"  />
-			  <stop offset="0.8" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="0.8" stop-color="#52525b"  />
+			  <stop offset="1" stop-color="#52525b"  />
 		</linearGradient>
 			<polygon id="MachineRoom_00000106115623057299317650000004287640587545116060_" fill="url(#MachineRoom_00000065774441421088825810000000802536877778074542_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" points="
 			1334.4,437.3 1248.6,437.3 1248.6,383.8 1334.4,390.9 	"/>
 		<g id="Pfeiler_x5F_01_00000038411953577758057720000002993135724839999665_">
 				<linearGradient id="SVGID_00000163776856045000241400000000074146360679800489_" gradientUnits="userSpaceOnUse" x1="842.4435" y1="1047.1117" x2="850.2435" y2="1047.1117">
 				<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 			</linearGradient>
 				<path fill="url(#SVGID_00000163776856045000241400000000074146360679800489_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M847.2,1066.7h-1.8c-1.7,0-3-1.3-3-3v-33.1c0-1.7,1.3-3,3-3h1.8c1.7,0,3,1.3,3,3v33.1C850.2,1065.3,848.9,1066.7,847.2,1066.7z"/>
@@ -1209,7 +1214,7 @@
 			</linearGradient>
 				<path id="Basic_x5F_Color_x5F_Element_00000146473470905785945510000012149067741719030177_" fill="url(#Basic_x5F_Color_x5F_Element_00000104692637345553441480000003316782671903687854_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M856.7,1038.4h-20.8V439.5c0-1.1,0.9-2,2-2h16.8c1.1,0,2,0.9,2,2V1038.4z"/>
-			<rect x="836.5" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
+			<rect rx="3" ry="3" x="836.5" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
 				<linearGradient id="SVGID_00000032615687000673021230000007827841381318792105_" gradientUnits="userSpaceOnUse" x1="833.3435" y1="1038.5591" x2="859.3435" y2="1038.5591">
 				<stop  offset="0" stop-color="#B3B3B3"/>
 				<stop  offset="0.147" stop-color="#E6E6E6"/>
@@ -1219,38 +1224,38 @@
 				M858.3,1041.2h-24c-0.6,0-1-0.4-1-1v-3.2c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1v3.2C859.3,1040.7,858.9,1041.2,858.3,1041.2z"/>
 				<line fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="837.2" y1="1030" x2="855.4" y2="1030"/>
 			<g>
-					<rect x="843.4" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
 			</g>
 				<linearGradient id="SVGID_00000149382474382283411970000000615251695461669054_" gradientUnits="userSpaceOnUse" x1="835.3435" y1="446.2356" x2="857.3435" y2="446.2356">
 				<stop  offset="0" stop-color="#575757"/>
@@ -1266,12 +1271,12 @@
 		<g id="Pfeiler_x5F_02_00000020358438495575287480000013178539217132165763_">
 				<linearGradient id="SVGID_00000062154040398577569060000008153626255034149565_" gradientUnits="userSpaceOnUse" x1="1213.8671" y1="1047.1117" x2="1221.667" y2="1047.1117">
 				<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 			</linearGradient>
 				<path fill="url(#SVGID_00000062154040398577569060000008153626255034149565_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M1218.7,1066.7h-1.8c-1.7,0-3-1.3-3-3v-33.1c0-1.7,1.3-3,3-3h1.8c1.7,0,3,1.3,3,3v33.1C1221.7,1065.3,1220.3,1066.7,1218.7,1066.7
@@ -1287,7 +1292,7 @@
 			</linearGradient>
 				<path id="Basic_x5F_Color_x5F_Element_00000145752275120014942920000015703470010253407678_" fill="url(#Basic_x5F_Color_x5F_Element_00000048477319638244193800000013951821649808749495_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M1228.2,1038.4h-20.8V439.5c0-1.1,0.9-2,2-2h16.8c1.1,0,2,0.9,2,2V1038.4z"/>
-			<rect x="1207.9" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
+			<rect rx="3" ry="3" x="1207.9" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
 				<linearGradient id="SVGID_00000045585304740399231030000016565291738988718741_" gradientUnits="userSpaceOnUse" x1="1204.7671" y1="1038.5591" x2="1230.7671" y2="1038.5591">
 				<stop  offset="0" stop-color="#B3B3B3"/>
 				<stop  offset="0.147" stop-color="#E6E6E6"/>
@@ -1297,38 +1302,38 @@
 				M1229.8,1041.2h-24c-0.6,0-1-0.4-1-1v-3.2c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1v3.2C1230.8,1040.7,1230.3,1041.2,1229.8,1041.2z"/>
 				<line fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1208.7" y1="1030" x2="1226.9" y2="1030"/>
 			<g>
-					<rect x="1214.8" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
 			</g>
 				<linearGradient id="SVGID_00000159436635977491951850000008665461821576600234_" gradientUnits="userSpaceOnUse" x1="1206.7671" y1="446.2356" x2="1228.7671" y2="446.2356">
 				<stop  offset="0" stop-color="#575757"/>
@@ -1343,19 +1348,20 @@
 		</g>
 	</g>
 </g>
-<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+<g>
 	<g id="Kran_x5F_04" transform="translate(0,70)">
+		<!-- <g id="Trolley_00000090252742185868937540000013657635669726587789_"> -->
 		<g id="Trolley_00000090252742185868937540000013657635669726587789_">
 			<g id="CabinLarge_00000173860415434652687890000010458358954963471758_">
 				<g>
 						<linearGradient id="BasicColor_x5F_Element_00000123412572316428635850000001155301414868332213_" gradientUnits="userSpaceOnUse" x1="1515.6395" y1="621.2518" x2="1515.6395" y2="568.6825">
 						<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 					</linearGradient>
 						<path id="BasicColor_x5F_Element_00000179634174689665782860000006991098358241610394_" fill="url(#BasicColor_x5F_Element_00000123412572316428635850000001155301414868332213_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="
 						M1536,621.3h-21c-0.8,0-1.5-0.2-2.2-0.7l-16.1-11.5c-1-0.7-1.6-1.8-1.6-3v-37.4h40.8V621.3z"/>
@@ -1377,40 +1383,49 @@
 				</g>
 					<linearGradient id="HighlightColor_x5F_Element_00000072256545522979393480000014980205675983235467_" gradientUnits="userSpaceOnUse" x1="1543.9011" y1="621.2518" x2="1543.9011" y2="568.6825">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path id="HighlightColor_x5F_Element_00000009590214470650512010000005353480496604002959_" fill="url(#HighlightColor_x5F_Element_00000072256545522979393480000014980205675983235467_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1551.6,621.3h-17.5v-52.6h19.5v50.6C1553.6,620.4,1552.7,621.3,1551.6,621.3z"/>
 			</g>
-			<g id="Cables_x5F_Small" hmi-bind:display="{{ and(or(or(eq(ParamProps.HookSelection , 2.0),eq(ParamProps.HookSelection , 3.0)),eq(ParamProps.HookSelection , 4.0)), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Cables_x5F_Small">
 				<g>
+						<!-- <line id="L1Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1436.9" x2="1436.9" y2="558.7"/> -->
 						<line id="L1Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1436.9" x2="1436.9" y2="558.7"/>
+						<!-- <line id="L2Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1450.5" x2="1450.5" y2="558.7"/> -->
 						<line id="L2Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1450.5" x2="1450.5" y2="558.7"/>
 				</g>
 				<path fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M1413.7,575.1
 					c5.9,6.2,17.1,10.3,30,10.3c12.9,0,24.1-4.2,30-10.3"/>
 			</g>
-			<g id="Cables_x5F_Breit" hmi-bind:display="{{ and(or(or(eq(ParamProps.HookSelection , 0.0),eq(ParamProps.HookSelection , 1.0)),eq(ParamProps.HookSelection , 5.0)), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Cables_x5F_Breit">
 				<g>
+						<!-- <line id="L3Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1412.9" x2="1412.9" y2="558.7"/> -->
 						<line id="L3Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1412.9" x2="1412.9" y2="558.7"/>
+					<!-- <path id="L4Anim" fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1419.9,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
+						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/> -->
 						<path id="L4Anim" fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1419.9,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
 						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/>
 				</g>
 				<g>
+						<!-- <line id="L5Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1474.5" x2="1474.5" y2="558.7"/> -->
 						<line id="L5Anim" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="1474.5" x2="1474.5" y2="558.7"/>
+					<!-- <path id="L6Anim" fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1481.5,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
+						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/> -->
 						<path id="L6Anim" fill="#18181b" stroke="#18181b" stroke-miterlimit="10" d="M1481.5,668.7h-14v-3.2c0-1.5,1.2-2.8,2.8-2.8h8.4
 						c1.5,0,2.8,1.2,2.8,2.8V668.7z"/>
 				</g>
 				<path fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M1413.7,575.1
 					c5.9,6.2,17.1,10.3,30,10.3c12.9,0,24.1-4.2,30-10.3" />
 			</g>
+			<!-- <g id= "HakenGesammelt"> -->
 			<g id= "HakenGesammelt">
-			<g id="Haken_00000141421502232437176800000018240455732068943749_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 2.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Haken_00000141421502232437176800000018240455732068943749_">
 				<g id="Haken_00000181061558456818993060000002425940276952312990_">
 						<linearGradient id="SVGID_00000051382111378453683220000018376223704067883699_" gradientUnits="userSpaceOnUse" x1="1452.9482" y1="725.2223" x2="1435.5891" y2="707.8632">
 						<stop  offset="0" stop-color="#898989"/>
@@ -1452,7 +1467,7 @@
 				</g>
 			</g>
 			<g id="Bagger_00000121967232876788334280000010360374590707253694_">
-				<g id="Schaufel_x5F_zu_00000160149916224683671640000012925215035605293731_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 4.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+				<g id="Schaufel_x5F_zu_00000160149916224683671640000012925215035605293731_">
 						<linearGradient id="SVGID_00000036959147795001432800000016227608535840874648_" gradientUnits="userSpaceOnUse" x1="1440.5063" y1="686.0644" x2="1446.8727" y2="686.0644">
 						<stop  offset="0" stop-color="#B3B3B3"/>
 						<stop  offset="0.24" stop-color="#E6E6E6"/>
@@ -1535,8 +1550,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000052813507337004006840000004055373113114157454_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
-							<circle fill="#18181b" cx="1438.4" cy="705" r="1"/>
+								<circle fill="url(#SVGID_00000052813507337004006840000004055373113114157454_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
+							<circle fill="#18181b" cx="1438.4" cy="705" r="0"/>
 								<line fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1409.1" y1="718.7" x2="1426.2" y2="718.7"/>
 						</g>
 						<g>
@@ -1580,8 +1595,8 @@
 								<stop  offset="0.9" stop-color="#18181b"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000176045370319459219430000002590815432870076319_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="2.8"/>
-							<circle fill="#18181b" cx="1449" cy="705" r="1"/>
+								<circle fill="url(#SVGID_00000176045370319459219430000002590815432870076319_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="0"/>
+							<circle fill="#18181b" cx="1449" cy="705" r="0"/>
 								<line fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1478.2" y1="718.7" x2="1461.2" y2="718.7"/>
 						</g>
 					</g>
@@ -1603,8 +1618,8 @@
 									<stop  offset="0.7811" stop-color="#5C5C5C"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000125604284789579113100000002738971686401299598_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1413" cy="722" r="3"/>
-								<circle fill="#18181b" cx="1413" cy="722" r="1.1"/>
+									<circle fill="url(#SVGID_00000125604284789579113100000002738971686401299598_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1413" cy="722" r="0"/>
+								<circle fill="#18181b" cx="1413" cy="722" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000141457533606478627880000013207700217013285041_" gradientUnits="userSpaceOnUse" x1="796.4904" y1="495.4306" x2="802.4904" y2="495.4306" gradientTransform="matrix(0.9415,0.337,-0.337,0.9415,845.5715,-65.024)">
@@ -1615,8 +1630,8 @@
 									<stop  offset="0.7811" stop-color="#5C5C5C"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000141457533606478627880000013207700217013285041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1431.3" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000141457533606478627880000013207700217013285041_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1431.3" cy="670.9" r="0"/>
 							</g>
 						</g>
 						<g>
@@ -1636,8 +1651,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000136372531323852301320000004178599400226053307_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.4" cy="722" r="3"/>
-								<circle fill="#18181b" cx="1474.4" cy="722" r="1.1"/>
+									<circle fill="url(#SVGID_00000136372531323852301320000004178599400226053307_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.4" cy="722" r="0"/>
+								<circle fill="#18181b" cx="1474.4" cy="722" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000000181997370382493780000015444006680692361125_" gradientUnits="userSpaceOnUse" x1="-755.2482" y1="1050.895" x2="-749.2482" y2="1050.895" gradientTransform="matrix(-0.9415,0.337,0.337,0.9415 393.6469,-65.024)">
@@ -1648,13 +1663,13 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000000181997370382493780000015444006680692361125_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1456.1" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000000181997370382493780000015444006680692361125_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1456.1" cy="670.9" r="0"/>
 							</g>
 						</g>
 					</g>
 				</g>
-				<g id="Schaufel_x5F_offen_00000029005859220005370550000003093467229453504693_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 3.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+				<g id="Schaufel_x5F_offen_00000029005859220005370550000003093467229453504693_">
 						<linearGradient id="SVGID_00000179613708968816995400000006058928843925200000_" gradientUnits="userSpaceOnUse" x1="1440.5063" y1="686.0644" x2="1446.8727" y2="686.0644">
 						<stop  offset="0" stop-color="#B3B3B3"/>
 						<stop  offset="0.24" stop-color="#E6E6E6"/>
@@ -1739,7 +1754,7 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000026851058883503712890000007977728857927434399_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000026851058883503712890000007977728857927434399_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
 						<g>
 								<linearGradient id="SVGID_00000090981332629343636150000016647594873859649684_" gradientUnits="userSpaceOnUse" x1="322.0652" y1="2115.033" x2="328.0652" y2="2115.033" gradientTransform="matrix(0.4274,0.904,-0.904,0.4274,3181.5889,-498.8435)">
@@ -1750,8 +1765,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000090981332629343636150000016647594873859649684_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="3"/>
-							<circle fill="#18181b" cx="1408.4" cy="699.1" r="1.1"/>
+								<circle fill="url(#SVGID_00000090981332629343636150000016647594873859649684_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="0"/>
+							<circle fill="#18181b" cx="1408.4" cy="699.1" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -1797,7 +1812,7 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000089551699540936908250000015786529359960280710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000089551699540936908250000015786529359960280710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -1810,9 +1825,9 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000163752527960001056970000016362008989240331137_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="2.8"/>
+								<circle fill="url(#SVGID_00000163752527960001056970000016362008989240331137_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1438.4" cy="705" r="0"/>
 						</g>
-						<circle fill="#18181b" cx="1438.4" cy="705" r="1"/>
+						<circle fill="#18181b" cx="1438.4" cy="705" r="0"/>
 					</g>
 					<g >
 							<linearGradient id="SVGID_00000113317388681013516730000005904699352371583875_" gradientUnits="userSpaceOnUse" x1="439.6084" y1="808.2919" x2="443.6084" y2="808.2919" gradientTransform="matrix(0.7759,0.6308,-0.4246,0.5223,1420.592,-15.9241)">
@@ -1831,8 +1846,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000130638957278058042590000003388147976385391785_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="3"/>
-							<circle fill="#18181b" cx="1431.3" cy="670.9" r="1.1"/>
+								<circle fill="url(#SVGID_00000130638957278058042590000003388147976385391785_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1431.3" cy="670.9" r="0"/>
+							<circle fill="#18181b" cx="1431.3" cy="670.9" r="0"/>
 						</g>
 						<g>
 								<linearGradient id="SVGID_00000121999055525406960200000002437986941964406710_" gradientUnits="userSpaceOnUse" x1="322.0652" y1="2115.033" x2="328.0652" y2="2115.033" gradientTransform="matrix(0.4274,0.904,-0.904,0.4274,3181.5889,-498.8435)">
@@ -1843,8 +1858,8 @@
 								<stop  offset="0.7811" stop-color="#5C5C5C"/>
 								<stop  offset="1" stop-color="#575757"/>
 							</linearGradient>
-								<circle fill="url(#SVGID_00000121999055525406960200000002437986941964406710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="3"/>
-							<circle fill="#18181b" cx="1408.4" cy="699.1" r="1.1"/>
+								<circle fill="url(#SVGID_00000121999055525406960200000002437986941964406710_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1408.4" cy="699.1" r="0"/>
+							<circle fill="#18181b" cx="1408.4" cy="699.1" r="0"/>
 						</g>
 					</g>
 					<g >
@@ -1900,8 +1915,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000139289569361058103430000014506615716694183088_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="3"/>
-								<circle fill="#18181b" cx="1456.1" cy="670.9" r="1.1"/>
+									<circle fill="url(#SVGID_00000139289569361058103430000014506615716694183088_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1456.1" cy="670.9" r="0"/>
+								<circle fill="#18181b" cx="1456.1" cy="670.9" r="0"/>
 							</g>
 							<g>
 									<linearGradient id="SVGID_00000124859324867088739750000015523645048096144051_" gradientUnits="userSpaceOnUse" x1="1253.6172" y1="144.7218" x2="1259.6172" y2="144.7218" gradientTransform="matrix(-0.4274,0.904,0.904,0.4274,1885.215,-498.8435)">
@@ -1912,8 +1927,8 @@
 									<stop  offset="0.9" stop-color="#18181b"/>
 									<stop  offset="1" stop-color="#575757"/>
 								</linearGradient>
-									<circle fill="url(#SVGID_00000124859324867088739750000015523645048096144051_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1478.9" cy="699.1" r="3"/>
-								<circle fill="#18181b" cx="1478.9" cy="699.1" r="1.1"/>
+									<circle fill="url(#SVGID_00000124859324867088739750000015523645048096144051_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1478.9" cy="699.1" r="0"/>
+								<circle fill="#18181b" cx="1478.9" cy="699.1" r="0"/>
 							</g>
 						</g>
 					</g>
@@ -1926,12 +1941,12 @@
 							<stop  offset="0.7811" stop-color="#5C5C5C"/>
 							<stop  offset="1" stop-color="#575757"/>
 						</linearGradient>
-							<circle fill="url(#SVGID_00000067225605446385893680000013285950539052622731_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="2.8"/>
-						<circle fill="#18181b" cx="1449" cy="705" r="1"/>
+							<circle fill="url(#SVGID_00000067225605446385893680000013285950539052622731_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1449" cy="705" r="0"/>
+						<circle fill="#18181b" cx="1449" cy="705" r="0"/>
 					</g>
 				</g>
 			</g>
-			<g id="Greifer_x5F_01" hmi-bind:display="{{ and(or(eq(ParamProps.HookSelection , 0.0),eq(ParamProps.HookSelection , 1.0)), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" >
+			<g id="Greifer_x5F_01" >
 				<g id="HighlightColor_x5F_Element_00000074419574667552725990000001600751466788748984_">
 					<g>
 							<linearGradient id="SVGID_00000109002150898742999640000003309652289500311681_" gradientUnits="userSpaceOnUse" x1="1403.631" y1="707.5417" x2="1403.631" y2="686.8116">
@@ -1963,7 +1978,7 @@
 						<stop  offset="0.7811" stop-color="#5C5C5C"/>
 						<stop  offset="1" stop-color="#575757"/>
 					</linearGradient>
-						<rect x="1389.7" y="682.3" fill="url(#SVGID_00000141446385547355639020000008812219394813783220_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="108" height="8.9"/>
+						<rect rx="3" ry="3" x="1389.7" y="682.3" fill="url(#SVGID_00000141446385547355639020000008812219394813783220_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="108" height="8.9"/>
 						<linearGradient id="SVGID_00000154391940880977253800000010648166924026912946_" gradientUnits="userSpaceOnUse" x1="1397.7865" y1="674.8627" x2="1489.4348" y2="674.8627">
 						<stop  offset="0" stop-color="#575757"/>
 						<stop  offset="0.1" stop-color="#18181b"/>
@@ -1979,9 +1994,9 @@
 					<stop  offset="0.6397" stop-color="#EBEBEB"/>
 					<stop  offset="1" stop-color="#B2B2B2"/>
 				</linearGradient>
-					<rect id="Container" x="1411.5" y="694.8" fill="url(#Container_00000067211012337407339460000014261157270956322945_)" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 1.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" stroke="#000000" stroke-width="0.9017" stroke-miterlimit="10" width="64.4" height="76.4"/>
+					<rect rx="3" ry="3" id="Container" x="1411.5" y="694.8" fill="url(#Container_00000067211012337407339460000014261157270956322945_)" stroke="#000000" stroke-width="0.9017" stroke-miterlimit="10" width="64.4" height="76.4"/>
 			</g>
-			<g id="Magnet_00000041256340147912963030000012999871522122770324_" hmi-bind:display="{{ and(eq(ParamProps.HookSelection , 5.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Magnet_00000041256340147912963030000012999871522122770324_">
 				<g>
 						<linearGradient id="SVGID_00000012468490953843694390000010136109830697250205_" gradientUnits="userSpaceOnUse" x1="1408.4841" y1="664.6065" x2="1416.4841" y2="664.6065">
 						<stop  offset="0" stop-color="#575757"/>
@@ -1993,7 +2008,7 @@
 					</linearGradient>
 						<path fill="url(#SVGID_00000012468490953843694390000010136109830697250205_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 						M1416.5,672.6h-8v-12c0-2.2,1.8-4,4-4l0,0c2.2,0,4,1.8,4,4V672.6z"/>
-						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1412.5" cy="661.1" r="2"/>
+						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1412.5" cy="661.1" r="0"/>
 				</g>
 				<g>
 						<linearGradient id="SVGID_00000088101228113575950330000000689889293154933662_" gradientUnits="userSpaceOnUse" x1="1470.8949" y1="664.6065" x2="1478.8949" y2="664.6065">
@@ -2006,7 +2021,7 @@
 					</linearGradient>
 						<path fill="url(#SVGID_00000088101228113575950330000000689889293154933662_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 						M1478.9,672.6h-8v-12c0-2.2,1.8-4,4-4l0,0c2.2,0,4,1.8,4,4V672.6z"/>
-						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.9" cy="661.1" r="2"/>
+						<circle fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="1474.9" cy="661.1" r="0"/>
 				</g>
 					<linearGradient id="SVGID_00000060735287359894391270000000444162120749996204_" gradientUnits="userSpaceOnUse" x1="1400.6896" y1="671.3436" x2="1486.6896" y2="671.3436">
 					<stop  offset="0" stop-color="#B3B3B3"/>
@@ -2034,23 +2049,23 @@
 			<g id="HighlightColor_x5F_Element_00000067957251424535841670000009123824257715233927_">
 					<linearGradient id="SVGID_00000025429796477737320270000011200699682597532062_" gradientUnits="userSpaceOnUse" x1="1407.6896" y1="552.2842" x2="1479.6896" y2="552.2842">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path fill="url(#SVGID_00000025429796477737320270000011200699682597532062_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1475.7,574.8h-64c-2.2,0-4-1.8-4-4v-18.5c0-2.2,1.8-4,4-4h64c2.2,0,4,1.8,4,4v18.5C1479.7,573,1477.9,574.8,1475.7,574.8z"/>
 					<linearGradient id="SVGID_00000042018434151143858320000006637869612200429196_" gradientUnits="userSpaceOnUse" x1="1393.6896" y1="552.2842" x2="1558.3004" y2="552.2842">
 					<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 				</linearGradient>
 					<path fill="url(#SVGID_00000042018434151143858320000006637869612200429196_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 					M1556.3,570.3h-160.6c-1.1,0-2-0.9-2-2v-16c0-1.1,0.9-2,2-2h160.6c1.1,0,2,0.9,2,2v16C1558.3,569.4,1557.4,570.3,1556.3,570.3z"
@@ -2066,7 +2081,10 @@
 				<stop  offset="0.7811" stop-color="#5C5C5C"/>
 				<stop  offset="1" stop-color="#575757"/>
 			</linearGradient>
+				<!-- <line id="Arm1Anim" fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="5.5" stroke-linecap="round" stroke-miterlimit="10" x1="848.6" y1="147.1"/> -->
 				<line id="Arm1Anim" fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="5.5" stroke-linecap="round" stroke-miterlimit="10" x1="848.6" y1="147.1"/>
+				<!--<polygon fill="url(#SVGID_00000067224154311313003650000001734066295378391484_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"/> -->
+			<!-- <g id="Arm2Anim"> -->
 			<g id="Arm2Anim">
 					<linearGradient id="SVGID_00000163781086353259651700000015556380423105211274_" gradientUnits="userSpaceOnUse" x1="77.3362" y1="488.7072" x2="77.3362" y2="439.6763">
 					<stop  offset="0" stop-color="#18181b"/>
@@ -2522,20 +2540,20 @@
 			<linearGradient id="MachineRoom_00000065774441421088825810000000802536877778074542_" gradientUnits="userSpaceOnUse" x1="1291.501" y2="437.3255" x2="1291.501" y1="383.8206">
 			<stop offset="0" stop-color="#71717a"  />
 			  <stop offset="0.5" stop-color="#71717a"  />
-			  <stop offset="0.8" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="0.8" stop-color="#52525b"  />
+			  <stop offset="1" stop-color="#52525b"  />
 		</linearGradient>
 			<polygon id="MachineRoom_00000106115623057299317650000004287640587545116060_" fill="url(#MachineRoom_00000065774441421088825810000000802536877778074542_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" points="
 			1334.4,437.3 1248.6,437.3 1248.6,383.8 1334.4,390.9 	"/>
 		<g id="Pfeiler_x5F_01_00000038411953577758057720000002993135724839999665_">
 				<linearGradient id="SVGID_00000163776856045000241400000000074146360679800489_" gradientUnits="userSpaceOnUse" x1="842.4435" y1="1047.1117" x2="850.2435" y2="1047.1117">
 				<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 			</linearGradient>
 				<path fill="url(#SVGID_00000163776856045000241400000000074146360679800489_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M847.2,1066.7h-1.8c-1.7,0-3-1.3-3-3v-33.1c0-1.7,1.3-3,3-3h1.8c1.7,0,3,1.3,3,3v33.1C850.2,1065.3,848.9,1066.7,847.2,1066.7z"/>
@@ -2550,7 +2568,7 @@
 			</linearGradient>
 				<path id="Basic_x5F_Color_x5F_Element_00000146473470905785945510000012149067741719030177_" fill="url(#Basic_x5F_Color_x5F_Element_00000104692637345553441480000003316782671903687854_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M856.7,1038.4h-20.8V439.5c0-1.1,0.9-2,2-2h16.8c1.1,0,2,0.9,2,2V1038.4z"/>
-			<rect x="836.5" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
+			<rect rx="3" ry="3" x="836.5" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
 				<linearGradient id="SVGID_00000032615687000673021230000007827841381318792105_" gradientUnits="userSpaceOnUse" x1="833.3435" y1="1038.5591" x2="859.3435" y2="1038.5591">
 				<stop  offset="0" stop-color="#B3B3B3"/>
 				<stop  offset="0.147" stop-color="#E6E6E6"/>
@@ -2560,38 +2578,38 @@
 				M858.3,1041.2h-24c-0.6,0-1-0.4-1-1v-3.2c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1v3.2C859.3,1040.7,858.9,1041.2,858.3,1041.2z"/>
 				<line fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="837.2" y1="1030" x2="855.4" y2="1030"/>
 			<g>
-					<rect x="843.4" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="843.4" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="843.4" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
 			</g>
 				<linearGradient id="SVGID_00000149382474382283411970000000615251695461669054_" gradientUnits="userSpaceOnUse" x1="835.3435" y1="446.2356" x2="857.3435" y2="446.2356">
 				<stop  offset="0" stop-color="#575757"/>
@@ -2607,12 +2625,12 @@
 		<g id="Pfeiler_x5F_02_00000020358438495575287480000013178539217132165763_">
 				<linearGradient id="SVGID_00000062154040398577569060000008153626255034149565_" gradientUnits="userSpaceOnUse" x1="1213.8671" y1="1047.1117" x2="1221.667" y2="1047.1117">
 				<stop offset="0" stop-color="#71717a"  />
-			  <stop offset="0.3603" stop-color="#71717a"  />
-			  <stop offset="0.6962" stop-color="#71717a"  />
-			  <stop offset="0.817" stop-color="#71717a"  />
+			  <stop offset="0.3603" stop-color="#a1a1aa"  />
+			  <stop offset="0.6962" stop-color="#a1a1aa"  />
+			  <stop offset="0.817" stop-color="#a1a1aa"  />
 			  <stop offset="0.9029" stop-color="#71717a"  />
 			  <stop offset="0.93" stop-color="#71717a"  />
-			  <stop offset="1" stop-color="#71717a"  />
+			  <stop offset="1" stop-color="#52525b"  />
 			</linearGradient>
 				<path fill="url(#SVGID_00000062154040398577569060000008153626255034149565_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M1218.7,1066.7h-1.8c-1.7,0-3-1.3-3-3v-33.1c0-1.7,1.3-3,3-3h1.8c1.7,0,3,1.3,3,3v33.1C1221.7,1065.3,1220.3,1066.7,1218.7,1066.7
@@ -2628,7 +2646,7 @@
 			</linearGradient>
 				<path id="Basic_x5F_Color_x5F_Element_00000145752275120014942920000015703470010253407678_" fill="url(#Basic_x5F_Color_x5F_Element_00000048477319638244193800000013951821649808749495_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
 				M1228.2,1038.4h-20.8V439.5c0-1.1,0.9-2,2-2h16.8c1.1,0,2,0.9,2,2V1038.4z"/>
-			<rect x="1207.9" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
+			<rect rx="3" ry="3" x="1207.9" y="440.1" fill-opacity="0.6" fill="#e4e4e7" width="5.2" height="596"/>
 				<linearGradient id="SVGID_00000045585304740399231030000016565291738988718741_" gradientUnits="userSpaceOnUse" x1="1204.7671" y1="1038.5591" x2="1230.7671" y2="1038.5591">
 				<stop  offset="0" stop-color="#B3B3B3"/>
 				<stop  offset="0.147" stop-color="#E6E6E6"/>
@@ -2638,38 +2656,38 @@
 				M1229.8,1041.2h-24c-0.6,0-1-0.4-1-1v-3.2c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1v3.2C1230.8,1040.7,1230.3,1041.2,1229.8,1041.2z"/>
 				<line fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="1208.7" y1="1030" x2="1226.9" y2="1030"/>
 			<g>
-					<rect x="1214.8" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
-					<rect x="1214.8" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="459.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="477.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="495.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="513.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="531.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="549.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="567.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="585.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="603.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="621.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="639.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="657.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="675.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="693.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="711.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="729.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="747.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="765.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="783.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="801.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="819.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="837.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="855.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="873.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="891.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="909.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="927.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="945.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="963.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="981.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="999.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
+					<rect rx="3" ry="3" x="1214.8" y="1017.8" fill="#18181b" stroke="#E6E6E6" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="5.2"/>
 			</g>
 				<linearGradient id="SVGID_00000159436635977491951850000008665461821576600234_" gradientUnits="userSpaceOnUse" x1="1206.7671" y1="446.2356" x2="1228.7671" y2="446.2356">
 				<stop  offset="0" stop-color="#575757"/>
@@ -2684,6 +2702,5 @@
 		</g>
 	</g>
 </g>
-	</hmi-animations:animations>
   </g>
 </svg>

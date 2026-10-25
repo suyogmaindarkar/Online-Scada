@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 1.408451)">
     <defs>
      </defs>
@@ -46,12 +50,12 @@
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
         <circle id="Rim_12_" fill="url(#Rim_1_)" stroke="#71717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="271.3" cy="60.2" r="5.8" />
-        <circle id="Rim_Border_12_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="271.3" cy="60.2" r="4.7" />
+        <circle id="Rim_Border_12_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="271.3" cy="60.2" r="0" />
         <linearGradient id="Wheel_Hub_1_" gradientUnits="userSpaceOnUse" x1="268.868" y1="57.787" x2="271.313" y2="60.232" >
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <circle id="Wheel_Hub_12_" fill="url(#Wheel_Hub_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="271.3" cy="60.2" r="1.5" />
+        <circle id="Wheel_Hub_12_" fill="url(#Wheel_Hub_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="271.3" cy="60.2" r="0" />
       </g>
       <g id="Wheel_Left">
         <linearGradient id="Tire_2_" gradientUnits="userSpaceOnUse" x1="242.512" y1="54.575" x2="244.144" y2="56.206" >
@@ -69,7 +73,7 @@
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <circle id="Wheel_Hub_11_" fill="url(#Wheel_Hub_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="248.2" cy="60.2" r="1.5" />
+        <circle id="Wheel_Hub_11_" fill="url(#Wheel_Hub_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="248.2" cy="60.2" r="0" />
       </g>
     </g>
     <g id="Container_6_">
@@ -77,17 +81,17 @@
         <stop offset="0" stop-color="#d4d4d8" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_Container_3_" x="93.6" y="2.7" fill="url(#Shape_Container_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="44.3" />
+      <rect rx="3" ry="3" id="Shape_Container_3_" x="93.6" y="2.7" fill="url(#Shape_Container_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="44.3" />
       <linearGradient id="Base_1_" gradientUnits="userSpaceOnUse" x1="244.387" y1="-21.814" x2="93.898" y2="190.685" >
         <stop offset="0" stop-color="#d4d4d8" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Base_3_" x="93.6" y="46.9" fill="url(#Base_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="2.3" />
+      <rect rx="3" ry="3" id="Base_3_" x="93.6" y="46.9" fill="url(#Base_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="2.3" />
       <linearGradient id="Top_1_" gradientUnits="userSpaceOnUse" x1="244.386" y1="-66.01" x2="93.9" y2="146.485" >
         <stop offset="0" stop-color="#d4d4d8" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Top" x="93.6" y="2.7" fill="url(#Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="2.3" />
+      <rect rx="3" ry="3" id="Top" x="93.6" y="2.7" fill="url(#Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="202.7" height="2.3" />
     </g>
     <g id="Fenders_3_">
       <linearGradient id="Fender_Right_1_" gradientUnits="userSpaceOnUse" x1="265.985" y1="59.378" x2="273.384" y2="55.207" >
@@ -168,7 +172,7 @@
       <stop offset="0.9127" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Trailer_Connection_3_" x="111.6" y="49.2" fill="url(#Trailer_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.7" height="1.5" />
+    <rect rx="3" ry="3" id="Trailer_Connection_3_" x="111.6" y="49.2" fill="url(#Trailer_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.7" height="1.5" />
     <g id="Wind_Deflector">
       <linearGradient id="Shape_3_" gradientUnits="userSpaceOnUse" x1="48.3022" y1="5.0664" x2="108.1076" y2="48.2106">
         <stop offset="0" stop-color="#d4d4d8" />
@@ -191,7 +195,7 @@
       <stop offset="0" stop-color="#a1a1aa" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Reflection_Cabin" x="29" y="42.4" fill="url(#Reflection_Cabin_1_)" width="55.7" height="6.6" />
+    <rect rx="3" ry="3" id="Reflection_Cabin" x="29" y="42.4" fill="url(#Reflection_Cabin_1_)" width="55.7" height="6.6" />
     <path id="Wheel_Well_3_" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M11.5,63.8c0-4.2,1.6-7.8,1.6-7.8c1.6-3.3,4.9-5.6,8.8-5.6c4.6,0,8.4,3.1,9.5,7.4c0,0,0.9,3.3,1.5,6.7H21.8L11.5,63.8z" />
     <linearGradient id="Front_Wing__x2B__Side_1_" gradientUnits="userSpaceOnUse" x1="50.76" y1="47.372" x2="50.76" y2="57.981" >
       <stop offset="0" stop-color="#d4d4d8" />
@@ -230,12 +234,12 @@
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
         <circle id="Rim_13_" fill="url(#Rim_3_)" stroke="#71717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="124.3" cy="60.2" r="5.8" />
-        <circle id="Rim_Border_13_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="124.3" cy="60.2" r="4.7" />
+        <circle id="Rim_Border_13_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="124.3" cy="60.2" r="0" />
         <linearGradient id="Wheel_Hub_3_" gradientUnits="userSpaceOnUse" x1="121.881" y1="57.787" x2="124.327" y2="60.232" >
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <circle id="Wheel_Hub_13_" fill="url(#Wheel_Hub_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="124.3" cy="60.2" r="1.5" />
+        <circle id="Wheel_Hub_13_" fill="url(#Wheel_Hub_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="124.3" cy="60.2" r="0" />
       </g>
       <g id="Double_Wheel_Left">
         <linearGradient id="Tire_4_" gradientUnits="userSpaceOnUse" x1="100.146" y1="54.575" x2="101.777" y2="56.206" >
@@ -248,12 +252,12 @@
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
         <circle id="Rim_14_" fill="url(#Rim_4_)" stroke="#71717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="105.8" cy="60.2" r="5.8" />
-        <circle id="Rim_Border_14_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="105.8" cy="60.2" r="4.7" />
+        <circle id="Rim_Border_14_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="105.8" cy="60.2" r="0" />
         <linearGradient id="Wheel_Hub_4_" gradientUnits="userSpaceOnUse" x1="103.358" y1="57.787" x2="105.804" y2="60.233" >
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <circle id="Wheel_Hub_14_" fill="url(#Wheel_Hub_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="105.8" cy="60.2" r="1.5" />
+        <circle id="Wheel_Hub_14_" fill="url(#Wheel_Hub_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="105.8" cy="60.2" r="0" />
       </g>
       <g id="Wheel_Front_Drive">
         <linearGradient id="Tire_5_" gradientUnits="userSpaceOnUse" x1="16.962" y1="53.763" x2="19.291" y2="56.797" >
@@ -266,12 +270,12 @@
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
         <circle id="Rim_15_" fill="url(#Rim_5_)" stroke="#71717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="21.9" cy="60.2" r="5.8" />
-        <circle id="Rim_Border_15_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="21.9" cy="60.2" r="4.7" />
+        <circle id="Rim_Border_15_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="21.9" cy="60.2" r="0" />
         <linearGradient id="Wheel_Hub_5_" gradientUnits="userSpaceOnUse" x1="15.627" y1="52.8213" x2="23.9731" y2="62.6367">
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <circle id="Wheel_Hub_15_" fill="url(#Wheel_Hub_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="21.9" cy="60.2" r="2.2" />
+        <circle id="Wheel_Hub_15_" fill="url(#Wheel_Hub_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="21.9" cy="60.2" r="0" />
       </g>
     </g>
     <path id="Application_Side" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M33.4,50.7c0,0,2.9,4,6.4,4c2.7,0,52.6,0,52.6,0s1.5-2.4,3.3-4H33.4z" />
@@ -290,7 +294,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Shape_18_" x="59.3" y="54.8" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="25.7" height="9.7" />
+      <rect rx="3" ry="3" id="Shape_18_" x="59.3" y="54.8" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="25.7" height="9.7" />
       <linearGradient id="Fastenings_1_" gradientUnits="userSpaceOnUse" x1="72.208" y1="54.733" x2="72.208" y2="63.692" >
         <stop offset="0" stop-color="#71717a" />
         <stop offset="0.2954" stop-color="#71717a" />
@@ -330,7 +334,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Muffler" x="50.4" y="23.2" fill="url(#Muffler_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="5.1" height="30.3" />
+      <rect rx="3" ry="3" id="Muffler" x="50.4" y="23.2" fill="url(#Muffler_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="5.1" height="30.3" />
       <linearGradient id="Exhaust_Pipe_1_" gradientUnits="userSpaceOnUse" x1="52.3774" y1="13.3701" x2="55.0097" y2="13.3701">
         <stop offset="0" stop-color="#a1a1aa" />
         <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -375,10 +379,8 @@
     <path id="Mirror" fill="url(#Mirror_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M35.9,29.5c0,0-2-0.3-2,1.1c0,1.4,0,5.8,0,5.8s2,1.8,2,0.5C35.9,35.6,35.9,29.5,35.9,29.5z" />
     <g id="Door_Handle">
       <path id="Hollow" fill="#18181b" d="M43.6,39.9L43.6,39.9c-0.1,0-0.2-0.1-0.2-0.2v-1l0,0c0-0.1,0.1-0.2,0.2-0.2h3.2l0,0    c0.1,0,0.2,0.1,0.2,0.2v1l0,0c0,0.1-0.1,0.2-0.2,0.2H43.6z" />
-      <rect id="Handle_1_" x="43.7" y="38.8" fill="#a1a1aa" width="2.1" height="0.6" />
+      <rect rx="3" ry="3" id="Handle_1_" x="43.7" y="38.8" fill="#a1a1aa" width="2.1" height="0.6" />
     </g>
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

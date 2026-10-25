@@ -1,9 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(5.882353, 1.639344)">
     <defs>
 	</defs>
-  <g id="Ebene_1-2" hmi-bind:stroke-width="{{ le((47 / HmiProps.Height), (13 / HmiProps.Width)) ? ((47 / HmiProps.Height) * (HmiProps.Height / 61)) : ((13 / HmiProps.Width) * (HmiProps.Width / 17)) }}">
-    <g id="Toggle_Element_Vertical_Rounded" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
+  <g id="Ebene_1-2">
+    <g id="Toggle_Element_Vertical_Rounded" stroke-miterlimit="10">
 		<linearGradient id="Unbenannter_Verlauf_218" x1="-1611.03" y1="-923.22" x2="-1581.03" y2="-923.22" gradientTransform="translate(1604.53 968.72)" gradientUnits="userSpaceOnUse">
 		  <stop offset="0" stop-color="#e2e2e3"/>
 		  <stop offset=".03" stop-color="#dcdcdd"/>
@@ -25,14 +29,14 @@
 			<stop offset="1" stop-color="#d4d4d8" />
 		</linearGradient>
 		<linearGradient id="Unbenannter_Verlauf_164" x1="8.5" y1="38.5" x2="8.5" y2="22.5" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#71717a" />
-			<stop offset=".05" stop-color="#71717a" />
+			<stop offset="0" stop-color="#a1a1aa" />
+			<stop offset=".05" stop-color="#a1a1aa" />
 			<stop offset=".13" stop-color="#71717a" />
 			<stop offset=".2" stop-color="#71717a" />
-			<stop offset=".27" stop-color="#71717a" />
-			<stop offset=".39" stop-color="#71717a" />
-			<stop offset=".55" stop-color="#71717a" />
-			<stop offset="1" stop-color="#71717a" />
+			<stop offset=".27" stop-color="#a1a1aa" />
+			<stop offset=".39" stop-color="#a1a1aa" />
+			<stop offset=".55" stop-color="#d4d4d8" />
+			<stop offset="1" stop-color="#d4d4d8" />
 		</linearGradient>
 		<linearGradient id="Unbenannter_Verlauf_220" x1="920.87" y1="-1274.9" x2="950.87" y2="-1274.9" gradientTransform="translate(-927.37 1290.4)" gradientUnits="userSpaceOnUse">
 		  <stop offset="0" stop-color="#e2e2e3"/>
@@ -53,15 +57,15 @@
 			<stop id="stop47" offset="0.69650441" stop-color="#a1a1aa" />
 			<stop id="stop44" offset="1" stop-color="#a1a1aa" />
 		</linearGradient>
-		<path id="path32-8" d="M8.5.5c-3.86 0-7 3.14-7 7v46c0 3.86 3.14 7 7 7s7-3.14 7-7v-46c0-3.86-3.14-7-7-7z" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-opacity="1" />
+		<path id="path32-8" d="M8.5.5c-3.86 0-7 3.14-7 7v46c0 3.86 3.14 7 7 7s7-3.14 7-7v-46c0-3.86-3.14-7-7-7z" stroke-opacity="1" />
       <g id="Top_Active">
 		<path d="m 8.5,0.5 c -3.859996,0 -7,3.1400039 -7,7 v 23 23 c 0,3.859996 3.140004,7 7,7 3.859996,0 7,-3.140004 7,-7 v -23 -23 c 0,-3.8599961 -3.140004,-7 -7,-7 z" fill="url(#linearGradient44)"/>
-		<path d="m 15.499999,7.5 v 23 H 1.5 v -23 c 0,-3.86 3.14,-7 7,-7 3.859999,0 6.999999,3.14 6.999999,7 z" fill="url(#Unbenannter_Verlauf_232)" hmi-bind:display="{{ eq(LocalProps.Position, 0) ? 'inline' : 'none' }}"/>
+		<path d="m 15.499999,7.5 v 23 H 1.5 v -23 c 0,-3.86 3.14,-7 7,-7 3.859999,0 6.999999,3.14 6.999999,7 z" fill="url(#Unbenannter_Verlauf_232)"/>
       </g>
-        <path d="m 1.4999997,53.5 v -23 H 15.499999 v 23 c 0,3.86 -3.139999,7 -6.9999993,7 -3.86,0 -7,-3.14 -7,-7 z" fill="url(#Unbenannter_Verlauf_232)" hmi-bind:display="{{ eq(LocalProps.Position, 2) ? 'inline' : 'none' }}"/>
-		<g hmi-event:pan="url(#onSliderPanEvent)">
-			<circle cx="8.5" hmi-bind:cy="{{ LocalProps.YPos }}" r="8" fill="url(#Unbenannter_Verlauf_164)"/>
-			<circle cx="8.5" hmi-bind:cy="{{ LocalProps.YPos }}" r="2" hmi-bind:fill="{{Converter.RGBA(ParamProps.IconContrastColor)}}"/>
+        <path d="m 1.4999997,53.5 v -23 H 15.499999 v 23 c 0,3.86 -3.139999,7 -6.9999993,7 -3.86,0 -7,-3.14 -7,-7 z" fill="url(#Unbenannter_Verlauf_232)"/>
+		<g>
+			<circle cx="8.5" r="8" fill="url(#Unbenannter_Verlauf_164)"/>
+			<circle cx="8.5" r="0"/>
 		</g>
     </g>
   </g>

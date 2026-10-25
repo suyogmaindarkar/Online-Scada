@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.531915)">
     <defs>
      </defs>
@@ -104,7 +108,7 @@
     </linearGradient>
     <path id="Pinion_Outside" fill="url(#Pinion_Outside_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M250.8,130.3l-0.7-0.3c0-0.2,0-0.3,0-0.5l0.7-0.2l-0.7-0.2c0-0.2,0-0.3,0-0.5l0.7-0.3l-0.7-0.1c0-0.2,0-0.3-0.1-0.5l0.6-0.4   l-0.7-0.1c0-0.2-0.1-0.3-0.1-0.5l0.6-0.4l-0.7,0c-0.1-0.2-0.1-0.3-0.2-0.5l0.5-0.5l-0.7,0.1c-0.1-0.2-0.1-0.3-0.2-0.5l0.5-0.5   l-0.7,0.2c-0.1-0.1-0.2-0.3-0.3-0.4l0.4-0.6l-0.7,0.2c-0.1-0.1-0.2-0.3-0.3-0.4l0.4-0.6l-0.7,0.3c-0.1-0.1-0.2-0.2-0.4-0.4l0.3-0.7   l-0.6,0.4c-0.1-0.1-0.3-0.2-0.4-0.3l0.2-0.7l-0.6,0.4c-0.1-0.1-0.3-0.2-0.4-0.3l0.2-0.7l-0.5,0.5c-0.1-0.1-0.3-0.1-0.5-0.2l0.1-0.7   l-0.5,0.6c-0.2-0.1-0.3-0.1-0.5-0.2l0-0.7l-0.4,0.6c-0.2,0-0.3-0.1-0.5-0.1l-0.1-0.7l-0.4,0.6c-0.2,0-0.3-0.1-0.5-0.1l-0.2-0.7   l-0.3,0.7c-0.2,0-0.3,0-0.5,0l-0.2-0.7l-0.2,0.7c-0.2,0-0.3,0-0.5,0l-0.3-0.7l-0.2,0.7c-0.2,0-0.3,0-0.5,0.1l-0.4-0.7l-0.1,0.7   c-0.2,0-0.3,0.1-0.5,0.1l-0.4-0.6l0,0.7c-0.2,0.1-0.3,0.1-0.5,0.2l-0.5-0.6l0.1,0.7c-0.2,0.1-0.3,0.1-0.4,0.2l-0.5-0.5l0.2,0.7   c-0.1,0.1-0.3,0.2-0.4,0.3l-0.6-0.4l0.2,0.7c-0.1,0.1-0.3,0.2-0.4,0.3l-0.6-0.4l0.3,0.7c-0.1,0.1-0.2,0.2-0.4,0.4l-0.7-0.3l0.4,0.6   c-0.1,0.1-0.2,0.3-0.3,0.4l-0.7-0.2l0.4,0.6c-0.1,0.1-0.2,0.3-0.3,0.4l-0.7-0.2l0.5,0.5c-0.1,0.1-0.2,0.3-0.2,0.5l-0.7-0.1l0.5,0.5   c-0.1,0.2-0.1,0.3-0.2,0.5l-0.7,0l0.6,0.4c0,0.2-0.1,0.3-0.1,0.5l-0.7,0.1l0.6,0.4c0,0.2-0.1,0.3-0.1,0.5l-0.7,0.1l0.7,0.3   c0,0.2,0,0.3,0,0.5l-0.7,0.2l0.7,0.2c0,0.2,0,0.3,0,0.5l-0.7,0.3l0.7,0.1c0,0.2,0,0.3,0.1,0.5l-0.6,0.4l0.7,0.1   c0,0.2,0.1,0.3,0.1,0.5l-0.6,0.4l0.7,0c0.1,0.2,0.1,0.3,0.2,0.5l-0.5,0.5l0.7-0.1c0.1,0.2,0.1,0.3,0.2,0.5l-0.5,0.5l0.7-0.2   c0.1,0.1,0.2,0.3,0.3,0.4l-0.4,0.6l0.7-0.2c0.1,0.1,0.2,0.3,0.3,0.4l-0.4,0.6l0.6-0.3c0.1,0.1,0.2,0.3,0.4,0.4l-0.3,0.6l0.6-0.4   c0.1,0.1,0.3,0.2,0.4,0.3l-0.2,0.7l0.6-0.4c0.1,0.1,0.3,0.2,0.4,0.3l-0.2,0.7l0.5-0.5c0.2,0.1,0.3,0.2,0.5,0.2l-0.1,0.7l0.5-0.5   c0.2,0.1,0.3,0.1,0.5,0.2l0,0.7l0.4-0.6c0.2,0.1,0.3,0.1,0.5,0.1l0.1,0.7l0.3-0.6c0.2,0,0.3,0.1,0.5,0.1l0.1,0.7l0.3-0.6   c0.2,0,0.3,0,0.5,0l0.2,0.7l0.2-0.7c0.2,0,0.4,0,0.5,0l0.3,0.6l0.1-0.7c0.2,0,0.4,0,0.5-0.1l0.3,0.6l0.1-0.7c0.2,0,0.3-0.1,0.5-0.1   l0.4,0.6l0-0.7c0.2-0.1,0.3-0.1,0.5-0.2l0.5,0.5l-0.1-0.7c0.2-0.1,0.3-0.1,0.5-0.2l0.5,0.5l-0.2-0.7c0.2-0.1,0.3-0.2,0.4-0.3   l0.6,0.4l-0.2-0.7c0.1-0.1,0.3-0.2,0.4-0.3l0.6,0.4l-0.3-0.6c0.1-0.1,0.2-0.2,0.4-0.4l0.6,0.3l-0.4-0.6c0.1-0.1,0.2-0.3,0.3-0.4   l0.7,0.2l-0.4-0.6c0.1-0.1,0.2-0.3,0.3-0.4l0.7,0.2l-0.5-0.5c0.1-0.2,0.2-0.3,0.2-0.5l0.7,0.1l-0.5-0.5c0.1-0.2,0.1-0.3,0.2-0.5   l0.7,0l-0.6-0.4c0-0.2,0.1-0.3,0.1-0.5l0.7-0.1L250,131c0-0.2,0.1-0.3,0.1-0.5L250.8,130.3z" />
     <circle id="Pinion_Ring_Small_1_" fill="none" stroke="#77787A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241.1" cy="129.3" r="7" />
-    <circle id="Pinion_Ring_Small" fill="none" stroke="#77787A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241.1" cy="129.3" r="4.4" />
+    <circle id="Pinion_Ring_Small" fill="none" stroke="#77787A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241.1" cy="129.3" r="0" />
   </g>
   <path id="Chain" fill="none" stroke="#18181b" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M167.1,148.9l73.2,10.8c0.3,0,0.7,0,0.8,0c2.5,0,4.4-2,4.4-4.4c0-1.2-0.5-2.3-1.3-3.1l-10.3-8.9l12.9-6c2.4-1.8,4-4.7,4-7.9  c0-5.4-4.4-9.8-9.8-9.8c-0.1,0-0.3,0-0.4,0l-69.1,3.3" />
   <g id="Frame">
@@ -202,7 +206,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <circle id="Bearing_Housing" fill="url(#Bearing_Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="168.5" cy="135.5" r="4.4" />
+    <circle id="Bearing_Housing" fill="url(#Bearing_Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="168.5" cy="135.5" r="0" />
   </g>
   <g id="Chain_Rings__x2B__Pedal">
     <linearGradient id="Chain_Rings_1_" gradientUnits="userSpaceOnUse" x1="161.719" y1="128.734" x2="166.576" y2="133.592" >
@@ -233,7 +237,7 @@
       <stop offset="0.7771" stop-color="#52525b" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <circle id="Pinion" fill="url(#Pinion_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241.1" cy="155.3" r="3.8" />
+    <circle id="Pinion" fill="url(#Pinion_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241.1" cy="155.3" r="0" />
     <path id="Cable_3_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M243.2,129.3c0,0,11-2.3,15.9,1.4c3.4,2.6,5.9,9.3-4,11.5" />
     <linearGradient id="Cable_Connection_1_" gradientUnits="userSpaceOnUse" x1="252.129" y1="142.106" x2="252.129" y2="143.385" >
       <stop offset="0" stop-color="#71717a" />
@@ -252,7 +256,7 @@
     <stop offset="0" stop-color="#18181b" />
     <stop offset="1" stop-color="#18181b" />
   </linearGradient>
-  <circle id="Wheel_Hub_Rear" fill="url(#Wheel_Hub_Rear_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241" cy="129.3" r="2.2" />
+  <circle id="Wheel_Hub_Rear" fill="url(#Wheel_Hub_Rear_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="241" cy="129.3" r="0" />
   <g id="Fork">
     <linearGradient id="Top_Part_1_" gradientUnits="userSpaceOnUse" x1="97.982" y1="63.731" x2="84.606" y2="63.731" >
       <stop offset="0" stop-color="#52525b" />
@@ -331,7 +335,7 @@
       <stop offset="0" stop-color="#18181b" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <circle id="Wheel_Hub_Front" fill="url(#Wheel_Hub_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="58.7" cy="129.3" r="2.2" />
+    <circle id="Wheel_Hub_Front" fill="url(#Wheel_Hub_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="58.7" cy="129.3" r="0" />
   </g>
   <g id="Front_Set">
     <path id="Cable_2_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" d="M92.5,56   c-28-11.6-11.2-30.9-11.2-30.9" />
@@ -408,7 +412,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <circle id="Handlebar_Grip_Front" fill="url(#Handlebar_Grip_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="84" cy="6.5" r="4" />
+    <circle id="Handlebar_Grip_Front" fill="url(#Handlebar_Grip_Front_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="84" cy="6.5" r="0" />
     <linearGradient id="Handlebar_Reflector_1_" gradientUnits="userSpaceOnUse" x1="71.089" y1="-0.703" x2="85.716" y2="7.423" >
       <stop offset="0" stop-color="#a1a1aa" />
       <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -423,7 +427,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <circle id="Handlebar_Reflector" fill="url(#Handlebar_Reflector_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="84" cy="6.5" r="2.2" />
+    <circle id="Handlebar_Reflector" fill="url(#Handlebar_Reflector_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="84" cy="6.5" r="0" />
   </g>
   <g id="Saddle_Area">
     <linearGradient id="Seat_Post_1_" gradientUnits="userSpaceOnUse" x1="192.1885" y1="45.6226" x2="196.666" y2="47.0781">
@@ -468,9 +472,7 @@
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
     <polygon id="Fixing" fill="url(#Fixing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="188,62.9 195.7,65.4 196.5,62.7 188.9,60.2" />
-    <circle id="Screw" fill="#d4d4d8" cx="194.8" cy="63.6" r="0.6" />
+    <circle id="Screw" fill="#d4d4d8" cx="194.8" cy="63.6" r="0" />
   </g>
-		</hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

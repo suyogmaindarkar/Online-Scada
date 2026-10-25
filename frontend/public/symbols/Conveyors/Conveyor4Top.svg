@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.015228, 0.754148)">
     <g>
     <g>
@@ -61,16 +65,16 @@
     </g>
     <g>
       <g>
-        <rect id="Frame_Top_28_" y="0.4" width="98.5" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
-        <rect x="0.1" y="6.6" width="98.3" height="2" fill="#18181b" />
+        <rect rx="3" ry="3" id="Frame_Top_28_" y="0.4" width="98.5" height="10.1" />
+        <rect rx="3" ry="3" x="0.1" y="6.6" width="98.3" height="2" fill="#18181b" />
       </g>
       <line x1="0" y1="10.5" x2="98.5" y2="10.5" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="0" y1="0.4" x2="98.5" y2="0.4" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
     </g>
     <g>
       <g>
-        <rect id="Frame_Top_27_" y="122.1" width="98.5" height="10.1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" />
-        <rect x="0.1" y="123.9" transform="matrix(-1,-1.224647e-16,1.224647e-16,-1,98.5,249.8588)" width="98.3" height="2" fill="#18181b" />
+        <rect rx="3" ry="3" id="Frame_Top_27_" y="122.1" width="98.5" height="10.1" />
+        <rect rx="3" ry="3" x="0.1" y="123.9" transform="matrix(-1,-1.224647e-16,1.224647e-16,-1,98.5,249.8588)" width="98.3" height="2" fill="#18181b" />
       </g>
       <line x1="98.5" y1="122.1" x2="0" y2="122.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <line x1="98.5" y1="132.2" x2="0" y2="132.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />

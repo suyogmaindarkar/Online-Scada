@@ -1,74 +1,78 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
     <defs>
 	</defs>
  <g id="Grid" transform="translate(150,160)">
- 	<path hmi-bind:d="M 0,60 L 51.9615,30 L 51.9615,-30 L 0,-60 L -51.9615,-30 L -51.9615,30 L 0,60 L 0,80 L -69.282,40 L -69.282,-40 L 0,-80 L 69.282,-40 L 69.282,40 L 0,80 Z" stroke="none" stroke-width="2.0" fill="#DADADA" />
-	<path hmi-bind:d="M 0,20 L 17.3205,10 L 17.3205,-10 L 0,-20 L -17.3205,-10 L -17.3205,10 L 0,20 L 0,40 L -34.641,20 L -34.641,-20 L 0,-40 L 34.641,-20 L 34.641,20 L 0,40 Z" stroke="none" stroke-width="2.0" fill="#DADADA" />
- 	<path hmi-bind:d="M 0,100 L 86.6025,50 L 86.6025,-50 L 0,-100 L -86.6025,-50 L -86.6025,50 Z" stroke="#919191" stroke-width="2.0" fill="none" />
-	<path hmi-bind:d="M 0,80 L 69.2820,40 L 69.2820,-40 L 0,-80 L -69.2820,-40 L -69.2820,40 Z" stroke="#919191" stroke-width="2.0" fill="none" />
-	<path hmi-bind:d="M 0,60 L 51.9615,30 L 51.9615,-30 L 0,-60 L -51.9615,-30 L -51.9615,30 Z" stroke="#919191" stroke-width="2.0" fill="none" />
-	<path hmi-bind:d="M 0,40 L 34.6410,20 L 34.6410,-20 L 0,-40 L -34.6410,-20 L -34.6410,20 Z" stroke="#919191" stroke-width="2.0" fill="none" />
-	<path hmi-bind:d="M 0,20 L 17.3205,10 L 17.3205,-10 L 0,-20 L -17.3205,-10 L -17.3205,10 Z" stroke="#919191" stroke-width="2.0" fill="none" />
+ 	<path stroke="none" stroke-width="2.0" fill="#DADADA" />
+	<path stroke="none" stroke-width="2.0" fill="#DADADA" />
+ 	<path stroke="#919191" stroke-width="2.0" fill="none" />
+	<path stroke="#919191" stroke-width="2.0" fill="none" />
+	<path stroke="#919191" stroke-width="2.0" fill="none" />
+	<path stroke="#919191" stroke-width="2.0" fill="none" />
+	<path stroke="#919191" stroke-width="2.0" fill="none" />
 	<line x1="0" y1="100" x2="0" y2="-100" stroke="#919191" />
 	<line x1="86.6025" y1="50" x2="-86.6025" y2="-50" stroke="#919191" />
 	<line x1="86.6025" y1="-50" x2="-86.6025" y2="50" stroke="#919191" />
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
+	<g>
 		<g id="PointsGroup1">
-			<circle cx="0" hmi-bind:cy="{{LocalProps.NormalizedGroup1Value1}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755)*LocalProps.NormalizedGroup1Value2}}" hmi-bind:cy="{{cos(1.04719755)*LocalProps.NormalizedGroup1Value2}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*2)*LocalProps.NormalizedGroup1Value3}}" hmi-bind:cy="{{cos(1.04719755*2)*LocalProps.NormalizedGroup1Value3}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*3)*LocalProps.NormalizedGroup1Value4}}" hmi-bind:cy="{{cos(1.04719755*3)*LocalProps.NormalizedGroup1Value4}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*4)*LocalProps.NormalizedGroup1Value5}}" hmi-bind:cy="{{cos(1.04719755*4)*LocalProps.NormalizedGroup1Value5}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*5)*LocalProps.NormalizedGroup1Value6}}" hmi-bind:cy="{{cos(1.04719755*5)*LocalProps.NormalizedGroup1Value6}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<path hmi-bind:d="M 0,{{LocalProps.NormalizedGroup1Value1}} L {{sin(1.04719755)*LocalProps.NormalizedGroup1Value2}},{{cos(1.04719755)*LocalProps.NormalizedGroup1Value2}} L {{sin(1.04719755*2)*LocalProps.NormalizedGroup1Value3}},{{cos(1.04719755*2)*LocalProps.NormalizedGroup1Value3}} L {{sin(1.04719755*3)*LocalProps.NormalizedGroup1Value4}},{{cos(1.04719755*3)*LocalProps.NormalizedGroup1Value4}} L {{sin(1.04719755*4)*LocalProps.NormalizedGroup1Value5}},{{cos(1.04719755*4)*LocalProps.NormalizedGroup1Value5}} L {{sin(1.04719755*5)*LocalProps.NormalizedGroup1Value6}},{{cos(1.04719755*5)*LocalProps.NormalizedGroup1Value6}} Z" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="2.0" fill="none" />
+			<circle cx="0" r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<path stroke-width="2.0" fill="none" />
 		</g>
 		<g id="PointsGroup2">
-			<circle cx="0" hmi-bind:cy="{{LocalProps.NormalizedGroup2Value1}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755)*LocalProps.NormalizedGroup2Value2}}" hmi-bind:cy="{{cos(1.04719755)*LocalProps.NormalizedGroup2Value2}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*2)*LocalProps.NormalizedGroup2Value3}}" hmi-bind:cy="{{cos(1.04719755*2)*LocalProps.NormalizedGroup2Value3}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*3)*LocalProps.NormalizedGroup2Value4}}" hmi-bind:cy="{{cos(1.04719755*3)*LocalProps.NormalizedGroup2Value4}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*4)*LocalProps.NormalizedGroup2Value5}}" hmi-bind:cy="{{cos(1.04719755*4)*LocalProps.NormalizedGroup2Value5}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle hmi-bind:cx="{{sin(1.04719755*5)*LocalProps.NormalizedGroup2Value6}}" hmi-bind:cy="{{cos(1.04719755*5)*LocalProps.NormalizedGroup2Value6}}" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<path hmi-bind:d="M 0,{{LocalProps.NormalizedGroup2Value1}} L {{sin(1.04719755)*LocalProps.NormalizedGroup2Value2}},{{cos(1.04719755)*LocalProps.NormalizedGroup2Value2}} L {{sin(1.04719755*2)*LocalProps.NormalizedGroup2Value3}},{{cos(1.04719755*2)*LocalProps.NormalizedGroup2Value3}} L {{sin(1.04719755*3)*LocalProps.NormalizedGroup2Value4}},{{cos(1.04719755*3)*LocalProps.NormalizedGroup2Value4}} L {{sin(1.04719755*4)*LocalProps.NormalizedGroup2Value5}},{{cos(1.04719755*4)*LocalProps.NormalizedGroup2Value5}} L {{sin(1.04719755*5)*LocalProps.NormalizedGroup2Value6}},{{cos(1.04719755*5)*LocalProps.NormalizedGroup2Value6}} Z" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="2.0" fill="none" />
+			<circle cx="0" r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<circle r="5" />
+			<path stroke-width="2.0" fill="none" />
 		</g>
     </g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+	<g>
 		<g id="PointsGroup1Anim">
-			<circle id="g1c1" cx="0" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle id="g1c2" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle id="g1c3" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle id="g1c4" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle id="g1c5" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<circle id="g1c6" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-			<line id="g1l1" x1="0"  hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
-			<line id="g1l2" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
-			<line id="g1l3" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
-			<line id="g1l4" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
-			<line id="g1l5" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
-			<line id="g1l6" x2="0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="1.5" />
+			<circle id="g1c1" cx="0" r="5" />
+			<circle id="g1c2" r="5" />
+			<circle id="g1c3" r="5" />
+			<circle id="g1c4" r="5" />
+			<circle id="g1c5" r="5" />
+			<circle id="g1c6" r="5" />
+			<line id="g1l1" x1="0" stroke-width="1.5" />
+			<line id="g1l2" stroke-width="1.5" />
+			<line id="g1l3" stroke-width="1.5" />
+			<line id="g1l4" stroke-width="1.5" />
+			<line id="g1l5" stroke-width="1.5" />
+			<line id="g1l6" x2="0" stroke-width="1.5" />
 		</g>
 		<g id="PointsGroup2Anim">
-			<circle id="g2c1" cx="0" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle id="g2c2" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle id="g2c3" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle id="g2c4" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle id="g2c5" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<circle id="g2c6" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-			<line id="g2l1" x1="0"  hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
-			<line id="g2l2" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
-			<line id="g2l3" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
-			<line id="g2l4" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
-			<line id="g2l5" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
-			<line id="g2l6" x2="0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="1.5" />
+			<circle id="g2c1" cx="0" r="5" />
+			<circle id="g2c2" r="5" />
+			<circle id="g2c3" r="5" />
+			<circle id="g2c4" r="5" />
+			<circle id="g2c5" r="5" />
+			<circle id="g2c6" r="5" />
+			<line id="g2l1" x1="0" stroke-width="1.5" />
+			<line id="g2l2" stroke-width="1.5" />
+			<line id="g2l3" stroke-width="1.5" />
+			<line id="g2l4" stroke-width="1.5" />
+			<line id="g2l5" stroke-width="1.5" />
+			<line id="g2l6" x2="0" stroke-width="1.5" />
 		</g>
 	</g>
  </g>
  <g id="Legend">
-	<circle cx="70" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="180" cy="25" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<text x="80" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
-	<text x="190" y="30" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<circle cx="70" cy="25" r="5" />
+	<circle cx="180" cy="25" r="5" />
+	<text x="80" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<text x="190" y="30" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	<g id="Labels" transform="translate(150,160)">
 		<text x="0" y="110" fill="#919191" font-family="Arial" font-size="12"  text-anchor="middle"></text>
 		<text x="90.9326674" y="57.5" fill="#919191" font-family="Arial" font-size="12"  text-anchor="start"></text>
@@ -78,6 +82,5 @@
 		<text x="-135.9326674" y="52.5" fill="#919191" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
  </g>
-	</hmi-animations:animations>
   </g>
 </svg>

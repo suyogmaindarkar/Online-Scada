@@ -1,68 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(2.777778, 2.777778)">
     <defs>
      </defs>
   <g id="Icon_x5F_Master_x5F_Valves">
-    <rect hmi-bind:display="{{ParamProps.ShowBackground ? 'inline':'none'}}" id="Icon_x5F_Background_00000054983962879721192360000018253473804453980333_" y="0" width="36" height="36" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorBackground)}}" />
-    <g id="Oriantaion" hmi-bind:transform="rotate({{90* ParamProps.IconOrientation}},18,18)">
+    <rect rx="3" ry="3" id="Icon_x5F_Background_00000054983962879721192360000018253473804453980333_" y="0" width="36" height="36" />
+    <g id="Oriantaion">
 	<g id="Iconleiste_x5F_Unten_00000088821154338132943860000008791084000132211863_" >
-      <rect hmi-bind:display="{{and(ParamProps.ShowIconMaintenance,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.MaintenancePosition}})" id="Position_x5F_04_00000010302041510149968440000008054274202413936785_" x="27.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorMaintenance)}}" />
-      <rect hmi-bind:display="{{and(ParamProps.ShowIconManual,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.ManualPosition}})" id="Position_x5F_03_00000077297485083942494300000005860832957862261680_" x="18.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorManual)}}" />
-      <rect hmi-bind:display="{{and(ParamProps.ShowIconLock,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.LockPosition}})" id="Position_x5F_02_00000127731156769522101890000005623081862056586380_" x="9.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorLock)}}" />
-      <path hmi-bind:display="{{and(ParamProps.ShowIconMaintenance,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{31.5 + LocalProps.MaintenancePosition}},32) translate({{LocalProps.MaintenancePosition}})" id="Icon_x5F_04_00000087408121854883339240000017225078328768363162_" d="M33.9,33.5l-1.7-1.7    c0.1-0.3,0.1-0.7,0.1-1c-0.1-0.7-0.7-1.2-1.4-1.4c-0.8-0.2-1.5,0.2-1.9,0.8c-0.1,0.1,0,0.2,0.1,0.2H30c0.3,0,0.7,0.2,0.8,0.6    c0.1,0.5-0.2,1-0.7,1h-0.8c-0.1,0-0.2,0.1-0.1,0.2c0.3,0.5,0.9,0.8,1.5,0.8c0.2,0,0.4,0,0.6-0.1l1.6,1.6c0.3,0.3,0.8,0.3,1.1,0    C34.2,34.3,34.2,33.8,33.9,33.5z" fill="#e4e4e7" />
-      <path hmi-bind:display="{{and(ParamProps.ShowIconManual,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{22.5 + LocalProps.ManualPosition}},32) translate({{LocalProps.ManualPosition}})" id="Icon_x5F_03_00000017476507354169342870000016477450102335192741_" d="M20.6,32.4    c0.4,0.1,0.9,0.8,0.9,0.8L21.5,32L21.4,30c0-0.2,0.1-0.3,0.3-0.4c0.2,0,0.3,0.1,0.4,0.3l0.1,1.7c0.1,0,0.1-0.1,0.2-0.1    c0,0,0,0,0-0.1v-2c0-0.2,0.2-0.3,0.3-0.3s0.3,0.2,0.3,0.3v2c0,0,0,0,0,0c0.1,0,0.1,0,0.2,0l0.2-1.7c0-0.2,0.2-0.3,0.4-0.3    c0.2,0,0.3,0.2,0.3,0.4l-0.2,2c0.1,0,0.1,0.1,0.1,0.1l0.3-1.3c0-0.2,0.2-0.3,0.3-0.2h0c0.2,0,0.3,0.2,0.2,0.3l-0.5,2.1    c0,0.2-0.3,1.3-0.9,1.7c-0.6,0.3-1.6,0.3-2.1-0.4c-0.6-0.9-0.9-1.2-1.3-1.4C20.1,32.7,20.2,32.2,20.6,32.4z" fill="#e4e4e7" />
-      <path hmi-bind:display="{{and(ParamProps.ShowIconLock,ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{13.5 + LocalProps.LockPosition}},32) translate({{LocalProps.LockPosition}})" id="Icon_x5F_02_00000012451678821677428990000005764124313313470599_" d="M15.2,31.6h-0.4v-0.9    c0-0.7-0.6-1.3-1.3-1.3c-0.7,0-1.3,0.6-1.3,1.3v0.9h-0.4c-0.2,0-0.3,0.1-0.3,0.3v2.4c0,0.2,0.1,0.3,0.3,0.3h3.4    c0.2,0,0.3-0.1,0.3-0.3v-2.4C15.5,31.7,15.4,31.6,15.2,31.6z M12.8,30.7c0-0.4,0.3-0.7,0.7-0.7c0.4,0,0.7,0.3,0.7,0.7v0.9h-1.4    V30.7z" fill="#e4e4e7" />
-	  <rect hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 0.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.AlarmPosition}})" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorAlarm)}}" />
-	  <polygon hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 0.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{4.5 + LocalProps.AlarmPosition}},32) translate({{LocalProps.AlarmPosition}})" points="6.2,29 2.8,29 1,32 2.8,35 6.2,35 8,32 			" fill="#e4e4e7"/>
-	  <path hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 0.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{4.5 + LocalProps.AlarmPosition}},32) translate({{LocalProps.AlarmPosition}})" d="M4.5,32.9c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.3,0.2-0.4,0.2c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4c0-0.2,0.1-0.3,0.2-0.4C4.2,33,4.3,32.9,4.5,32.9z M4.9,32.5H4.1L4,29.9h1L4.9,32.5z" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorAlarm)}}"/>
-	  <rect hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 1.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.AlarmPosition}})" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorWarning)}}" />
-	  <path hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 1.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{4.5 + LocalProps.AlarmPosition}},32) translate({{LocalProps.AlarmPosition}})" id="Icon_x5F_01_00000041261037089371247110000013910257916440856243_" d="M7.4,34.2l-2.7-4.6    c-0.1-0.1-0.3-0.1-0.4,0l-2.7,4.6c-0.1,0.1,0,0.3,0.2,0.3h5.4C7.3,34.5,7.4,34.3,7.4,34.2z M4.2,31c0-0.1,0.1-0.3,0.3-0.3    c0.1,0,0.3,0.1,0.3,0.3v1.5c0,0.1-0.1,0.3-0.3,0.3c-0.1,0-0.3-0.1-0.3-0.3V31z M4.5,34c-0.2,0-0.4-0.2-0.4-0.4    c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4C4.9,33.8,4.7,34,4.5,34z" fill="#e4e4e7" />
-	  <rect hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 2.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="translate({{LocalProps.AlarmPosition}})" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorInformation)}}" />
-	  <path hmi-bind:display="{{and(eq(ParamProps.ShowIconAlarm , 2.0),ne(ParamProps.IconOrientation , 4.0)) ? 'inline':'none'}}" hmi-bind:transform="rotate({{360-90*(ParamProps.IconOrientation)}},{{4.5 + LocalProps.AlarmPosition}},32) translate({{LocalProps.AlarmPosition}})" fill="#e4e4e7" d="M4.5,29.3c0.2,0,0.4,0.1,0.5,0.2c0.1,0.1,0.2,0.3,0.2,0.5S5.1,30.3,5,30.4c-0.1,0.1-0.3,0.2-0.5,0.2c-0.2,0-0.4-0.1-0.5-0.2c-0.1-0.1-0.2-0.3-0.2-0.5c0-0.2,0.1-0.4,0.2-0.5S4.3,29.3,4.5,29.3z M3.9,34.7v-3.4h1.2v3.4H3.9z"/>
+      <rect rx="3" ry="3" id="Position_x5F_04_00000010302041510149968440000008054274202413936785_" x="27.5" y="28" width="8" height="8" />
+      <rect rx="3" ry="3" id="Position_x5F_03_00000077297485083942494300000005860832957862261680_" x="18.5" y="28" width="8" height="8" />
+      <rect rx="3" ry="3" id="Position_x5F_02_00000127731156769522101890000005623081862056586380_" x="9.5" y="28" width="8" height="8" />
+      <path id="Icon_x5F_04_00000087408121854883339240000017225078328768363162_" d="M33.9,33.5l-1.7-1.7    c0.1-0.3,0.1-0.7,0.1-1c-0.1-0.7-0.7-1.2-1.4-1.4c-0.8-0.2-1.5,0.2-1.9,0.8c-0.1,0.1,0,0.2,0.1,0.2H30c0.3,0,0.7,0.2,0.8,0.6    c0.1,0.5-0.2,1-0.7,1h-0.8c-0.1,0-0.2,0.1-0.1,0.2c0.3,0.5,0.9,0.8,1.5,0.8c0.2,0,0.4,0,0.6-0.1l1.6,1.6c0.3,0.3,0.8,0.3,1.1,0    C34.2,34.3,34.2,33.8,33.9,33.5z" fill="#e4e4e7" />
+      <path id="Icon_x5F_03_00000017476507354169342870000016477450102335192741_" d="M20.6,32.4    c0.4,0.1,0.9,0.8,0.9,0.8L21.5,32L21.4,30c0-0.2,0.1-0.3,0.3-0.4c0.2,0,0.3,0.1,0.4,0.3l0.1,1.7c0.1,0,0.1-0.1,0.2-0.1    c0,0,0,0,0-0.1v-2c0-0.2,0.2-0.3,0.3-0.3s0.3,0.2,0.3,0.3v2c0,0,0,0,0,0c0.1,0,0.1,0,0.2,0l0.2-1.7c0-0.2,0.2-0.3,0.4-0.3    c0.2,0,0.3,0.2,0.3,0.4l-0.2,2c0.1,0,0.1,0.1,0.1,0.1l0.3-1.3c0-0.2,0.2-0.3,0.3-0.2h0c0.2,0,0.3,0.2,0.2,0.3l-0.5,2.1    c0,0.2-0.3,1.3-0.9,1.7c-0.6,0.3-1.6,0.3-2.1-0.4c-0.6-0.9-0.9-1.2-1.3-1.4C20.1,32.7,20.2,32.2,20.6,32.4z" fill="#e4e4e7" />
+      <path id="Icon_x5F_02_00000012451678821677428990000005764124313313470599_" d="M15.2,31.6h-0.4v-0.9    c0-0.7-0.6-1.3-1.3-1.3c-0.7,0-1.3,0.6-1.3,1.3v0.9h-0.4c-0.2,0-0.3,0.1-0.3,0.3v2.4c0,0.2,0.1,0.3,0.3,0.3h3.4    c0.2,0,0.3-0.1,0.3-0.3v-2.4C15.5,31.7,15.4,31.6,15.2,31.6z M12.8,30.7c0-0.4,0.3-0.7,0.7-0.7c0.4,0,0.7,0.3,0.7,0.7v0.9h-1.4    V30.7z" fill="#e4e4e7" />
+	  <!-- Alarm -->
+	  <rect rx="3" ry="3" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" />
+	  <polygon points="6.2,29 2.8,29 1,32 2.8,35 6.2,35 8,32 			" fill="#e4e4e7"/>
+	  <path d="M4.5,32.9c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.3,0.2-0.4,0.2c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4c0-0.2,0.1-0.3,0.2-0.4C4.2,33,4.3,32.9,4.5,32.9z M4.9,32.5H4.1L4,29.9h1L4.9,32.5z"/>
+	  <!-- Warning -->
+	  <rect rx="3" ry="3" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" />
+	  <path id="Icon_x5F_01_00000041261037089371247110000013910257916440856243_" d="M7.4,34.2l-2.7-4.6    c-0.1-0.1-0.3-0.1-0.4,0l-2.7,4.6c-0.1,0.1,0,0.3,0.2,0.3h5.4C7.3,34.5,7.4,34.3,7.4,34.2z M4.2,31c0-0.1,0.1-0.3,0.3-0.3    c0.1,0,0.3,0.1,0.3,0.3v1.5c0,0.1-0.1,0.3-0.3,0.3c-0.1,0-0.3-0.1-0.3-0.3V31z M4.5,34c-0.2,0-0.4-0.2-0.4-0.4    c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4C4.9,33.8,4.7,34,4.5,34z" fill="#e4e4e7" />
+	  <!-- Info -->
+	  <rect rx="3" ry="3" id="Position_x5F_01_00000074417571212144000340000003116885240813987482_" x="0.5" y="28" width="8" height="8" />
+	  <path fill="#e4e4e7" d="M4.5,29.3c0.2,0,0.4,0.1,0.5,0.2c0.1,0.1,0.2,0.3,0.2,0.5S5.1,30.3,5,30.4c-0.1,0.1-0.3,0.2-0.5,0.2c-0.2,0-0.4-0.1-0.5-0.2c-0.1-0.1-0.2-0.3-0.2-0.5c0-0.2,0.1-0.4,0.2-0.5S4.3,29.3,4.5,29.3z M3.9,34.7v-3.4h1.2v3.4H3.9z"/>
 	</g>
-    <g id="Icon_x5F_Body_00000105395650504021084500000001131401575430283680_" hmi-bind:transform="translate({{(-6.5* LocalProps.Enlarge)}},{{(0.3 * LocalProps.Enlarge)}}) scale({{(1 + 0.35 * LocalProps.Enlarge)}})">
-	  <g id="FrameCircle" hmi-bind:display="{{ eq(ParamProps.SymbolFrameShape , 0.0) ? 'inline' : 'none' }}">
+    <g id="Icon_x5F_Body_00000105395650504021084500000001131401575430283680_">
+	  <g id="FrameCircle">
 		<g id="Icon_x5F_Base_00000095296449647877863960000000114439831605829550_">
-			<ellipse cx="18" cy="13.3" rx="13" ry="13.3" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSymbolBackground)}}" />
+			<ellipse cx="18" cy="13.3" rx="13" ry="13.3" />
 		</g>
 		<g id="Icon_x5F_Outline_00000110444259348800134780000007233919251811505303_">
-			<path d="M18,1c6.6,0,12,5.5,12,12.3s-5.4,12.3-12,12.3S6,20.1,6,13.3S11.4,1,18,1 M18,0     C10.8,0,5,5.9,5,13.3s5.8,13.3,13,13.3c7.2,0,13-5.9,13-13.3S25.2,0,18,0L18,0z" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSymbolFrame)}}" />
+			<path d="M18,1c6.6,0,12,5.5,12,12.3s-5.4,12.3-12,12.3S6,20.1,6,13.3S11.4,1,18,1 M18,0     C10.8,0,5,5.9,5,13.3s5.8,13.3,13,13.3c7.2,0,13-5.9,13-13.3S25.2,0,18,0L18,0z" />
 		</g>
 	  </g>
-	  <g id="FrameRect" hmi-bind:display="{{ eq(ParamProps.SymbolFrameShape , 1.0) ? 'inline' : 'none' }}">
+	  <g id="FrameRect">
 		<g id="Icon_x5F_Base_00000095296449647877863960000000114439831605829550_">
-			<rect x="5" y="0.3" width="26" height="26" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSymbolBackground)}}" />
+			<rect rx="3" ry="3" x="5" y="0.3" width="26" height="26" />
 		</g>
 		<g id="Icon_x5F_Outline_00000110444259348800134780000007233919251811505303_">
-			<rect x="5" y="0.3" width="26" height="26" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSymbolBackground)}}" fill="none" stroke-width="1.5" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorSymbolFrame)}}" />
+			<rect rx="3" ry="3" x="5" y="0.3" width="26" height="26" fill="none" stroke-width="1.5" />
 		</g>
 	  </g>
     </g>
-	<g id="Valve_x5F_Types" hmi-bind:transform="rotate({{(90*(ParamProps.IconOrientation*-1))}},18,{{13.3+(4.7*LocalProps.Enlarge)}}) translate({{(-6.5* LocalProps.Enlarge)}},{{(0.3 * LocalProps.Enlarge)}}) scale({{(1 + 0.35 * LocalProps.Enlarge)}})">
+	<g id="Valve_x5F_Types">
 		<g id="Icon_Outline">
-			<path d="M16.88,19.16L12.58,7.4h2.18l2.32,6.49c.42,1.17,.74,2.16,.97,2.96,.36-1.16,.69-2.16,.98-2.98l2.33-6.47h2.05l-4.29,11.76h-2.25Z" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSymbol)}}"/>
+			<path d="M16.88,19.16L12.58,7.4h2.18l2.32,6.49c.42,1.17,.74,2.16,.97,2.96,.36-1.16,.69-2.16,.98-2.98l2.33-6.47h2.05l-4.29,11.76h-2.25Z"/>
 		</g>
     </g>
-    <g id="Indicator_00000053526981192301710720000003565159577418310057_" hmi-bind:display="{{ParamProps.ShowSmallIndicator? 'inline':'none'}}" hmi-bind:transform="rotate({{90* (ParamProps.IconOrientation*-1)}},18,18) translate({{0-LocalProps.IndicatorLeft*9.4}},{{0+LocalProps.IndicatorDown*9.4}})">
-      <g id="SmallCircle" hmi-bind:display="{{ and(eq(ParamProps.SmallIndicatorShape , 0.0),ParamProps.ShowSmallIndicator) ? 'inline' : 'none' }}">
+    <g id="Indicator_00000053526981192301710720000003565159577418310057_">
+      <g id="SmallCircle">
 		<g id="Base_00000058579160310189991240000003281630467434526349_">
-			<circle cx="31" cy="5" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSmallIndicator)}}" />
+			<circle cx="31" cy="5" r="5" />
 		</g>
 		<g id="Outline_00000143604404403778501970000015918363953557258940_">
 			<path d="M31,0.8c2.3,0,4.2,1.9,4.2,4.2S33.3,9.2,31,9.2S26.8,7.3,26.8,5S28.7,0.8,31,0.8 M31,0     c-2.8,0-5,2.2-5,5s2.2,5,5,5c2.8,0,5-2.2,5-5S33.8,0,31,0L31,0z" fill="#333333" />
 		</g>
 	  </g>
-	  <g id="SmallTriangle" hmi-bind:display="{{ and(eq(ParamProps.SmallIndicatorShape , 1.0),ParamProps.ShowSmallIndicator) ? 'inline' : 'none' }}">
+	  <g id="SmallTriangle">
 		<g id="Base_00000058579160310189991240000003281630467434526349_">
-			<path d="M31,1L35,9L27,9Z" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSmallIndicator)}}" />
+			<path d="M31,1L35,9L27,9Z" />
 		</g>
 		<g id="Outline_00000143604404403778501970000015918363953557258940_">
 			<path d="M31,1L35,9L27,9L31,1L35,9Z" stroke="#333333" fill="none" stroke-width="1.5"/>
 		</g>
 	  </g>
-	  <g id="SmallRhombus" hmi-bind:display="{{ and(eq(ParamProps.SmallIndicatorShape , 2.0),ParamProps.ShowSmallIndicator) ? 'inline' : 'none' }}">
+	  <g id="SmallRhombus">
 		<g id="Base_00000058579160310189991240000003281630467434526349_">
-			<path d="M30,1L35,7L30,13L25,7Z" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorSmallIndicator)}}" />
+			<path d="M30,1L35,7L30,13L25,7Z" />
 		</g>
 		<g id="Outline_00000143604404403778501970000015918363953557258940_">
 			<path d="M30,1L35,7L30,13L25,7L30,1L35,7Z" stroke="#333333" fill="none" stroke-width="1.5"/>
@@ -70,7 +77,7 @@
 	  </g>
     </g>
 	</g>
-	<rect hmi-bind:display="{{ParamProps.ShowBoundingBox ? 'inline':'none'}}" x="0.25" y="0.25" width="35.75" height="35.75" fill="none" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorBoundingBox)}}" stroke-width="0.5"/>
+	<rect rx="3" ry="3" x="0.25" y="0.25" width="35.75" height="35.75" fill="none" stroke-width="0.5"/>
   </g>
   </g>
 </svg>

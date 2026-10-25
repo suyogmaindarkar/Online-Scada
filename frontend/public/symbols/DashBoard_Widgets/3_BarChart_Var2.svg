@@ -1,48 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.666667)">
     <defs>
   </defs> 
   <g id="Frame">
-	<rect id="Frame_Box" x="1" y="1" width="300" height="150" stroke="#0058B0" stroke-width="0" fill="none" />
+	<rect rx="3" ry="3" id="Frame_Box" x="1" y="1" width="300" height="150" stroke="#0058B0" stroke-width="0" fill="none" />
   </g>
-  <line x1="90" y1="15" x2="100" y2="15" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
+  <line x1="90" y1="15" x2="100" y2="15" stroke-width="2.0" />
  <g id="Bar1">
- 	<text x="95" y="40" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="end"></text>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<rect x="100" y="22" hmi-bind:width="{{ ((LocalProps.IntValue1) / (ParamProps.MaxRange) * 165) }}"  height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}"  />
-		<text hmi-bind:x="{{ 110 + ((LocalProps.IntValue1) / (ParamProps.MaxRange) * 165) }}" y="40" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+ 	<text x="95" y="40" font-family="Arial" font-size="12"  text-anchor="end"></text>
+	<g>
+		<rect rx="3" ry="3" x="100" y="22"  height="25" stroke="#000000" stroke-width="0"  />
+		<text y="40" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<rect id="Bar1Bar" x="100" y="22" height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}"  />
-		<text id="TextBar1" y="40" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<g>
+		<rect rx="3" ry="3" id="Bar1Bar" x="100" y="22" height="25" stroke="#000000" stroke-width="0"  />
+		<text id="TextBar1" y="40" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
  </g>
- <line x1="90" y1="55" x2="100" y2="55" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
+ <line x1="90" y1="55" x2="100" y2="55" stroke-width="2.0" />
  <g id="Bar2">
- 	<text x="95" y="80" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12" text-anchor="end"></text>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<rect x="100" y="62" hmi-bind:width="{{ ((LocalProps.IntValue2) / (ParamProps.MaxRange) * 165) }}"  height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}"  />
-		<text hmi-bind:x="{{ 110 + ((LocalProps.IntValue2) / (ParamProps.MaxRange) * 165) }}" y="80" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+ 	<text x="95" y="80" font-family="Arial" font-size="12" text-anchor="end"></text>
+	<g>
+		<rect rx="3" ry="3" x="100" y="62"  height="25" stroke="#000000" stroke-width="0"  />
+		<text y="80" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<rect id="Bar2Bar" x="100" y="62" height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}"  />
-		<text id="TextBar2" y="80" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<g>
+		<rect rx="3" ry="3" id="Bar2Bar" x="100" y="62" height="25" stroke="#000000" stroke-width="0"  />
+		<text id="TextBar2" y="80" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
  </g>
-	<line x1="90" y1="95" x2="100" y2="95" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" /> 
+	<line x1="90" y1="95" x2="100" y2="95" stroke-width="2.0" /> 
  <g id="Bar3">
- 	<text x="95" y="120" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12" text-anchor="end"></text>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<rect x="100" y="102" hmi-bind:width="{{ ((LocalProps.IntValue3) / (ParamProps.MaxRange) * 165) }}"  height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}"  />
-		<text hmi-bind:x="{{ 110 + ((LocalProps.IntValue3) / (ParamProps.MaxRange) * 165) }}" y="120" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+ 	<text x="95" y="120" font-family="Arial" font-size="12" text-anchor="end"></text>
+	<g>
+		<rect rx="3" ry="3" x="100" y="102"  height="25" stroke="#000000" stroke-width="0"  />
+		<text y="120" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<rect id="Bar3Bar" x="100" y="102" height="25" stroke="#000000" stroke-width="0" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}"  />
-		<text id="TextBar3" y="120" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="12"  text-anchor="start"></text>
+	<g>
+		<rect rx="3" ry="3" id="Bar3Bar" x="100" y="102" height="25" stroke="#000000" stroke-width="0"  />
+		<text id="TextBar3" y="120" font-family="Arial" font-size="12"  text-anchor="start"></text>
 	</g>
  </g>
-	<line x1="90" y1="135" x2="100" y2="135" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" /> 
- <line id="Zero_Line" x1="100" y1="15" x2="100" y2="135" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorLine)}}" stroke-width="2.0" />
-	</hmi-animations:animations>
+	<line x1="90" y1="135" x2="100" y2="135" stroke-width="2.0" /> 
+ <line id="Zero_Line" x1="100" y1="15" x2="100" y2="135" stroke-width="2.0" />
   </g>
 </svg>

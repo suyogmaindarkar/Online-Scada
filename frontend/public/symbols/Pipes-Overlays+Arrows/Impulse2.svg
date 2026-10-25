@@ -1,17 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 1.315789)">
-    </hmi:self>
-     <defs>
+    <defs>
      </defs>
-  <path id="Symbols0" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M57.1,19H18.9v38.2h38.2V19z M131.8,19H93.6v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"
-  hmi-bind:display="{{ le( ParamProps.ImpulsePosition, 0 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M73.6,73.6H2.4V2.4h71.2V73.6z M131.8,19H93.6v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"
-  hmi-bind:display="{{ eq( ParamProps.ImpulsePosition, 1 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols2" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M148.3,73.6H77.1V2.4h71.2V73.6z M57.1,19H18.9v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"
-  hmi-bind:display="{{ eq( ParamProps.ImpulsePosition, 2 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols3" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M223,73.6h-71.2V2.4H223V73.6z M57.1,19H18.9v38.2h38.2V19z M131.8,18.9H93.6v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"
-  hmi-bind:display="{{ eq( ParamProps.ImpulsePosition, 3 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols4" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M297.7,73.6h-71.2V2.4h71.2V73.6z M57.1,19H18.9v38.2h38.2V19z M131.8,18.9H93.6v38.2h38.2V18.9z M206.5,18.9h-38.2v38.2h38.2V18.9z"
-  hmi-bind:display="{{ ge( ParamProps.ImpulsePosition, 4 ) ? 'inline' : 'none' }}"/>
+  <path id="Symbols0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M57.1,19H18.9v38.2h38.2V19z M131.8,19H93.6v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"/>
+  <path id="Symbols1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M73.6,73.6H2.4V2.4h71.2V73.6z M131.8,19H93.6v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"/>
+  <path id="Symbols2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M148.3,73.6H77.1V2.4h71.2V73.6z M57.1,19H18.9v38.2h38.2V19z M206.5,18.9h-38.2v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"/>
+  <path id="Symbols3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M223,73.6h-71.2V2.4H223V73.6z M57.1,19H18.9v38.2h38.2V19z M131.8,18.9H93.6v38.2h38.2V18.9z M281.2,18.9H243v38.2h38.2V18.9z"/>
+  <path id="Symbols4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M297.7,73.6h-71.2V2.4h71.2V73.6z M57.1,19H18.9v38.2h38.2V19z M131.8,18.9H93.6v38.2h38.2V18.9z M206.5,18.9h-38.2v38.2h38.2V18.9z"/>
   </g>
 </svg>

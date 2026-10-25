@@ -9,7 +9,6 @@ import {
   LIBRARY_CATEGORIES,
   LIBRARY_COMPONENTS,
   searchComponents,
-  getCategoryStats,
 } from '../../config/componentLibrary';
 import COLORS from '../../theme/colors';
 
@@ -20,15 +19,13 @@ import COLORS from '../../theme/colors';
 
 const ComponentLibrary = ({ onAddComponent }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [expandedSubcategories, setExpandedSubcategories] = useState({});
 
   const filteredComponents = useMemo(() => {
     let components = LIBRARY_COMPONENTS;
     if (searchQuery.trim()) components = searchComponents(searchQuery);
-    if (selectedCategory) components = components.filter((c) => c.category === selectedCategory);
     return components;
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery]);
 
   const groupedComponents = useMemo(() => {
     const groups = {};
@@ -39,8 +36,6 @@ const ComponentLibrary = ({ onAddComponent }) => {
     });
     return groups;
   }, [filteredComponents]);
-
-  const categoryStats = getCategoryStats();
 
   const toggleSubcategory = (key) => {
     setExpandedSubcategories((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -130,31 +125,6 @@ const ComponentLibrary = ({ onAddComponent }) => {
         )}
       </div>
 
-      {/* ═══════════ CATEGORY FILTERS ═══════════ */}
-      <div
-        className="px-2 py-1.5 flex flex-wrap gap-1"
-        style={{ borderBottom: `1px solid ${COLORS.lineDefault}` }}
-      >
-        <CategoryChip
-          label="All"
-           icon="Layers"
-          count={LIBRARY_COMPONENTS.length}
-          active={selectedCategory === null}
-          onClick={() => setSelectedCategory(null)}
-        />
-        {categoryStats.map((cat) => (
-          <CategoryChip
-            key={cat.id}
-            label={cat.label}
-            icon={cat.icon}
-            count={cat.count}
-            color={cat.color}
-            active={selectedCategory === cat.id}
-            onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
-          />
-        ))}
-      </div>
-
       {/* ═══════════ COMPONENTS LIST ═══════════ */}
       <div className="flex-1 overflow-y-auto">
         {filteredComponents.length === 0 ? (
@@ -210,8 +180,6 @@ const ComponentLibrary = ({ onAddComponent }) => {
                 {Object.entries(subcategories).map(([subcatName, components]) => {
                   const subcatKey = `${categoryId}_${subcatName}`;
                   const isExpanded = searchQuery
-                    ? true
-                    : selectedCategory === categoryId
                     ? true
                     : expandedSubcategories[subcatKey] !== false;
 
@@ -282,32 +250,6 @@ const ComponentLibrary = ({ onAddComponent }) => {
     </div>
   );
 };
-
-// ═══════════════════════════════════════════════════════════
-// CATEGORY CHIP (filter button)
-// ═══════════════════════════════════════════════════════════
-const CategoryChip = ({ label, icon, count, color, active, onClick }) => (
-  <button
-    onClick={onClick}
-    title={label}
-    className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold transition-all"
-    style={{
-      background: active ? (color || COLORS.brandAccent) : 'rgba(255,255,255,0.9)',
-      color: active ? '#FFFFFF' : COLORS.inkBody,
-      border: `1px solid ${active ? (color || COLORS.brandAccent) : COLORS.lineDefault}`,
-      boxShadow: active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-    }}
-    onMouseEnter={(e) => {
-      if (!active) e.currentTarget.style.background = '#FFFFFF';
-    }}
-    onMouseLeave={(e) => {
-      if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
-    }}
-  >
-    <LibraryIcon name={icon} size={11} />
-    <span className="font-mono">{count}</span>
-  </button>
-);
 
 const ICONS = {
   Shapes, Cog, Wrench, Droplets, Cylinder, Radio, GitBranch, Lightbulb, Monitor,

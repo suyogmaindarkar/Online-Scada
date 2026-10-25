@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
     <defs>
      </defs>
@@ -12,7 +16,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Floor_Plate" x="16.7" y="291.7" fill="url(#Floor_Plate_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="239.7" height="5.9" />
+    <rect rx="3" ry="3" id="Floor_Plate" x="16.7" y="291.7" fill="url(#Floor_Plate_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="239.7" height="5.9" />
   </g>
   <g id="Motor_Right">
     <linearGradient id="Housing_Bottom_1_" gradientUnits="userSpaceOnUse" x1="340.6191" y1="224.4087" x2="260.0266" y2="224.4087">
@@ -71,31 +75,31 @@
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <rect id="Top_Side_1_" x="237.3" y="139.4" fill="url(#Top_Side_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="10.8" />
+        <rect rx="3" ry="3" id="Top_Side_1_" x="237.3" y="139.4" fill="url(#Top_Side_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="10.8" />
         <linearGradient id="Bottom_Side_2_" gradientUnits="userSpaceOnUse" x1="294.7139" y1="135.0757" x2="254.9794" y2="148.8188">
           <stop offset="0" stop-color="#71717a" />
           <stop offset="0.2954" stop-color="#71717a" />
           <stop offset="0.7771" stop-color="#52525b" />
           <stop offset="1" stop-color="#3f3f46" />
         </linearGradient>
-        <rect id="Bottom_Side_1_" x="237.3" y="148.2" fill="url(#Bottom_Side_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="2.1" />
+        <rect rx="3" ry="3" id="Bottom_Side_1_" x="237.3" y="148.2" fill="url(#Bottom_Side_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="2.1" />
       </g>
       <g id="Connection_Piece_Left">
         <linearGradient id="Top_Side_3_" gradientUnits="userSpaceOnUse" x1="3.6841" y1="129.605" x2="51.6037" y2="177.5246">
           <stop offset="0" stop-color="#e4e4e7" />
           <stop offset="1" stop-color="#52525b" />
         </linearGradient>
-        <rect id="Top_Side" x="2.4" y="139.4" fill="url(#Top_Side_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="10.8" />
+        <rect rx="3" ry="3" id="Top_Side" x="2.4" y="139.4" fill="url(#Top_Side_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="10.8" />
         <linearGradient id="Bottom_Side_3_" gradientUnits="userSpaceOnUse" x1="3.4229" y1="149.2114" x2="26.4104" y2="149.2114">
           <stop offset="0" stop-color="#71717a" />
           <stop offset="0.2954" stop-color="#71717a" />
           <stop offset="0.7771" stop-color="#52525b" />
           <stop offset="1" stop-color="#3f3f46" />
         </linearGradient>
-        <rect id="Bottom_Side" x="2.4" y="148.2" fill="url(#Bottom_Side_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="2.1" />
+        <rect rx="3" ry="3" id="Bottom_Side" x="2.4" y="148.2" fill="url(#Bottom_Side_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="33.1" height="2.1" />
       </g>
     </g>
-    <rect id="Shadow" x="136.4" y="9.9" fill="#52525b" stroke="#52525b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="123.5" height="7.1" />
+    <rect rx="3" ry="3" id="Shadow" x="136.4" y="9.9" fill="#52525b" stroke="#52525b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="123.5" height="7.1" />
     <linearGradient id="Flange_Top_1_" gradientUnits="userSpaceOnUse" x1="271.5449" y1="-24.6196" x2="20.3943" y2="80.4652">
       <stop offset="0" stop-color="#a1a1aa" />
       <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -110,7 +114,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Flange_Top" x="116.2" y="2.3" fill="url(#Flange_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="163.9" height="7.6" />
+    <rect rx="3" ry="3" id="Flange_Top" x="116.2" y="2.3" fill="url(#Flange_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="163.9" height="7.6" />
   </g>
   <g id="Suction_Port">
     <linearGradient id="Ring_Outside_1_" gradientUnits="userSpaceOnUse" x1="17.8823" y1="43.7798" x2="427.4777" y2="392.9426">
@@ -140,8 +144,8 @@
     <path id="Flange" fill="url(#Flange_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M136.4,53.9   c-50.2,0-91,40.7-91,91c0,50.2,40.7,91,91,91c50.2,0,91-40.7,91-91C227.4,94.6,186.7,53.9,136.4,53.9z M136.4,208.4   c-35.1,0-63.6-28.5-63.6-63.6c0-35.1,28.5-63.6,63.6-63.6c35.1,0,63.6,28.5,63.6,63.6C200,180,171.6,208.4,136.4,208.4z" />
     <g id="Air_Intake">
       <path id="Blower_Wheel_Compartment_1_" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M166.6,114.7c16.7,16.7,16.7,43.7,0,60.3c-16.7,16.7-43.7,16.7-60.3,0c-16.7-16.7-16.7-43.7,0-60.3C122.9,98,149.9,98,166.6,114.7    z" />
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
-		<g id="Motor_Fan_No_Anim" hmi-bind:transform="rotate ( {{ ParamProps.FanRotation }}, 136.7, 144.5 )">
+	  <g>
+		<g id="Motor_Fan_No_Anim">
 			<linearGradient id="Paddel_Wheel_8_2_" gradientUnits="userSpaceOnUse" x1="120.38" y1="104.963" x2="132.159" y2="133.474" >
 			  <stop offset="0" stop-color="#a1a1aa" />
 			  <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -269,8 +273,8 @@
 			<circle id="Suspension_1_" fill="url(#Suspension_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="136.7" cy="144.5" r="11" />
 		</g>
 	  </g>
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
-		<g id="Motor_Fan" hmi-bind:transform="rotate ( {{ ParamProps.FanRotation }}, 136.7, 144.5 )">
+	  <g>
+		<g id="Motor_Fan">
 			<linearGradient id="Paddel_Wheel_8_2_" gradientUnits="userSpaceOnUse" x1="120.38" y1="104.963" x2="132.159" y2="133.474" >
 			  <stop offset="0" stop-color="#a1a1aa" />
 			  <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -415,7 +419,5 @@
     <path id="Hopper" fill="url(#Hopper_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M136.4,81.3   c-35.1,0-63.6,28.5-63.6,63.6c0,35.1,28.5,63.6,63.6,63.6c35.1,0,63.6-28.5,63.6-63.6C200,109.7,171.6,81.3,136.4,81.3z    M136.4,187.5c-23.6,0-42.7-19.1-42.7-42.7c0-23.6,19.1-42.7,42.7-42.7c23.6,0,42.7,19.1,42.7,42.7   C179.1,168.4,160,187.5,136.4,187.5z" />
     <path id="Refection_3_" fill="#CFCFCE" d="M182,159.5c-4.9,25-26.9,43.9-53.3,43.9c-16.6,0-31.4-7.4-41.3-19.1   c11.5,14.4,29.3,23.7,49.2,23.7c28.1,0,51.9-18.5,60-43.9L182,159.5z" />
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

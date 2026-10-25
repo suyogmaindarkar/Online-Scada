@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.430108, 0.333333)">
     <defs>
      </defs>
@@ -7,7 +11,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Inside_1_" x="16.9" y="16.9" fill="url(#Inside_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="246.5" />
+    <rect rx="3" ry="3" id="Inside_1_" x="16.9" y="16.9" fill="url(#Inside_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="246.5" />
     <linearGradient id="Connection_Right_1_" gradientUnits="userSpaceOnUse" x1="244.5938" y1="196.9785" x2="295.7583" y2="284.3845">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
@@ -37,17 +41,17 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Case_1_" x="16.9" y="182.1" fill="url(#Shape_Case_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="43.4" />
+    <rect rx="3" ry="3" id="Shape_Case_1_" x="16.9" y="182.1" fill="url(#Shape_Case_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="43.4" />
     <linearGradient id="Holder_Right_2_" gradientUnits="userSpaceOnUse" x1="205.998" y1="193.0366" x2="226.8157" y2="234.9556">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Right_1_" x="207" y="182.1" fill="url(#Holder_Right_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
+    <rect rx="3" ry="3" id="Holder_Right_1_" x="207" y="182.1" fill="url(#Holder_Right_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
     <linearGradient id="Holder_Left_2_" gradientUnits="userSpaceOnUse" x1="15.8545" y1="193.041" x2="36.6631" y2="234.9418">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Left_1_" x="16.9" y="182.1" fill="url(#Holder_Left_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
+    <rect rx="3" ry="3" id="Holder_Left_1_" x="16.9" y="182.1" fill="url(#Holder_Left_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
     <line id="Lower_Edge_1_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="17.2" y1="225.5" x2="216" y2="225.5" />
     <linearGradient id="Slide-Handle_Right_2_" gradientUnits="userSpaceOnUse" x1="210.0498" y1="203.8071" x2="211.7356" y2="203.8071">
       <stop offset="0" stop-color="#a1a1aa" />
@@ -93,17 +97,17 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Case_14_" x="16.9" y="133.8" fill="url(#Shape_Case_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="43.4" />
+    <rect rx="3" ry="3" id="Shape_Case_14_" x="16.9" y="133.8" fill="url(#Shape_Case_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="43.4" />
     <linearGradient id="Holder_Right_3_" gradientUnits="userSpaceOnUse" x1="205.998" y1="144.8062" x2="226.8157" y2="186.7251">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Right_14_" x="207" y="133.8" fill="url(#Holder_Right_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
+    <rect rx="3" ry="3" id="Holder_Right_14_" x="207" y="133.8" fill="url(#Holder_Right_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
     <linearGradient id="Holder_Left_3_" gradientUnits="userSpaceOnUse" x1="15.8545" y1="144.8101" x2="36.6631" y2="186.7108">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Left_14_" x="16.9" y="133.8" fill="url(#Holder_Left_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
+    <rect rx="3" ry="3" id="Holder_Left_14_" x="16.9" y="133.8" fill="url(#Holder_Left_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="43.4" />
     <line id="Lower_Edge_12_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="17.2" y1="177.3" x2="216" y2="177.3" />
     <linearGradient id="Slide-Handle_Right_3_" gradientUnits="userSpaceOnUse" x1="210.0498" y1="155.5762" x2="211.7356" y2="155.5762">
       <stop offset="0" stop-color="#a1a1aa" />
@@ -149,17 +153,17 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Case_12_" x="16.9" y="98.6" fill="url(#Shape_Case_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
+    <rect rx="3" ry="3" id="Shape_Case_12_" x="16.9" y="98.6" fill="url(#Shape_Case_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
     <linearGradient id="Holder_Right_4_" gradientUnits="userSpaceOnUse" x1="207.4775" y1="105.9883" x2="222.5244" y2="136.287">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Right_12_" x="207" y="98.6" fill="url(#Holder_Right_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Right_12_" x="207" y="98.6" fill="url(#Holder_Right_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <linearGradient id="Holder_Left_4_" gradientUnits="userSpaceOnUse" x1="17.334" y1="105.9932" x2="32.3723" y2="136.2747">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Left_12_" x="16.9" y="98.6" fill="url(#Holder_Left_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Left_12_" x="16.9" y="98.6" fill="url(#Holder_Left_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <line id="Lower_Edge_10_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="17.2" y1="128.9" x2="216" y2="128.9" />
     <linearGradient id="Slide-Handle_Right_4_" gradientUnits="userSpaceOnUse" x1="210.0498" y1="113.7793" x2="211.7356" y2="113.7793">
       <stop offset="0" stop-color="#a1a1aa" />
@@ -207,17 +211,17 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Case_13_" x="16.9" y="63.7" fill="url(#Shape_Case_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
+    <rect rx="3" ry="3" id="Shape_Case_13_" x="16.9" y="63.7" fill="url(#Shape_Case_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
     <linearGradient id="Holder_Right_5_" gradientUnits="userSpaceOnUse" x1="207.4775" y1="71.0195" x2="222.5244" y2="101.3183">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Right_13_" x="207" y="63.7" fill="url(#Holder_Right_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Right_13_" x="207" y="63.7" fill="url(#Holder_Right_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <linearGradient id="Holder_Left_5_" gradientUnits="userSpaceOnUse" x1="17.334" y1="71.0234" x2="32.3718" y2="101.304">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Left_13_" x="16.9" y="63.7" fill="url(#Holder_Left_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Left_13_" x="16.9" y="63.7" fill="url(#Holder_Left_5_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <line id="Lower_Edge_11_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="17.2" y1="93.9" x2="216" y2="93.9" />
     <linearGradient id="Slide-Handle_Right_5_" gradientUnits="userSpaceOnUse" x1="210.0498" y1="78.8105" x2="211.7356" y2="78.8105">
       <stop offset="0" stop-color="#a1a1aa" />
@@ -268,22 +272,22 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Case_11_" x="16.9" y="28.5" fill="url(#Shape_Case_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
+    <rect rx="3" ry="3" id="Shape_Case_11_" x="16.9" y="28.5" fill="url(#Shape_Case_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="198.8" height="30.2" />
     <linearGradient id="Shape_2_" gradientUnits="userSpaceOnUse" x1="141.2285" y1="-9.8154" x2="150.5481" y2="44.9171">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Shape_1_" x="107" y="33.9" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="86.5" height="18.8" />
+    <rect rx="3" ry="3" id="Shape_1_" x="107" y="33.9" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="86.5" height="18.8" />
     <linearGradient id="Holder_Right_6_" gradientUnits="userSpaceOnUse" x1="207.4775" y1="35.8345" x2="222.5244" y2="66.1332">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Right_11_" x="207" y="28.5" fill="url(#Holder_Right_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Right_11_" x="207" y="28.5" fill="url(#Holder_Right_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <linearGradient id="Holder_Left_6_" gradientUnits="userSpaceOnUse" x1="17.334" y1="35.8389" x2="32.3718" y2="66.1194">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Holder_Left_11_" x="16.9" y="28.5" fill="url(#Holder_Left_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
+    <rect rx="3" ry="3" id="Holder_Left_11_" x="16.9" y="28.5" fill="url(#Holder_Left_6_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="8.6" height="30.2" />
     <line id="Lower_Edge_9_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="17.2" y1="58.7" x2="216" y2="58.7" />
     <linearGradient id="Slide-Handle_Right_6_" gradientUnits="userSpaceOnUse" x1="210.0498" y1="43.626" x2="211.7356" y2="43.626">
       <stop offset="0" stop-color="#a1a1aa" />

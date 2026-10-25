@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(5.882353, 5.882353)">
     <defs>
 	</defs>
@@ -13,28 +17,28 @@
 		<stop offset="1" stop-color="#d4d4d8" />
 	</linearGradient>
 	<linearGradient id="Unbenannter_Verlauf_137" x1="8.5" y1="16.5" x2="8.5" y2=".5" gradientUnits="userSpaceOnUse">
-		<stop offset="0" stop-color="#71717a" />
-		<stop offset=".05" stop-color="#71717a" />
-		<stop offset=".13" stop-color="#71717a" />
-		<stop offset=".2" stop-color="#71717a" />
-		<stop offset=".27" stop-color="#71717a" />
-		<stop offset=".39" stop-color="#71717a" />
+		<stop offset="0" stop-color="#d4d4d8" />
+		<stop offset=".05" stop-color="#d4d4d8" />
+		<stop offset=".13" stop-color="#d4d4d8" />
+		<stop offset=".2" stop-color="#d4d4d8" />
+		<stop offset=".27" stop-color="#a1a1aa" />
+		<stop offset=".39" stop-color="#a1a1aa" />
 		<stop offset=".55" stop-color="#71717a" />
-		<stop offset="1" stop-color="#71717a" />
+		<stop offset="1" stop-color="#52525b" />
 	</linearGradient>
-	<g hmi-bind:stroke-width="{{ le((10 / HmiProps.Width), (10 / HmiProps.Height)) ? ((10 / HmiProps.Width) * (HmiProps.Width / 17)) : ((10 / HmiProps.Height) * (HmiProps.Height / 17)) }}">
-		<g id="Down" hmi-bind:display="{{ eq(ParamProps.Pressed, true) ? 'none' : 'inline' }}">
-			<rect x=".5" y=".5" width="16" height="16" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_164)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10"/>
-			<g id="Cross" hmi-bind:display="{{ eq(ParamProps.ShowCrossWhenDisabled, true) ? 'inline' : 'none' }}">
-				<path hmi-bind:fill="{{Converter.RGBA(ParamProps.CrossBasicColor)}}" d="m 5.5,5 a 0.5,0.5 0 0 0 -0.3535156,0.1464844 0.5,0.5 0 0 0 0,0.7070312 l 5.9999996,6.0000004 a 0.5,0.5 0 0 0 0.707032,0 0.5,0.5 0 0 0 0,-0.707032 L 5.8535156,5.1464844 A 0.5,0.5 0 0 0 5.5,5 Z" />
-				<path hmi-bind:fill="{{Converter.RGBA(ParamProps.CrossBasicColor)}}" d="M 11.146484,5.1464844 5.1464844,11.146484 a 0.5,0.5 0 0 0 0,0.707032 0.5,0.5 0 0 0 0.7070312,0 L 11.853516,5.8535156 a 0.5,0.5 0 0 0 0,-0.7070312 0.5,0.5 0 0 0 -0.707032,0 z" />
+	<g>
+		<g id="Down">
+			<rect x=".5" y=".5" width="16" height="16" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_164)" stroke-miterlimit="10"/>
+			<g id="Cross">
+				<path d="m 5.5,5 a 0.5,0.5 0 0 0 -0.3535156,0.1464844 0.5,0.5 0 0 0 0,0.7070312 l 5.9999996,6.0000004 a 0.5,0.5 0 0 0 0.707032,0 0.5,0.5 0 0 0 0,-0.707032 L 5.8535156,5.1464844 A 0.5,0.5 0 0 0 5.5,5 Z" />
+				<path d="M 11.146484,5.1464844 5.1464844,11.146484 a 0.5,0.5 0 0 0 0,0.707032 0.5,0.5 0 0 0 0.7070312,0 L 11.853516,5.8535156 a 0.5,0.5 0 0 0 0,-0.7070312 0.5,0.5 0 0 0 -0.707032,0 z" />
 			</g>
 		</g>
-		<g id="Active" hmi-bind:display="{{ eq(ParamProps.Pressed, true) ? 'inline' : 'none' }}">
-			<rect x=".5" y=".5" width="16" height="16" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_137)" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ActiveLineColor)}}" stroke-miterlimit="10"/>
-			<path hmi-bind:fill="{{Converter.RGBA(ParamProps.CheckmarkBasicColor)}}" d="M 12.75 3.9804688 A 0.5 0.50109375 0 0 0 12.349609 4.1855469 L 12.347656 4.1835938 L 7.265625 11.371094 L 4.9296875 8.3730469 A 0.5 0.50109375 0 0 0 4.9277344 8.3710938 A 0.5 0.50109375 0 0 0 4.8554688 8.2773438 A 0.5 0.50109375 0 0 0 4.5 8.1289062 A 0.5 0.50109375 0 0 0 4 8.6308594 A 0.5 0.50109375 0 0 0 4.0878906 8.9101562 L 4.0859375 8.9121094 L 4.1230469 8.9589844 L 6.8925781 12.503906 L 6.8945313 12.503906 A 0.5 0.50109375 0 0 0 7.2890625 12.699219 A 0.5 0.50109375 0 0 0 7.6699219 12.521484 L 7.671875 12.521484 A 0.5 0.50109375 0 0 0 7.6914063 12.494141 L 7.7128906 12.462891 L 13.126953 4.8085938 A 0.5 0.50109375 0 0 0 13.146484 4.78125 L 13.175781 4.7421875 L 13.183594 4.7304688 L 13.181641 4.7304688 A 0.5 0.50109375 0 0 0 13.25 4.4804688 A 0.5 0.50109375 0 0 0 12.75 3.9804688 z" />
+		<g id="Active">
+			<rect x=".5" y=".5" width="16" height="16" rx="2" ry="2" fill="url(#Unbenannter_Verlauf_137)" stroke-miterlimit="10"/>
+			<path d="M 12.75 3.9804688 A 0.5 0.50109375 0 0 0 12.349609 4.1855469 L 12.347656 4.1835938 L 7.265625 11.371094 L 4.9296875 8.3730469 A 0.5 0.50109375 0 0 0 4.9277344 8.3710938 A 0.5 0.50109375 0 0 0 4.8554688 8.2773438 A 0.5 0.50109375 0 0 0 4.5 8.1289062 A 0.5 0.50109375 0 0 0 4 8.6308594 A 0.5 0.50109375 0 0 0 4.0878906 8.9101562 L 4.0859375 8.9121094 L 4.1230469 8.9589844 L 6.8925781 12.503906 L 6.8945313 12.503906 A 0.5 0.50109375 0 0 0 7.2890625 12.699219 A 0.5 0.50109375 0 0 0 7.6699219 12.521484 L 7.671875 12.521484 A 0.5 0.50109375 0 0 0 7.6914063 12.494141 L 7.7128906 12.462891 L 13.126953 4.8085938 A 0.5 0.50109375 0 0 0 13.146484 4.78125 L 13.175781 4.7421875 L 13.183594 4.7304688 L 13.181641 4.7304688 A 0.5 0.50109375 0 0 0 13.25 4.4804688 A 0.5 0.50109375 0 0 0 12.75 3.9804688 z" />
 		</g>
 	</g>
-	<rect x="0" y="0" width="17" height="17" rx="2" ry="2" fill-opacity="0" hmi-event:down="url(#onMouseDown)"/>
+	<rect x="0" y="0" width="17" height="17" rx="2" ry="2" fill-opacity="0"/>
   </g>
 </svg>

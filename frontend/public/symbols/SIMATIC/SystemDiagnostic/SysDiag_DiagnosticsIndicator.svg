@@ -1,10 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.724138, 1.724138)">
-    </hmi:self>
-  <defs>
+    <defs>
   </defs>
-  <g id="Background"   hmi-bind:fill="{{Converter.RGBA(LocalProps.Color)}}">	 
-    <rect
+  <g id="Background">	 
+    <rect rx="3" ry="3"
      x="0" y="0" width="58" height="58"
 	 fill-opacity="1" stroke="none" />
   </g>
@@ -78,17 +81,17 @@
      d="m 27.74472,32.138871 c -1.837642,0 -3.33572,1.478103 -3.33572,3.315746 0,1.857617 1.498078,3.335721 3.33572,3.335721 1.837643,0 3.315747,-1.478104 3.315747,-3.335721 0,-1.837643 -1.478104,-3.315746 -3.315747,-3.315746 z"
 	 fill="#717b8c" fill-opacity="1" fill-rule= "evenodd" stroke="none" />
   </g>
-  <g id="Questionmark" hmi-bind:display="{{ or(le(ParamProps.State,0), gt(ParamProps.State,3)) ? 'inline' : 'none' }}"> 
+  <g id="Questionmark"> 
     <path
 	 d="m 29.182723,29.822657 a 8.5000002,8.0000002 0 1 1 17,0 q 0,4 -4,6 -4,2 -4.5,4.5 -0.5,2.5 -0.4,4 v 0.2 m 0,3 v 7"
 	 fill="none" stroke="#e4e4e7" stroke-width="7" stroke-opacity="1" />
   </g>
-  <g id="OK" 	       hmi-bind:display="{{ eq(ParamProps.State,1) ? 'inline' : 'none' }}">
+  <g id="OK">
     <path
      d="M 55.229147,34.755413 34.256053,55.568711 21.452479,42.585368 h 7.80998 l 4.993594,5.492953 12.983344,-13.322908 z"
 	 fill="#e4e4e7" fill-opacity="1" fill-rule= "evenodd" stroke="none" />
   </g>
-  <g id="Wrench"       hmi-bind:display="{{ eq(ParamProps.State,2) ? 'inline' : (eq(ParamProps.State,3) ? 'inline' : 'none') }}">   
+  <g id="Wrench">   
     <path
      d="m 38.650307,56.727338 c 0,0 0,-19.275272 0,-20.473734 0,-2.356977 -2.756464,-3.135977 -3.934952,-6.691416 -0.779001,-2.356976 0,-6.291928 1.178488,-9.827392 0.399488,-0.399488 0.399488,-0.399488 0.779001,-0.399488 0.399487,1.178488 2.356976,7.090903 2.756463,7.470416 0,0.399488 3.135977,1.198463 5.492954,0 1.977463,-1.178488 3.535464,-2.756463 3.155951,-3.135977 0,-0.399487 -2.356976,-6.691415 -2.756464,-7.49039 0,-0.399488 0.399488,-0.399488 0.779001,-0.399488 0.399487,0.399488 7.070928,2.756464 7.070928,9.467854 0.399488,5.512928 -5.492953,7.070929 -5.492953,9.827393 0,15.360294 0,21.652222 0,21.652222 -9.028417,0 -9.028417,0 -9.028417,0 0,0 0,0 0,0 z"
 	 fill="#e4e4e7" fill-opacity="1" fill-rule= "evenodd" stroke="none" />

@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.49505, 0.333333)">
     <defs>
      </defs> 
@@ -48,7 +52,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_28_" x="196.7" y="195.3" fill="url(#Reflection_2_)" width="2.7" height="6.4" />
+      <rect rx="3" ry="3" id="Reflection_28_" x="196.7" y="195.3" fill="url(#Reflection_2_)" width="2.7" height="6.4" />
       <linearGradient id="Edge_Right_1_" gradientUnits="userSpaceOnUse" x1="199.5879" y1="191.4697" x2="199.5879" y2="235.766">
         <stop offset="0" stop-color="#a1a1aa" />
         <stop offset="1" stop-color="#18181b" />
@@ -137,7 +141,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_25_" x="2.7" y="247.4" fill="url(#Reflection_5_)" width="2.5" height="7.4" />
+      <rect rx="3" ry="3" id="Reflection_25_" x="2.7" y="247.4" fill="url(#Reflection_5_)" width="2.5" height="7.4" />
       <linearGradient id="Edge_Right_2_" gradientUnits="userSpaceOnUse" x1="5.397" y1="221.928" x2="5.397" y2="263.636" >
         <stop offset="0" stop-color="#71717a" />
         <stop offset="1.586480e-02" stop-color="#71717a" />

@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.869565, 0.333333)">
     <defs>
      </defs>
@@ -17,7 +21,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Rod_2_" x="53.8" y="105.3" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7.4" height="186.6" />
+    <rect rx="3" ry="3" id="Rod_2_" x="53.8" y="105.3" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7.4" height="186.6" />
     <linearGradient id="Blade_Connection_1_" gradientUnits="userSpaceOnUse" x1="52.1572" y1="284.6465" x2="62.7124" y2="284.6465">
       <stop offset="0" stop-color="#a1a1aa" />
       <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -32,7 +36,7 @@
       <stop offset="0.9452" stop-color="#27272a" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Blade_Connection_2_" x="51.7" y="277.4" fill="url(#Blade_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.5" height="14.5" />
+    <rect rx="3" ry="3" id="Blade_Connection_2_" x="51.7" y="277.4" fill="url(#Blade_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.5" height="14.5" />
     <g id="Blades_2_">
       <linearGradient id="Blade_Right_1_" gradientUnits="userSpaceOnUse" x1="35.9917" y1="281.7451" x2="102.3667" y2="297.9951">
         <stop offset="0" stop-color="#e4e4e7" />
@@ -66,7 +70,7 @@
       <stop offset="0.9452" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_32_" x="21.9" y="13.4" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="71.7" height="80.2" />
+    <rect rx="3" ry="3" id="Shape_32_" x="21.9" y="13.4" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="71.7" height="80.2" />
     <g id="Connection_Rod">
       <linearGradient id="Shape_2_" gradientUnits="userSpaceOnUse" x1="50.1616" y1="115.145" x2="64.806" y2="115.145">
         <stop offset="0" stop-color="#a1a1aa" />
@@ -82,12 +86,12 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Shape_31_" x="50.2" y="105.3" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.5" height="19.7" />
+      <rect rx="3" ry="3" id="Shape_31_" x="50.2" y="105.3" fill="url(#Shape_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.5" height="19.7" />
       <linearGradient id="Refection_1_" gradientUnits="userSpaceOnUse" x1="52.3838" y1="115.1108" x2="54.6775" y2="115.1108">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Refection" x="52.3" y="106" fill="url(#Refection_1_)" width="2.3" height="18.2" />
+      <rect rx="3" ry="3" id="Refection" x="52.3" y="106" fill="url(#Refection_1_)" width="2.3" height="18.2" />
     </g>
     <g id="Bottom">
       <linearGradient id="Shape_3_" gradientUnits="userSpaceOnUse" x1="29.9058" y1="99.4414" x2="83.9485" y2="99.4414">
@@ -115,18 +119,18 @@
       <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
       <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
     </linearGradient>
-    <rect id="Refection_Motor" x="29.1" y="14" fill="url(#Refection_Motor_1_)" width="9.8" height="78.9" />
+    <rect rx="3" ry="3" id="Refection_Motor" x="29.1" y="14" fill="url(#Refection_Motor_1_)" width="9.8" height="78.9" />
     <path id="Cooling_Fins_6_" fill="#18181b" d="M22.6,20.6h0.7v65.8h-0.7V20.6z M25.2,20.6v65.8h-1.3V20.6H25.2z M28.5,20.6v65.8h-2   V20.6H28.5z M33,20.6v65.8h-2.6V20.6H33z M38.2,20.6v65.8H35V20.6H38.2z M44.7,20.6v65.8h-3.9V20.6H44.7z M51.9,20.6v65.8H48V20.6   H51.9z M59.1,20.6v65.8h-3.9V20.6H59.1z" />
     <linearGradient id="Electric_Housing_1_" gradientUnits="userSpaceOnUse" x1="37.6929" y1="6.9531" x2="118.1889" y2="68.1522">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Electric_Housing" x="87" y="32.3" fill="url(#Electric_Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="20.5" height="39.7" />
+    <rect rx="3" ry="3" id="Electric_Housing" x="87" y="32.3" fill="url(#Electric_Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="20.5" height="39.7" />
     <linearGradient id="Devider_Line_1_" gradientUnits="userSpaceOnUse" x1="58.0317" y1="14.168" x2="85.1878" y2="14.168">
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Devider_Line" x="22.3" y="13.8" fill="url(#Devider_Line_1_)" width="70.8" height="0.8" />
+    <rect rx="3" ry="3" id="Devider_Line" x="22.3" y="13.8" fill="url(#Devider_Line_1_)" width="70.8" height="0.8" />
     <g id="Cover">
       <linearGradient id="Shape_4_" gradientUnits="userSpaceOnUse" x1="21.7632" y1="7.8848" x2="92.4025" y2="7.8848">
         <stop offset="0" stop-color="#52525b" />
@@ -150,6 +154,5 @@
       <polygon id="Reflection" fill="url(#Reflection_3_)" points="38.9,12.8 40.8,3 32.3,3 29.1,12.8" />
     </g>
   </g>
-	</hmi-animations:animations>
   </g>
 </svg>

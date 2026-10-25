@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.340136)">
     <defs>
      </defs>
@@ -35,12 +39,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_2_" x="127.3" y="15.1" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="157.3" height="73.2" />
+      <rect rx="3" ry="3" id="Shape_2_" x="127.3" y="15.1" fill="url(#Shape_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="157.3" height="73.2" />
       <linearGradient id="Reflection_1_" gradientUnits="userSpaceOnUse" x1="206.0283" y1="21.7368" x2="206.0283" y2="28.2301">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection" x="128.2" y="22.6" fill="url(#Reflection_1_)" width="155.7" height="12.5" />
+      <rect rx="3" ry="3" id="Reflection" x="128.2" y="22.6" fill="url(#Reflection_1_)" width="155.7" height="12.5" />
     </g>
     <g id="Flange_2_">
       <linearGradient id="Shape_4_" gradientUnits="userSpaceOnUse" x1="291.1172" y1="2.2427" x2="291.1172" y2="100.8647">
@@ -62,7 +66,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_4_" x="286.1" y="12.5" fill="url(#Reflection_2_)" width="10.1" height="16.8" />
+      <rect rx="3" ry="3" id="Reflection_4_" x="286.1" y="12.5" fill="url(#Reflection_2_)" width="10.1" height="16.8" />
       <linearGradient id="Edge_Right_2_" gradientUnits="userSpaceOnUse" x1="296.9023" y1="2.8179" x2="296.9023" y2="101.1273">
         <stop offset="0" stop-color="#a1a1aa" />
         <stop offset="1" stop-color="#18181b" />
@@ -105,8 +109,8 @@
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
       <path id="Ring_4_" fill="url(#Ring_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M87.8,100.4    c-21.7,21.7-21.7,57,0,78.8c21.7,21.7,57,21.7,78.8,0c21.7-21.7,21.7-57,0-78.8C144.8,78.6,109.6,78.6,87.8,100.4z M155.3,167.9    c-15.6,15.6-40.8,15.6-56.3,0c-15.6-15.6-15.5-40.8,0-56.3c15.6-15.6,40.8-15.6,56.3,0C170.9,127.1,170.9,152.3,155.3,167.9z" />
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
-		<g id="Motor_Fan_4_No_Anim" hmi-bind:transform="rotate ( {{ ParamProps.FanRotation }}, 127.4, 139.4 )">
+	  <g>
+		<g id="Motor_Fan_4_No_Anim">
 			<linearGradient id="Paddel_Wheel_8_1_" gradientUnits="userSpaceOnUse" x1="112.279" y1="102.712" x2="123.211" y2="129.174" >
 			  <stop offset="0" stop-color="#52525b" />
 			  <stop offset="4.758149e-02" stop-color="#71717a" />
@@ -234,8 +238,8 @@
 			<circle id="Suspension_3_" fill="url(#Suspension_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="127.4" cy="139.4" r="10.2" />
 		</g>
 	  </g>
-	  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
-		<g id="Motor_Fan_4_" hmi-bind:transform="rotate ( {{ ParamProps.FanRotation }}, 127.4, 139.4 )">
+	  <g>
+		<g id="Motor_Fan_4_">
 			<linearGradient id="Paddel_Wheel_8_1_" gradientUnits="userSpaceOnUse" x1="112.279" y1="102.712" x2="123.211" y2="129.174" >
 			  <stop offset="0" stop-color="#52525b" />
 			  <stop offset="4.758149e-02" stop-color="#71717a" />
@@ -365,7 +369,5 @@
 	  </g>
     </g>
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

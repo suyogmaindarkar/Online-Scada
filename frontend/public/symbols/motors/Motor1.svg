@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.58309)">
     <defs>
      </defs>
@@ -16,7 +20,7 @@
     <stop offset="0.9452" stop-color="#3f3f46" />
     <stop offset="1" stop-color="#3f3f46" />
   </linearGradient>
-  <rect id="Driving_Shaft_2_" x="233.6" y="66.7" fill="url(#Driving_Shaft_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="64.3" height="17.2" />
+  <rect rx="3" ry="3" id="Driving_Shaft_2_" x="233.6" y="66.7" fill="url(#Driving_Shaft_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="64.3" height="17.2" />
   <g id="Motor_Housing">
     <g id="Housing">
       <linearGradient id="Shape_2_" gradientUnits="userSpaceOnUse" x1="135.4673" y1="7.2388" x2="135.4673" y2="143.7467">
@@ -38,7 +42,7 @@
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_13_" x="38.1" y="25.1" fill="url(#Reflection_1_)" width="194.5" height="23.5" />
+      <rect rx="3" ry="3" id="Reflection_13_" x="38.1" y="25.1" fill="url(#Reflection_1_)" width="194.5" height="23.5" />
       <linearGradient id="Reflection_Line_1_" gradientUnits="userSpaceOnUse" x1="228.0889" y1="84.4922" x2="228.0889" y2="140.7692">
         <stop offset="0" stop-color="#d4d4d8" />
         <stop offset="0.1504" stop-color="#d4d4d8" />
@@ -49,7 +53,7 @@
         <stop offset="0.9214" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Reflection_Line" x="227.7" y="6.8" fill="url(#Reflection_Line_1_)" width="0.8" height="137.5" />
+      <rect rx="3" ry="3" id="Reflection_Line" x="227.7" y="6.8" fill="url(#Reflection_Line_1_)" width="0.8" height="137.5" />
       <line id="Devider_Line" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" x1="227.3" y1="6.8" x2="227.3" y2="144.3" />
     </g>
     <g id="Cover">
@@ -77,20 +81,20 @@
   </g>
   <g id="Cooling_Fins">
     <g id="Sides">
-      <polygon id="Side_13_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,11.1 37.3,11.1 37.3,3.6 207.9,3.6" />
-      <polygon id="Side_12_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,16.3 37.3,16.3 37.3,9.5 207.9,9.5" />
-      <polygon id="Side_11_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,23.6 207.9,17.4 37.3,17.4 37.3,23.6" />
-      <polygon id="Side_10_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,53.3 207.9,50.6 37.3,50.6 37.3,53.3" />
-      <polygon id="Side_9_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,42.3 207.9,38.3 37.3,38.3 37.3,42.3" />
-      <polygon id="Side_8_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,32.3 207.9,27.1 37.3,27.1 37.3,32.3" />
-      <polygon id="Side_7_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,139.5 37.3,139.5 37.3,147.1 207.9,147.1" />
-      <polygon id="Side_6_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,134.3 37.3,134.3 37.3,141.2 207.9,141.2" />
-      <polygon id="Side_5_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,127 207.9,133.2 37.3,133.2 37.3,127" />
-      <polygon id="Side_4_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,65 207.9,63.6 37.3,63.6 37.3,65" />
-      <polygon id="Side_3_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,85.6 207.9,87 37.3,87 37.3,85.6" />
-      <polygon id="Side_2_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,97.3 207.9,100.1 37.3,100.1 37.3,97.3" />
-      <polygon id="Side_1_" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,108.3 207.9,112.4 37.3,112.4 37.3,108.3" />
-      <polygon id="Side" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,118.3 207.9,123.5 37.3,123.5 37.3,118.3" />
+      <polygon id="Side_13_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,11.1 37.3,11.1 37.3,3.6 207.9,3.6" />
+      <polygon id="Side_12_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,16.3 37.3,16.3 37.3,9.5 207.9,9.5" />
+      <polygon id="Side_11_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,23.6 207.9,17.4 37.3,17.4 37.3,23.6" />
+      <polygon id="Side_10_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,53.3 207.9,50.6 37.3,50.6 37.3,53.3" />
+      <polygon id="Side_9_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,42.3 207.9,38.3 37.3,38.3 37.3,42.3" />
+      <polygon id="Side_8_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,32.3 207.9,27.1 37.3,27.1 37.3,32.3" />
+      <polygon id="Side_7_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,139.5 37.3,139.5 37.3,147.1 207.9,147.1" />
+      <polygon id="Side_6_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,134.3 37.3,134.3 37.3,141.2 207.9,141.2" />
+      <polygon id="Side_5_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,127 207.9,133.2 37.3,133.2 37.3,127" />
+      <polygon id="Side_4_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,65 207.9,63.6 37.3,63.6 37.3,65" />
+      <polygon id="Side_3_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,85.6 207.9,87 37.3,87 37.3,85.6" />
+      <polygon id="Side_2_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,97.3 207.9,100.1 37.3,100.1 37.3,97.3" />
+      <polygon id="Side_1_" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,108.3 207.9,112.4 37.3,112.4 37.3,108.3" />
+      <polygon id="Side" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="222.9,118.3 207.9,123.5 37.3,123.5 37.3,118.3" />
     </g>
     <linearGradient id="Bevels_Right_Side_1_" gradientUnits="userSpaceOnUse" x1="204.7637" y1="-27.6572" x2="220.2349" y2="127.5719">
       <stop offset="0" stop-color="#d4d4d8" />
@@ -118,7 +122,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Skid" x="29.4" y="158.8" fill="url(#Skid_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="185.7" height="10.3" />
+    <rect rx="3" ry="3" id="Skid" x="29.4" y="158.8" fill="url(#Skid_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="185.7" height="10.3" />
     <linearGradient id="Connections_1_" gradientUnits="userSpaceOnUse" x1="122.1782" y1="165.1235" x2="122.1782" y2="127.5174">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />

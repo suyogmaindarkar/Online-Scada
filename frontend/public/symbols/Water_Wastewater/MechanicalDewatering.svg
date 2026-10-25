@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.386056, 1.028701)">
     <g id="MechanicalDewatering">
     <g id="Basis_4_">
@@ -92,13 +96,13 @@
           <stop offset="0.2" stop-color="#e4e4e7" stop-opacity="0.7" />
           <stop offset="1" stop-color="#e4e4e7" stop-opacity="0" />
         </linearGradient>
-        <rect x="13.45" y="93.73" width="8" height="2.5" opacity="0.5" fill="url(#SVGID_10_)" />
+        <rect rx="3" ry="3" x="13.45" y="93.73" width="8" height="2.5" opacity="0.5" fill="url(#SVGID_10_)" />
         <line x1="12.5" y1="93.81" x2="59.5" y2="93.81" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
         <linearGradient id="SVGID_11_" gradientUnits="userSpaceOnUse" x1="16.83" y1="50.2663" x2="24.83" y2="50.2663">
           <stop offset="0" stop-color="#e4e4e7" stop-opacity="0" />
           <stop offset="0.8" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect x="16.83" y="8.25" width="8" height="84.04" fill="url(#SVGID_11_)" />
+        <rect rx="3" ry="3" x="16.83" y="8.25" width="8" height="84.04" fill="url(#SVGID_11_)" />
         <line x1="16" y1="89.2" x2="56" y2="89.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       </g>
       <g id="Zufluss02_2_">
@@ -128,13 +132,13 @@
           <stop offset="0" stop-color="#e4e4e7" stop-opacity="0" />
           <stop offset="0.8" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect x="210.57" y="93.73" width="8" height="2.5" fill="url(#SVGID_14_)" />
+        <rect rx="3" ry="3" x="210.57" y="93.73" width="8" height="2.5" fill="url(#SVGID_14_)" />
         <line x1="209.61" y1="93.81" x2="241.61" y2="93.81" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
         <linearGradient id="SVGID_15_" gradientUnits="userSpaceOnUse" x1="213.9476" y1="50.2663" x2="221.9476" y2="50.2663">
           <stop offset="0" stop-color="#e4e4e7" stop-opacity="0" />
           <stop offset="0.8" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect x="213.95" y="8.25" width="8" height="84.04" fill="url(#SVGID_15_)" />
+        <rect rx="3" ry="3" x="213.95" y="8.25" width="8" height="84.04" fill="url(#SVGID_15_)" />
         <line x1="213.11" y1="89.2" x2="238.11" y2="89.2" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       </g>
       <line x1="17.83" y1="7.25" x2="60.5" y2="7.25" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -151,7 +155,7 @@
           <stop offset="0.76" stop-color="#E6E6E6" />
           <stop offset="1" stop-color="#B3B3B3" />
         </linearGradient>
-        <rect x="229.57" y="21.2" width="27.52" height="35.79" fill="url(#SVGID_16_)" stroke="#666666" stroke-width="1.5" stroke-miterlimit="10" />
+        <rect rx="3" ry="3" x="229.57" y="21.2" width="27.52" height="35.79" fill="url(#SVGID_16_)" stroke="#666666" stroke-width="1.5" stroke-miterlimit="10" />
         <linearGradient id="SVGID_17_" gradientUnits="userSpaceOnUse" x1="256.657" y1="61.0929" x2="256.657" y2="17.0929">
           <stop offset="0" stop-color="#18181b" />
           <stop offset="0.022" stop-color="#484848" />
@@ -177,12 +181,12 @@
         <line x1="251.03" y1="55.09" x2="251.03" y2="23.09" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
       </g>
     </g>
-    <g id="Filling_21_" hmi-bind:display="{{ ParamProps.DisplayCutaway ? 'inline' : 'none' }}">
+    <g id="Filling_21_">
       <linearGradient id="Shutter01_1_" gradientUnits="userSpaceOnUse" x1="61.2788" y1="63.679" x2="61.2788" y2="15.5657">
-        <stop offset="0" stop-color="#71717a"/>
-        <stop offset="0.2" stop-color="#71717a"/>
+        <stop offset="0" stop-color="#3f3f46"/>
+        <stop offset="0.2" stop-color="#52525b"/>
         <stop offset="0.3" stop-color="#71717a"/>
-        <stop offset="1" stop-color="#71717a"/>
+        <stop offset="1" stop-color="#d4d4d8"/>
       </linearGradient>
       <path id="Shutter01" d="M100.49,15.57l-76.8,14.49c-0.95,0.18-1.63,1-1.63,1.97v15.2    c0,0.96,0.68,1.79,1.63,1.97l76.8,14.49V15.57z" fill="url(#Shutter01_1_)" />
       <linearGradient id="Shutter02_2_" gradientUnits="userSpaceOnUse" x1="110.4926" y1="39.0929" x2="230.0649" y2="39.0929">
@@ -200,10 +204,10 @@
       </linearGradient>
       <path id="Shutter02" d="M228.06,14.09H110.49v50h117.57c1.1,0,2-0.9,2-2v-46    C230.06,14.99,229.17,14.09,228.06,14.09z" fill="url(#Shutter02_2_)" />
       <linearGradient id="Shutter02_3_" gradientUnits="userSpaceOnUse" x1="170.2787" y1="64.0929" x2="170.2787" y2="14.0929">
-        <stop offset="0" stop-color="#71717a"/>
-        <stop offset="0.2" stop-color="#71717a"/>
+        <stop offset="0" stop-color="#3f3f46"/>
+        <stop offset="0.2" stop-color="#52525b"/>
         <stop offset="0.3" stop-color="#71717a"/>
-        <stop offset="1" stop-color="#71717a"/>
+        <stop offset="1" stop-color="#d4d4d8"/>
       </linearGradient>
       <path id="Shutter02_1_" d="M228.06,14.09H110.49v50h117.57c1.1,0,2-0.9,2-2v-46    C230.06,14.99,229.17,14.09,228.06,14.09z" fill="url(#Shutter02_3_)" />
       <linearGradient id="SVGID_20_" gradientUnits="userSpaceOnUse" x1="126.5546" y1="35.8446" x2="126.5546" y2="19.7859">

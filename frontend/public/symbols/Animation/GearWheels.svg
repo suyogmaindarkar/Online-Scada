@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.373134)">
     <defs>
      </defs>
-	 <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+	 <g>
 		<g id="Small_Gear_No_Anim">
 			<linearGradient id="Shape_Gear_2_" gradientUnits="userSpaceOnUse" x1="148.7422" y1="116.7324" x2="334.9993" y2="302.9896">
 			  <stop offset="0" stop-color="#d4d4d8" />
@@ -28,7 +32,7 @@
 			<path id="Hollow_Ring_1_" fill="url(#Hollow_Ring_4_)" d="M95.9,40.4c-30.7,0-55.5,24.9-55.5,55.5s24.9,55.5,55.5,55.5   c30.7,0,55.5-24.9,55.5-55.5S126.5,40.4,95.9,40.4z M95.9,141.7c-25.2,0-45.7-20.5-45.7-45.7c0-25.2,20.5-45.7,45.7-45.7   c25.2,0,45.7,20.5,45.7,45.7C141.6,121.2,121.1,141.7,95.9,141.7z" />
 		</g>
 	 </g>
-	 <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+	 <g>
 		<g id="Small_Gear">
 			<linearGradient id="Shape_Gear_2_" gradientUnits="userSpaceOnUse" x1="148.7422" y1="116.7324" x2="334.9993" y2="302.9896">
 			  <stop offset="0" stop-color="#d4d4d8" />
@@ -54,7 +58,5 @@
 			<path id="Hollow_Ring_1_" fill="url(#Hollow_Ring_4_)" d="M95.9,40.4c-30.7,0-55.5,24.9-55.5,55.5s24.9,55.5,55.5,55.5   c30.7,0,55.5-24.9,55.5-55.5S126.5,40.4,95.9,40.4z M95.9,141.7c-25.2,0-45.7-20.5-45.7-45.7c0-25.2,20.5-45.7,45.7-45.7   c25.2,0,45.7,20.5,45.7,45.7C141.6,121.2,121.1,141.7,95.9,141.7z" />
 		</g>
 	 </g>
-		</hmi-animations:storyboard>
-   </hmi-animations:animations>
   </g>
 </svg>

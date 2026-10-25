@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
     <defs>
 	</defs>
@@ -7,6 +11,6 @@
     <stop offset="1" stop-color="#3f3f46"/>
   </linearGradient>
   <circle id="Button" fill="url(#Button_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="150.1" cy="150.1" r="148"/>
-  <polygon id="Symbol" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" points="89.9,75 89.9,225.3 230.3,150.15"/>
+  <polygon id="Symbol" points="89.9,75 89.9,225.3 230.3,150.15"/>
   </g>
 </svg>

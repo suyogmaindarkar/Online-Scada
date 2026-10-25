@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.393701, 0.333333)">
     <defs>
      </defs>  
@@ -9,7 +13,7 @@
       <stop offset="0.7771" stop-color="#71717a" />
       <stop offset="1" stop-color="#71717a" />
     </linearGradient>
-    <rect id="Doors" x="22.5" y="22.2" fill="url(#Doors_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="208.9" height="255.5" />
+    <rect rx="3" ry="3" id="Doors" x="22.5" y="22.2" fill="url(#Doors_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="208.9" height="255.5" />
     <linearGradient id="Frame_1_" gradientUnits="userSpaceOnUse" x1="-39.1553" y1="-75.1538" x2="437.7392" y2="570.9956">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
@@ -35,7 +39,7 @@
       <stop offset="0.9127" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Right" x="132.7" y="62.8" fill="url(#Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.8" height="174.1" />
+    <rect rx="3" ry="3" id="Right" x="132.7" y="62.8" fill="url(#Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.8" height="174.1" />
     <linearGradient id="Left_1_" gradientUnits="userSpaceOnUse" x1="114.7705" y1="149.9058" x2="120.8343" y2="149.9058">
       <stop offset="0" stop-color="#18181b" />
       <stop offset="1.586480e-02" stop-color="#27272a" />
@@ -48,7 +52,7 @@
       <stop offset="0.9127" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Left" x="114.5" y="62.8" fill="url(#Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.8" height="174.1" />
+    <rect rx="3" ry="3" id="Left" x="114.5" y="62.8" fill="url(#Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.8" height="174.1" />
   </g>
   <g id="Hinges">
     <path id="Bottom_Sides" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M63.7,42.4l4.5-2.2V54l-45.7,2.1v6.9H9.4v-2.3h9v-6.8l45.2-2V42.4z M63.7,154.7l-45.2,2v6.8h-9v2.3h13.1v-6.9l45.7-2.1v-13.8   l-4.5,2.2V154.7z M63.7,257.6l-45.2,2v6.8h-9v2.3h13.1v-6.9l45.7-2.1V246l-4.5,2.2V257.6z M185.8,54l45.7,2.1v6.9h13.1v-2.3h-9   v-6.8l-45.2-2L185.8,54z M185.8,156.9l45.7,2.1v6.9h13.1v-2.3h-9v-6.8l-45.2-2L185.8,156.9z M185.8,259.8l45.7,2.1v6.9h13.1v-2.3   h-9v-6.8l-45.2-2L185.8,259.8z" />

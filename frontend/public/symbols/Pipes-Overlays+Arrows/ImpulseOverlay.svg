@@ -1,20 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
-    </hmi:self>
-     <defs>
+    <defs>
      </defs>
   <linearGradient id="Button_1_" gradientUnits="userSpaceOnUse" x1="-56.4912" y1="-56.4287" x2="410.0245" y2="410.087">
     <stop offset="0" stop-color="#d4d4d8" />
     <stop offset="1" stop-color="#3f3f46" />
   </linearGradient>
   <circle id="Button" fill="url(#Button_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" cx="150" cy="150.1" r="148" />
-	<path id="Symbols0" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M86.8,128.3H43.3v43.5h43.5V128.3z M171.8,128.3h-43.5v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"
-  hmi-bind:display="{{ le( ParamProps.ImpulsePosition, 0 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols1" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M105.5,190.5h-81v-81h81V190.5z M171.8,128.3h-43.5v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"
-  hmi-bind:display="{{ eq( ParamProps.ImpulsePosition, 1 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols2" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M190.5,190.5h-81v-81h81V190.5z M86.8,128.3H43.3v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"
-  hmi-bind:display="{{ eq( ParamProps.ImpulsePosition, 2 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbols3" hmi-bind:fill="{{Converter.RGBA(ParamProps.BasicColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M275.5,190.5h-81v-81h81V190.5z M86.8,128.3H43.3v43.5h43.5V128.3z M171.8,128.2h-43.5v43.5h43.5V128.2z"
-  hmi-bind:display="{{ ge( ParamProps.ImpulsePosition, 3 ) ? 'inline' : 'none' }}"/>
+	<path id="Symbols0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M86.8,128.3H43.3v43.5h43.5V128.3z M171.8,128.3h-43.5v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"/>
+  <path id="Symbols1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M105.5,190.5h-81v-81h81V190.5z M171.8,128.3h-43.5v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"/>
+  <path id="Symbols2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M190.5,190.5h-81v-81h81V190.5z M86.8,128.3H43.3v43.5h43.5V128.3z M256.8,128.2h-43.5v43.5h43.5V128.2z"/>
+  <path id="Symbols3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M275.5,190.5h-81v-81h81V190.5z M86.8,128.3H43.3v43.5h43.5V128.3z M171.8,128.2h-43.5v43.5h43.5V128.2z"/>
   </g>
 </svg>

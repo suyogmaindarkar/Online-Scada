@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.377358)">
     <defs>
      </defs>
   <g id="Base">
     <g id="Case">
-      <rect id="Shape_131_" x="7.2" y="250.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="285.5" height="12.4" />
+      <rect rx="3" ry="3" id="Shape_131_" x="7.2" y="250.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="285.5" height="12.4" />
       <linearGradient id="Curve_Right_1_" gradientUnits="userSpaceOnUse" x1="273.1348" y1="256.4062" x2="287.5939" y2="256.4062">
         <stop offset="0" stop-color="#6A6A69" />
         <stop offset="4.167044e-02" stop-color="#676766" />
@@ -25,7 +29,7 @@
     <path id="Reflection_Lines" fill="none" stroke="#71717a" stroke-width="1.5" stroke-miterlimit="10" d="M26.9,255.1h246.2    M26.9,259.5h246.2" />
   </g>
   <g id="Top">
-    <rect id="Shape_142_" x="7.2" y="203.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="285.5" height="5.2" />
+    <rect rx="3" ry="3" id="Shape_142_" x="7.2" y="203.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="285.5" height="5.2" />
     <linearGradient id="Curve_Right_2_" gradientUnits="userSpaceOnUse" x1="273.1348" y1="205.8252" x2="287.5939" y2="205.8252">
       <stop offset="0" stop-color="#6A6A69" />
       <stop offset="4.167044e-02" stop-color="#676766" />
@@ -50,7 +54,7 @@
       <stop offset="0.7567" stop-color="#71717a" />
       <stop offset="1" stop-color="#71717a" />
     </linearGradient>
-    <rect id="Shape_130_" x="2.4" y="208.4" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="41.8" />
+    <rect rx="3" ry="3" id="Shape_130_" x="2.4" y="208.4" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="41.8" />
     <linearGradient id="Curve_Right_3_" gradientUnits="userSpaceOnUse" x1="279.3887" y1="229.3252" x2="291.2949" y2="229.3252">
       <stop offset="0" stop-color="#71717a" />
       <stop offset="1" stop-color="#52525b" />
@@ -126,7 +130,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect x="245.5" y="78.3" fill="url(#SVGID_1_)" width="7.2" height="0.8" />
+      <rect rx="3" ry="3" x="245.5" y="78.3" fill="url(#SVGID_1_)" width="7.2" height="0.8" />
     </g>
     <g id="Antenna_Left">
       <linearGradient id="Shape_Below_3_" gradientUnits="userSpaceOnUse" x1="46.1455" y1="140.5728" x2="53.3123" y2="140.5728">
@@ -169,7 +173,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Reflection_Line" x="47.3" y="78.3" fill="url(#Reflection_Line_1_)" width="7.2" height="0.8" />
+      <rect rx="3" ry="3" id="Reflection_Line" x="47.3" y="78.3" fill="url(#Reflection_Line_1_)" width="7.2" height="0.8" />
     </g>
   </g>
   </g>

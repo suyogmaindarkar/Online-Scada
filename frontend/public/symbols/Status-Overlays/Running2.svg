@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
-    </hmi:self>
-     <defs>
+    <defs>
      </defs>
   <linearGradient id="Shape_Inside_2_" gradientUnits="userSpaceOnUse" x1="95.584" y1="95.7734" x2="314.222" y2="314.4115">
     <stop offset="0" stop-color="#d4d4d8" />
@@ -13,15 +16,10 @@
     <stop offset="1" stop-color="#3f3f46" />
   </linearGradient>
   <path id="Ring_Outside_1_" fill="url(#Ring_Outside_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,2.3c-81.7,0-148,66.3-148,148s66.3,148,148,148c81.7,0,148-66.3,148-148S231.9,2.3,150.1,2.3z M150.1,273.6  c-68.1,0-123.3-55.2-123.3-123.3C26.8,82.2,82,27,150.1,27s123.3,55.2,123.3,123.3C273.4,218.4,218.2,273.6,150.1,273.6z" />
-  <path id="Symbol0" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,27  C82,27,26.8,82.2,26.8,150.3c0,68.1,55.2,123.3,123.3,123.3s123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27z M32.8,147.3  C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8zM153.1,33  c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,267.6C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,267.6V153.3h114.3  C265.8,215.7,215.5,266,153.1,267.6z"
-  hmi-bind:display="{{ le( ParamProps.RunningPosition, 0 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbol1" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,27  C82,27,26.8,82.2,26.8,150.3c0,68.1,55.2,123.3,123.3,123.3s123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27z M153.1,33  c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,267.6C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,267.6V153.3h114.3  C265.8,215.7,215.5,266,153.1,267.6z"
-  hmi-bind:display="{{ eq( ParamProps.RunningPosition, 1 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbol2" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M273.4,150.3  C273.4,82.2,218.2,27,150.1,27C82,27,26.8,82.2,26.8,150.3S82,273.6,150.1,273.6C218.2,273.6,273.4,218.4,273.4,150.3z M267.4,153.3  c-1.6,62.4-51.9,112.7-114.3,114.3V153.3H267.4z M32.8,147.3C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8z M32.8,153.3h114.3v114.3  C84.7,266,34.4,215.7,32.8,153.3z"
-  hmi-bind:display="{{ eq( ParamProps.RunningPosition, 2 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbol3" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,273.6  c68.1,0,123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27S26.8,82.2,26.8,150.3C26.8,218.4,82,273.6,150.1,273.6z M147.1,267.6  C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,33c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,33v114.3H32.8  C34.4,84.9,84.7,34.6,147.1,33z"
-  hmi-bind:display="{{ eq( ParamProps.RunningPosition, 3 ) ? 'inline' : 'none' }}"/>
-  <path id="Symbol4" hmi-bind:fill="{{Converter.RGBA(ParamProps.ContrastColor)}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ContrastColor)}}" stroke-width="1.5" stroke-miterlimit="10" d="M26.8,150.3  c0,68.1,55.2,123.3,123.3,123.3c68.1,0,123.3-55.2,123.3-123.3S218.2,27,150.1,27C82,27,26.8,82.2,26.8,150.3z M32.8,147.3  C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8z M267.4,153.3c-1.6,62.4-51.9,112.7-114.3,114.3V153.3H267.4z M267.4,147.3H153.1V33  C215.5,34.6,265.8,84.9,267.4,147.3z"
-  hmi-bind:display="{{ ge( ParamProps.RunningPosition, 4 ) ? 'inline' : 'none' }}"/>
+  <path id="Symbol0" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,27  C82,27,26.8,82.2,26.8,150.3c0,68.1,55.2,123.3,123.3,123.3s123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27z M32.8,147.3  C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8zM153.1,33  c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,267.6C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,267.6V153.3h114.3  C265.8,215.7,215.5,266,153.1,267.6z"/>
+  <path id="Symbol1" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,27  C82,27,26.8,82.2,26.8,150.3c0,68.1,55.2,123.3,123.3,123.3s123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27z M153.1,33  c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,267.6C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,267.6V153.3h114.3  C265.8,215.7,215.5,266,153.1,267.6z"/>
+  <path id="Symbol2" stroke-width="1.5" stroke-miterlimit="10" d="M273.4,150.3  C273.4,82.2,218.2,27,150.1,27C82,27,26.8,82.2,26.8,150.3S82,273.6,150.1,273.6C218.2,273.6,273.4,218.4,273.4,150.3z M267.4,153.3  c-1.6,62.4-51.9,112.7-114.3,114.3V153.3H267.4z M32.8,147.3C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8z M32.8,153.3h114.3v114.3  C84.7,266,34.4,215.7,32.8,153.3z"/>
+  <path id="Symbol3" stroke-width="1.5" stroke-miterlimit="10" d="M150.1,273.6  c68.1,0,123.3-55.2,123.3-123.3C273.4,82.2,218.2,27,150.1,27S26.8,82.2,26.8,150.3C26.8,218.4,82,273.6,150.1,273.6z M147.1,267.6  C84.7,266,34.4,215.7,32.8,153.3h114.3V267.6z M153.1,33c62.4,1.6,112.7,51.9,114.3,114.3H153.1V33z M147.1,33v114.3H32.8  C34.4,84.9,84.7,34.6,147.1,33z"/>
+  <path id="Symbol4" stroke-width="1.5" stroke-miterlimit="10" d="M26.8,150.3  c0,68.1,55.2,123.3,123.3,123.3c68.1,0,123.3-55.2,123.3-123.3S218.2,27,150.1,27C82,27,26.8,82.2,26.8,150.3z M32.8,147.3  C34.4,84.9,84.7,34.6,147.1,33v114.3H32.8z M267.4,153.3c-1.6,62.4-51.9,112.7-114.3,114.3V153.3H267.4z M267.4,147.3H153.1V33  C215.5,34.6,265.8,84.9,267.4,147.3z"/>
   </g>
 </svg>

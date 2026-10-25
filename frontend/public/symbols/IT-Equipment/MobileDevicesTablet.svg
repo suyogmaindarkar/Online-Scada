@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.446429, 0.333333)">
     <defs>
      </defs>
@@ -16,7 +20,7 @@
     <stop offset="0" stop-color="#e4e4e7" />
     <stop offset="1" stop-color="#18181b" />
   </linearGradient>
-  <rect id="Touchscreen_10_" x="19.4" y="20" fill="url(#Touchscreen_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="184.9" height="242.1" />
+  <rect rx="3" ry="3" id="Touchscreen_10_" x="19.4" y="20" fill="url(#Touchscreen_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="184.9" height="242.1" />
   <linearGradient id="Home_Button_1_" gradientUnits="userSpaceOnUse" x1="122.2891" y1="290.1445" x2="96.3153" y2="264.1707">
     <stop offset="0" stop-color="#e4e4e7" />
     <stop offset="1" stop-color="#18181b" />
@@ -26,7 +30,7 @@
     <stop offset="0" stop-color="#e4e4e7" />
     <stop offset="1" stop-color="#18181b" />
   </linearGradient>
-  <rect id="Camera_5_" x="105.3" y="10.5" fill="url(#Camera_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="13.2" height="3" />
+  <rect rx="3" ry="3" id="Camera_5_" x="105.3" y="10.5" fill="url(#Camera_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="13.2" height="3" />
   <polygon id="Reflection_Touchscreen_10_" fill="#71717a" points="19.4,20 19.4,204.8 147,20" />
   <polyline id="Reflection_Line_16_" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="204.3,20 204.3,262.1 19.4,262.1" />
   <polyline id="Shadow_Line_Touchscreen_5_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="19.4,262.1 19.4,20 204.3,20" />

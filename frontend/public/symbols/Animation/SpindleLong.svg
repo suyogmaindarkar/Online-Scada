@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.612903, 0.333333)">
     <defs id="defs1">
     <linearGradient xlink:href="#Blade_Bottom_1_" id="linearGradient42" gradientUnits="userSpaceOnUse" x1="35.9473" y1="255.6362" x2="27.1973" y2="300.3862" gradientTransform="translate(0,32.8)"/>
@@ -21,7 +25,7 @@
     <stop offset="0.9452" stop-color="#3f3f46" id="stop11"/>
     <stop offset="1" stop-color="#3f3f46" id="stop12"/>
   </linearGradient>
-  <rect id="Rod" x="25.302416" y="0.37741685" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="0.754834" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.395166" height="299.24518" display="inline"/>
+  <rect rx="3" ry="3" id="Rod" x="25.302416" y="0.37741685" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="0.754834" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.395166" height="299.24518" display="inline"/>
   <linearGradient id="Spindle_Sides_1_" gradientUnits="userSpaceOnUse" x1="4.3745" y1="149.6484" x2="51.7818" y2="149.6484">
     <stop offset="0" stop-color="#52525b" id="stop31"/>
     <stop offset="4.758149e-02" stop-color="#71717a" id="stop32"/>
@@ -36,7 +40,7 @@
     <stop offset="0.9452" stop-color="#3f3f46" id="stop41"/>
     <stop offset="1" stop-color="#3f3f46" id="stop42"/>
   </linearGradient>
-  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'none' : 'inline' }}">
+  <g>
 	<g id="Spindle_No_Anim">
 		<g id="Spindle_Blades" display="inline">
 		  <linearGradient id="Blade_Bottom_OV_2_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="321.2362" x2="27.1973" y2="365.9862">
@@ -107,7 +111,7 @@
 		</g>
 	  </g>
   </g>
-  <g hmi-bind:display="{{ ParamProps.PlayAnimation ? 'inline' : 'none' }}">
+  <g>
 	<g id="Spindle">
 		<g id="Spindle_Blades" display="inline">
 		  <linearGradient id="Blade_Bottom_OV_2_" gradientUnits="userSpaceOnUse" x1="35.9473" y1="321.2362" x2="27.1973" y2="365.9862">
@@ -178,7 +182,5 @@
 		</g>
 	  </g>
   </g>
-		</hmi-animations:storyboard>
-   </hmi-animations:animations>
   </g>
 </svg>

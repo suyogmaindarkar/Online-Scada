@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.617284, 0.333333)">
     <defs>
      </defs>
@@ -45,12 +49,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_10_" x="18.2" y="176.8" fill="url(#Shape_13_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="125.7" height="74.7" />
+      <rect rx="3" ry="3" id="Shape_10_" x="18.2" y="176.8" fill="url(#Shape_13_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="125.7" height="74.7" />
       <linearGradient id="Reflection_1_" gradientUnits="userSpaceOnUse" x1="33.6147" y1="214.1831" x2="41.133" y2="214.1831">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_8_" x="31.1" y="177.6" fill="url(#Reflection_1_)" width="21.4" height="73.3" />
+      <rect rx="3" ry="3" id="Reflection_8_" x="31.1" y="177.6" fill="url(#Reflection_1_)" width="21.4" height="73.3" />
     </g>
     <g id="Edge_1_">
       <linearGradient id="Shape_14_" gradientUnits="userSpaceOnUse" x1="25.6885" y1="174.5234" x2="134.3546" y2="174.5234">
@@ -85,12 +89,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_8_" x="21.6" y="133.4" fill="url(#Shape_15_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="118.8" height="38.8" />
+      <rect rx="3" ry="3" id="Shape_8_" x="21.6" y="133.4" fill="url(#Shape_15_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="118.8" height="38.8" />
       <linearGradient id="Reflection_2_" gradientUnits="userSpaceOnUse" x1="33.9565" y1="153.2739" x2="46.8829" y2="153.2739">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_6_" x="33.8" y="135" fill="url(#Reflection_2_)" width="20.2" height="36.5" />
+      <rect rx="3" ry="3" id="Reflection_6_" x="33.8" y="135" fill="url(#Reflection_2_)" width="20.2" height="36.5" />
     </g>
     <g id="Top">
       <linearGradient id="Shape_16_" gradientUnits="userSpaceOnUse" x1="29.2832" y1="108.5244" x2="137.6371" y2="139.4825">
@@ -137,7 +141,7 @@
           <stop offset="0.9127" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect id="Handle_2_" x="120.3" y="104.1" fill="url(#Handle_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
+        <rect rx="3" ry="3" id="Handle_2_" x="120.3" y="104.1" fill="url(#Handle_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
       </g>
       <g id="Middle_2_">
         <linearGradient id="Connection_Vessel_5_" gradientUnits="userSpaceOnUse" x1="112.938" y1="114.3164" x2="115.4584" y2="114.3164">
@@ -165,7 +169,7 @@
           <stop offset="0.9127" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect id="Handle_1_" x="110.3" y="109.2" fill="url(#Handle_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
+        <rect rx="3" ry="3" id="Handle_1_" x="110.3" y="109.2" fill="url(#Handle_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
       </g>
       <g id="Left_2_">
         <linearGradient id="Connection_Vessel_6_" gradientUnits="userSpaceOnUse" x1="46.4512" y1="114.3164" x2="49.329" y2="114.3164">
@@ -193,7 +197,7 @@
           <stop offset="0.9127" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect id="Handle" x="44.2" y="109.2" fill="url(#Handle_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
+        <rect rx="3" ry="3" id="Handle" x="44.2" y="109.2" fill="url(#Handle_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8" height="1.6" />
       </g>
     </g>
     <g id="Inspection_Door">
@@ -224,7 +228,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Hinge" x="95.6" y="110.3" fill="url(#Hinge_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="1.6" height="5.6" />
+      <rect rx="3" ry="3" id="Hinge" x="95.6" y="110.3" fill="url(#Hinge_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="1.6" height="5.6" />
     </g>
     <g id="Inlet_Right">
       <linearGradient id="Pipe_Connection_Vessel_2_" gradientUnits="userSpaceOnUse" x1="40.3965" y1="103.6187" x2="57.9996" y2="103.6187">
@@ -256,7 +260,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Flange_1_" x="36.4" y="95.8" fill="url(#Flange_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="25.5" height="2.1" />
+      <rect rx="3" ry="3" id="Flange_1_" x="36.4" y="95.8" fill="url(#Flange_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="25.5" height="2.1" />
     </g>
     <g id="Inlet_Left">
       <linearGradient id="Pipe_Connection_Vessel_3_" gradientUnits="userSpaceOnUse" x1="27.1201" y1="112.9609" x2="39.5459" y2="112.9609">
@@ -288,7 +292,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Flange" x="23.3" y="103.2" fill="url(#Flange_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="20.3" height="2" />
+      <rect rx="3" ry="3" id="Flange" x="23.3" y="103.2" fill="url(#Flange_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="20.3" height="2" />
     </g>
     <path id="Reflection_Lines" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-miterlimit="10" d="M22.1,134.3h118    M18.7,252.4h124.7" />
     <path id="Devider_Lines" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M22.1,133.4h118 M18.7,251.5   h124.7" />
@@ -309,7 +313,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Foot_2_" x="127" y="295.9" fill="url(#Foot_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
+      <rect rx="3" ry="3" id="Foot_2_" x="127" y="295.9" fill="url(#Foot_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
       <linearGradient id="Shape_17_" gradientUnits="userSpaceOnUse" x1="151.9131" y1="312.0557" x2="126.9628" y2="267.5317">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -332,7 +336,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Foot_1_" x="75" y="295.9" fill="url(#Foot_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
+      <rect rx="3" ry="3" id="Foot_1_" x="75" y="295.9" fill="url(#Foot_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
       <linearGradient id="Shape_18_" gradientUnits="userSpaceOnUse" x1="81.0464" y1="304.9473" x2="81.0464" y2="243.2316">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -354,7 +358,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Foot" x="22.8" y="295.9" fill="url(#Foot_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
+      <rect rx="3" ry="3" id="Foot" x="22.8" y="295.9" fill="url(#Foot_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="12.2" height="1.7" />
       <linearGradient id="Shape_19_" gradientUnits="userSpaceOnUse" x1="14.8955" y1="283.5171" x2="56.6242" y2="269.0184">
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
@@ -421,12 +425,12 @@
           <stop offset="0.9452" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#3f3f46" />
         </linearGradient>
-        <rect id="Shape_2_" x="69.8" y="45" fill="url(#Shape_20_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="22.5" height="9.3" />
+        <rect rx="3" ry="3" id="Shape_2_" x="69.8" y="45" fill="url(#Shape_20_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="22.5" height="9.3" />
         <linearGradient id="Reflection_9_" gradientUnits="userSpaceOnUse" x1="71.6816" y1="49.6318" x2="73.5812" y2="49.6318">
           <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
           <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect id="Reflection_5_" x="72.1" y="45.6" fill="url(#Reflection_9_)" width="3.8" height="8.1" />
+        <rect rx="3" ry="3" id="Reflection_5_" x="72.1" y="45.6" fill="url(#Reflection_9_)" width="3.8" height="8.1" />
       </g>
       <g id="Intermediate_Piece_2">
         <linearGradient id="Shape_21_" gradientUnits="userSpaceOnUse" x1="67.9014" y1="40.4741" x2="94.1668" y2="40.4741">
@@ -443,12 +447,12 @@
           <stop offset="0.9452" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#3f3f46" />
         </linearGradient>
-        <rect id="Shape" x="67.4" y="36" fill="url(#Shape_21_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="9" />
+        <rect rx="3" ry="3" id="Shape" x="67.4" y="36" fill="url(#Shape_21_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="9" />
         <linearGradient id="Reflection_10_" gradientUnits="userSpaceOnUse" x1="69.9248" y1="40.4785" x2="72.6866" y2="40.4785">
           <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
           <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect id="Reflection_4_" x="70.2" y="36.5" fill="url(#Reflection_10_)" width="4.6" height="7.9" />
+        <rect rx="3" ry="3" id="Reflection_4_" x="70.2" y="36.5" fill="url(#Reflection_10_)" width="4.6" height="7.9" />
       </g>
       <linearGradient id="Edge_2_" gradientUnits="userSpaceOnUse" x1="67.4248" y1="35.0991" x2="94.6621" y2="35.0991">
         <stop offset="0" stop-color="#52525b" />
@@ -477,7 +481,7 @@
         <stop offset="0.9127" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Intermediate_Piece_1" x="71.2" y="32.6" fill="url(#Intermediate_Piece_1_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19.7" height="1.6" />
+      <rect rx="3" ry="3" id="Intermediate_Piece_1" x="71.2" y="32.6" fill="url(#Intermediate_Piece_1_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19.7" height="1.6" />
       <g id="Housing">
         <linearGradient id="Shape_22_" gradientUnits="userSpaceOnUse" x1="69.3062" y1="19.2783" x2="92.0179" y2="19.2783">
           <stop offset="0" stop-color="#52525b" />
@@ -493,12 +497,12 @@
           <stop offset="0.9452" stop-color="#3f3f46" />
           <stop offset="1" stop-color="#3f3f46" />
         </linearGradient>
-        <rect id="Shape_4_" x="69.8" y="6" fill="url(#Shape_22_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="22.5" height="26.7" />
+        <rect rx="3" ry="3" id="Shape_4_" x="69.8" y="6" fill="url(#Shape_22_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="22.5" height="26.7" />
         <linearGradient id="Reflection_11_" gradientUnits="userSpaceOnUse" x1="71.9468" y1="19.2959" x2="75.1032" y2="19.2959">
           <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
           <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
         </linearGradient>
-        <rect id="Reflection" x="72" y="6.6" fill="url(#Reflection_11_)" width="3.1" height="25.4" />
+        <rect rx="3" ry="3" id="Reflection" x="72" y="6.6" fill="url(#Reflection_11_)" width="3.1" height="25.4" />
       </g>
       <path id="Cooling_Fins_1_" fill="#18181b" d="M70.3,8.3h0.2v22h-0.2V8.3z M71.1,8.3v22h-0.4v-22H71.1z M72.1,8.3v22h-0.6v-22H72.1    z M73.5,8.3v22h-0.8v-22H73.5z M75.2,8.3v22h-1v-22H75.2z M77.2,8.3v22H76v-22H77.2z M79.5,8.3v22h-1.2v-22H79.5z M81.7,8.3v22    h-1.2v-22H81.7z" />
       <g id="Cover_3_">
@@ -537,7 +541,7 @@
         <stop offset="0.9127" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Connection_Vessel" x="67.4" y="98.5" fill="url(#Connection_Vessel_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="3.1" />
+      <rect rx="3" ry="3" id="Connection_Vessel" x="67.4" y="98.5" fill="url(#Connection_Vessel_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="3.1" />
       <linearGradient id="Rod_1_" gradientUnits="userSpaceOnUse" x1="77.9448" y1="81.7266" x2="83.7227" y2="81.7266">
         <stop offset="0" stop-color="#a1a1aa" />
         <stop offset="4.758149e-02" stop-color="#a1a1aa" />
@@ -552,7 +556,7 @@
         <stop offset="0.9452" stop-color="#27272a" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Rod" x="77.9" y="71.8" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.3" height="19.9" />
+      <rect rx="3" ry="3" id="Rod" x="77.9" y="71.8" fill="url(#Rod_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="6.3" height="19.9" />
       <linearGradient id="Rod_Connection_1_" gradientUnits="userSpaceOnUse" x1="76.6274" y1="76.0308" x2="85.5989" y2="76.0308">
         <stop offset="0" stop-color="#18181b" />
         <stop offset="1.586480e-02" stop-color="#27272a" />
@@ -565,7 +569,7 @@
         <stop offset="0.9127" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Rod_Connection" x="76" y="74.7" fill="url(#Rod_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="10.1" height="2.7" />
+      <rect rx="3" ry="3" id="Rod_Connection" x="76" y="74.7" fill="url(#Rod_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="10.1" height="2.7" />
       <linearGradient id="Rod_Adapter_1_" gradientUnits="userSpaceOnUse" x1="77.1343" y1="66.9741" x2="84.7717" y2="66.9741">
         <stop offset="0" stop-color="#18181b" />
         <stop offset="1.586480e-02" stop-color="#27272a" />
@@ -578,7 +582,7 @@
         <stop offset="0.9127" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Rod_Adapter" x="76.8" y="62.2" fill="url(#Rod_Adapter_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8.5" height="9.6" />
+      <rect rx="3" ry="3" id="Rod_Adapter" x="76.8" y="62.2" fill="url(#Rod_Adapter_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="8.5" height="9.6" />
       <path id="Rod_Fixing" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M88.2,86.7H73.8v-6.8h14.4V86.7z M88.2,91.7H73.8v4.1h14.4V91.7z" />
       <linearGradient id="Frame_3_" gradientUnits="userSpaceOnUse" x1="57.7969" y1="60.916" x2="73.2482" y2="72.8072">
         <stop offset="0" stop-color="#71717a" />
@@ -594,7 +598,7 @@
         <stop offset="0.7771" stop-color="#52525b" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_Top" x="67.4" y="56" fill="url(#Shape_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="3.1" />
+      <rect rx="3" ry="3" id="Shape_Top" x="67.4" y="56" fill="url(#Shape_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="27.2" height="3.1" />
       <linearGradient id="Edge_Top_1_" gradientUnits="userSpaceOnUse" x1="65.5288" y1="50.0479" x2="80.725" y2="55.2267">
         <stop offset="0" stop-color="#71717a" />
         <stop offset="0.2954" stop-color="#71717a" />

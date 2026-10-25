@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.671141)">
     <defs>
      </defs>
@@ -75,7 +79,7 @@
     <stop offset="0.7771" stop-color="#52525b" />
     <stop offset="1" stop-color="#3f3f46" />
   </linearGradient>
-  <rect id="Entrance" x="199.3" y="99.9" fill="url(#Entrance_1_)" stroke="url(#Entrance_2_)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="45.4" height="29.3" />
+  <rect rx="3" ry="3" id="Entrance" x="199.3" y="99.9" fill="url(#Entrance_1_)" stroke="url(#Entrance_2_)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="45.4" height="29.3" />
   <path id="Separation_Windows" fill="none" stroke="#ADADAD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M151.9,98.8v11.3 M143.2,97.4v12.2 M123.7,94.6v13.9 M133.2,96v13 M151.9,58.9V80 M143.2,55.4v22.3 M123.7,47.6v24.9 M113.2,43.4  v26.1 M100.2,38.1v28.1 M133.2,51.5V75 M199.3,29.1v20.8 M186.1,29.1v20.8 M172.9,29.1v20.8 M159.6,29.1v20.7 M146.4,29.1v14.3   M133.2,29.1v7.9 M199.3,62.4V82 M186.1,61.9V82 M215.4,61.9v30 M231.5,61.9v30 M172.9,61.9V82 M244.7,62.1v29.8 M258,62.1v29.8   M271.2,62.1v29.8 M284.4,62.1v29.8 M215.4,99.9v28.6 M231.5,99.9v28.6" />
   <polygon id="Shadow_Building_Left" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="113.4,92.9 113.4,95.8 59.2,88.5 59.2,85 61.2,85" />
   <path id="Shadows_Windows" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M159.6,61.9v1.7l-73.9-29v-2.4L159.6,61.9z M123.1,32.2h89.4v-3.2h-96L123.1,32.2z M159.6,99.9v2.2h111.1v-2.2H159.6z M159.6,102.1  v-2.2l-46.2-7v2.9L159.6,102.1z M159.6,61.9v1.7h138v-1.7H159.6z" />
@@ -92,14 +96,14 @@
     </linearGradient>
     <polygon id="Profile_1" fill="url(#Profile_1_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="128.7,113.6 132.2,112.4 59.2,111.4 59.2,112.8" />
   </g>
-  <rect id="Facade_Geay_Above_Entrance" x="199.3" y="91.9" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="98.4" height="8" />
+  <rect rx="3" ry="3" id="Facade_Geay_Above_Entrance" x="199.3" y="91.9" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="98.4" height="8" />
   <polygon id="Gray_Wall_Element" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" points="199.3,129.2   165.3,129.2 159.6,126.3 159.6,99.9 199.3,99.9" />
   <g id="Profile_Sheets">
     <linearGradient id="Profil_Windows_2_1_" gradientUnits="userSpaceOnUse" x1="170.0337" y1="77.3145" x2="216.4995" y2="105.3691">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Profil_Windows_2" x="159.6" y="82.1" fill="url(#Profil_Windows_2_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="39.7" height="1.8" />
+    <rect rx="3" ry="3" id="Profil_Windows_2" x="159.6" y="82.1" fill="url(#Profil_Windows_2_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="39.7" height="1.8" />
     <linearGradient id="Profil_Windows_1_1_" gradientUnits="userSpaceOnUse" x1="85.7363" y1="73.1665" x2="159.6113" y2="73.1665">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
@@ -109,7 +113,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Profil_Roof_3" x="159.6" y="49.9" fill="url(#Profil_Roof_3_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="138" height="1.8" />
+    <rect rx="3" ry="3" id="Profil_Roof_3" x="159.6" y="49.9" fill="url(#Profil_Roof_3_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="138" height="1.8" />
     <linearGradient id="Profil_Roof_2_1_" gradientUnits="userSpaceOnUse" x1="61.2363" y1="27.0078" x2="159.6113" y2="27.0078">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />

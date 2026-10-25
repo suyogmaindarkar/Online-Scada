@@ -1,33 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.5, 0.5)">
     <defs>
 	</defs>
   <g id="Background">
-	<circle id="Circle_1" cx="100" cy="100" r="55" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorCircleBackground)}}"  stroke-width="10" fill="none" />
-	<circle id="Circle_2" cx="100" cy="100" r="75" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorCircleBackground)}}"  stroke-width="10" fill="none" />
-	<circle id="Circle_3" cx="100" cy="100" r="95" hmi-bind:stroke="{{Converter.RGBA(ParamProps.ColorCircleBackground)}}"  stroke-width="10" fill="none" />
+	<circle id="Circle_1" cx="100" cy="100" r="55"  stroke-width="10" fill="none" />
+	<circle id="Circle_2" cx="100" cy="100" r="75"  stroke-width="10" fill="none" />
+	<circle id="Circle_3" cx="100" cy="100" r="95"  stroke-width="10" fill="none" />
   </g>
  <g id="Indicators">
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-		<path hmi-bind:d="M100,155a55,55,0,{{LocalProps.Value1Swap}},1,{{LocalProps.Value1CircleX}},{{LocalProps.Value1CircleY}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="10" fill="none" />
-		<path hmi-bind:d="M100,175a75,75,0,{{LocalProps.Value2Swap}},1,{{LocalProps.Value2CircleX}},{{LocalProps.Value2CircleY}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="10" fill="none" />
-		<path hmi-bind:d="M100,195a95,95,0,{{LocalProps.Value3Swap}},1,{{LocalProps.Value3CircleX}},{{LocalProps.Value3CircleY}}" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="10" fill="none" />
+	<g>
+		<path stroke-width="10" fill="none" />
+		<path stroke-width="10" fill="none" />
+		<path stroke-width="10" fill="none" />
 	</g>
-	<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-		<circle id="CircleSmall" cx="100" cy="100" r="55" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color1)}}" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 100, 100)"/>
-		<circle id="CircleMid" cx="100" cy="100" r="75" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color2)}}" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 100, 100)"/>
-		<circle id="CircleBig" cx="100" cy="100" r="95" hmi-bind:stroke="{{Converter.RGBA(ParamProps.Color3)}}" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 100, 100)" />
+	<g>
+		<circle id="CircleSmall" cx="100" cy="100" r="55" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="90" transform="rotate(90, 100, 100)"/>
+		<circle id="CircleMid" cx="100" cy="100" r="75" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="60" transform="rotate(90, 100, 100)"/>
+		<circle id="CircleBig" cx="100" cy="100" r="95" stroke-width="10" fill="none" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" transform="rotate(90, 100, 100)" />
 	</g>
  </g>
  <g id="labels">
-	<rect x="100" y="145" width="100" height="55" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorTextBackground)}}"/>
-	<text x="118" y="160" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="13"  text-anchor="start"></text>
-	<text x="118" y="180" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="13"  text-anchor="start"></text>
-	<text x="118" y="200" hmi-bind:fill="{{Converter.RGBA(ParamProps.ColorText)}}" font-family="Arial" font-size="13"  text-anchor="start"></text>
-	<circle cx="108" cy="155" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color1)}}" />
-	<circle cx="108" cy="175" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color2)}}" />
-	<circle cx="108" cy="195" r="5" hmi-bind:fill="{{Converter.RGBA(ParamProps.Color3)}}" />
+	<rect rx="3" ry="3" x="100" y="145" width="100" height="55"/>
+	<text x="118" y="160" font-family="Arial" font-size="13"  text-anchor="start"></text>
+	<text x="118" y="180" font-family="Arial" font-size="13"  text-anchor="start"></text>
+	<text x="118" y="200" font-family="Arial" font-size="13"  text-anchor="start"></text>
+	<circle cx="108" cy="155" r="5" />
+	<circle cx="108" cy="175" r="5" />
+	<circle cx="108" cy="195" r="5" />
  </g>
-	</hmi-animations:animations>
   </g>
 </svg>

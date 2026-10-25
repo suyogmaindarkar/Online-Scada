@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.3663)">
     <defs>
      </defs>
@@ -10,33 +14,33 @@
         <stop offset="0.7771" stop-color="#52525b" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_7_" x="7.7" y="250.8" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="284.7" height="19.8" />
-      <rect id="Shadow_3_" x="7.7" y="250.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="284.7" height="4.1" />
+      <rect rx="3" ry="3" id="Shape_7_" x="7.7" y="250.8" fill="url(#Shape_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="284.7" height="19.8" />
+      <rect rx="3" ry="3" id="Shadow_3_" x="7.7" y="250.8" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="284.7" height="4.1" />
     </g>
     <linearGradient id="Shape_Enclosure_1_" gradientUnits="userSpaceOnUse" x1="-37.5581" y1="-28.6484" x2="547.6035" y2="474.3858">
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Enclosure" x="2.3" y="14.3" fill="url(#Shape_Enclosure_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="295.3" height="236.5" />
+    <rect rx="3" ry="3" id="Shape_Enclosure" x="2.3" y="14.3" fill="url(#Shape_Enclosure_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="295.3" height="236.5" />
     <path id="Reflection_Lines_3_" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-miterlimit="10" d="M20.5,250.2V14.9    M37.8,250.2V14.9 M55.2,250.2V14.9 M72.6,250.2V14.9 M90,250.2V14.9 M107.3,250.2V14.9 M124.7,250.2V14.9 M142.1,250.2V14.9    M159.4,250.2V14.9 M176.8,250.2V14.9 M194.2,250.2V14.9 M211.6,250.2V14.9 M228.9,250.2V14.9 M246.3,250.2V14.9 M263.7,250.2V14.9    M281,250.2V14.9" />
     <path id="Sheet_Facade_1_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M19.7,250.2V14.9    M37.1,250.2V14.9 M54.4,250.2V14.9 M71.8,250.2V14.9 M89.2,250.2V14.9 M106.6,250.2V14.9 M123.9,250.2V14.9 M141.3,250.2V14.9    M158.7,250.2V14.9 M176.1,250.2V14.9 M193.4,250.2V14.9 M210.8,250.2V14.9 M228.2,250.2V14.9 M245.5,250.2V14.9 M262.9,250.2V14.9    M280.3,250.2V14.9" />
     <linearGradient id="Roof_1_" gradientUnits="userSpaceOnUse" x1="-289.2993" y1="-76.1167" x2="493.804" y2="74.506">
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Roof" x="2.3" y="2.4" fill="url(#Roof_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="295.3" height="11.9" />
+    <rect rx="3" ry="3" id="Roof" x="2.3" y="2.4" fill="url(#Roof_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="295.3" height="11.9" />
   </g>
   <g id="Door_3_">
     <linearGradient id="Shape_Door_2_" gradientUnits="userSpaceOnUse" x1="-48.9448" y1="-19.3628" x2="287.0366" y2="280.6417">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Shape_Door_1_" x="111.3" y="73.2" fill="url(#Shape_Door_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="77.2" height="170" />
+    <rect rx="3" ry="3" id="Shape_Door_1_" x="111.3" y="73.2" fill="url(#Shape_Door_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="77.2" height="170" />
     <g id="Door_Lock_1_">
-      <rect id="Shape_6_" x="116.5" y="150.6" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="5" height="20.1" />
+      <rect rx="3" ry="3" id="Shape_6_" x="116.5" y="150.6" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="5" height="20.1" />
       <g id="Lock_1_">
         <polygon id="Bottom_1_" fill="#d4d4d8" points="117.6,155.1 117.6,161.1 120.4,161.1 120.4,155.1 119,155.1" />
-        <circle id="Top_4_" fill="#d4d4d8" cx="119" cy="153.7" r="1.4" />
+        <circle id="Top_4_" fill="#d4d4d8" cx="119" cy="153.7" r="0" />
       </g>
     </g>
     <linearGradient id="Hinges_2_" gradientUnits="userSpaceOnUse" x1="186.3247" y1="158.2305" x2="189.9154" y2="158.2305">

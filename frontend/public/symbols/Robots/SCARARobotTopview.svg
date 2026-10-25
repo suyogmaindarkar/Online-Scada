@@ -1,15 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.132275, 0.132275)">
     <defs>
+    <!-- Dimensions of manipulator's rigid segments -->
+    <!-- Calculate distance of end effector from origin, if recheable -->
+    <!-- Calculate elbow angle -->
+    <!-- Calculate shoulder angle -->
+    <!-- Convert from radians to degrees -->
   </defs>
-  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'none' : 'inline' }}">
-	<g id="circle" hmi-bind:display="{{ParamProps.ShowRange ? 'inline':'none'}}">
+  <g>
+	<g id="circle">
 		<line x1="378.1" y1="288.1" x2="378.1" y2="468.1"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		<circle cx="378.1" cy="378.1" r="378"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		<line x1="468.1" y1="378.1" x2="288.1" y2="378.1"  fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 	  </g>
 	  <g id="Roboter_x5F_Draufsicht">
-		<g id="Sockel" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}} )" >
+		<g id="Sockel" >
+		 <!-- <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="9.999847e-02" y1="386" x2="9.999847e-02" y2="486" gradientTransform="matrix(1 0 0 -1 0 436)">-->
 		<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="-50" x2="0" y2="50">
 			<stop offset="0" stop-color="#52525b" />
 			<stop offset="1" stop-color="#e4e4e7" />
@@ -35,17 +45,17 @@
 			<stop offset="1" stop-color="#3f3f46" />
 		  </linearGradient>
 		  <circle cx="0.1" cy="0" r="34" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-		  <circle cx="-42.6" cy="-42.7" r="3" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-		  <circle cx="42.9" cy="-42.7" r="3" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="-42.6" cy="-42.7" r="0" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+		  <circle cx="42.9" cy="-42.7" r="0" fill="#18181b" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <g>
-			<circle cx="-42.6" cy="42.8" r="3" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			<circle cx="42.9" cy="42.8" r="3" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="-42.6" cy="42.8" r="0" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="42.9" cy="42.8" r="0" fill="#18181b" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		  <line x1="-43.9" y1="-49.2" x2="44.1" y2="-49.2" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
 		  <path d="M-49.1,44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
 		  <path d="M-49.1-44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
 		</g>
-		<g id="Arm_x5F_01_1_No_Anim" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}} ) rotate( {{ LocalProps.SDeg }} )" >
+		<g id="Arm_x5F_01_1_No_Anim" >
 		  <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="5" y2="50">
 			<stop offset="0" stop-color="#d4d4d8" />
 			<stop offset="1" stop-color="#3f3f46" />
@@ -53,16 +63,16 @@
 		  <path d="M0-15h190c8.3,0,15,6.8,15,15l0,0c0,8.3-6.8,15-15,15H0c-8.2,0-15-6.8-15-15l0,0C-15-8.3-8.2-15,0-15z" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <g>
 			<circle cx="190" cy="0" r="9" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			<circle cx="190" cy="0" r="3" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="190" cy="0" r="0" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		  <path d="M190-14.3c7.9,0,14.3,6.4,14.3,14.3s-6.4,14.3-14.3,14.3H0" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <path d="M0,14.2c-7.9,0-14.3-6.4-14.3-14.3S-7.9-14.4,0-14.4h190" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <g>
 			<circle cx="0.1" cy="0" r="9" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			<circle cx="0.1" cy="0" r="3" fill="#18181b" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="0.1" cy="0" r="0" fill="#18181b" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		</g>
-		<g id="Arm_x5F_03_1_No_Anim" hmi-bind:transform="translate( {{LocalProps.Base_X0}}, {{LocalProps.Base_Y0}}) rotate({{ LocalProps.SDeg }}) translate( {{LocalProps.L1}}, 0) rotate( {{ LocalProps.EDeg }})" >
+		<g id="Arm_x5F_03_1_No_Anim" >
 		  <g id="Greifer_1_">
 			<g>
 			  <linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="-34">
@@ -81,8 +91,8 @@
 			  <path d="M170.5-34.3c2.1,0,3.7,1.7,3.7,3.7v61.1c0,2.1-1.7,3.7-3.7,3.7h-1.1c-2.1,0-3.7-1.7-3.7-3.7v-61.1      c0-2.1,1.7-3.7,3.7-3.7H170.5 M170.5-35h-1.1c-2.5,0-4.5,2-4.5,4.5v61.1c0,2.5,2,4.5,4.5,4.5h1.1c2.5,0,4.5-2,4.5-4.5v-61.1      C175-33,173-35,170.5-35L170.5-35z" fill="#18181b" />
 			</g>
 			<g id="Kreise">
-			  <circle cx="170" cy="-29" r="2.5" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			  <circle cx="170" cy="29" r="2.5" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <circle cx="170" cy="-29" r="0" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <circle cx="170" cy="29" r="0" fill="#4d4d4d" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
 		  </g>
 		  <linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0" >
@@ -92,11 +102,11 @@
 		  <path d="M0-15h170c8.2,0,15,6.7,15,15l0,0c0,8.2-6.7,15-15,15H0c-8.2,0-15-6.7-15-15l0,0C-15-8.3-8.3-15,0-15z" fill="url(#SVGID_6_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <g display="none">
 			<circle cx="0" cy="0" r="9" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			<circle cx="0" cy="0" r="3" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="0" cy="0" r="0" fill="#4d4d4d" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		  <g display="none">
 			<circle cx="170" cy="0" r="9" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-			<circle cx="170" cy="0" r="3" fill="#18181b" stroke="#e6e6e6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<circle cx="170" cy="0" r="0" fill="#18181b" stroke="#e6e6e6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		  <path d="M170.1-14.3c7.9,0,14.3,6.4,14.3,14.3s-6.4,14.3-14.3,14.3H-0.1" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  <path d="M-0.1,14.2c-7.9,0-14.3-6.4-14.3-14.3S-8-14.4-0.1-14.4h170.2" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
@@ -114,8 +124,8 @@
 		</g>
 	  </g>
   </g>
-  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'inline' : 'none' }}">
-	<g id="circle" hmi-bind:display="{{ParamProps.ShowRange ? 'inline':'none'}}" fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+  <g>
+	<g id="circle" fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
 		<path id="line1" d="M378.1 288.1v180"/>
 		<circle cx="378.1" cy="378.1" r="378" id="circle1"/>
 		<path id="line2" d="M468.1 378.1h-180"/>
@@ -147,16 +157,17 @@
 			<stop offset="1" stop-color="#3f3f46" id="stop17"/>
 		  </linearGradient>
 		  <circle cx="0.1" cy="0" r="34" fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle17"/>
-		  <circle cx="-42.599998" cy="-42.700001" r="3" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle18"/>
-		  <circle cx="42.900002" cy="-42.700001" r="3" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle19"/>
+		  <circle cx="-42.599998" cy="-42.700001" r="0" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle18"/>
+		  <circle cx="42.900002" cy="-42.700001" r="0" fill="#18181b" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="circle19"/>
 		  <g id="g21" fill="#18181b" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
-			<circle cx="-42.599998" cy="42.799999" r="3" id="circle20"/>
-			<circle cx="42.900002" cy="42.799999" r="3" id="circle21"/>
+			<circle cx="-42.599998" cy="42.799999" r="0" id="circle20"/>
+			<circle cx="42.900002" cy="42.799999" r="0" id="circle21"/>
 		  </g>
 		  <path fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="line21" d="M-43.9-49.2h88"/>
 		  <path d="M-49.1 44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="path21"/>
 		  <path d="M-49.1-44" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" id="path22"/>
 		</g>
+		<!-- Oberarm per Animation drehen -->
 		<g id="Arm_x5F_01_1_">
 		  <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="5" y2="50">
 			<stop offset="0" stop-color="#d4d4d8" id="stop22"/>
@@ -165,14 +176,15 @@
 		  <path d="M0-15h190c8.3 0 15 6.8 15 15v0c0 8.3-6.8 15-15 15H0c-8.2 0-15-6.8-15-15v0c0-8.3 6.8-15 15-15z" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path23"/>
 		  <g id="g24" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
 			<circle cx="190" cy="0" r="9" fill="none" id="circle23"/>
-			<circle cx="190" cy="0" r="3" fill="#4d4d4d" id="circle24"/>
+			<circle cx="190" cy="0" r="0" fill="#4d4d4d" id="circle24"/>
 		  </g>
 		  <path d="M190-14.3c7.9 0 14.3 6.4 14.3 14.3s-6.4 14.3-14.3 14.3H0" fill="none" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path24"/>
 		  <path d="M0 14.2c-7.9 0-14.3-6.4-14.3-14.3S-7.9-14.4 0-14.4h190" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path25"/>
 		  <g id="g26" stroke="#d8d8d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
 			<circle cx="0.1" cy="0" r="9" fill="none" id="circle25"/>
-			<circle cx="0.1" cy="0" r="3" fill="#18181b" id="circle26"/>
+			<circle cx="0.1" cy="0" r="0" fill="#18181b" id="circle26"/>
 		  </g>
+		  <!-- Unterarm per Animation drehen -->
 		  <g id="Arm_x5F_03_1_" transform="translate(190)">
 			<g id="Greifer_1_">
 			  <g id="g36">
@@ -192,8 +204,8 @@
 				<path d="M170.5-34.3c2.1 0 3.7 1.7 3.7 3.7v61.1c0 2.1-1.7 3.7-3.7 3.7h-1.1c-2.1 0-3.7-1.7-3.7-3.7v-61.1c0-2.1 1.7-3.7 3.7-3.7h1.1m0-.7h-1.1c-2.5 0-4.5 2-4.5 4.5v61.1c0 2.5 2 4.5 4.5 4.5h1.1c2.5 0 4.5-2 4.5-4.5v-61.1c0-2.5-2-4.5-4.5-4.5z" fill="#18181b" id="path36"/>
 			  </g>
 			  <g id="Kreise" fill="#4d4d4d" stroke="gray" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
-				<circle cx="170" cy="-29" r="2.5" id="circle36"/>
-				<circle cx="170" cy="29" r="2.5" id="circle37"/>
+				<circle cx="170" cy="-29" r="0" id="circle36"/>
+				<circle cx="170" cy="29" r="0" id="circle37"/>
 			  </g>
 			</g>
 			<linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
@@ -203,11 +215,11 @@
 			<path d="M0-15h170c8.2 0 15 6.7 15 15v0c0 8.2-6.7 15-15 15H0c-8.2 0-15-6.7-15-15v0c0-8.3 6.7-15 15-15z" fill="url(#SVGID_6_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path38"/>
 			<g display="none" id="g39" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
 			  <circle cx="0" cy="0" r="9" fill="none" id="circle38"/>
-			  <circle cx="0" cy="0" r="3" fill="#4d4d4d" id="circle39"/>
+			  <circle cx="0" cy="0" r="0" fill="#4d4d4d" id="circle39"/>
 			</g>
 			<g display="none" id="g41" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
 			  <circle cx="170" cy="0" r="9" fill="none" stroke="#d8d8d8" id="circle40"/>
-			  <circle cx="170" cy="0" r="3" fill="#18181b" stroke="#e6e6e6" id="circle41"/>
+			  <circle cx="170" cy="0" r="0" fill="#18181b" stroke="#e6e6e6" id="circle41"/>
 			</g>
 			<path d="M170.1-14.3c7.9 0 14.3 6.4 14.3 14.3s-6.4 14.3-14.3 14.3H-.1" fill="none" stroke="#d4d4d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path41"/>
 			<path d="M-.1 14.2C-8 14.2-14.4 7.8-14.4-.1S-8-14.4-.1-14.4h170.2" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" id="path42"/>
@@ -226,6 +238,5 @@
 		</g>
 	  </g>
   </g>
-	</hmi-animations:animations>
   </g>
 </svg>

@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.423729)">
     <defs>
      </defs>
@@ -18,12 +22,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_1_" x="267.2" y="41" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="30.6" />
+      <rect rx="3" ry="3" id="Shape_1_" x="267.2" y="41" fill="url(#Shape_4_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="30.6" />
       <linearGradient id="Reflection_4_" gradientUnits="userSpaceOnUse" x1="268.7" y1="56.352" x2="271.662" y2="56.352" >
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_1_" x="269.4" y="41.5" fill="url(#Reflection_4_)" width="3.6" height="29.8" />
+      <rect rx="3" ry="3" id="Reflection_1_" x="269.4" y="41.5" fill="url(#Reflection_4_)" width="3.6" height="29.8" />
     </g>
     <g id="Pipe_Horizontal">
       <linearGradient id="Shape_5_" gradientUnits="userSpaceOnUse" x1="190.4106" y1="4.4292" x2="190.4106" y2="25.2837">
@@ -40,12 +44,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_44_" x="129.3" y="4.4" fill="url(#Shape_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="122.2" height="21" />
+      <rect rx="3" ry="3" id="Shape_44_" x="129.3" y="4.4" fill="url(#Shape_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="122.2" height="21" />
       <linearGradient id="Reflection_5_" gradientUnits="userSpaceOnUse" x1="190.4004" y1="5.8477" x2="190.4004" y2="8.8113">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_14_" x="129.7" y="6.5" fill="url(#Reflection_5_)" width="121.4" height="3.6" />
+      <rect rx="3" ry="3" id="Reflection_14_" x="129.7" y="6.5" fill="url(#Reflection_5_)" width="121.4" height="3.6" />
     </g>
     <g id="Pipe_Angled">
       <linearGradient id="Shape_6_" gradientUnits="userSpaceOnUse" x1="85.8169" y1="32.2632" x2="100.306" y2="46.7523">
@@ -84,12 +88,12 @@
         <stop offset="0.9452" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#3f3f46" />
       </linearGradient>
-      <rect id="Shape_2_" x="58" y="75.8" fill="url(#Shape_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="46.4" />
+      <rect rx="3" ry="3" id="Shape_2_" x="58" y="75.8" fill="url(#Shape_7_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="21" height="46.4" />
       <linearGradient id="Reflection_7_" gradientUnits="userSpaceOnUse" x1="59.48" y1="99.062" x2="62.443" y2="99.062" >
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
       </linearGradient>
-      <rect id="Reflection_2_" x="60.2" y="76.3" fill="url(#Reflection_7_)" width="3.6" height="45.6" />
+      <rect rx="3" ry="3" id="Reflection_2_" x="60.2" y="76.3" fill="url(#Reflection_7_)" width="3.6" height="45.6" />
     </g>
     <linearGradient id="Connection_Machine_1_" gradientUnits="userSpaceOnUse" x1="258.416" y1="78.9854" x2="296.6447" y2="78.9854">
       <stop offset="0" stop-color="#18181b" />
@@ -103,7 +107,7 @@
       <stop offset="0.9127" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Connection_Machine" x="257.7" y="71.6" fill="url(#Connection_Machine_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40.2" height="14.7" />
+    <rect rx="3" ry="3" id="Connection_Machine" x="257.7" y="71.6" fill="url(#Connection_Machine_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40.2" height="14.7" />
     <linearGradient id="Connection_Piece_3_1_" gradientUnits="userSpaceOnUse" x1="270.9287" y1="7.080078e-02" x2="270.9287" y2="41.6455">
       <stop offset="0" stop-color="#18181b" />
       <stop offset="1.586480e-02" stop-color="#27272a" />
@@ -155,7 +159,7 @@
       <stop offset="0.9908" stop-color="#52525b" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Housing" x="2.3" y="122.3" fill="url(#Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="132.4" height="111.4" />
+    <rect rx="3" ry="3" id="Housing" x="2.3" y="122.3" fill="url(#Housing_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="132.4" height="111.4" />
     <g id="Emergency_Stop_Button">
       <path id="Yellow_Ring" fill="#FFF34C" stroke="#FFDF4C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M25.5,200c-7,0-12.6,5.6-12.6,12.6s5.6,12.6,12.6,12.6c7,0,12.6-5.6,12.6-12.6S32.4,200,25.5,200z M25.5,220.8    c-4.5,0-8.2-3.7-8.2-8.2c0-4.5,3.7-8.2,8.2-8.2c4.5,0,8.2,3.7,8.2,8.2C33.6,217.1,30,220.8,25.5,220.8z" />
       <radialGradient id="Button_1_" cx="21.1489" cy="208.6953" r="11.3234" gradientUnits="userSpaceOnUse">
@@ -165,8 +169,8 @@
       <circle id="Button" fill="url(#Button_1_)" cx="25.5" cy="212.6" r="8.2" />
     </g>
     <g id="Buttons">
-      <circle id="Right" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" cx="116.9" cy="212.6" r="4" />
-      <circle id="Left" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" cx="101.1" cy="212.6" r="4" />
+      <circle id="Right" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" cx="116.9" cy="212.6" r="0" />
+      <circle id="Left" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" cx="101.1" cy="212.6" r="0" />
     </g>
     <path id="Display_Frame" fill="#4C4F5F" stroke="#4C4F5F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M11.1,122.3v69.1H126v-69.1H11.1z M119.7,185H17.4v-56.5h102.3V185z" />
     <polygon id="Siemens_Frame" fill="#00B1C3" stroke="#00B1C3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="126,122.3 126,136.8 119.7,136.8 119.7,153.6 126,153.6 126,191.3 11.1,191.3 11.1,122.3 6.6,122.3 6.6,195.8 130.4,195.8    130.4,122.3" />
@@ -175,7 +179,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Display_1_" x="17.4" y="128.6" fill="url(#Display_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="102.3" height="56.5" />
+      <rect rx="3" ry="3" id="Display_1_" x="17.4" y="128.6" fill="url(#Display_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="102.3" height="56.5" />
       <polygon id="Refection_Display" fill="#71717a" points="35.1,184.6 17.8,184.6 17.8,129 73.6,129" />
       <polyline id="Reflection_Line" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="17.4,185 119.7,185 119.7,128.6" />
     </g>

@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.550964, 0.333333)">
-    </hmi:self>
-	<defs>
+    <defs>
 		<clipPath id="ReflectionFillingCut">
 			<polygon points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,6.5 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269"/>
 		</clipPath>
-	</defs>
-  <g id="Vessel">
+			<!-- if FluidRotation is used:Vessel">
     <linearGradient id="Shape_Vessel_1_" gradientUnits="userSpaceOnUse" x1="20.8359" y1="96.0063" x2="176.1837" y2="96.0063">
       <stop offset="0" stop-color="#52525b"/>
       <stop offset="4.758149e-02" stop-color="#71717a"/>
@@ -67,12 +69,12 @@
         <stop offset="0.9452" stop-color="#3f3f46"/>
         <stop offset="1" stop-color="#3f3f46"/>
       </linearGradient>
-      <rect id="Ring_Vessel" x="78" y="6.1" fill="url(#Ring_Vessel_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40.5" height="9.5"/>
+      <rect rx="3" ry="3" id="Ring_Vessel" x="78" y="6.1" fill="url(#Ring_Vessel_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40.5" height="9.5"/>
       <linearGradient id="Reflection_2_" gradientUnits="userSpaceOnUse" x1="82.1992" y1="10.832" x2="88.9885" y2="10.832">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4"/>
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7"/>
       </linearGradient>
-      <rect id="Reflection_1_" x="82.1" y="6.5" fill="url(#Reflection_2_)" width="6.9" height="8.6"/>
+      <rect rx="3" ry="3" id="Reflection_1_" x="82.1" y="6.5" fill="url(#Reflection_2_)" width="6.9" height="8.6"/>
       <linearGradient id="Ring_Top_1_" gradientUnits="userSpaceOnUse" x1="77.2378" y1="4.2412" x2="119.5795" y2="4.2412">
         <stop offset="0" stop-color="#52525b"/>
         <stop offset="4.758149e-02" stop-color="#71717a"/>
@@ -87,42 +89,44 @@
         <stop offset="0.9452" stop-color="#3f3f46"/>
         <stop offset="1" stop-color="#3f3f46"/>
       </linearGradient>
-      <rect id="Ring_Top" x="76.7" y="2.4" fill="url(#Ring_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="43.1" height="3.7"/>
+      <rect rx="3" ry="3" id="Ring_Top" x="76.7" y="2.4" fill="url(#Ring_Top_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="43.1" height="3.7"/>
       <linearGradient id="Reflection_3_" gradientUnits="userSpaceOnUse" x1="81.1948" y1="4.229" x2="88.4106" y2="4.229">
         <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4"/>
         <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7"/>
       </linearGradient>
-      <rect id="Reflection" x="81.1" y="2.8" fill="url(#Reflection_3_)" width="7.3" height="2.8"/>
+      <rect rx="3" ry="3" id="Reflection" x="81.1" y="2.8" fill="url(#Reflection_3_)" width="7.3" height="2.8"/>
     </g>
   </g>
   <g id="FillingGroup">
 		<g id="FillingReflection">
-			<linearGradient id="Filling_1_" gradientUnits="userSpaceOnUse" x2="0" y2="2.8" x1="0" y1="269" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<linearGradient id="Filling_1_" gradientUnits="userSpaceOnUse" x2="0" y2="2.8" x1="0" y1="269">
 				<stop offset="0" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0"/>
+				<stop stop-color="#71717a"/>
+				<stop	stop-color="white" stop-opacity="0.0"/>
 				<stop offset="1" stop-color="white" stop-opacity="0.0"/>
 			</linearGradient>
-			<linearGradient id="Filling_1_Vertical" gradientUnits="userSpaceOnUse" x1="0" y1="92.6" x2="0" y2="34.2" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<!-- <polygon id="ReflectionFilling" fill="url(#Filling_1_)" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,6.5 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/> -->
+			<linearGradient id="Filling_1_Vertical" gradientUnits="userSpaceOnUse" x1="0" y1="92.6" x2="0" y2="34.2">
 				<stop offset="0" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0"/>
+				<stop stop-color="#71717a"/>
+				<stop	stop-color="white" stop-opacity="0.0"/>
 				<stop offset="1" stop-color="white" stop-opacity="0.0"/>
 			</linearGradient>
-			<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-				<polygon id="ReflectionFilling" fill="url(#Filling_1_)" hmi-bind:display="{{ and( and( gt( LocalProps.FluidRotation, -90.0 ), gt( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingReflection ) ? 'inline' : 'none'}}" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,6.5 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/>
-				<polygon id="ReflectionFillingVertical" fill="url(#Filling_1_Vertical)" hmi-bind:display="{{ and( and( le( LocalProps.FluidRotation, -90.0 ), gt( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingReflection ) ? 'inline' : 'none'}}" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,5.6 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/>
+			<!-- <polygon id="ReflectionFillingVertical" fill="url(#Filling_1_Vertical)" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,5.6 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/> -->
+			<g>
+				<polygon id="ReflectionFilling" fill="url(#Filling_1_)" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,6.5 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/>
+				<polygon id="ReflectionFillingVertical" fill="url(#Filling_1_Vertical)" points="61,177.4 60.9,51.6 89,16.3 89,6.5 88.4,6.5 88.4,2.8 81.1,2.8 81.1,5.6 82.1,6.5 82.1,16.3 34.2,51.6 34.2,177.4 87.4,269 92.6,269 "/>
 			</g>
-			<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
+			<g>
 				<g clip-path="url(#ReflectionFillingCut)">
-					<rect id="ReflectionFillingAnim" hmi-bind:fill="{{Converter.RGBA(ParamProps.FillLevelColor)}}" hmi-bind:display="{{ and( ge( LocalProps.FillLevelValue, 0 ), LocalProps.DisplayFillingReflection ) ? 'inline' : 'none'}}" x="21.517241" y="2.7298131" width="73.524178" transform="translate(73.524178, 266.27451) rotate(180, 21.517241, 2.7298131)"/>
+					<rect rx="3" ry="3" id="ReflectionFillingAnim" x="21.517241" y="2.7298131" width="73.524178" transform="translate(73.524178, 266.27451) rotate(180, 21.517241, 2.7298131)"/>
 				</g>
 			</g>
 		</g>
 			<path id="Reflection_Lines" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M18.7,53.1h158.9 M18.7,177.3h158.9 M74.6,253h47.2 M18.7,114.9h158.9"/>
 			<path id="Devider_Lines" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M17.6,52.3h161.3 M17.6,114h161.3 M73,252.2h50.6 M17.6,176.5h161.3"/>
-			<path id="ShapeLine" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" hmi-bind:display="{{ and( gt( LocalProps.FillLevelValue, 0 ), ParamProps.DisplayFillLevel ) ? 'inline' : 'none'}}" d="M80,6.2h9.3 M82.1,15.7h8"/>
-		<g id="FillingRectangle" transform="translate(-1 , 5)" hmi-bind:display="{{LocalProps.DisplayFillingBar ? 'inline' : 'none'}}">
+			<path id="ShapeLine" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M80,6.2h9.3 M82.1,15.7h8"/>
+		<g id="FillingRectangle" transform="translate(-1 , 5)">
 			<linearGradient id="Frame_1_" gradientUnits="userSpaceOnUse" x1="140.2148" y1="150.01221" x2="40.857803" y2="150.01221">
 				<stop offset="0" stop-color="#d4d4d8"/>
 				<stop offset="1" stop-color="#52525b"/>
@@ -132,26 +136,28 @@
 				<stop offset="0" stop-color="#3f3f46"/>
 				<stop offset="1" stop-color="#434343"/>
 			</linearGradient>
-			<rect id="Opening" x="91.1" y="37.5" fill="url(#Opening_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.5" height="171"/>
-			<linearGradient id="FillingBar" gradientUnits="userSpaceOnUse" x1="0" y1="208.3" x2="0"  y2="38" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0, 0)">
+			<rect rx="3" ry="3" id="Opening" x="91.1" y="37.5" fill="url(#Opening_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="14.5" height="171"/>
+			<linearGradient id="FillingBar" gradientUnits="userSpaceOnUse" x1="0" y1="208.3" x2="0"  y2="38">
 				<stop offset="0" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0"/>
+				<stop	stop-color="#71717a"/>
+				<stop	stop-color="white" stop-opacity="0.0"/>
 				<stop offset="1" stop-color="white" stop-opacity="0.0"/>
 			</linearGradient>
-			<linearGradient id="FillingBarVertical" gradientUnits="userSpaceOnUse" x1="0" y1="105.1" x2="0"  y2="91.6" hmi-bind:gradientTransform="rotate({{LocalProps.FluidRotation}}, 0,0)">
+			<!-- <rect rx="3" ry="3" id="FillLevel1" x="91.6" y="38" fill="url(#FillingBar)" width="13.5" height="170"/> -->
+			<linearGradient id="FillingBarVertical" gradientUnits="userSpaceOnUse" x1="0" y1="105.1" x2="0"  y2="91.6">
 				<stop offset="0" stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="#71717a"/>
-				<stop hmi-bind:offset="{{LocalProps.FillLevelValue}}"	stop-color="white" stop-opacity="0.0"/>
+				<stop	stop-color="#71717a"/>
+				<stop	stop-color="white" stop-opacity="0.0"/>
 				<stop offset="1" stop-color="white" stop-opacity="0.0"/>
 			</linearGradient>
-			<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, false) ? 'inline' : 'none' }}">
-				<rect id="FillLevel1" x="91.6" y="38" fill="url(#FillingBar)" hmi-bind:display="{{ and( and( gt( LocalProps.FluidRotation, -90.0 ), gt( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingBar ) ? 'inline' : 'none'}}" width="13.5" height="170"/>
-				<rect id="OpeningVertical" x="91.6" y="38" fill="url(#FillingBarVertical)" hmi-bind:display="{{ and( and( le( LocalProps.FluidRotation, -90.0 ), gt( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingBar ) ? 'inline' : 'none'}}" width="13.5" height="170"/>
+			<!-- <rect rx="3" ry="3" id="OpeningVertical" x="91.6" y="38" fill="url(#FillingBarVertical)" width="13.5" height="170"/> -->
+			<g>
+				<rect rx="3" ry="3" id="FillLevel1" x="91.6" y="38" fill="url(#FillingBar)" width="13.5" height="170"/>
+				<rect rx="3" ry="3" id="OpeningVertical" x="91.6" y="38" fill="url(#FillingBarVertical)" width="13.5" height="170"/>
 			</g>
-			<g hmi-bind:display="{{ eq(ParamProps.EnableAnimation, true) ? 'inline' : 'none' }}">
-				<rect id="FillLevel1Anim" x="91.6" y="38" hmi-bind:fill="{{Converter.RGBA(ParamProps.FillLevelColor)}}" hmi-bind:display="{{ and( and( gt( LocalProps.FluidRotation, -90.0 ), ge( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingBar ) ? 'inline' : 'none'}}" width="13.5" transform="translate(13.5, 170) rotate(180, 91.6, 38)"/>
-				<rect id="OpeningVerticalAnim" x="91.6" y="38" hmi-bind:fill="{{Converter.RGBA(ParamProps.FillLevelColor)}}" hmi-bind:display="{{ and( and( le( LocalProps.FluidRotation, -90.0 ), ge( LocalProps.FillLevelValue, 0 )), LocalProps.DisplayFillingBar ) ? 'inline' : 'none'}}" width="13.5" transform="translate(13.5, 170) rotate(180, 91.6, 38)"/>
+			<g>
+				<rect rx="3" ry="3" id="FillLevel1Anim" x="91.6" y="38" width="13.5" transform="translate(13.5, 170) rotate(180, 91.6, 38)"/>
+				<rect rx="3" ry="3" id="OpeningVerticalAnim" x="91.6" y="38" width="13.5" transform="translate(13.5, 170) rotate(180, 91.6, 38)"/>
 			</g>
 		</g>
   </g>
@@ -174,22 +180,22 @@
     </g>
     <g id="Uprights">
       <g id="Upright_Right">
-        <rect id="Side_Right_1_" x="164.2" y="150" fill="#77787A" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
+        <rect rx="3" ry="3" id="Side_Right_1_" x="164.2" y="150" fill="#77787A" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
         <linearGradient id="Central_Section_2_" gradientUnits="userSpaceOnUse" x1="83.9355" y1="37.0928" x2="191.9365" y2="299.5946">
           <stop offset="0" stop-color="#e4e4e7"/>
           <stop offset="1" stop-color="#52525b"/>
         </linearGradient>
-        <rect id="Central_Section_1_" x="157.3" y="150" fill="url(#Central_Section_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7" height="147.7"/>
-        <rect id="Side_Left_1_" x="154.6" y="150" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
+        <rect rx="3" ry="3" id="Central_Section_1_" x="157.3" y="150" fill="url(#Central_Section_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7" height="147.7"/>
+        <rect rx="3" ry="3" id="Side_Left_1_" x="154.6" y="150" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
       </g>
       <g id="Upright_Left">
-        <rect id="Side_Right" x="39.2" y="150" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
+        <rect rx="3" ry="3" id="Side_Right" x="39.2" y="150" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
         <linearGradient id="Central_Section_3_" gradientUnits="userSpaceOnUse" x1="-21.9258" y1="154.7827" x2="114.0986" y2="317.6">
           <stop offset="0" stop-color="#e4e4e7"/>
           <stop offset="1" stop-color="#52525b"/>
         </linearGradient>
-        <rect id="Central_Section" x="32.3" y="150" fill="url(#Central_Section_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7" height="147.7"/>
-        <rect id="Side_Left" x="29.6" y="150" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
+        <rect rx="3" ry="3" id="Central_Section" x="32.3" y="150" fill="url(#Central_Section_3_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7" height="147.7"/>
+        <rect rx="3" ry="3" id="Side_Left" x="29.6" y="150" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="2.7" height="147.7"/>
       </g>
     </g>
   </g>
@@ -251,6 +257,5 @@
     </linearGradient>
     <path id="Fixings" fill="url(#Fixings_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M2.4,52.5h15.2v5.5H2.4V52.5z M2.4,176.7h15.2v-5.5H2.4V176.7z M2.4,117.3h15.2v-5.5H2.4V117.3z"/>
   </g>
-	</hmi-animations:animations>
   </g>
 </svg>

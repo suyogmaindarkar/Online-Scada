@@ -1,16 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.360036, 0.604778)">
     <g id="Pumpe_x5F_01">
     <g id="Rohr_x5F_unten_x5F_WasserWasser">
       <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="190.875" y1="32.8713" x2="277.375" y2="32.8713">
 	    	<stop offset="0" stop-color="#71717a"/>
-        <stop offset="0.24" stop-color="#71717a"/>
-        <stop offset="0.42" stop-color="#71717a"/>
-        <stop offset="0.4904" stop-color="#71717a"/>
+        <stop offset="0.24" stop-color="#a1a1aa"/>
+        <stop offset="0.42" stop-color="#a1a1aa"/>
+        <stop offset="0.4904" stop-color="#a1a1aa"/>
         <stop offset="0.6155" stop-color="#71717a"/>
-        <stop offset="0.7808" stop-color="#71717a"/>
-        <stop offset="0.978" stop-color="#71717a"/>
-        <stop offset="1" stop-color="#71717a"/>
+        <stop offset="0.7808" stop-color="#52525b"/>
+        <stop offset="0.978" stop-color="#3f3f46"/>
+        <stop offset="1" stop-color="#3f3f46"/>
       </linearGradient>
       <path d="M226.57,62.34h-35.69V50.63    c0-26.04,21.18-47.22,47.22-47.22h39.28V39.1h-39.28c-6.25,0-11.53,5.28-11.53,11.53V62.34z" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="white" gradientUnits="userSpaceOnUse" x1="5.2197" y1="140.0706" x2="216.7802" y2="140.0706">
@@ -20,7 +24,7 @@
       <path d="M202.21,50.63c0-19.78,16.1-35.88,35.88-35.88h37.61V9.08h-37.61    c-22.91,0-41.55,18.64-41.55,41.55v34.04h5.67V50.63z" fill="url(#white)" />
     </g>
     <g id="Korpus">
-      <rect x="14.87" y="65.48" width="120" height="96" fill="#666666" />
+      <rect rx="3" ry="3" x="14.87" y="65.48" width="120" height="96" fill="#666666" />
       <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="141.875" y1="65.9782" x2="141.875" y2="160.9782">
         <stop offset="0" stop-color="#B2B2B2" />
         <stop offset="0.0326" stop-color="#CACACA" />
@@ -38,7 +42,7 @@
         <stop offset="0.42" stop-color="#a1a1aa" />
         <stop offset="1" stop-color="#575757" />
       </linearGradient>
-      <rect x="146.38" y="87.98" width="38.5" height="51" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
+      <rect rx="3" ry="3" x="146.38" y="87.98" width="38.5" height="51" fill="url(#SVGID_4_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="74.875" y1="61.9777" x2="74.875" y2="164.9787">
 	    	<stop offset="0" stop-color="#71717a"/>
         <stop offset="0.24" stop-color="#a1a1aa"/>
@@ -117,9 +121,9 @@
       </linearGradient>
       <path d="M233.87,59.37    c0,1.8-1.46,3.25-3.25,3.25h-43.48c-1.8,0-3.25-1.46-3.25-3.25v-0.43c0-1.8,1.46-3.25,3.25-3.25h43.48c1.79,0,3.25,1.46,3.25,3.25    V59.37z" fill="url(#SVGID_10_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <g>
-        <circle cx="193.12" cy="77.62" r="4.38" fill="#666666" />
-        <circle cx="208.88" cy="77.62" r="4.38" fill="#666666" />
-        <circle cx="224.62" cy="77.62" r="4.38" fill="#666666" />
+        <circle cx="193.12" cy="77.62" r="0" fill="#666666" />
+        <circle cx="208.88" cy="77.62" r="0" fill="#666666" />
+        <circle cx="224.62" cy="77.62" r="0" fill="#666666" />
       </g>
     </g>
     <g id="Rohr_x5F_unten_x5F_Metall">
@@ -141,13 +145,13 @@
     <g id="Rohr_x5F_unten_x5F_Wasser">
       <linearGradient id="SVGID_12_" gradientUnits="userSpaceOnUse" x1="235.375" y1="112.3889" x2="235.375" y2="146.8537">
 	    	<stop offset="0" stop-color="#71717a"/>
-        <stop offset="0.24" stop-color="#71717a"/>
-        <stop offset="0.42" stop-color="#71717a"/>
-        <stop offset="0.4904" stop-color="#71717a"/>
+        <stop offset="0.24" stop-color="#a1a1aa"/>
+        <stop offset="0.42" stop-color="#a1a1aa"/>
+        <stop offset="0.4904" stop-color="#a1a1aa"/>
         <stop offset="0.6155" stop-color="#71717a"/>
-        <stop offset="0.7808" stop-color="#71717a"/>
-        <stop offset="0.978" stop-color="#71717a"/>
-        <stop offset="1" stop-color="#71717a"/>
+        <stop offset="0.7808" stop-color="#52525b"/>
+        <stop offset="0.978" stop-color="#3f3f46"/>
+        <stop offset="1" stop-color="#3f3f46"/>
       </linearGradient>
       <path d="M276.38,112.39h-64.77    c-9.52,0-17.23,7.71-17.23,17.23s7.71,17.23,17.23,17.23h64.77V112.39z" fill="url(#SVGID_12_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
       <linearGradient id="white2" gradientUnits="userSpaceOnUse" x1="5.2197" y1="140.0706" x2="216.7802" y2="140.0706">

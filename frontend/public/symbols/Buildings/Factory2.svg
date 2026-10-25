@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.333333)">
     <defs>
      </defs>
@@ -19,7 +23,7 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Structure_1_" x="2.4" y="139.3" fill="url(#Structure_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="145.9" height="158.3" />
+    <rect rx="3" ry="3" id="Structure_1_" x="2.4" y="139.3" fill="url(#Structure_2_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="145.9" height="158.3" />
     <linearGradient id="Windows_2_" gradientUnits="userSpaceOnUse" x1="75.3477" y1="240.085" x2="75.3477" y2="166.9464">
       <stop offset="0" stop-color="#18181b" />
       <stop offset="1.586480e-02" stop-color="#27272a" />
@@ -40,7 +44,7 @@
       <stop offset="0.7771" stop-color="#52525b" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Roof_Structure" x="30.3" y="123" fill="url(#Roof_Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="90.2" height="16.2" />
+    <rect rx="3" ry="3" id="Roof_Structure" x="30.3" y="123" fill="url(#Roof_Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="90.2" height="16.2" />
     <g id="Rolling_Gate">
       <linearGradient id="Gate_1_" gradientUnits="userSpaceOnUse" x1="43.8691" y1="465.207" x2="43.8691" y2="215.3492">
         <stop offset="0" stop-color="#18181b" />
@@ -54,7 +58,7 @@
         <stop offset="0.9127" stop-color="#3f3f46" />
         <stop offset="1" stop-color="#18181b" />
       </linearGradient>
-      <rect id="Gate" x="14.9" y="245.5" fill="url(#Gate_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="58" height="52.1" />
+      <rect rx="3" ry="3" id="Gate" x="14.9" y="245.5" fill="url(#Gate_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="58" height="52.1" />
       <path id="Separate_Elements" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-miterlimit="10" d="M16.3,250.7h55.2     M16.3,255.9h55.2 M16.3,261.1h55.2 M16.3,266.3h55.2 M16.3,271.5h55.2 M16.3,276.8h55.2 M16.3,282h55.2 M16.3,287.2h55.2     M16.3,292.4h55.2" />
     </g>
   </g>
@@ -94,7 +98,7 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Base" x="84.9" y="285.8" fill="url(#Base_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="212.7" height="11.7" />
+    <rect rx="3" ry="3" id="Base" x="84.9" y="285.8" fill="url(#Base_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="212.7" height="11.7" />
   </g>
   </g>
 </svg>

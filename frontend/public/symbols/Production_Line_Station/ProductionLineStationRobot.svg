@@ -1,12 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.406504, 0.154799)">
-    </hmi:self>
-  <defs>
+    <defs>
   </defs>
-  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'none' : 'inline' }}">
+  <g>
 	<g id="Schrank_x5F_Master">
 		<g id="Beine">
-		  <g id="Base2" hmi-bind:display="{{ and(eq(ParamProps.Feets , 0.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		  <g id="Base2">
 			<linearGradient id="Right_00000077301731047839028070000008836517826777881486_" gradientUnits="userSpaceOnUse" x1="222" y1="795.9037" x2="222" y2="769.8434" gradientTransform="matrix(1,0,0,1,0,-143.7027)">
 			  <stop offset="0" stop-color="#3f3f46" />
 			  <stop offset="1" stop-color="#434343" />
@@ -18,7 +21,7 @@
 			</linearGradient>
 			<polygon id="Left_00000104687880653667446100000002198909720229139345_" points="43.4,644.4 43.4,638.9 29.6,638.9 29.6,629.4 35.2,626.6 35.2,623.8 18.6,623.8 18.6,626.6 24.1,629.4 24.1,638.9 10.3,638.9      10.3,644.4" fill="url(#Left_00000052814401109807007680000010990788316764373939_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
-		  <g id="Base1" hmi-bind:display="{{ and(eq(ParamProps.Feets , 1.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		  <g id="Base1">
 			<g>
 			  <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="218.9" y1="-55.2" x2="227.9" y2="-55.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
@@ -28,7 +31,7 @@
 				<stop offset="0.7811" stop-color="#5C5C5C" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="218.9" y="618" width="9" height="26.4" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="218.9" y="618" width="9" height="26.4" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <linearGradient id="SVGID_00000180366606960946175460000008927277928979526819_" gradientUnits="userSpaceOnUse" x1="209.4" y1="-66.9" x2="237.4" y2="-66.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
 				<stop offset="0.1" stop-color="#18181b" />
@@ -48,7 +51,7 @@
 				<stop offset="0.7811" stop-color="#5C5C5C" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="20.9" y="618" width="9" height="26.4" fill="url(#SVGID_00000098925423208450605870000018138256903082299532_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="20.9" y="618" width="9" height="26.4" fill="url(#SVGID_00000098925423208450605870000018138256903082299532_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <linearGradient id="SVGID_00000127756119996213190710000011387731328441129655_" gradientUnits="userSpaceOnUse" x1="11.4" y1="-66.9" x2="39.4" y2="-66.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
 				<stop offset="0.1" stop-color="#18181b" />
@@ -63,10 +66,10 @@
 		</g>
 		<g id="Roboter_x5F_Schiene">
 		  <g>
-	  <g id="Roboterarm_Stored" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 0.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+	  <g id="Roboterarm_Stored">
 		  <g id="Position_03">
 			<g transform="translate(25,-75)">
-			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 1.0),eq(ParamProps.RobotPosition , 0.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,25)">
+			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(-4,25)">
 			  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#007CAA" />
 				<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -94,9 +97,9 @@
 				<stop offset="0.42" stop-color="#a1a1aa" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
-			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 0.0),eq(ParamProps.RobotPosition , 0.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,30)">
+			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(-4,30)">
 			  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#18181b" />
 				<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -142,10 +145,10 @@
 				<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 			<g id="Werkzeuge" transform="translate(25,-75)">
-			  <g id="Laser" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 3.0),eq(ParamProps.RobotPosition , 0.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			  <g id="Laser">
 				<g>
-				  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-				  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 				</g>
 				<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 					<stop offset="0" stop-color="#b3b3b3"/>
@@ -157,7 +160,7 @@
 				</linearGradient>
 				<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<g id="Laser">
-				  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+				  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 				  <g>
 					<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 					<circle cx="120.59" cy="290.8" r=".84" />
@@ -165,7 +168,7 @@
 				  </g>
 				</g>
 			  </g>
-			<g id="Greifer" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 2.0),eq(ParamProps.RobotPosition , 0.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,20)">
+			<g id="Greifer" transform="translate(-4,20)">
 			  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 				<stop offset="0" stop-color="#AEAEAD" />
 				<stop offset="1" stop-color="#18181b" />
@@ -187,24 +190,24 @@
 			</g>
 			<g transform="translate(25,-75)">
 				<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="translate(40,-30) rotate(30,104.63,177.78)">
 				<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g>
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 			<g transform="rotate(-30,63.74,84.94)">
 				<rect x="63.74" y="84.94" width="35.3" height="117.67" rx="35.3" ry="35.3" transform="translate(229.71,216.57) rotate(145.66)" fill="url(#SIE_einfacher_heller_Verlauf_100)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
@@ -213,9 +216,9 @@
 			</g>
 		  </g>
 		</g>
-		<g id="Roboterarm_Mitte" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 1.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Roboterarm_Mitte">
 		  <g id="Position_03">
-			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 1.0),eq(ParamProps.RobotPosition , 1.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,28)">
+			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(21,28)">
 			  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#007CAA" />
 				<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -243,9 +246,9 @@
 				<stop offset="0.42" stop-color="#a1a1aa" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
-			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 0.0),eq(ParamProps.RobotPosition , 1.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,33)">
+			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(21,33)">
 			  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#18181b" />
 				<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -290,10 +293,10 @@
 				<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 			<g id="Werkzeuge">
-			  <g id="Laser" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 3.0),eq(ParamProps.RobotPosition , 1.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(25,3)">
+			  <g id="Laser" transform="translate(25,3)">
 				<g>
-				  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-				  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 				</g>
 				<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 					<stop offset="0" stop-color="#b3b3b3"/>
@@ -305,7 +308,7 @@
 				</linearGradient>
 				<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<g id="Laser">
-				  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+				  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 				  <g>
 					<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 					<circle cx="120.59" cy="290.8" r=".84" />
@@ -313,7 +316,7 @@
 				  </g>
 				</g>
 			  </g>
-			<g id="Greifer" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 2.0),eq(ParamProps.RobotPosition , 1.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,23)">
+			<g id="Greifer" transform="translate(21,23)">
 			  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 				<stop offset="0" stop-color="#AEAEAD" />
 				<stop offset="1" stop-color="#18181b" />
@@ -335,33 +338,33 @@
 			</g>
 			<g transform="rotate(-10,21.53,238.57) translate(20,25)">
 				<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="rotate(-20,104.63,177.78)">
 				<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g>
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 			<rect x="63.74" y="84.94" width="35.3" height="117.67" rx="35.3" ry="35.3" transform="translate(229.71,216.57) rotate(145.66)" fill="url(#SIE_einfacher_heller_Verlauf_100)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			<circle cx="104.63" cy="177.78" r="7.65" fill="#b3b3b3" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 		  </g>
 		</g>
-	  <g id="Roboterarm_Unten" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 2.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+	  <g id="Roboterarm_Unten">
 		  <g id="Position_03">
-			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 1.0),eq(ParamProps.RobotPosition , 2.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,25)">
+			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(-4,25)">
 			  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#007CAA" />
 				<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -389,9 +392,9 @@
 				<stop offset="0.42" stop-color="#a1a1aa" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
-			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 0.0),eq(ParamProps.RobotPosition , 2.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,30)">
+			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(-4,30)">
 			  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#18181b" />
 				<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -436,10 +439,10 @@
 				<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 			<g id="Werkzeuge">
-			  <g id="Laser" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 3.0),eq(ParamProps.RobotPosition , 2.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			  <g id="Laser">
 				<g>
-				  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-				  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 				</g>
 				<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 					<stop offset="0" stop-color="#b3b3b3"/>
@@ -451,7 +454,7 @@
 				</linearGradient>
 				<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<g id="Laser">
-				  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+				  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 				  <g>
 					<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 					<circle cx="120.59" cy="290.8" r=".84" />
@@ -459,7 +462,7 @@
 				  </g>
 				</g>
 			  </g>
-			<g id="Greifer" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 2.0),eq(ParamProps.RobotPosition , 2.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,20)">
+			<g id="Greifer" transform="translate(-4,20)">
 			  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 				<stop offset="0" stop-color="#AEAEAD" />
 				<stop offset="1" stop-color="#18181b" />
@@ -481,33 +484,33 @@
 			</g>
 			<g>
 				<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g>
 				<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g>
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 			<rect x="63.74" y="84.94" width="35.3" height="117.67" rx="35.3" ry="35.3" transform="translate(229.71,216.57) rotate(145.66)" fill="url(#SIE_einfacher_heller_Verlauf_100)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			<circle cx="104.63" cy="177.78" r="7.65" fill="#b3b3b3" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 		  </g>
 		</g>
-		<g id="Roboterarm_Mitte_Mitte" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 3.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Roboterarm_Mitte_Mitte">
 		  <g id="Position_04">
-			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 1.0),eq(ParamProps.RobotPosition , 3.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,-1)">
+			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(-4,-1)">
 			  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#007CAA" />
 				<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -535,9 +538,9 @@
 				<stop offset="0.42" stop-color="#a1a1aa" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
-			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 0.0),eq(ParamProps.RobotPosition , 3.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,4)">
+			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(-4,4)">
 			  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#18181b" />
 				<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -582,10 +585,10 @@
 				<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 			<g id="Werkzeuge">
-			  <g id="Laser" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 3.0),eq(ParamProps.RobotPosition , 3.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(0,-26)">
+			  <g id="Laser" transform="translate(0,-26)">
 				<g>
-				  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-				  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 				</g>
 				<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 					<stop offset="0" stop-color="#b3b3b3"/>
@@ -597,7 +600,7 @@
 				</linearGradient>
 				<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<g id="Laser">
-				  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+				  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 				  <g>
 					<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 					<circle cx="120.59" cy="290.8" r=".84" />
@@ -605,7 +608,7 @@
 				  </g>
 				</g>
 			  </g>
-			<g id="Greifer" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 2.0),eq(ParamProps.RobotPosition , 3.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(-4,-6)">
+			<g id="Greifer" transform="translate(-4,-6)">
 			  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 				<stop offset="0" stop-color="#AEAEAD" />
 				<stop offset="1" stop-color="#18181b" />
@@ -627,33 +630,33 @@
 			</g>
 			<g transform="rotate(20,21.53,238.57) translate(-8,-56)">
 				<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="rotate(22,104.63,177.78) translate(18,-30)">
 				<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="rotate(-20,63.74,84.94)">
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 			<rect x="63.74" y="84.94" width="35.3" height="117.67" rx="35.3" ry="35.3" transform="translate(229.71,216.57) rotate(145.66)" fill="url(#SIE_einfacher_heller_Verlauf_100)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			<circle cx="104.63" cy="177.78" r="7.65" fill="#b3b3b3" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 		  </g>
 		</g>
-		<g id="Roboterarm_Mitte_Rechts" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 4.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Roboterarm_Mitte_Rechts">
 		  <g id="Position_04">
-			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 1.0),eq(ParamProps.RobotPosition , 4.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,-1)">
+			<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(21,-1)">
 			  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#007CAA" />
 				<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -681,9 +684,9 @@
 				<stop offset="0.42" stop-color="#a1a1aa" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
-			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 0.0),eq(ParamProps.RobotPosition , 4.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,4)">
+			<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(21,4)">
 			  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#18181b" />
 				<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -728,10 +731,10 @@
 				<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 			</g>
 			<g id="Werkzeuge">
-			  <g id="Laser" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 3.0),eq(ParamProps.RobotPosition , 4.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(25,-26)">
+			  <g id="Laser" transform="translate(25,-26)">
 				<g>
-				  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-				  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+				  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 				</g>
 				<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 					<stop offset="0" stop-color="#b3b3b3"/>
@@ -743,7 +746,7 @@
 				</linearGradient>
 				<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<g id="Laser">
-				  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+				  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 				  <g>
 					<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 					<circle cx="120.59" cy="290.8" r=".84" />
@@ -751,7 +754,7 @@
 				  </g>
 				</g>
 			  </g>
-			<g id="Greifer" hmi-bind:display="{{ and(and(eq(ParamProps.ToolSelection , 2.0),eq(ParamProps.RobotPosition , 4.0)), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" transform="translate(21,-6)">
+			<g id="Greifer" transform="translate(21,-6)">
 			  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 				<stop offset="0" stop-color="#AEAEAD" />
 				<stop offset="1" stop-color="#18181b" />
@@ -773,24 +776,24 @@
 			</g>
 			<g transform="rotate(-10,21.53,238.57) translate(24,0)">
 				<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="rotate(-6,104.63,177.78) translate(18,-12)">
 				<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#3f3f46" />
+					<stop offset="1" stop-color="#d4d4d8" />
 				</linearGradient>
 				<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 				<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 			</g>
 			<g transform="rotate(-20,63.74,84.94)">
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 			<rect x="63.74" y="84.94" width="35.3" height="117.67" rx="35.3" ry="35.3" transform="translate(229.71,216.57) rotate(145.66)" fill="url(#SIE_einfacher_heller_Verlauf_100)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 			<circle cx="104.63" cy="177.78" r="7.65" fill="#b3b3b3" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
@@ -813,10 +816,10 @@
 			  </linearGradient>
 			  <circle cx="85.5" cy="354.1" r="8.6" fill="url(#SVGID_00000122696948830341165270000014430291730367394723_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="85.5" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="85.5" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="85.5" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<g id="Objektschlitten_No_Anim" hmi-bind:display="{{ and(ParamProps.ShowWorkpieceCarrier, not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" hmi-bind:transform="translate({{(ParamProps.WorkpieceCarrierPosition-2)*40+3.5}},0)">
-		  <rect id="Objekt" x="101" y="307.3" hmi-bind:fill="{{Converter.RGBA(ParamProps.WorkpieceColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" hmi-bind:display="{{ and(and(ParamProps.ShowWorkpieceCarrier, ParamProps.WorkpieceCarrierLoaded), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}" />
+			<g id="Objektschlitten_No_Anim">
+		  <rect rx="3" ry="3" id="Objekt" x="101" y="307.3" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" />
 		  <linearGradient id="Schlitten_00000032611143516061074690000007891419144201264055_" gradientUnits="userSpaceOnUse" x1="91" y1="334.3429" x2="151" y2="334.3429">
 			<stop offset="0" stop-color="#18181b" />
 			<stop offset="0.1" stop-color="#575757" />
@@ -837,14 +840,14 @@
 			  </linearGradient>
 			  <circle cx="110.2" cy="354.1" r="8.6" fill="url(#SVGID_00000128448661675587838110000007249132726689443999_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="110.2" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="110.2" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="110.2" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="122.4" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="73.2" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="73.1" y="339.3" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="122.4" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="73.2" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="73.1" y="339.3" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000183965567676877336190000010936568752508797572_" x="73.2" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000183965567676877336190000010936568752508797572_" x="73.2" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="124.3" y1="353.8" x2="73.2" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="124.3" y1="365.8" x2="73.2" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -867,7 +870,7 @@
 			  </linearGradient>
 			  <circle cx="34.2" cy="354.1" r="8.6" fill="url(#SVGID_00000057142668359841831070000012206373242150889383_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="34.2" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="34.2" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="34.2" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000139295403345121877410000016682973056622733701_" gradientUnits="userSpaceOnUse" x1="50.3" y1="221.9" x2="67.5" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -881,14 +884,14 @@
 			  </linearGradient>
 			  <circle cx="58.9" cy="354.1" r="8.6" fill="url(#SVGID_00000139295403345121877410000016682973056622733701_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="58.9" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="58.9" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="58.9" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="71.2" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="21.9" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="21.9" y="339.4" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="71.2" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="21.9" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="21.9" y="339.4" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000021077426517245393630000008914202928439710654_" x="21.9" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000021077426517245393630000008914202928439710654_" x="21.9" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="73.1" y1="353.8" x2="21.9" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="73.1" y1="365.8" x2="21.9" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -911,7 +914,7 @@
 			  </linearGradient>
 			  <circle cx="188" cy="354.1" r="8.6" fill="url(#SVGID_00000078756704568120227580000014301825687443705761_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="188" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="188" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="188" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000013172125260353944530000009126447653387566735_" gradientUnits="userSpaceOnUse" x1="204.0411" y1="221.9" x2="221.2411" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -925,14 +928,14 @@
 			  </linearGradient>
 			  <circle cx="212.6" cy="354.1" r="8.6" fill="url(#SVGID_00000013172125260353944530000009126447653387566735_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="212.6" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="212.6" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="212.6" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="224.9" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="175.6" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="175.6" y="339.3" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="224.9" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="175.6" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="175.6" y="339.3" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000032624299651392790450000010992061285221050030_" x="175.6" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000032624299651392790450000010992061285221050030_" x="175.6" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="226.8" y1="353.8" x2="175.6" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="226.8" y1="365.8" x2="175.6" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -955,7 +958,7 @@
 			  </linearGradient>
 			  <circle cx="136.7" cy="354.1" r="8.6" fill="url(#SVGID_00000149370124966679246440000000633664055446979994_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="136.7" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="136.7" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="136.7" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000000915797751381971020000010497230416263483325_" gradientUnits="userSpaceOnUse" x1="152.8" y1="221.9" x2="170" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -969,14 +972,14 @@
 			  </linearGradient>
 			  <circle cx="161.4" cy="354.1" r="8.6" fill="url(#SVGID_00000000915797751381971020000010497230416263483325_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="161.4" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="161.4" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="161.4" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="173.6" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="124.4" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="124.4" y="339.4" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="173.6" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="124.4" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="124.4" y="339.4" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000133508726207547261150000005526790972854718366_" x="124.4" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000133508726207547261150000005526790972854718366_" x="124.4" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="175.6" y1="353.8" x2="124.4" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="175.6" y1="365.8" x2="124.4" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -988,12 +991,12 @@
 		  </g>
 		</g>
 		<g id="Fenster">
-			<g id="Fenster_Blau" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 0.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Fenster_Blau" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(136,217,220,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
 			</g>
-			<g id="Fenster_Gruen" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 1.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Fenster_Gruen" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(0,100,0,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
@@ -1003,7 +1006,7 @@
 					<path d="M80.2-186.6h-41c-0.4,0-0.8-0.2-1-0.5c-0.2-0.3-0.2-0.8,0-1.1l20.5-35.9c0.2-0.3,0.6-0.6,1-0.6c0.4,0,0.8,0.2,1,0.6     l20.5,35.9c0.2,0.3,0.2,0.8,0,1.1C80.9-186.9,80.6-186.6,80.2-186.6z M41.1-188.8h37.2l-18.6-32.6L41.1-188.8z" />
 				</g>
 			</g>
-			<g id="Fenster_Gelb" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 2.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+			<g id="Fenster_Gelb" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(255,250,64,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
@@ -1043,7 +1046,7 @@
 			  <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			  <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 			</linearGradient>
-			<rect x="10.4" y="3.6" width="8" height="91" fill="url(#SVGID_00000098202132815312973330000017011653743739126433_)" />
+			<rect rx="3" ry="3" x="10.4" y="3.6" width="8" height="91" fill="url(#SVGID_00000098202132815312973330000017011653743739126433_)" />
 			<g>
 			  <g>
 				<line x1="7" y1="88.1" x2="241.8" y2="88.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1065,7 +1068,7 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="8.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000144323596272866331360000000918826786531553408_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="8.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000144323596272866331360000000918826786531553408_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <g id="Linien_00000150075334006116707370000017726274052948340887_">
 				<g>
 				  <line x1="20.4" y1="622.6" x2="20.4" y2="124.4" fill="none" stroke="#18181b" stroke-width="0.8797" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1082,7 +1085,7 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="220.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000051382380453656972880000014083305359214507683_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="220.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000051382380453656972880000014083305359214507683_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <g id="Linien_00000070836932880657894120000008019581599274200965_">
 				<g>
 				  <line x1="232.4" y1="622.6" x2="232.4" y2="124.4" fill="none" stroke="#18181b" stroke-width="0.8797" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1101,13 +1104,13 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="8.4" y="104.7" width="232" height="20" fill="url(#SVGID_00000051382302586233123360000010885004388372762278_)" stroke="#18181b" stroke-width="0.5121" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="8.4" y="104.7" width="232" height="20" fill="url(#SVGID_00000051382302586233123360000010885004388372762278_)" stroke="#18181b" stroke-width="0.5121" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
 			<linearGradient id="SVGID_00000148653829097636000940000017770404051813618597_" gradientUnits="userSpaceOnUse" x1="12.3911" y1="461.9" x2="18.3911" y2="461.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 			  <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			  <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 			</linearGradient>
-			<rect x="12.4" y="105.6" width="6" height="17" fill="url(#SVGID_00000148653829097636000940000017770404051813618597_)" />
+			<rect rx="3" ry="3" x="12.4" y="105.6" width="6" height="17" fill="url(#SVGID_00000148653829097636000940000017770404051813618597_)" />
 		  </g>
 		  <g>
 			<linearGradient id="SVGID_00000152242528873219917980000017154857419639410338_" gradientUnits="userSpaceOnUse" x1="6119.1396" y1="4384.8398" x2="6139.1396" y2="4384.8398" gradientTransform="matrix(-1.580997e-08,1,1,1.580997e-08,-4260.4399,-5766.4395)">
@@ -1118,7 +1121,7 @@
 			  <stop offset="0.9649" stop-color="#868687" />
 			  <stop offset="1" stop-color="#18181b" />
 			</linearGradient>
-			<rect x="27.9" y="352.7" width="193" height="20" fill="url(#SVGID_00000152242528873219917980000017154857419639410338_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<rect rx="3" ry="3" x="27.9" y="352.7" width="193" height="20" fill="url(#SVGID_00000152242528873219917980000017154857419639410338_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			<g id="Linien_00000151516993353128589230000000852064555010994309_">
 			  <g>
 				<line x1="28.3" y1="364.8" x2="220.5" y2="364.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1135,7 +1138,7 @@
 			  <stop offset="0.9649" stop-color="#868687" />
 			  <stop offset="1" stop-color="#18181b" />
 			</linearGradient>
-			<rect x="27.9" y="603.3" width="193" height="20" fill="url(#SVGID_00000086665366629042688810000007541123251460262334_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<rect rx="3" ry="3" x="27.9" y="603.3" width="193" height="20" fill="url(#SVGID_00000086665366629042688810000007541123251460262334_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			<g id="Linien_00000167380925398212738490000000096278204346210739_">
 			  <g>
 				<line x1="28.3" y1="615.3" x2="220.5" y2="615.3" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1144,7 +1147,7 @@
 			</g>
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_01" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 0.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_01">
 		  <linearGradient id="SVGID_00000059287765640193144790000000762478049611326105_" gradientUnits="userSpaceOnUse" x1="4.4" y1="78.2" x2="244.4" y2="78.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1160,7 +1163,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000027590085585761691340000004533623569250499749_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000027590085585761691340000004533623569250499749_)" />
 		  <g >
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1170,7 +1173,7 @@
 			</g>
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_02" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 1.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_02">
 		  <linearGradient id="SVGID_00000062892930665183214290000010594263935262759053_" gradientUnits="userSpaceOnUse" x1="4.4" y1="78.2" x2="244.4" y2="78.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1186,7 +1189,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000098921383811559625060000014569714867515811974_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000098921383811559625060000014569714867515811974_)" />
 		  <g>
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1200,12 +1203,12 @@
 			  <stop offset="0" stop-color="#e4e4e7" />
 			  <stop offset="1" stop-color="#52525b" />
 			</linearGradient>
-			<rect id="Shape_Handle_00000035506328146530066830000015599802495185250487_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000134219879908526281430000006077940189283257018_)" />
+			<rect rx="3" ry="3" id="Shape_Handle_00000035506328146530066830000015599802495185250487_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000134219879908526281430000006077940189283257018_)" />
 			<polygon id="Shadow_00000175290127982215632870000003490829918753381518_" points="215.9,413.5      215.9,454.9 218.7,454.9 218.7,416.2 226.9,416.2 226.9,413.5" fill="#18181b" />
 			<polyline id="Reflection_Line_00000001638425062352130360000016134959371405951374_" points="226.9,413.5 226.9,454.9 215.9,454.9" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_03_00000176737397138028911830000017362406367642797489_" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 2.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_03_00000176737397138028911830000017362406367642797489_">
 		  <linearGradient id="SVGID_00000124863394995603013980000006587004056838723006_" gradientUnits="userSpaceOnUse" x1="4.4" y1="67.7" x2="244.4" y2="67.7" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1221,7 +1224,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="269" fill="url(#SVGID_00000114065702848755181330000011090772019318291080_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="269" fill="url(#SVGID_00000114065702848755181330000011090772019318291080_)" />
 		  <g>
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1235,12 +1238,12 @@
 			  <stop offset="0" stop-color="#e4e4e7" />
 			  <stop offset="1" stop-color="#52525b" />
 			</linearGradient>
-			<rect id="Shape_Handle_00000031897485871522652850000000744737927235997574_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000039129836912666556440000016323701122770462359_)" />
+			<rect rx="3" ry="3" id="Shape_Handle_00000031897485871522652850000000744737927235997574_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000039129836912666556440000016323701122770462359_)" />
 			<polygon id="Shadow_00000059290705588951944690000010468382171146197398_" points="215.9,413.5      215.9,454.9 218.7,454.9 218.7,416.2 226.9,416.2 226.9,413.5" fill="#18181b" />
 			<polyline id="Reflection_Line_00000108298586882777327290000002081001768348355725_" points="226.9,413.5 226.9,454.9 215.9,454.9" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_04" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 3.0), not(ParamProps.EnableAnimation)) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_04">
 		  <linearGradient id="SVGID_00000021807308616821997460000013035633786796838792_" gradientUnits="userSpaceOnUse" x1="4.2" y1="50.7" x2="244.2" y2="50.7" gradientTransform="matrix(1,0,0,-1,0,648)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1256,7 +1259,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="13.2" y="572.3" width="8" height="51" fill="url(#SVGID_00000133497171205316642520000015338730072688988342_)" />
+		  <rect rx="3" ry="3" x="13.2" y="572.3" width="8" height="51" fill="url(#SVGID_00000133497171205316642520000015338730072688988342_)" />
 		  <g>
 			<g>
 			  <line x1="9.9" y1="578.8" x2="244.6" y2="578.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1268,10 +1271,10 @@
 		</g>
 	  </g>
   </g>
-  <g hmi-bind:display="{{ ParamProps.EnableAnimation ? 'inline' : 'none' }}">
+  <g>
 	<g id="Schrank_x5F_Master">
 		<g id="Beine">
-		  <g id="Base2" hmi-bind:display="{{ and(eq(ParamProps.Feets , 0.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		  <g id="Base2">
 			<linearGradient id="Right_00000077301731047839028070000008836517826777881486_" gradientUnits="userSpaceOnUse" x1="222" y1="795.9037" x2="222" y2="769.8434" gradientTransform="matrix(1,0,0,1,0,-143.7027)">
 			  <stop offset="0" stop-color="#3f3f46" />
 			  <stop offset="1" stop-color="#434343" />
@@ -1283,7 +1286,7 @@
 			</linearGradient>
 			<polygon id="Left_00000104687880653667446100000002198909720229139345_" points="43.4,644.4 43.4,638.9 29.6,638.9 29.6,629.4 35.2,626.6 35.2,623.8 18.6,623.8 18.6,626.6 24.1,629.4 24.1,638.9 10.3,638.9      10.3,644.4" fill="url(#Left_00000052814401109807007680000010990788316764373939_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
-		  <g id="Base1" hmi-bind:display="{{ and(eq(ParamProps.Feets , 1.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		  <g id="Base1">
 			<g>
 			  <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="218.9" y1="-55.2" x2="227.9" y2="-55.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
@@ -1293,7 +1296,7 @@
 				<stop offset="0.7811" stop-color="#5C5C5C" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="218.9" y="618" width="9" height="26.4" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="218.9" y="618" width="9" height="26.4" fill="url(#SVGID_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <linearGradient id="SVGID_00000180366606960946175460000008927277928979526819_" gradientUnits="userSpaceOnUse" x1="209.4" y1="-66.9" x2="237.4" y2="-66.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
 				<stop offset="0.1" stop-color="#18181b" />
@@ -1313,7 +1316,7 @@
 				<stop offset="0.7811" stop-color="#5C5C5C" />
 				<stop offset="1" stop-color="#575757" />
 			  </linearGradient>
-			  <rect x="20.9" y="618" width="9" height="26.4" fill="url(#SVGID_00000098925423208450605870000018138256903082299532_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="20.9" y="618" width="9" height="26.4" fill="url(#SVGID_00000098925423208450605870000018138256903082299532_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <linearGradient id="SVGID_00000127756119996213190710000011387731328441129655_" gradientUnits="userSpaceOnUse" x1="11.4" y1="-66.9" x2="39.4" y2="-66.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 				<stop offset="0" stop-color="#575757" />
 				<stop offset="0.1" stop-color="#18181b" />
@@ -1328,19 +1331,22 @@
 		</g>
 		<g id="Roboter_x5F_Schiene">
 		  <g>
-	  <g id="Roboterarm_Stored" hmi-bind:display="{{ and(eq(ParamProps.RobotPosition , 0.0), ParamProps.EnableAnimation) ? 'inline' : 'inline' }}">
+	  <g id="Roboterarm_Stored">
 		  <g id="Position_03">
+			<!-- <g id="Segment1"> -->
 			<g id="Segment1">
 				<linearGradient id="SIE_einfacher_heller_Verlauf_100" x1="3802.08" y1="393.65" x2="3829.49" y2="422.72" gradientTransform="translate(-2904.81,-2265.78) rotate(45) scale(1,-1)" gradientUnits="userSpaceOnUse">
-					<stop offset="0" stop-color="#71717a" />
-					<stop offset="1" stop-color="#71717a" />
+					<stop offset="0" stop-color="#d4d4d8" />
+					<stop offset="1" stop-color="#3f3f46" />
 				</linearGradient>
 				<g transform="rotate(-30,63.74,84.94)">
+					<!-- <g id="Segment2"> -->
 					<g id="Segment2">
+						<!-- <g id="Segment3"> -->
 						<g id="Segment3">
 							<g id="Kopf">
 								<g id="SpruehSaugGruppe">
-									<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" hmi-bind:display="{{ and(eq(ParamProps.ToolSelection , 1.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" transform="translate(-4,25)">
+									<g id="Sprühaufsatz_00000132046406123837549190000006752577859494561722_" transform="translate(-4,25)">
 									  <linearGradient id="SVGID_00000168837326139610611710000009626138195626567852_" gradientUnits="userSpaceOnUse" x1="119.238" y1="326.65" x2="129.7746" y2="326.65" gradientTransform="matrix(1,0,0,-1,0,576)">
 										<stop offset="0" stop-color="#007CAA" />
 										<stop offset="1.115063e-02" stop-color="#067FAC" />
@@ -1368,9 +1374,9 @@
 										<stop offset="0.42" stop-color="#a1a1aa" />
 										<stop offset="1" stop-color="#575757" />
 									  </linearGradient>
-									  <rect x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+									  <rect rx="3" ry="3" x="120.7" y="264.8" width="7.5" height="2.5" fill="url(#SVGID_00000007430428853295121530000015133803056736596401_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 									</g>
-									<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" hmi-bind:display="{{ and(eq(ParamProps.ToolSelection , 0.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" transform="translate(-4,30)">
+									<g id="Saugglocke_00000122707386194232395440000005616643811111641506_" transform="translate(-4,30)">
 									  <linearGradient id="SVGID_00000121243676998529966450000015888650638254738075_" gradientUnits="userSpaceOnUse" x1="113.5704" y1="316.05" x2="135.3056" y2="316.05" gradientTransform="matrix(1,0,0,-1,0,576)">
 										<stop offset="0" stop-color="#18181b" />
 										<stop offset="7.296392e-02" stop-color="#9D9DA1" />
@@ -1414,10 +1420,10 @@
 								</linearGradient>
 								<rect x="109.41" y="271.09" width="22.36" height="4.71" rx="2.35" ry="2.35" transform="translate(241.18 546.89) rotate(180)" fill="url(#Arm_Kopf2)" stroke="#575757" stroke-miterlimit="10" stroke-width=".75" />
 								<g id="Werkzeuge">
-									<g id="Laser" hmi-bind:display="{{ and(eq(ParamProps.ToolSelection , 3.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+									<g id="Laser">
 										<g>
-										  <rect x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
-										  <rect x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+										  <rect rx="3" ry="3" x="112.59" y="299.25" width="16" height="3" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
+										  <rect rx="3" ry="3" x="114.09" y="302.25" width="13" height="2" fill="#18181b" stroke="#000" stroke-miterlimit="10" stroke-width=".75" />
 										</g>
 									<linearGradient id="Kasten_Verlauf1" x1="108.59" y1="287.25" x2="132.59" y2="287.25" gradientUnits="userSpaceOnUse">
 										<stop offset="0" stop-color="#b3b3b3"/>
@@ -1429,7 +1435,7 @@
 									</linearGradient>
 									<rect x="108.59" y="275.25" width="24" height="24" rx="2" ry="2" fill="url(#Kasten_Verlauf1)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 										<g id="Laser">
-										  <rect x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
+										  <rect rx="3" ry="3" x="115.59" y="282.25" width="10" height="15" fill="#fff" stroke="#a1a1aa" stroke-miterlimit="10" stroke-width=".5" />
 										  <g>
 											<path d="M124.13,292.41l-3.24-5.67c-.06-.11-.18-.17-.3-.17s-.24,.07-.3,.17l-3.24,5.67c-.06,.11-.06,.24,0,.35,.06,.11,.18,.17,.3,.17h6.48c.12,0,.24-.07,.3-.17,.06-.11,.06-.24,0-.35Z" fill="#ff0" />
 											<circle cx="120.59" cy="290.8" r=".84" />
@@ -1437,7 +1443,7 @@
 										  </g>
 										</g>
 									</g>
-									<g id="Greifer" hmi-bind:display="{{ and(eq(ParamProps.ToolSelection , 2.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" transform="translate(-4,20)">
+									<g id="Greifer" transform="translate(-4,20)">
 									  <linearGradient id="SVGID_00000174601417942157644940000015820728899466617767_" gradientUnits="userSpaceOnUse" x1="5727.6055" y1="-3998.6575" x2="5714.9429" y2="-3998.6575" gradientTransform="matrix(0,1,-1,0,-3865.2075,-5449.0278)">
 										<stop offset="0" stop-color="#AEAEAD" />
 										<stop offset="1" stop-color="#18181b" />
@@ -1459,15 +1465,15 @@
 								</g>
 							</g>
 							<linearGradient id="Unbenannter_Verlauf_10000" x1="4487.07" y1="243.58" x2="4601.14" y2="243.58" gradientTransform="translate(4621.85) rotate(-180) scale(1,-1)" gradientUnits="userSpaceOnUse">
-								<stop offset="0" stop-color="#71717a" />
-								<stop offset="1" stop-color="#71717a" />
+								<stop offset="0" stop-color="#3f3f46" />
+								<stop offset="1" stop-color="#d4d4d8" />
 							</linearGradient>
 							<path d="M21.53,238.57c2.16,6.1,8.31,10.1,15,9.3,37.4-4.51,76.61,18.09,77.01,18.32,6.73,3.93,15.37,1.67,19.31-5.05,3.94-6.72,1.7-15.35-5.01-19.3-1.92-1.13-47.67-27.67-94.69-22-7.74,.93-13.26,7.97-12.33,15.71,.13,1.06,.37,2.07,.71,3.03Z" fill="url(#Unbenannter_Verlauf_10000)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 							<path d="M120.65,263.41c3.34,0,6.46-1.78,8.14-4.65,2.62-4.47,1.12-10.24-3.34-12.87-1.54-.9-38.1-22.14-78.8-22.14-4.41,0-8.76,.26-12.94,.76-2.5,.3-4.73,1.56-6.28,3.53s-2.24,4.44-1.94,6.94c.08,.69,.24,1.37,.47,2.03,1.32,3.75,4.88,6.26,8.86,6.26,.38,0,.76-.02,1.14-.07,3.46-.42,7.07-.63,10.75-.63,35.2,0,68.85,19.35,69.19,19.55,1.45,.85,3.09,1.29,4.75,1.29Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
 						</g>
 						<linearGradient id="Unbenannter_Verlauf_10001" x1="3094.57" y1="588.21" x2="3170.42" y2="588.21" gradientTransform="translate(3211.04,746.3) rotate(-159.63) scale(1,-1)" gradientUnits="userSpaceOnUse">
-							<stop offset="0" stop-color="#71717a" />
-							<stop offset="1" stop-color="#71717a" />
+							<stop offset="0" stop-color="#3f3f46" />
+							<stop offset="1" stop-color="#d4d4d8" />
 						</linearGradient>
 						<path d="M29.57,247c6.06,2.25,13.08,.09,16.75-5.56,20.5-31.6,62.98-47.23,63.41-47.38,7.33-2.65,11.13-10.73,8.5-18.06-2.63-7.33-10.69-11.14-18.03-8.52-2.1,.75-51.79,18.87-77.56,58.59-4.24,6.54-2.38,15.29,4.16,19.53,.89,.58,1.82,1.04,2.78,1.4Z" fill="url(#Unbenannter_Verlauf_10001)" stroke="#18181b" stroke-miterlimit="10" stroke-width=".75" />
 						<path d="M31.21,242.59c4.09,1.52,8.78-.04,11.16-3.71,21.29-32.81,65.3-49.08,65.75-49.24,4.89-1.77,7.43-7.17,5.68-12.04-.94-2.62-2.98-4.68-5.59-5.65-2.07-.77-4.35-.78-6.43-.04-2.04,.73-50.29,18.34-75.2,56.72-2.83,4.35-1.58,10.2,2.77,13.02,.59,.38,1.21,.7,1.86,.94Z" fill="none" fill-opacity=".3" stroke="#000" stroke-miterlimit="10" stroke-width=".5" />
@@ -1494,10 +1500,11 @@
 			  </linearGradient>
 			  <circle cx="85.5" cy="354.1" r="8.6" fill="url(#SVGID_00000122696948830341165270000014430291730367394723_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="85.5" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="85.5" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="85.5" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<g id="Objektschlitten" hmi-bind:display="{{ and(ParamProps.ShowWorkpieceCarrier, ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
-		  <rect id="Objekt" x="101" y="307.3" hmi-bind:fill="{{Converter.RGBA(ParamProps.WorkpieceColor)}}" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" hmi-bind:display="{{ and(and(ParamProps.ShowWorkpieceCarrier, ParamProps.WorkpieceCarrierLoaded), ParamProps.EnableAnimation) ? 'inline' : 'none' }}" />
+			<!-- <g id="Objektschlitten"> -->
+			<g id="Objektschlitten">
+		  <rect rx="3" ry="3" id="Objekt" x="101" y="307.3" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="40" height="31" />
 		  <linearGradient id="Schlitten_00000032611143516061074690000007891419144201264055_" gradientUnits="userSpaceOnUse" x1="91" y1="334.3429" x2="151" y2="334.3429">
 			<stop offset="0" stop-color="#18181b" />
 			<stop offset="0.1" stop-color="#575757" />
@@ -1518,14 +1525,14 @@
 			  </linearGradient>
 			  <circle cx="110.2" cy="354.1" r="8.6" fill="url(#SVGID_00000128448661675587838110000007249132726689443999_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="110.2" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="110.2" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="110.2" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="122.4" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="73.2" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="73.1" y="339.3" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="122.4" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="73.2" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="73.1" y="339.3" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000183965567676877336190000010936568752508797572_" x="73.2" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000183965567676877336190000010936568752508797572_" x="73.2" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="124.3" y1="353.8" x2="73.2" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="124.3" y1="365.8" x2="73.2" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -1548,7 +1555,7 @@
 			  </linearGradient>
 			  <circle cx="34.2" cy="354.1" r="8.6" fill="url(#SVGID_00000057142668359841831070000012206373242150889383_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="34.2" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="34.2" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="34.2" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000139295403345121877410000016682973056622733701_" gradientUnits="userSpaceOnUse" x1="50.3" y1="221.9" x2="67.5" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -1562,14 +1569,14 @@
 			  </linearGradient>
 			  <circle cx="58.9" cy="354.1" r="8.6" fill="url(#SVGID_00000139295403345121877410000016682973056622733701_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="58.9" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="58.9" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="58.9" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="71.2" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="21.9" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="21.9" y="339.4" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="71.2" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="21.9" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="21.9" y="339.4" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000021077426517245393630000008914202928439710654_" x="21.9" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000021077426517245393630000008914202928439710654_" x="21.9" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="73.1" y1="353.8" x2="21.9" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="73.1" y1="365.8" x2="21.9" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -1592,7 +1599,7 @@
 			  </linearGradient>
 			  <circle cx="188" cy="354.1" r="8.6" fill="url(#SVGID_00000078756704568120227580000014301825687443705761_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="188" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="188" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="188" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000013172125260353944530000009126447653387566735_" gradientUnits="userSpaceOnUse" x1="204.0411" y1="221.9" x2="221.2411" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -1606,14 +1613,14 @@
 			  </linearGradient>
 			  <circle cx="212.6" cy="354.1" r="8.6" fill="url(#SVGID_00000013172125260353944530000009126447653387566735_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="212.6" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="212.6" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="212.6" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="224.9" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="175.6" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="175.6" y="339.3" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="224.9" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="175.6" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="175.6" y="339.3" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000032624299651392790450000010992061285221050030_" x="175.6" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000032624299651392790450000010992061285221050030_" x="175.6" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="226.8" y1="353.8" x2="175.6" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="226.8" y1="365.8" x2="175.6" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -1636,7 +1643,7 @@
 			  </linearGradient>
 			  <circle cx="136.7" cy="354.1" r="8.6" fill="url(#SVGID_00000149370124966679246440000000633664055446979994_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="136.7" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="136.7" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="136.7" cy="354.1" r="0" fill="#18181b" />
 			</g>
 			<g>
 			  <linearGradient id="SVGID_00000000915797751381971020000010497230416263483325_" gradientUnits="userSpaceOnUse" x1="152.8" y1="221.9" x2="170" y2="221.9" gradientTransform="matrix(1,0,0,-1,0,576)">
@@ -1650,14 +1657,14 @@
 			  </linearGradient>
 			  <circle cx="161.4" cy="354.1" r="8.6" fill="url(#SVGID_00000000915797751381971020000010497230416263483325_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <circle cx="161.4" cy="354.1" r="5.5" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
-			  <circle cx="161.4" cy="354.1" r="1.5" fill="#18181b" />
+			  <circle cx="161.4" cy="354.1" r="0" fill="#18181b" />
 			</g>
-			<rect x="173.6" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="124.4" y="341.3" width="2" height="22" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
-			<rect x="124.4" y="339.4" width="51.2" height="4" hmi-bind:fill="{{ParamProps.MalfunctionConveyer? LocalProps.ColorError: '#18181b'}}" />
+			<rect rx="3" ry="3" x="173.6" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="124.4" y="341.3" width="2" height="22" />
+			<rect rx="3" ry="3" x="124.4" y="339.4" width="51.2" height="4" />
 			<g>
 			  <g>
-				<rect id="Frame_Top_00000133508726207547261150000005526790972854718366_" x="124.4" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
+				<rect rx="3" ry="3" id="Frame_Top_00000133508726207547261150000005526790972854718366_" x="124.4" y="353.8" width="51.2" height="12" fill="#CCCCCC" />
 			  </g>
 			  <line x1="175.6" y1="353.8" x2="124.4" y2="353.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
 			  <line x1="175.6" y1="365.8" x2="124.4" y2="365.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
@@ -1669,12 +1676,12 @@
 		  </g>
 		</g>
 		<g id="Fenster">
-			<g id="Fenster_Blau" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 0.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Fenster_Blau" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(136,217,220,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
 			</g>
-			<g id="Fenster_Gruen" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 1.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Fenster_Gruen" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(0,100,0,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
@@ -1684,7 +1691,7 @@
 					<path d="M80.2-186.6h-41c-0.4,0-0.8-0.2-1-0.5c-0.2-0.3-0.2-0.8,0-1.1l20.5-35.9c0.2-0.3,0.6-0.6,1-0.6c0.4,0,0.8,0.2,1,0.6     l20.5,35.9c0.2,0.3,0.2,0.8,0,1.1C80.9-186.9,80.6-186.6,80.2-186.6z M41.1-188.8h37.2l-18.6-32.6L41.1-188.8z" />
 				</g>
 			</g>
-			<g id="Fenster_Gelb" transform="translate(4,2)" hmi-bind:display="{{ and(eq(ParamProps.Window , 2.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+			<g id="Fenster_Gelb" transform="translate(4,2)">
 				<path d="M24.59,121.45v230H216.59V121.45H24.59Zm185,212c0,4.42-3.58,8-8,8H39.59c-4.42,0-8-3.58-8-8V139.45c0-4.42,3.58-8,8-8H201.59c4.42,0,8,3.58,8,8v194Z" fill="#18181b" />
 				<rect x="31.59" y="131.45" width="178" height="210" rx="8" ry="8" fill="rgba(255,250,64,.5)" stroke="#1a1a1a" stroke-width=".75" />
 				<path d="M90.3,336.45L36.89,336.45L156.89,136.45L204.3,136.45Z" fill="rgba(255,255,255,.3)"/>
@@ -1724,7 +1731,7 @@
 			  <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			  <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 			</linearGradient>
-			<rect x="10.4" y="3.6" width="8" height="91" fill="url(#SVGID_00000098202132815312973330000017011653743739126433_)" />
+			<rect rx="3" ry="3" x="10.4" y="3.6" width="8" height="91" fill="url(#SVGID_00000098202132815312973330000017011653743739126433_)" />
 			<g>
 			  <g>
 				<line x1="7" y1="88.1" x2="241.8" y2="88.1" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1746,7 +1753,7 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="8.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000144323596272866331360000000918826786531553408_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="8.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000144323596272866331360000000918826786531553408_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <g id="Linien_00000150075334006116707370000017726274052948340887_">
 				<g>
 				  <line x1="20.4" y1="622.6" x2="20.4" y2="124.4" fill="none" stroke="#18181b" stroke-width="0.8797" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1763,7 +1770,7 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="220.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000051382380453656972880000014083305359214507683_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="220.4" y="123.7" width="20" height="499.6" fill="url(#SVGID_00000051382380453656972880000014083305359214507683_)" stroke="#18181b" stroke-width="0.6054" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			  <g id="Linien_00000070836932880657894120000008019581599274200965_">
 				<g>
 				  <line x1="232.4" y1="622.6" x2="232.4" y2="124.4" fill="none" stroke="#18181b" stroke-width="0.8797" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1782,13 +1789,13 @@
 				<stop offset="0.9649" stop-color="#868687" />
 				<stop offset="1" stop-color="#18181b" />
 			  </linearGradient>
-			  <rect x="8.4" y="104.7" width="232" height="20" fill="url(#SVGID_00000051382302586233123360000010885004388372762278_)" stroke="#18181b" stroke-width="0.5121" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			  <rect rx="3" ry="3" x="8.4" y="104.7" width="232" height="20" fill="url(#SVGID_00000051382302586233123360000010885004388372762278_)" stroke="#18181b" stroke-width="0.5121" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			</g>
 			<linearGradient id="SVGID_00000148653829097636000940000017770404051813618597_" gradientUnits="userSpaceOnUse" x1="12.3911" y1="461.9" x2="18.3911" y2="461.9" gradientTransform="matrix(1,0,0,-1,0,576)">
 			  <stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			  <stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 			</linearGradient>
-			<rect x="12.4" y="105.6" width="6" height="17" fill="url(#SVGID_00000148653829097636000940000017770404051813618597_)" />
+			<rect rx="3" ry="3" x="12.4" y="105.6" width="6" height="17" fill="url(#SVGID_00000148653829097636000940000017770404051813618597_)" />
 		  </g>
 		  <g>
 			<linearGradient id="SVGID_00000152242528873219917980000017154857419639410338_" gradientUnits="userSpaceOnUse" x1="6119.1396" y1="4384.8398" x2="6139.1396" y2="4384.8398" gradientTransform="matrix(-1.580997e-08,1,1,1.580997e-08,-4260.4399,-5766.4395)">
@@ -1799,7 +1806,7 @@
 			  <stop offset="0.9649" stop-color="#868687" />
 			  <stop offset="1" stop-color="#18181b" />
 			</linearGradient>
-			<rect x="27.9" y="352.7" width="193" height="20" fill="url(#SVGID_00000152242528873219917980000017154857419639410338_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<rect rx="3" ry="3" x="27.9" y="352.7" width="193" height="20" fill="url(#SVGID_00000152242528873219917980000017154857419639410338_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			<g id="Linien_00000151516993353128589230000000852064555010994309_">
 			  <g>
 				<line x1="28.3" y1="364.8" x2="220.5" y2="364.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1816,7 +1823,7 @@
 			  <stop offset="0.9649" stop-color="#868687" />
 			  <stop offset="1" stop-color="#18181b" />
 			</linearGradient>
-			<rect x="27.9" y="603.3" width="193" height="20" fill="url(#SVGID_00000086665366629042688810000007541123251460262334_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
+			<rect rx="3" ry="3" x="27.9" y="603.3" width="193" height="20" fill="url(#SVGID_00000086665366629042688810000007541123251460262334_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
 			<g id="Linien_00000167380925398212738490000000096278204346210739_">
 			  <g>
 				<line x1="28.3" y1="615.3" x2="220.5" y2="615.3" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1825,7 +1832,7 @@
 			</g>
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_01" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 0.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_01">
 		  <linearGradient id="SVGID_00000059287765640193144790000000762478049611326105_" gradientUnits="userSpaceOnUse" x1="4.4" y1="78.2" x2="244.4" y2="78.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1841,7 +1848,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000027590085585761691340000004533623569250499749_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000027590085585761691340000004533623569250499749_)" />
 		  <g >
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1851,7 +1858,7 @@
 			</g>
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_02" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 1.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_02">
 		  <linearGradient id="SVGID_00000062892930665183214290000010594263935262759053_" gradientUnits="userSpaceOnUse" x1="4.4" y1="78.2" x2="244.4" y2="78.2" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1867,7 +1874,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000098921383811559625060000014569714867515811974_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="248" fill="url(#SVGID_00000098921383811559625060000014569714867515811974_)" />
 		  <g>
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1881,12 +1888,12 @@
 			  <stop offset="0" stop-color="#e4e4e7" />
 			  <stop offset="1" stop-color="#52525b" />
 			</linearGradient>
-			<rect id="Shape_Handle_00000035506328146530066830000015599802495185250487_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000134219879908526281430000006077940189283257018_)" />
+			<rect rx="3" ry="3" id="Shape_Handle_00000035506328146530066830000015599802495185250487_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000134219879908526281430000006077940189283257018_)" />
 			<polygon id="Shadow_00000175290127982215632870000003490829918753381518_" points="215.9,413.5      215.9,454.9 218.7,454.9 218.7,416.2 226.9,416.2 226.9,413.5" fill="#18181b" />
 			<polyline id="Reflection_Line_00000001638425062352130360000016134959371405951374_" points="226.9,413.5 226.9,454.9 215.9,454.9" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_03_00000176737397138028911830000017362406367642797489_" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 2.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_03_00000176737397138028911830000017362406367642797489_">
 		  <linearGradient id="SVGID_00000124863394995603013980000006587004056838723006_" gradientUnits="userSpaceOnUse" x1="4.4" y1="67.7" x2="244.4" y2="67.7" gradientTransform="matrix(1,0,0,-1,0,576)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1902,7 +1909,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="10.4" y="374.3" width="8" height="269" fill="url(#SVGID_00000114065702848755181330000011090772019318291080_)" />
+		  <rect rx="3" ry="3" x="10.4" y="374.3" width="8" height="269" fill="url(#SVGID_00000114065702848755181330000011090772019318291080_)" />
 		  <g>
 			<g>
 			  <line x1="7" y1="380.7" x2="241.8" y2="380.7" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1916,12 +1923,12 @@
 			  <stop offset="0" stop-color="#e4e4e7" />
 			  <stop offset="1" stop-color="#52525b" />
 			</linearGradient>
-			<rect id="Shape_Handle_00000031897485871522652850000000744737927235997574_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000039129836912666556440000016323701122770462359_)" />
+			<rect rx="3" ry="3" id="Shape_Handle_00000031897485871522652850000000744737927235997574_" x="218.7" y="416.2" width="8.3" height="38.6" fill="url(#Shape_Handle_00000039129836912666556440000016323701122770462359_)" />
 			<polygon id="Shadow_00000059290705588951944690000010468382171146197398_" points="215.9,413.5      215.9,454.9 218.7,454.9 218.7,416.2 226.9,416.2 226.9,413.5" fill="#18181b" />
 			<polyline id="Reflection_Line_00000108298586882777327290000002081001768348355725_" points="226.9,413.5 226.9,454.9 215.9,454.9" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" />
 		  </g>
 		</g>
-		<g id="Schrank_x5F_Unten_x5F_04" hmi-bind:display="{{ and(eq(ParamProps.BottomCabinet , 3.0), ParamProps.EnableAnimation) ? 'inline' : 'none' }}">
+		<g id="Schrank_x5F_Unten_x5F_04">
 		  <linearGradient id="SVGID_00000021807308616821997460000013035633786796838792_" gradientUnits="userSpaceOnUse" x1="4.2" y1="50.7" x2="244.2" y2="50.7" gradientTransform="matrix(1,0,0,-1,0,648)">
 			<stop offset="0" stop-color="#3f3f46"  />
 			<stop offset="0" stop-color="#71717a"  />
@@ -1937,7 +1944,7 @@
 			<stop offset="0" stop-color="#F1F1F1" stop-opacity="0.4" />
 			<stop offset="1" stop-color="#F6F6F6" stop-opacity="0.7" />
 		  </linearGradient>
-		  <rect x="13.2" y="572.3" width="8" height="51" fill="url(#SVGID_00000133497171205316642520000015338730072688988342_)" />
+		  <rect rx="3" ry="3" x="13.2" y="572.3" width="8" height="51" fill="url(#SVGID_00000133497171205316642520000015338730072688988342_)" />
 		  <g>
 			<g>
 			  <line x1="9.9" y1="578.8" x2="244.6" y2="578.8" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-miterlimit="10" />
@@ -1949,6 +1956,5 @@
 		</g>
 	  </g>
   </g>
-  </hmi-animations:animations>
   </g>
 </svg>

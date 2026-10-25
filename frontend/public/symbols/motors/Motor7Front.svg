@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.342466)">
     <defs>
      </defs>
@@ -32,7 +36,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#18181b" />
     </linearGradient>
-    <rect id="Base_Connection_4_" x="59.5" y="237.7" fill="url(#Base_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="181" height="27.1" />
+    <rect rx="3" ry="3" id="Base_Connection_4_" x="59.5" y="237.7" fill="url(#Base_Connection_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="181" height="27.1" />
     <linearGradient id="Motor_Cover_Plate_Front_1_" gradientUnits="userSpaceOnUse" x1="-31.3027" y1="-39.085" x2="161.0403" y2="153.2581">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
@@ -81,7 +85,5 @@
 		<circle id="Driving_Shaft" fill="url(#Driving_Shaft_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="149.9" cy="142.1" r="13.6" />
 	</g>
   </g>
-        </hmi-animations:storyboard>
-    </hmi-animations:animations>
   </g>
 </svg>

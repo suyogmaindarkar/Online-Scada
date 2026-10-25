@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.440529)">
     <defs>
      </defs>
@@ -17,12 +21,12 @@
       <stop offset="0.9452" stop-color="#3f3f46" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_2_" x="2.2" y="2.3" fill="url(#Shape_3_)" width="295.3" height="149.4" />
+    <rect rx="3" ry="3" id="Shape_2_" x="2.2" y="2.3" fill="url(#Shape_3_)" width="295.3" height="149.4" />
     <linearGradient id="Reflection_3_" gradientUnits="userSpaceOnUse" x1="149.8853" y1="12.7036" x2="149.8853" y2="33.7795">
       <stop offset="0" stop-color="#d4d4d8" stop-opacity="0.4" />
       <stop offset="1" stop-color="#e4e4e7" stop-opacity="0.7" />
     </linearGradient>
-    <rect id="Reflection_2_" x="2.2" y="17.7" fill="url(#Reflection_3_)" width="295.3" height="25.5" />
+    <rect rx="3" ry="3" id="Reflection_2_" x="2.2" y="17.7" fill="url(#Reflection_3_)" width="295.3" height="25.5" />
   </g>
   <g id="Pipe_Down">
     <linearGradient id="Shape_4_" gradientUnits="userSpaceOnUse" x1="75.5835" y1="150.873" x2="223.9468" y2="150.873">

@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.588235)">
     <defs>
      </defs>
@@ -7,14 +11,14 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Structure_9_" x="2.4" y="7" fill="url(#Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="160.6" />
+    <rect rx="3" ry="3" id="Structure_9_" x="2.4" y="7" fill="url(#Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="160.6" />
     <linearGradient id="Roof_1_" gradientUnits="userSpaceOnUse" x1="2.585" y1="-28.3047" x2="131.995" y2="0.6587">
       <stop offset="0" stop-color="#71717a" />
       <stop offset="0.2954" stop-color="#71717a" />
       <stop offset="0.7771" stop-color="#52525b" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Roof_5_" x="2.4" y="2.4" fill="url(#Roof_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="4.6" />
+    <rect rx="3" ry="3" id="Roof_5_" x="2.4" y="2.4" fill="url(#Roof_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="295.2" height="4.6" />
     <path id="Reflection_Line_10_" fill="none" stroke="#e4e4e7" stroke-width="1.5" stroke-miterlimit="10" d="M2.8,23.8h294.4    M2.8,39.9h294.4 M2.8,55.9h294.4 M2.8,72h294.4 M2.8,88h294.4 M2.8,104.1h294.4 M2.8,120.2h294.4 M2.8,136.2h294.4 M2.8,152.3   h294.4" />
     <path id="Concrete_Elements_3_" fill="none" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" d="M2.8,23h294.4    M2.8,39.1h294.4 M2.8,55.2h294.4 M2.8,71.2h294.4 M2.8,87.3h294.4 M2.8,103.4h294.4 M2.8,119.4h294.4 M2.8,135.5h294.4 M2.8,151.5   h294.4" />
     <linearGradient id="Big_Windows_1_" gradientUnits="userSpaceOnUse" x1="127.8794" y1="-35.666" x2="127.8794" y2="58.9494">
@@ -48,7 +52,7 @@
         <stop offset="0" stop-color="#e4e4e7" />
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
-      <rect id="Door_9_" x="261.7" y="127.2" fill="url(#Door_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="21.5" height="40.4" />
+      <rect rx="3" ry="3" id="Door_9_" x="261.7" y="127.2" fill="url(#Door_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="21.5" height="40.4" />
       <linearGradient id="Door_Handle_1_" gradientUnits="userSpaceOnUse" x1="265.21" y1="146.4717" x2="266.8032" y2="149.5332">
         <stop offset="0" stop-color="#CFCFCE" />
         <stop offset="0.391" stop-color="#C6C6C5" />
@@ -62,7 +66,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Tree_Trunk_Right" x="118.2" y="138.2" fill="url(#Tree_Trunk_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="29.4" />
+    <rect rx="3" ry="3" id="Tree_Trunk_Right" x="118.2" y="138.2" fill="url(#Tree_Trunk_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="5.2" height="29.4" />
     <radialGradient id="Tree_Right_1_" cx="105.9321" cy="77.7432" r="49.6953" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#18181b" />
@@ -72,7 +76,7 @@
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#52525b" />
     </linearGradient>
-    <rect id="Tree_Trunk_Left" x="59.3" y="140.7" fill="url(#Tree_Trunk_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="4.8" height="26.9" />
+    <rect rx="3" ry="3" id="Tree_Trunk_Left" x="59.3" y="140.7" fill="url(#Tree_Trunk_Left_1_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" width="4.8" height="26.9" />
     <radialGradient id="Tree_Left_1_" cx="48.1455" cy="85.373" r="45.476" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#e4e4e7" />
       <stop offset="1" stop-color="#18181b" />

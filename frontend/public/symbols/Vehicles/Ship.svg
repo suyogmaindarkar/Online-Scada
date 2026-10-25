@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.333333, 0.990099)">
     <defs>
      </defs>
@@ -15,7 +19,7 @@
         <stop offset="1" stop-color="#52525b" />
       </linearGradient>
       <polygon id="Shape_3_" fill="url(#Shape_5_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="257.1,33.3 257.1,25.7 260.4,20.6 229.6,20.6 230.3,25.7 232.6,25.7 232.6,30.7 246.2,30.7 246.2,33.3" />
-      <rect id="Shadow_1_" x="232.6" y="25.7" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="24.5" height="1.4" />
+      <rect rx="3" ry="3" id="Shadow_1_" x="232.6" y="25.7" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="24.5" height="1.4" />
       <path id="Devider__x2B__Shadow_Lines" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M236.6,25.7v5 M240.7,25.7v5 M244.7,25.7v5 M248.8,25.7v7.6 M252.8,25.7v7.6 M230.3,25.7h26.8" />
     </g>
     <linearGradient id="Shape_6_" gradientUnits="userSpaceOnUse" x1="219.7891" y1="29.9971" x2="338.4555" y2="121.3304">
@@ -105,9 +109,9 @@
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Level_Structure" x="230.6" y="63.8" fill="url(#Level_Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="63.1" height="2.1" />
+    <rect rx="3" ry="3" id="Level_Structure" x="230.6" y="63.8" fill="url(#Level_Structure_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="63.1" height="2.1" />
     <g id="Shadows">
-      <rect id="Shadow_Base" x="230.6" y="65.9" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="58.2" height="2.4" />
+      <rect rx="3" ry="3" id="Shadow_Base" x="230.6" y="65.9" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="58.2" height="2.4" />
       <polygon id="Shadow_Compass_Bridge" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="251,39.1 247.9,33.3 246.2,33.3 246.2,41 230.6,41 230.6,44.8 251,44.8" />
     </g>
     <path id="Windows_Big" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M252.7,40.2L252.7,40.2c-0.2,0-0.4-0.2-0.4-0.4v-3.5l0,0c0-0.2,0.2-0.4,0.4-0.4h2.3l0,0c0.2,0,0.4,0.2,0.4,0.4v3.5l0,0   c0,0.2-0.2,0.4-0.4,0.4H252.7z M261,40.2c0.2,0,0.4-0.2,0.4-0.4l0,0v-3.5c0-0.2-0.2-0.4-0.4-0.4l0,0h-2.3c-0.2,0-0.4,0.2-0.4,0.4   l0,0v3.5c0,0.2,0.2,0.4,0.4,0.4l0,0H261z" />
@@ -149,50 +153,50 @@
     <path id="Structure_Base" fill="url(#Structure_Base_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M239.2,70.7h-8.6v-4.8h8.6V70.7z M272,65.9h-10.4v4.8H272V65.9z" />
   </g>
   <g id="Containers">
-    <rect id="Container_44" x="211.9" y="64" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_43" x="202.4" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_42" x="192.9" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_41" x="183.4" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_40" x="173.8" y="64" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_39" x="164.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_38" x="148.3" y="64" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_37" x="132.3" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_36" x="116.4" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_35" x="106.8" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_34" x="97.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_33" x="81.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_32" x="65.7" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="15.6" height="10.4" />
-    <rect id="Container_31" x="56.1" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_30" x="211.9" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_29" x="202.4" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_28" x="186.4" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_27" x="170.4" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_26" x="160.9" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_25" x="151.4" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_24" x="141.9" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_23" x="132.3" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_22" x="122.8" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_21" x="113.3" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_20" x="103.8" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_19" x="94.2" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_18" x="84.7" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_17" x="75.2" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_16" x="65.7" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_15" x="56.1" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_14" x="211.9" y="43.2" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_13" x="202.4" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_12" x="186.4" y="43.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_11" x="170.4" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
-    <rect id="Container_10" x="160.9" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_9" x="151.4" y="43.2" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_8" x="141.9" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_7" x="132.3" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_6" x="122.8" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_5" x="113.3" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_4" x="94.2" y="43.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="10.4" />
-    <rect id="Container_3" x="75.2" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="10.4" />
-    <rect id="Container_2" x="65.7" y="43.2" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
-    <rect id="Container_1" x="56.1" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_44" x="211.9" y="64" fill="#18181b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_43" x="202.4" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_42" x="192.9" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_41" x="183.4" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_40" x="173.8" y="64" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_39" x="164.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_38" x="148.3" y="64" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_37" x="132.3" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_36" x="116.4" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_35" x="106.8" y="64" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_34" x="97.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_33" x="81.3" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_32" x="65.7" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="15.6" height="10.4" />
+    <rect rx="3" ry="3" id="Container_31" x="56.1" y="64" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_30" x="211.9" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_29" x="202.4" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_28" x="186.4" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_27" x="170.4" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_26" x="160.9" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_25" x="151.4" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_24" x="141.9" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_23" x="132.3" y="53.6" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_22" x="122.8" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_21" x="113.3" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_20" x="103.8" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_19" x="94.2" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_18" x="84.7" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_17" x="75.2" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_16" x="65.7" y="53.6" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_15" x="56.1" y="53.6" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_14" x="211.9" y="43.2" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_13" x="202.4" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_12" x="186.4" y="43.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_11" x="170.4" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="16" height="10.4" />
+    <rect rx="3" ry="3" id="Container_10" x="160.9" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_9" x="151.4" y="43.2" fill="#52525b" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_8" x="141.9" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_7" x="132.3" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_6" x="122.8" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_5" x="113.3" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_4" x="94.2" y="43.2" fill="#6A6A69" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="10.4" />
+    <rect rx="3" ry="3" id="Container_3" x="75.2" y="43.2" fill="#71717a" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="10.4" />
+    <rect rx="3" ry="3" id="Container_2" x="65.7" y="43.2" fill="#CFCFCE" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
+    <rect rx="3" ry="3" id="Container_1" x="56.1" y="43.2" fill="#a1a1aa" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="9.5" height="10.4" />
   </g>
   <g id="Hull_Portside">
     <g id="Structure_Under_Waterline">
@@ -226,7 +230,7 @@
           <stop offset="0.9452" stop-color="#27272a" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect id="Axle" x="272.4" y="94" fill="url(#Axle_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="1.8" height="1.4" />
+        <rect rx="3" ry="3" id="Axle" x="272.4" y="94" fill="url(#Axle_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="1.8" height="1.4" />
       </g>
       <linearGradient id="Shape_8_" gradientUnits="userSpaceOnUse" x1="154.1064" y1="57.7476" x2="154.1064" y2="92.9181">
         <stop offset="0" stop-color="#18181b" />
@@ -295,7 +299,7 @@
           <stop offset="0.9452" stop-color="#27272a" />
           <stop offset="1" stop-color="#18181b" />
         </linearGradient>
-        <rect id="Structure_Right" x="27.9" y="43.4" fill="url(#Structure_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="4.2" height="1.6" />
+        <rect rx="3" ry="3" id="Structure_Right" x="27.9" y="43.4" fill="url(#Structure_Right_1_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="4.2" height="1.6" />
         <line id="Devider_Line_Bottom" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="26.9" y1="57" x2="29.8" y2="57" />
       </g>
       <path id="Railings" fill="none" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M3.2,53.9v2.9 M7.4,54.1V57 M11.5,54.3v2.9 M15.7,54.7v2.8 M19.9,54.9v2.8 M24.1,55.2V58 M28.2,55.4v2.8 M32.4,55.6v2.8     M37.6,58.8l-5.3-2.6L3.2,54.3" />

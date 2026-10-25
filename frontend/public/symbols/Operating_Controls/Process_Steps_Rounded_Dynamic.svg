@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.540541, 11.111111)">
     <defs>
   </defs>
@@ -31,418 +35,418 @@
     <stop offset=".98" stop-color="#52525b" id="stop25"/>
     <stop offset="1" stop-color="#52525b" id="stop26"/>
   </linearGradient>
-  <g hmi-bind:stroke-width="{{ le((62 / HmiProps.Width), (3 / HmiProps.Height)) ? ((62 / HmiProps.Width) * (HmiProps.Width / 185)) : ((3 / HmiProps.Height) * (HmiProps.Height / 9)) }}">
-    <g id="10Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 8) ? 'inline' : 'none' }}">
-      <g id="Base-0-6-0-7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="10LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+  <g>
+    <g id="10Steps">
+      <g id="Base-0-6-0-7" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="10LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h12.143v-8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="10RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="10RightRound">
           <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-12.143v8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="10LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="10LeftSquared">
+          <rect rx="3" ry="3" x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="10RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="10RightSquared">
+          <rect rx="3" ry="3" x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>        
       </g>
-      <g id="Steps-0-1-2-4" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <rect x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-        <rect x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
-        <rect x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-        <rect x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
-        <rect x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 7) ? 'inline' : 'none' }}"/>
-        <rect x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption7Selected)"/>
-        <rect x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 8) ? 'inline' : 'none' }}"/>
-        <rect x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption8Selected)"/>
-        <rect x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 9) ? 'inline' : 'none' }}"/>
-        <rect x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption9Selected)"/>
-        <g id="10LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h12.143v-8Z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h12.143v-8Z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-0-1-2-4" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="19.844503" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="38.344501" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="56.844501" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="75.344505" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="93.844505" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="112.3445" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="130.84451" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="149.34451" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
+        <g id="10LeftRoundStep">
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h12.143v-8Z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h12.143v-8Z" fill-opacity="0"/>
         </g>
-        <g id="10RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-12.143v8Z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 10) ? 'inline' : 'none' }}"/>
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-12.143v8Z" fill-opacity="0" hmi-event:down="url(#onOption10Selected)"/>
+        <g id="10RightRoundStep">
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-12.143v8Z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-12.143v8Z" fill-opacity="0"/>
         </g>
-        <g id="10LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="10LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.666" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
         </g>
-        <g id="10RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 8), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 10) ? 'inline' : 'none' }}"/>
-          <rect x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0" hmi-event:down="url(#onOption10Selected)"/>
+        <g id="10RightSquaredStep">
+          <rect rx="3" ry="3" x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="168.523" y="0.34450349" width="15.810993" height="8.3109932" fill-opacity="0"/>
         </g> 
       </g>
     </g>
-    <g id="9Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 7) ? 'inline' : 'none' }}">
-      <g id="Base-0-6-0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="22.114361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="42.614361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="63.114361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="104.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="124.61436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="9LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="9Steps">
+      <g id="Base-0-6-0" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="22.114361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="42.614361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="63.114361" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="104.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="124.61436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="9LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h14.404v-8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="9RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="9RightRound">
           <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-14.404v8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="9LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="9LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="9RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="166.096" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="9RightSquared">
+          <rect rx="3" ry="3" x="166.096" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-0-1-2" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="22.114365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="22.114365" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="42.614357" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="42.614357" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="63.114357" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="63.114357" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <rect x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-        <rect x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
-        <rect x="104.11435" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-        <rect x="104.11435" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
-        <rect x="124.61435" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 7) ? 'inline' : 'none' }}"/>
-        <rect x="124.61435" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption7Selected)"/>
-        <rect x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 8) ? 'inline' : 'none' }}"/>
-        <rect x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption8Selected)"/>
-        <g id="9LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h14.404v-8Z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h14.404v-8Z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-0-1-2" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="22.114365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="22.114365" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="42.614357" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="42.614357" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="63.114357" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="63.114357" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="83.614365" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="104.11435" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="104.11435" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="124.61435" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="124.61435" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="145.11436" y="0.364362" width="17.771276" height="8.2712765" fill-opacity="0"/>
+        <g id="9LeftRoundStep">
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h14.404v-8Z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h14.404v-8Z" fill-opacity="0"/>
         </g>
-        <g id="9RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-14.404v8Z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 9) ? 'inline' : 'none' }}"/>
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-14.404v8Z" fill="url(#Unbenannter_Verlauf_259)" fill-opacity="0" hmi-event:down="url(#onOption9Selected)"/>
+        <g id="9RightRoundStep">
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-14.404v8Z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-14.404v8Z" fill="url(#Unbenannter_Verlauf_259)" fill-opacity="0"/>
         </g>
-        <g id="9LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.364362" width="18.404" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="9LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.364362" width="18.404" height="8.2712765" fill-opacity="0"/>
         </g>
-        <g id="9RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 7), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="166.096" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 9) ? 'inline' : 'none' }}"/>
-          <rect x="166.096" y="0.364362" width="18.404" height="8.2712765" fill-opacity="0" hmi-event:down="url(#onOption9Selected)"/>
+        <g id="9RightSquaredStep">
+          <rect rx="3" ry="3" x="166.096" y="0.364362" width="18.404" height="8.2712765" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="166.096" y="0.364362" width="18.404" height="8.2712765" fill-opacity="0"/>
         </g>
       </g>
     </g>
-    <g id="8Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 6) ? 'inline' : 'none' }}">
-      <g id="Base-0-6" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="24.513729" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="47.638729" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="70.763733" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="93.888733" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="117.01373" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="140.13873" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="8LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="8Steps">
+      <g id="Base-0-6" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="24.513729" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="47.638729" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="70.763733" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="93.888733" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="117.01373" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="140.13873" y="0.3887285" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="8LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h17.102v-8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="8RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="8RightRound">
           <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-17.102v8Z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="8LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="8LeftSquared">
+          <rect rx="3" ry="3" x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="8RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="8RightSquared">
+          <rect rx="3" ry="3" x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-0-1" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="24.513729" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="24.513729" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="47.638733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="47.638733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="70.763733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="70.763733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <rect x="93.888733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-        <rect x="93.888733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
-        <rect x="117.01373" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-        <rect x="117.01373" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
-        <rect x="140.13873" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 7) ? 'inline' : 'none' }}"/>
-        <rect x="140.13873" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption7Selected)"/>
-        <g id="8LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h17.102v-8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h17.102v-8z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-0-1" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="24.513729" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="24.513729" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="47.638733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="47.638733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="70.763733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="70.763733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="93.888733" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="93.888733" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="117.01373" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="117.01373" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="140.13873" y="0.3887291" width="20.347544" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="140.13873" y="0.3887291" width="20.347544" height="8.2225437" fill-opacity="0"/>
+        <g id="8LeftRoundStep">
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h17.102v-8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h17.102v-8z" fill-opacity="0"/>
         </g>
-        <g id="8RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-17.102v8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 8) ? 'inline' : 'none' }}"/>
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-17.102v8z" fill-opacity="0" hmi-event:down="url(#onOption8Selected)"/>
+        <g id="8RightRoundStep">
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-17.102v8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-17.102v8z" fill-opacity="0"/>
         </g>
-        <g id="8LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="8LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.634" y="0.3887285" width="21.102" height="8.2225437" fill-opacity="0"/>
         </g>
-        <g id="8RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 6), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 8) ? 'inline' : 'none' }}"/>
-          <rect x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill-opacity="0" hmi-event:down="url(#onOption8Selected)"/>
+        <g id="8RightSquaredStep">
+          <rect rx="3" ry="3" x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="163.398" y="0.3887285" width="21.102" height="8.2225437" fill-opacity="0"/>
         </g>
       </g>
     </g>
-    <g id="7Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 5) ? 'inline' : 'none' }}">
-      <g id="Base-0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="27.852077" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="54.272079" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="80.722069" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="107.14207" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="133.56207" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="7LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="7Steps">
+      <g id="Base-0" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="27.852077" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="54.272079" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="80.722069" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="107.14207" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="133.56207" y="0.4170742" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="7LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.309v-8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="7RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="7RightRound">
           <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-20.309v8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="7LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="7LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="7RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="7RightSquared">
+          <rect rx="3" ry="3" x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="27.852077" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="27.852077" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="54.272079" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="54.272079" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="80.722069" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="80.722069" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <rect x="107.14207" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-        <rect x="107.14207" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
-        <rect x="133.56207" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-        <rect x="133.56207" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
-        <g id="7LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.309v-8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.309v-8z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-0" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="27.852077" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="27.852077" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="54.272079" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="54.272079" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="80.722069" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="80.722069" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="107.14207" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="107.14207" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="133.56207" y="0.4170745" width="23.585852" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="133.56207" y="0.4170745" width="23.585852" height="8.1658516" fill-opacity="0"/>
+        <g id="7LeftRoundStep">
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.309v-8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.309v-8z" fill-opacity="0"/>
         </g>
-        <g id="7RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-20.309v8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 7) ? 'inline' : 'none' }}"/>
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-20.309v8z" fill-opacity="0" hmi-event:down="url(#onOption7Selected)"/>
+        <g id="7RightRoundStep">
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-20.309v8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-20.309v8z" fill-opacity="0"/>
         </g>
-        <g id="7LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="7LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.4170742" width="24.518" height="8.1658516" fill-opacity="0"/>
         </g>
-        <g id="7RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 5), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 7) ? 'inline' : 'none' }}"/>
-          <rect x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill-opacity="0" hmi-event:down="url(#onOption7Selected)"/>
+        <g id="7RightSquaredStep">
+          <rect rx="3" ry="3" x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="159.982" y="0.4170742" width="24.518" height="8.1658516" fill-opacity="0"/>
         </g>
       </g>
     </g>
-    <g id="6Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 4) ? 'inline' : 'none' }}">
-      <g id="Base" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="32.251663" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="63.051666" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="93.851669" y="0.45166451" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="124.65166" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="6LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="6Steps">
+      <g id="Base" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="32.251663" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="63.051666" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="93.851669" y="0.45166451" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="124.65166" y="0.45166546" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="6LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h24.219v-8z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="6RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="6RightRound">
           <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-24.219v8Z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="6LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="6LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="6RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="6RightSquared">
+          <rect rx="3" ry="3" x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="32.251663" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="32.251663" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="63.051666" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="63.051666" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="93.851669" y="0.45166492" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="93.851669" y="0.45166492" width="27.896671" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <rect x="124.65166" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-        <rect x="124.65166" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
-        <g id="6LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h24.219v-8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h24.219v-8z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="32.251663" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="32.251663" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="63.051666" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="63.051666" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="93.851669" y="0.45166492" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="93.851669" y="0.45166492" width="27.896671" height="8.0966702" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="124.65166" y="0.45166588" width="27.896671" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="124.65166" y="0.45166588" width="27.896671" height="8.0966702" fill-opacity="0"/>
+        <g id="6LeftRoundStep">
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h24.219v-8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h24.219v-8z" fill-opacity="0"/>
         </g>
-        <g id="6RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-24.219v8z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-24.219v8z" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
+        <g id="6RightRoundStep">
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-24.219v8z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5 8.5c2.2 0 4-1.8 4-4s-1.8-4-4-4h-24.219v8z" fill-opacity="0"/>
         </g>
-        <g id="6LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="6LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.45166546" width="28.219" height="8.0966702" fill-opacity="0"/>
         </g>
-        <g id="6RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 4), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 6) ? 'inline' : 'none' }}"/>
-          <rect x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill-opacity="0" hmi-event:down="url(#onOption6Selected)"/>
+        <g id="6RightSquaredStep">
+          <rect rx="3" ry="3" x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="156.281" y="0.45166546" width="28.219" height="8.0966702" fill-opacity="0"/>
         </g> 
       </g>
     </g>
-    <g id="5Steps-5" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 3) ? 'inline' : 'none' }}">
-      <g id="Base-8" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="37.599998" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="75.199997" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="112.8" y="0.5" width="34.599998" height="8" id="rect13-2" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="5LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="5Steps-5">
+      <g id="Base-8" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="37.599998" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="75.199997" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="112.8" y="0.5" width="34.599998" height="8" id="rect13-2" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="5LeftRound">
           <path d="M34.6.5H4.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1z" id="path12-1" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="5RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="5RightRound">
           <path d="M180.5.5h-30.1v8h30.1c2.2 0 4-1.8 4-4s-1.8-4-4-4z" id="path13-3" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="5LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="5LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="5RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="150.4" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="5RightSquared">
+          <rect rx="3" ry="3" x="150.4" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-5" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="37.599998" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="37.599998" y="0.5" width="34.599998" height="8" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="75.199997" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="75.199997" y="0.5" width="34.599998" height="8" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <rect x="112.8" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-        <rect x="112.8" y="0.5" width="34.599998" height="8" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
-        <g id="5LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M34.6.5H4.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M34.6.5H4.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-5" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="37.599998" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="37.599998" y="0.5" width="34.599998" height="8" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="75.199997" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="75.199997" y="0.5" width="34.599998" height="8" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="112.8" y="0.5" width="34.599998" height="8" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="112.8" y="0.5" width="34.599998" height="8" fill-opacity="0"/>
+        <g id="5LeftRoundStep">
+          <path d="M34.6.5H4.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M34.6.5H4.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1z" fill-opacity="0"/>
         </g>
-        <g id="5RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M180.5.5h-30.1v8h30.1c2.2 0 4-1.8 4-4s-1.8-4-4-4z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-          <path d="M180.5.5h-30.1v8h30.1c2.2 0 4-1.8 4-4s-1.8-4-4-4z" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
+        <g id="5RightRoundStep">
+          <path d="M180.5.5h-30.1v8h30.1c2.2 0 4-1.8 4-4s-1.8-4-4-4z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M180.5.5h-30.1v8h30.1c2.2 0 4-1.8 4-4s-1.8-4-4-4z" fill-opacity="0"/>
         </g>
-        <g id="5LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.5" width="34.1" height="8" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="5LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.5" width="34.1" height="8" fill-opacity="0"/>
         </g>
-        <g id="5RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 3), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="150.4" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 5) ? 'inline' : 'none' }}"/>
-          <rect x="150.4" y="0.5" width="34.1" height="8" fill-opacity="0" hmi-event:down="url(#onOption5Selected)"/>
+        <g id="5RightSquaredStep">
+          <rect rx="3" ry="3" x="150.4" y="0.5" width="34.1" height="8" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="150.4" y="0.5" width="34.1" height="8" fill-opacity="0"/>
         </g> 
       </g>
     </g>
-    <g id="4Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 2) ? 'inline' : 'none' }}">
-      <g id="Base-2" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="45.816277" y="0.56621361" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
-        <rect x="94.066154" y="0.56621361" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="4LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="4Steps">
+      <g id="Base-2" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="45.816277" y="0.56621361" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
+        <rect rx="3" ry="3" x="94.066154" y="0.56621361" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="4LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1v-.01h8.14V.51H34.6V.5Z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="4RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="4RightRound">
           <path d="M142.197.498v8.004h34.213V8.5h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.498Z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="4LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="4LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="4RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="4RightSquared">
+          <rect rx="3" ry="3" x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-3" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="45.825821" y="0.57579356" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="45.825821" y="0.57579356" width="45.117573" height="7.8675728" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <rect x="94.075699" y="0.57579356" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-        <rect x="94.075699" y="0.57579356" width="45.117573" height="7.8675728" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
-        <g id="4LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.51.51c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1V8.5h8.14V.52h-8.14V.51z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.51.51c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1V8.5h8.14V.52h-8.14V.51z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-3" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="45.825821" y="0.57579356" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="45.825821" y="0.57579356" width="45.117573" height="7.8675728" fill-opacity="0"/>
+        <rect rx="3" ry="3" x="94.075699" y="0.57579356" width="45.117573" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="94.075699" y="0.57579356" width="45.117573" height="7.8675728" fill-opacity="0"/>
+        <g id="4LeftRoundStep">
+          <path d="M4.51.51c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1V8.5h8.14V.52h-8.14V.51z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.51.51c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.1V8.5h8.14V.52h-8.14V.51z" fill-opacity="0"/>
         </g>
-        <g id="4RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M142.207.508v8.004h34.213V8.51h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.508z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-          <path d="M142.207.508v8.004h34.213V8.51h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.508z" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
+        <g id="4RightRoundStep">
+          <path d="M142.207.508v8.004h34.213V8.51h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.508z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M142.207.508v8.004h34.213V8.51h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.508z" fill-opacity="0"/>
         </g>
-        <g id="4LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="4LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.56621361" width="42.303" height="7.8675728" fill-opacity="0"/>
         </g>
-        <g id="4RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 2), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 4) ? 'inline' : 'none' }}"/>
-          <rect x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill-opacity="0" hmi-event:down="url(#onOption4Selected)"/>
+        <g id="4RightSquaredStep">
+          <rect rx="3" ry="3" x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="142.197" y="0.56621361" width="42.303" height="7.8675728" fill-opacity="0"/>
         </g> 
       </g>
     </g>
-    <g id="3Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 1) ? 'inline' : 'none' }}">
-      <g id="Base-2-4" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="62.319744" y="0.63826859" width="60.309872" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
-        <g id="3LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="3Steps">
+      <g id="Base-2-4" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="62.319744" y="0.63826859" width="60.309872" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="3LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.6v-.01h8.141V8.4h16.342V.58H42.74V.51H34.6V.5z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="3RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="3RightRound">
           <path d="M142.196.498v.09h-16.321v7.805h16.321v.11h34.214V8.5h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.498z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="3LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="3LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="3RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="125.875" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="3RightSquared">
+          <rect rx="3" ry="3" x="125.875" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-3-0" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <rect x="62.400669" y="0.72828859" width="60.309872" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-        <rect x="62.400669" y="0.72828859" width="60.309872" height="7.7043729" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
-        <g id="3LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.582.59c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.68v-.01h8.141v-.09h16.342V.67H42.82V.6H34.68V.59z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.582.59c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.68v-.01h8.141v-.09h16.342V.67H42.82V.6H34.68V.59z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-3-0" stroke-miterlimit="10">
+        <rect rx="3" ry="3" x="62.400669" y="0.72828859" width="60.309872" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)"/>
+        <rect rx="3" ry="3" x="62.400669" y="0.72828859" width="60.309872" height="7.7043729" fill-opacity="0"/>
+        <g id="3LeftRoundStep">
+          <path d="M4.582.59c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.68v-.01h8.141v-.09h16.342V.67H42.82V.6H34.68V.59z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.582.59c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.68v-.01h8.141v-.09h16.342V.67H42.82V.6H34.68V.59z" fill-opacity="0"/>
         </g>
-        <g id="3RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M142.277.588v.09h-16.321v7.805h16.321v.11h34.214V8.59h4.09c2.2 0 3.999-1.8 3.999-4s-1.798-4-3.998-4h-4.09V.588z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-          <path d="M142.277.588v.09h-16.321v7.805h16.321v.11h34.214V8.59h4.09c2.2 0 3.999-1.8 3.999-4s-1.798-4-3.998-4h-4.09V.588z" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
+        <g id="3RightRoundStep">
+          <path d="M142.277.588v.09h-16.321v7.805h16.321v.11h34.214V8.59h4.09c2.2 0 3.999-1.8 3.999-4s-1.798-4-3.998-4h-4.09V.588z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M142.277.588v.09h-16.321v7.805h16.321v.11h34.214V8.59h4.09c2.2 0 3.999-1.8 3.999-4s-1.798-4-3.998-4h-4.09V.588z" fill-opacity="0"/>
         </g>
-        <g id="3LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.648" width="58.625" height="7.7043729" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="3LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="58.625" height="7.7043729" fill-opacity="0"/>
         </g>
-        <g id="3RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 1), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="125.875" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 3) ? 'inline' : 'none' }}"/>
-          <rect x="125.875" y="0.648" width="58.625" height="7.7043729" fill-opacity="0" hmi-event:down="url(#onOption3Selected)"/>
+        <g id="3RightSquaredStep">
+          <rect rx="3" ry="3" x="125.875" y="0.648" width="58.625" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="125.875" y="0.648" width="58.625" height="7.7043729" fill-opacity="0"/>
         </g> 
       </g>
     </g>
-    <g id="2Steps" hmi-bind:display="{{ eq(ParamProps.NumberOfElements, 0) ? 'inline' : 'none' }}">
-      <g id="Base-2-4-7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <g id="2LeftRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
+    <g id="2Steps">
+      <g id="Base-2-4-7" stroke-miterlimit="10">
+        <g id="2LeftRound">
           <path d="M4.5.5c-2.2 0-4 1.8-4 4s1.8 4 4 4H34.6v-.01h8.141V8.4h16.342v-.138H90.85V.557H42.74V.51H34.6V.5z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="2RightRound" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
+        <g id="2RightRound">
           <path d="M142.196.498v.059H94.147v7.705h31.728v.13h16.321v.11h34.214V8.5h4.09c2.2 0 4-1.8 4-4s-1.8-4-4-4h-4.09V.498z" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="2LeftSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="2LeftSquared">
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
         </g>
-        <g id="2RightSquared" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="94.128" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
+        <g id="2RightSquared">
+          <rect rx="3" ry="3" x="94.128" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_244)"/>
         </g> 
       </g>
-      <g id="Steps-3-0-7" hmi-bind:stroke="{{Converter.RGBA(ParamProps.LineColor)}}" stroke-miterlimit="10">
-        <g id="2LeftRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.FirstElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M4.638.64c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.096v-.01h8.14v-.09h16.34v-.138H90.98V.697H42.875V.65h-8.141V.64z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <path d="M4.638.64c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.096v-.01h8.14v-.09h16.34v-.138H90.98V.697H42.875V.65h-8.141V.64z" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+      <g id="Steps-3-0-7" stroke-miterlimit="10">
+        <g id="2LeftRoundStep">
+          <path d="M4.638.64c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.096v-.01h8.14v-.09h16.34v-.138H90.98V.697H42.875V.65h-8.141V.64z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M4.638.64c-2.2 0-4 1.8-4 4s1.8 4 4 4h30.096v-.01h8.14v-.09h16.34v-.138H90.98V.697H42.875V.65h-8.141V.64z" fill-opacity="0"/>
         </g>
-        <g id="2RightRoundStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.LastElement, 0)) ? 'inline' : 'none' }}">
-          <path d="M142.322.638v.059H94.277v7.705H126v.13h16.32v.11h34.212V8.64h4.09c2.2 0 3.998-1.8 3.998-4s-1.799-4-3.998-4h-4.09V.638z" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-          <path d="M142.322.638v.059H94.277v7.705H126v.13h16.32v.11h34.212V8.64h4.09c2.2 0 3.998-1.8 3.998-4s-1.799-4-3.998-4h-4.09V.638z" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
+        <g id="2RightRoundStep">
+          <path d="M142.322.638v.059H94.277v7.705H126v.13h16.32v.11h34.212V8.64h4.09c2.2 0 3.998-1.8 3.998-4s-1.799-4-3.998-4h-4.09V.638z" fill="url(#Unbenannter_Verlauf_259)"/>
+          <path d="M142.322.638v.059H94.277v7.705H126v.13h16.32v.11h34.212V8.64h4.09c2.2 0 3.998-1.8 3.998-4s-1.799-4-3.998-4h-4.09V.638z" fill-opacity="0"/>
         </g>
-        <g id="2LeftSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.FirstElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="0.5" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 1) ? 'inline' : 'none' }}"/>
-          <rect x="0.5" y="0.648" width="90.392" height="7.7043729" fill-opacity="0" hmi-event:down="url(#onOption1Selected)"/>
+        <g id="2LeftSquaredStep">
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="0.5" y="0.648" width="90.392" height="7.7043729" fill-opacity="0"/>
         </g>
-        <g id="2RightSquaredStep" hmi-bind:display="{{ and(eq(ParamProps.NumberOfElements, 0), eq(ParamProps.LastElement, 1)) ? 'inline' : 'none' }}">
-          <rect x="94.128" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)" hmi-bind:display="{{ ge(ParamProps.FillLevel, 2) ? 'inline' : 'none' }}"/>
-          <rect x="94.128" y="0.648" width="90.392" height="7.7043729" fill-opacity="0" hmi-event:down="url(#onOption2Selected)"/>
+        <g id="2RightSquaredStep">
+          <rect rx="3" ry="3" x="94.128" y="0.648" width="90.392" height="7.7043729" fill="url(#Unbenannter_Verlauf_259)"/>
+          <rect rx="3" ry="3" x="94.128" y="0.648" width="90.392" height="7.7043729" fill-opacity="0"/>
         </g> 
       </g>
     </g>

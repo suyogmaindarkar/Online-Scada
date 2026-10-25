@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(0.37037, 0.333333)">
     <defs>
      </defs>
@@ -14,15 +18,15 @@
     <stop offset="0.999" stop-color="#52525b" />
     <stop offset="1" stop-color="#52525b" />
   </linearGradient>
-  <rect id="Shape_Door_1_" x="2.4" y="2.4" fill="url(#Shape_Door_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="265.2" height="295.2" />
+  <rect rx="3" ry="3" id="Shape_Door_1_" x="2.4" y="2.4" fill="url(#Shape_Door_2_)" stroke="#18181b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="265.2" height="295.2" />
   <g id="Handle_2_">
     <linearGradient id="Shape_Handle_1_" gradientUnits="userSpaceOnUse" x1="270.2422" y1="378.9629" x2="209.6681" y2="37.483">
       <stop offset="0" stop-color="#d4d4d8" />
       <stop offset="1" stop-color="#3f3f46" />
     </linearGradient>
-    <rect id="Shape_Handle_2_" x="236" y="191" fill="url(#Shape_Handle_1_)" width="11" height="51.4" />
+    <rect rx="3" ry="3" id="Shape_Handle_2_" x="236" y="191" fill="url(#Shape_Handle_1_)" width="11" height="51.4" />
     <polygon id="Shadow_2_" fill="#18181b" points="232.3,187.4 232.3,242.5 236,242.5 236,191 247,191 247,187.4" />
-    <polyline id="Reflection_Line_2_" fill="none" hmi-bind:stroke="{{Converter.RGBA(ParamProps.BasicColor)}}" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" points="247,187.4 247,242.4 232.3,242.4" />
+    <polyline id="Reflection_Line_2_" fill="none" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10" points="247,187.4 247,242.4 232.3,242.4" />
   </g>
   </g>
 </svg>

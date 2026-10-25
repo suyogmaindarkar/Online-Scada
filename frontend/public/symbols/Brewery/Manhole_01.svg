@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:hmi="http://svg.siemens.com/hmi/"
+     xmlns:hmi-bind="http://svg.siemens.com/hmi/bind/"
+     viewBox="0 0 100 100" width="100%" height="100%">
   <g transform="scale(1.298701, 1.315789)">
     <defs />
   <g id="Manhole_x5F_01_1_">
-    <g id="Closed_3_" hmi-bind:display="{{ ParamProps.Open ? 'none' : 'inline' }}">
+    <g id="Closed_3_">
       <g>
         <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="6.5757" y1="38.0002" x2="76.3262" y2="38.0002">
           <stop offset="0" stop-color="#18181b" />
@@ -37,25 +41,25 @@
       </g>
       <g display="inline">
         <g>
-          <circle cx="41.5" cy="6.5" r="1" />
-          <circle cx="41.5" cy="69.5" r="1" />
+          <circle cx="41.5" cy="6.5" r="0" />
+          <circle cx="41.5" cy="69.5" r="0" />
         </g>
         <g>
-          <circle cx="68.7" cy="22.2" r="1" />
+          <circle cx="68.7" cy="22.2" r="0" />
         </g>
         <g>
-          <circle cx="57.2" cy="10.7" r="1" />
-          <circle cx="25.7" cy="65.3" r="1" />
+          <circle cx="57.2" cy="10.7" r="0" />
+          <circle cx="25.7" cy="65.3" r="0" />
         </g>
         <g>
-          <circle cx="68.7" cy="53.8" r="1" />
+          <circle cx="68.7" cy="53.8" r="0" />
         </g>
         <g>
-          <circle cx="25.7" cy="10.7" r="1" />
-          <circle cx="57.2" cy="65.3" r="1" />
+          <circle cx="25.7" cy="10.7" r="0" />
+          <circle cx="57.2" cy="65.3" r="0" />
         </g>
         <g>
-          <circle cx="73" cy="38" r="1" />
+          <circle cx="73" cy="38" r="0" />
         </g>
       </g>
       <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="4.951" y1="38" x2="13.951" y2="38">
@@ -70,7 +74,7 @@
       </linearGradient>
       <path d="M9.5,20.6    c-2.5,0-4.5,2-4.5,4.5v25.7c0,2.5,2,4.5,4.5,4.5c2.5,0,4.5-2,4.5-4.5V25.1C14,22.7,11.9,20.6,9.5,20.6z"  fill="url(#SVGID_3_)" stroke="#18181b" stroke-width="1.5" stroke-miterlimit="10" />
     </g>
-    <g id="Open_3_" hmi-bind:display="{{ ParamProps.Open ? 'inline' : 'none' }}">
+    <g id="Open_3_">
       <g>
         <g>
           <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="6.5762" y1="37.9997" x2="76.3262" y2="37.9997">
@@ -90,25 +94,25 @@
         </g>
         <g>
           <g>
-            <circle cx="41.5" cy="6.5" r="1" />
-            <circle cx="41.5" cy="69.5" r="1" />
+            <circle cx="41.5" cy="6.5" r="0" />
+            <circle cx="41.5" cy="69.5" r="0" />
           </g>
           <g>
-            <circle cx="68.7" cy="22.2" r="1" />
+            <circle cx="68.7" cy="22.2" r="0" />
           </g>
           <g>
-            <circle cx="57.2" cy="10.7" r="1" />
-            <circle cx="25.7" cy="65.3" r="1" />
+            <circle cx="57.2" cy="10.7" r="0" />
+            <circle cx="25.7" cy="65.3" r="0" />
           </g>
           <g>
-            <circle cx="68.7" cy="53.8" r="1" />
+            <circle cx="68.7" cy="53.8" r="0" />
           </g>
           <g>
-            <circle cx="25.7" cy="10.7" r="1" />
-            <circle cx="57.2" cy="65.3" r="1" />
+            <circle cx="25.7" cy="10.7" r="0" />
+            <circle cx="57.2" cy="65.3" r="0" />
           </g>
           <g>
-            <circle cx="73" cy="38" r="1" />
+            <circle cx="73" cy="38" r="0" />
           </g>
         </g>
         <radialGradient id="SVGID_5_" cx="50.8627" cy="38.7059" r="26.5" fx="46.3239" fy="40.7547" gradientUnits="userSpaceOnUse">
