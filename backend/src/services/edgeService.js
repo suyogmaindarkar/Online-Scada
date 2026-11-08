@@ -7,6 +7,7 @@ const EdgeGateway = require('../models/EdgeGateway');
 const Tag = require('../models/Tag');
 const Company = require('../models/Company');
 const { increment, setPendingMongoQueueSize } = require('../utils/metrics');
+const { logTelemetry } = require('./historianService');
 
 const HEARTBEAT_TIMEOUT_MS = 60000;
 const DB_FLUSH_INTERVAL_MS = 2000;
@@ -15,6 +16,7 @@ const MAX_TAGS_PER_BATCH = 500;
 class EdgeService {
     constructor() {
         this.tagCache = new Map();
+        this.tagMeta = new Map();
         this.gateways = new Map();
         this.socketToGateway = new Map();
         this.pendingDbWrites = new Map();

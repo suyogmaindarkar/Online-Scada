@@ -1,25 +1,17 @@
-// ============================================
-// Trend Controller - Historical Data API
-// Gracefully handles InfluxDB unavailable
-//
-// Task Bundle applied:
-//   ✅ T004  — /trends/stats never returns 404, always 200 with data
-//   ✅ T023  — /trends/export new endpoint for server-side CSV
-//   ✅ T026  — Enhanced statistics (adds stddev, count, first, last)
-// ============================================
+// ============================================================================
+// Trend Controller - Historical Data API (MongoDB Time Series)
+// Fully replaces InfluxDB dependency. Strictly multi-tenant.
+// ============================================================================
 
 const {
   queryTagHistory,
   queryMultipleTagsHistory,
   queryCustomTimeRange,
-  getTagStatistics,
-  getLatestTagValue,
-  isInfluxAvailable,
-} = require('../services/influxService');
+  getTagStatistics
+} = require('../services/historianService');
+const TelemetryLog = require('../models/TelemetryLog');
 
-// ─────────────────────────────────────────
 // Helper: Empty stats object (no data)
-// ─────────────────────────────────────────
 const emptyStats = (tagId, timeRange) => ({
   tagId,
   timeRange,
@@ -33,11 +25,15 @@ const emptyStats = (tagId, timeRange) => ({
   hasData: false,
 });
 
-// ─────────────────────────────────────────
+// Utility to get companyId from auth middleware
+const getCompanyId = (req) => {
+  return req.user?.company || req.companyId || req.user?.companyId;
+};
+
 // GET /api/trends/history/:tagId
-// ─────────────────────────────────────────
 const getTagHistory = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagId } = req.params;
     const { timeRange = '1h', aggregation = '10s' } = req.query;
 
@@ -49,19 +45,7 @@ const getTagHistory = async (req, res) => {
       });
     }
 
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.json({
-        success: true,
-        tagId,
-        timeRange,
-        aggregation,
-        count: 0,
-        data: [],
-        message: 'InfluxDB not available — no historical data',
-      });
-    }
-
-    const data = await queryTagHistory(tagId, timeRange, aggregation);
+    const data = await queryTagHistory(companyId, tagId, timeRange, aggregation);
 
     res.json({
       success: true,
@@ -72,7 +56,7 @@ const getTagHistory = async (req, res) => {
       data,
     });
   } catch (error) {
-    console.error('❌ Get Tag History Error:', error.message);
+    console.error('[x] Get Tag History Error:', error.message);
     res.json({
       success: true,
       tagId: req.params.tagId,
@@ -84,44 +68,27 @@ const getTagHistory = async (req, res) => {
   }
 };
 
-// ─────────────────────────────────────────
 // POST /api/trends/history/multiple
-// ─────────────────────────────────────────
 const getMultipleTagsHistory = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagIds, timeRange = '1h', aggregation = '10s' } = req.body;
 
     if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'tagIds array is required',
-      });
+      return res.status(400).json({ success: false, message: 'tagIds array is required' });
     }
 
     if (tagIds.length > 10) {
-      return res.status(400).json({
-        success: false,
-        message: 'Maximum 10 tags allowed per request',
-      });
+      return res.status(400).json({ success: false, message: 'Maximum 10 tags allowed per request' });
     }
 
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.json({
-        success: true,
-        timeRange,
-        aggregation,
-        tags: [],
-        message: 'InfluxDB not available',
-      });
-    }
-
-    const data = await queryMultipleTagsHistory(tagIds, timeRange, aggregation);
+    const data = await queryMultipleTagsHistory(companyId, tagIds, timeRange, aggregation);
 
     const groupedData = {};
     data.forEach((point) => {
       if (!groupedData[point.tagId]) {
         groupedData[point.tagId] = {
-          tagId: point.tagId,
+          tagId: point.tagId.toString(),
           tagName: point.tagName,
           unit: point.unit,
           data: [],
@@ -140,7 +107,7 @@ const getMultipleTagsHistory = async (req, res) => {
       tags: Object.values(groupedData),
     });
   } catch (error) {
-    console.error('❌ Get Multiple Tags History Error:', error.message);
+    console.error('[x] Get Multiple Tags History Error:', error.message);
     res.json({
       success: true,
       tags: [],
@@ -149,35 +116,23 @@ const getMultipleTagsHistory = async (req, res) => {
   }
 };
 
-// ─────────────────────────────────────────
 // POST /api/trends/history/custom
-// ─────────────────────────────────────────
 const getCustomRangeHistory = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagIds, startTime, endTime, aggregation = '1m' } = req.body;
 
     if (!tagIds || !startTime || !endTime) {
-      return res.status(400).json({
-        success: false,
-        message: 'tagIds, startTime, endTime are required',
-      });
+      return res.status(400).json({ success: false, message: 'tagIds, startTime, endTime are required' });
     }
 
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.json({
-        success: true,
-        tags: [],
-        message: 'InfluxDB not available',
-      });
-    }
-
-    const data = await queryCustomTimeRange(tagIds, startTime, endTime, aggregation);
+    const data = await queryCustomTimeRange(companyId, tagIds, startTime, endTime, aggregation);
 
     const groupedData = {};
     data.forEach((point) => {
       if (!groupedData[point.tagId]) {
         groupedData[point.tagId] = {
-          tagId: point.tagId,
+          tagId: point.tagId.toString(),
           tagName: point.tagName,
           unit: point.unit,
           data: [],
@@ -197,7 +152,7 @@ const getCustomRangeHistory = async (req, res) => {
       tags: Object.values(groupedData),
     });
   } catch (error) {
-    console.error('❌ Custom Range History Error:', error.message);
+    console.error('[x] Custom Range History Error:', error.message);
     res.json({
       success: true,
       tags: [],
@@ -206,49 +161,29 @@ const getCustomRangeHistory = async (req, res) => {
   }
 };
 
-// ─────────────────────────────────────────
 // GET /api/trends/stats/:tagId
-// ✅ T004: Returns 200 with empty stats instead of 404
-// ✅ T026: Enhanced statistics with hasData flag
-// ─────────────────────────────────────────
 const getTagStats = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagId } = req.params;
     const { timeRange = '1h' } = req.query;
 
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.json({
-        success: true,
-        stats: emptyStats(tagId, timeRange),
-      });
-    }
-
-    const stats = await getTagStatistics(tagId, timeRange);
+    const stats = await getTagStatistics(companyId, tagId, timeRange);
 
     if (!stats) {
-      return res.json({
-        success: true,
-        stats: emptyStats(tagId, timeRange),
-      });
+      return res.json({ success: true, stats: emptyStats(tagId, timeRange) });
     }
 
-    // T026: Add derived fields for richer stats display
     res.json({
       success: true,
       stats: {
         ...stats,
-        // Ensure all fields exist for frontend
-        mean:   stats.mean ?? 0,
-        min:    stats.min ?? 0,
-        max:    stats.max ?? 0,
-        count:  stats.count ?? 0,
-        stddev: stats.stddev ?? 0,
-        range:  (stats.max ?? 0) - (stats.min ?? 0),
+        range: (stats.max ?? 0) - (stats.min ?? 0),
         hasData: true,
       },
     });
   } catch (error) {
-    console.error('❌ Get Tag Stats Error:', error.message);
+    console.error('[x] Get Tag Stats Error:', error.message);
     res.json({
       success: true,
       stats: emptyStats(req.params.tagId, req.query.timeRange || '1h'),
@@ -256,76 +191,53 @@ const getTagStats = async (req, res) => {
   }
 };
 
-// ─────────────────────────────────────────
 // GET /api/trends/latest/:tagId
-// ─────────────────────────────────────────
 const getLatestValue = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagId } = req.params;
 
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.json({
-        success: true,
-        data: null,
-        message: 'InfluxDB not available',
-      });
-    }
+    const latestLog = await TelemetryLog.findOne({
+      'meta.companyId': companyId,
+      'meta.tagId': tagId
+    })
+      .sort({ timestamp: -1 })
+      .lean();
 
-    const data = await getLatestTagValue(tagId);
-
-    if (!data) {
-      return res.json({
-        success: true,
-        data: null,
-        message: 'No recent data found',
-      });
+    if (!latestLog) {
+      return res.json({ success: true, data: null, message: 'No recent data found' });
     }
 
     res.json({
       success: true,
-      data,
+      data: {
+        time: latestLog.timestamp,
+        value: latestLog.value
+      },
     });
   } catch (error) {
-    console.error('❌ Get Latest Value Error:', error.message);
-    res.json({
-      success: true,
-      data: null,
-      message: error.message,
-    });
+    console.error('[x] Get Latest Value Error:', error.message);
+    res.json({ success: true, data: null, message: error.message });
   }
 };
 
-// ─────────────────────────────────────────
-// ✅ T023: POST /api/trends/export
-// Server-side CSV export (useful for large datasets)
-// Returns CSV directly as file download
-// ─────────────────────────────────────────
+// POST /api/trends/export
 const exportTrendCSV = async (req, res) => {
   try {
+    const companyId = getCompanyId(req);
     const { tagIds, timeRange = '1h', aggregation = '10s', startTime, endTime } = req.body;
 
     if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'tagIds array is required',
-      });
-    }
-
-    if (typeof isInfluxAvailable === 'function' && !isInfluxAvailable()) {
-      return res.status(503).json({
-        success: false,
-        message: 'InfluxDB not available',
-      });
+      return res.status(400).json({ success: false, message: 'tagIds array is required' });
     }
 
     let data = [];
     if (startTime && endTime) {
-      data = await queryCustomTimeRange(tagIds, startTime, endTime, aggregation);
+      data = await queryCustomTimeRange(companyId, tagIds, startTime, endTime, aggregation);
     } else {
-      data = await queryMultipleTagsHistory(tagIds, timeRange, aggregation);
+      data = await queryMultipleTagsHistory(companyId, tagIds, timeRange, aggregation);
     }
 
-    // Group by time → columns
     const grouped = {};
     const tagNames = new Set();
 
@@ -339,7 +251,6 @@ const exportTrendCSV = async (req, res) => {
     const tagNameArray = Array.from(tagNames);
     const timeKeys = Object.keys(grouped).sort();
 
-    // Build CSV
     const escape = (v) => {
       const s = String(v ?? '');
       return s.includes(',') || s.includes('"') || s.includes('\n')
@@ -354,17 +265,14 @@ const exportTrendCSV = async (req, res) => {
     );
 
     const csv = header + [headerRow, ...rows].join('\n');
-
     const filename = `trend_export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(csv);
   } catch (error) {
-    console.error('❌ Export CSV Error:', error.message);
-    res.status(500).json({
-      success: false,
-      message: `Export failed: ${error.message}`,
-    });
+    console.error('[x] Export CSV Error:', error.message);
+    res.status(500).json({ success: false, message: `Export failed: ${error.message}` });
   }
 };
 
