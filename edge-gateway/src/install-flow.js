@@ -1,15 +1,49 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const { spawn } = require('child_process');
 const { run: runPairing } = require('./pairing-ui');
+const secretStore = require('./secretStore');
 
-async function install({ pair = runPairing, spawnProcess = spawn, reportError = console.error, installDir = process.argv[2] || path.resolve(__dirname, '..') } = {}) {
-    const paired = await pair();
-    if (!paired) {
-        reportError('[x] Factory Connector authorization did not finish. Service startup was not confirmed.');
+function checkHasValidConfig(installDir, env = process.env, readConfig = (file) => JSON.parse(fs.readFileSync(file, 'utf8')), loadSecret = secretStore.loadSecret) {
+    const configPath = path.join(env.ONLINESCADA_DATA_DIR || path.join(env.ProgramData || installDir, 'OnlineSCADA', 'Factory Connector'), 'config.json');
+    try {
+        if (!fs.existsSync(configPath)) return false;
+        const config = readConfig(configPath);
+        if (!config.cloudUrl || !config.gatewayId || !config.apiKeyProtected) return false;
+        loadSecret(config, { configPath });
+        return true;
+    } catch (_) {
         return false;
     }
+}
+
+async function install({
+    pair = runPairing,
+    spawnProcess = spawn,
+    reportError = console.error,
+    reportInfo = console.log,
+    installDir = process.argv[2] || path.resolve(__dirname, '..'),
+    allowExistingConfig = process.argv.includes('--allow-existing-config'),
+    hasExistingConfig = checkHasValidConfig,
+    env = process.env,
+} = {}) {
+    let proceedToService = false;
+
+    if (allowExistingConfig && hasExistingConfig(installDir, env)) {
+        reportInfo('[+] Existing valid Factory Connector configuration found. Preserving authorization.');
+        proceedToService = true;
+    } else {
+        const paired = await pair();
+        if (!paired) {
+            reportError('[x] Factory Connector authorization did not finish. Service startup was not confirmed.');
+            return false;
+        }
+        proceedToService = true;
+    }
+
+    if (!proceedToService) return false;
 
     return new Promise((resolve) => {
         let settled = false;
@@ -36,4 +70,4 @@ if (require.main === module) install().then((success) => { if (!success) process
     console.error('[x] Factory Connector setup did not complete. Run the installer again.');
     process.exitCode = 1;
 });
-module.exports = { install };
+module.exports = { install, checkHasValidConfig };

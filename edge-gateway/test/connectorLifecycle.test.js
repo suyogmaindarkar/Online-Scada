@@ -6,7 +6,7 @@ const { EventEmitter } = require('events');
 const path = require('path');
 const { SERVICE_NAME, STATE, createScm, registerService, ensureRunning } = require('../src/service-lifecycle');
 const { installService } = require('../src/service-install');
-const { install } = require('../src/install-flow');
+const { install, checkHasValidConfig } = require('../src/install-flow');
 
 function scenario(states) {
     const calls = [];
@@ -240,4 +240,45 @@ test('install flow does not start service on failed pairing, and handles spawn f
         assert.equal(errors.length, outcome === 'zero' ? 0 : 1);
         assert.ok(errors.every((message) => !message.includes('private detail')));
     }
+});
+
+test('install flow reuses existing valid configuration when allowed and skips pairing', async () => {
+    const calls = [];
+    const child = new EventEmitter();
+    const pending = install({
+        allowExistingConfig: true,
+        hasExistingConfig: () => { calls.push('checked-config'); return true; },
+        pair: async () => { calls.push('paired'); return true; },
+        installDir: path.resolve('existing-install'),
+        spawnProcess: (_exe, args) => {
+            calls.push('spawn');
+            assert.equal(args[1], path.resolve('existing-install'));
+            return child;
+        },
+        reportInfo: (msg) => calls.push(msg),
+    });
+    await new Promise((resolve) => setImmediate(resolve));
+    child.emit('close', 0);
+    assert.equal(await pending, true);
+    assert.deepEqual(calls.slice(0, 3), ['checked-config', '[+] Existing valid Factory Connector configuration found. Preserving authorization.', 'spawn']);
+    assert.ok(!calls.includes('paired'));
+});
+
+test('install flow falls back to pairing when existing config is invalid or missing', async () => {
+    const calls = [];
+    const child = new EventEmitter();
+    const pending = install({
+        allowExistingConfig: true,
+        hasExistingConfig: () => { calls.push('checked-config'); return false; },
+        pair: async () => { calls.push('paired'); return true; },
+        installDir: path.resolve('fresh-install'),
+        spawnProcess: () => {
+            calls.push('spawn');
+            return child;
+        },
+    });
+    await new Promise((resolve) => setImmediate(resolve));
+    child.emit('close', 0);
+    assert.equal(await pending, true);
+    assert.deepEqual(calls, ['checked-config', 'paired', 'spawn']);
 });

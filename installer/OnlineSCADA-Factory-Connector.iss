@@ -12,8 +12,11 @@ AppVersion={#AppVersion}
 DefaultDirName={autopf}\OnlineSCADA\Factory Connector
 DefaultGroupName=OnlineSCADA
 PrivilegesRequired=admin
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
+CloseApplications=yes
+RestartApplications=no
+CloseApplicationsFilter=*.exe,*.node
 OutputBaseFilename=OnlineSCADA-Factory-Connector-Setup
 Compression=lzma2
 SolidCompression=yes
@@ -35,24 +38,61 @@ Name: "{commonappdata}\OnlineSCADA\Factory Connector"
 Name: "{commonappdata}\OnlineSCADA\Factory Connector\logs"
 
 [UninstallRun]
-Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\service-uninstall.js"""; Flags: runhidden waituntilterminated
+Filename: "{app}\runtime\node.exe"; Parameters: """{app}\src\service-uninstall.js"""; Flags: runhidden waituntilterminated; RunOnceId: "UninstallConnectorService"
 
 [Code]
 var
   ConnectorSetupFailed: Boolean;
+
+procedure StopConnectorService();
+var
+  ResultCode: Integer;
+begin
+  // Stop existing Windows service if registered under either service identifier
+  Exec('sc.exe', 'stop onlinescadafactoryconnector.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('sc.exe', 'stop OnlineSCADAFactoryConnector', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  
+  // Give Windows SCM time to stop the service process
+  Sleep(2000);
+
+  // Force-kill any lingering service wrapper and child processes (including node.exe and loaded native addons)
+  Exec('taskkill.exe', '/F /IM onlinescadafactoryconnector.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+  // Allow file system handles to be fully released by the OS
+  Sleep(1000);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := '';
+  StopConnectorService();
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    StopConnectorService();
+  end;
+end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ResultCode: Integer;
   FailureMessage: String;
 begin
+  if CurStep = ssInstall then
+  begin
+    StopConnectorService();
+  end;
+
   if CurStep = ssPostInstall then
   begin
     WizardForm.StatusLabel.Caption := 'Authorize and start the Factory Connector...';
     ConnectorSetupFailed := True;
     FailureMessage := 'Factory Connector setup could not be launched.';
     if Exec(ExpandConstant('{app}\runtime\node.exe'),
-      ExpandConstant('"{app}\src\install-flow.js" "{app}"'),
+      ExpandConstant('"{app}\src\install-flow.js" "{app}" --allow-existing-config'),
       ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
       ConnectorSetupFailed := ResultCode <> 0;
