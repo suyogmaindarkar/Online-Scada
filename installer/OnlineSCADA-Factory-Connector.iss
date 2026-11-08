@@ -3,7 +3,7 @@
 
 #define AppName "OnlineSCADA Factory Connector"
 #define AppVersion "1.0.1"
-#define ServiceName "onlinescadafactoryconnector.exe"
+#define ServiceName "OnlineSCADAFactoryConnector"
 
 [Setup]
 AppId={{B2E2D63E-9D8F-4A9D-8E9A-4C7D9B2F6A10}}
@@ -25,9 +25,9 @@ SolidCompression=yes
 Source: "..\edge-gateway\src\*.js"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs
 Source: "..\edge-gateway\package.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\edge-gateway\package-lock.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\edge-gateway\node_modules\*"; DestDir: "{app}\node_modules"; Flags: ignoreversion recursesubdirs
+Source: "..\edge-gateway\node_modules\*"; DestDir: "{app}\node_modules"; Flags: ignoreversion recursesubdirs restartreplace
 ; Release builds must place the approved portable Node.js runtime here.
-Source: "runtime\node.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
+Source: "runtime\node.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion restartreplace
 Source: "runtime\README.txt"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "pair-connector.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-service.bat"; DestDir: "{app}"; Flags: ignoreversion
@@ -48,18 +48,24 @@ procedure StopConnectorService();
 var
   ResultCode: Integer;
 begin
-  // Stop existing Windows service if registered under either service identifier
-  Exec('sc.exe', 'stop onlinescadafactoryconnector.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  // 1. Stop existing Windows service cleanly
   Exec('sc.exe', 'stop OnlineSCADAFactoryConnector', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('sc.exe', 'stop onlinescadafactoryconnector.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('net.exe', 'stop OnlineSCADAFactoryConnector', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   
-  // Give Windows SCM time to stop the service process
-  Sleep(2000);
+  Sleep(1500);
 
-  // Force-kill any lingering service wrapper and child processes (including node.exe and loaded native addons)
-  Exec('taskkill.exe', '/F /IM onlinescadafactoryconnector.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  // 2. Remove service registration from Windows Service Control Manager
+  Exec('sc.exe', 'delete OnlineSCADAFactoryConnector', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('sc.exe', 'delete onlinescadafactoryconnector.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
-  // Allow file system handles to be fully released by the OS
   Sleep(1000);
+
+  // 3. Force-kill any node.exe or connector processes running from the installation folder to release file locks
+  Exec('powershell.exe', '-NoProfile -ExecutionPolicy Bypass -Command "Get-Process | Where-Object { $_.Path -like ''*OnlineSCADA*'' -or $_.Path -like ''*Factory Connector*'' } | Stop-Process -Force -ErrorAction SilentlyContinue"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+  // 4. Allow Windows OS handles to be fully released
+  Sleep(2000);
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;

@@ -15,13 +15,26 @@ if (-not (Test-Path -LiteralPath $nodeExe)) { throw "Bundled Node.js runtime was
 if (-not (Test-Path -LiteralPath $entry)) { throw "Connector service entry was not found: $entry" }
 if (-not (Test-Path -LiteralPath $installer)) { throw "Connector service installer was not found: $installer" }
 
+# Clean up existing service if present
 $existing = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 if ($existing) {
-    if ($existing.Status -ne 'Stopped') { Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue }
+    if ($existing.Status -ne 'Stopped') {
+        Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    }
     sc.exe delete $serviceName | Out-Null
-    Start-Sleep -Seconds 1
+    Start-Sleep -Seconds 2
 }
 
+# Run the node service installer
 & $nodeExe $installer $InstallDir
 if ($LASTEXITCODE -ne 0) { throw "Connector service installer exited with code $LASTEXITCODE" }
-Get-Service -Name $serviceName | Select-Object Name, Status, StartType
+
+# Wait briefly for service registration and status check
+Start-Sleep -Seconds 2
+$svc = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+if ($svc) {
+    Write-Host "[o] Windows Service $serviceName status: $($svc.Status)"
+} else {
+    Write-Warning "[!] Windows Service $serviceName was not registered successfully."
+}
