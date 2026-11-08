@@ -11,6 +11,7 @@ const fs = require('fs');
 // GET /api/v1/connector/download
 router.get('/download', (req, res) => {
     const fileLocations = [
+        path.join(__dirname, '../../../frontend/public/OnlineSCADA-Factory-Connector-Setup.exe'),
         path.join(__dirname, '../../public/OnlineSCADA-Factory-Connector-Setup.exe'),
         path.join(__dirname, '../../../installer/Output/OnlineSCADA-Factory-Connector-Setup.exe'),
         path.join(__dirname, '../../public/downloads/OnlineSCADA-Factory-Connector-Setup.exe'),
