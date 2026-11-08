@@ -1,20 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// Alarms Page — Blue theme + full task bundle
-//
-// Task Bundle applied:
-//   ✅ T018  — Real audio file playback (now GLOBAL via AlarmNotificationContext)
-//   ✅ T019  — Email UI for recipients
-//   ✅ T020  — Priority filter chips + color-coded rows
-//   ✅ T021  — Server-side CSV export
-//   ✅ GLOBAL_SOUND — Sound now plays from any page (not just Alarms)
-//   ✅ UI FIX — Removed header icon badge for clean left-alignment
+// Alarms Page — Enterprise Clean UI (Zero Emojis)
 // ═══════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react';
-import { alarmAPI, tagAPI, settingsAPI } from '../services/api';
+import { useState, useEffect } from 'react';
+import { alarmAPI, tagAPI } from '../services/api';
 import socketService from '../services/socket';
 import { useToast } from '../context/ToastContext';
-import { useAlarmNotification } from '../context/AlarmNotificationContext'; // ✅ NEW
+import { useAlarmNotification } from '../context/AlarmNotificationContext';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import {
@@ -24,41 +16,37 @@ import {
   Mail, X, Filter,
 } from 'lucide-react';
 
-// ─── Theme ───
 const C = {
-  bg:         '#F8FAFC',
-  card:       '#FFFFFF',
+  bg: '#F8FAFC',
+  card: '#FFFFFF',
   cardSubtle: '#F8FAFC',
-  cardHover:  '#EEF6FF',
-  border:     '#E5E7EB',
-  heading:    '#081B43',
-  text:       '#334155',
-  muted:      '#5F6B7A',
-  subtle:     '#94A3B8',
-  brand:      '#2563EB',
-  brandDark:  '#0F3D91',
+  cardHover: '#EEF6FF',
+  border: '#E5E7EB',
+  heading: '#081B43',
+  text: '#334155',
+  muted: '#5F6B7A',
+  subtle: '#94A3B8',
+  brand: '#2563EB',
+  brandDark: '#0F3D91',
   btnPrimary: '#2563EB',
-  btnHover:   '#1D4ED8',
-  success:    '#16A34A',
-  warning:    '#F59E0B',
-  danger:     '#DC2626',
+  btnHover: '#1D4ED8',
+  success: '#16A34A',
+  warning: '#F59E0B',
+  danger: '#DC2626',
 };
 
-// ─── T020: Priority style config ───
 const PRIORITY_STYLES = {
-  CRITICAL: { bg: '#FEE2E2', border: '#DC2626', text: '#7F1D1D', dot: '#DC2626', icon: '🔴', order: 4 },
-  HIGH:     { bg: '#FFEDD5', border: '#EA580C', text: '#7C2D12', dot: '#EA580C', icon: '🟠', order: 3 },
-  MEDIUM:   { bg: '#FEF3C7', border: '#F59E0B', text: '#78350F', dot: '#F59E0B', icon: '🟡', order: 2 },
-  LOW:      { bg: '#DBEAFE', border: '#2563EB', text: '#1E40AF', dot: '#2563EB', icon: '🔵', order: 1 },
+  CRITICAL: { bg: '#FEE2E2', border: '#DC2626', text: '#7F1D1D', dot: '#DC2626', order: 4 },
+  HIGH: { bg: '#FFEDD5', border: '#EA580C', text: '#7C2D12', dot: '#EA580C', order: 3 },
+  MEDIUM: { bg: '#FEF3C7', border: '#F59E0B', text: '#78350F', dot: '#F59E0B', order: 2 },
+  LOW: { bg: '#DBEAFE', border: '#2563EB', text: '#1E40AF', dot: '#2563EB', order: 1 },
 };
 
 const getPriorityStyle = (p) => PRIORITY_STYLES[p] || PRIORITY_STYLES.MEDIUM;
 
 const Alarms = () => {
   const { showToast } = useToast();
-
-  // ✅ NEW: Use global alarm notification state (replaces local sound state)
-  const { soundEnabled, setSoundEnabled, soundVolume, testSound } = useAlarmNotification();
+  const { soundEnabled, setSoundEnabled, testSound } = useAlarmNotification();
 
   const [activeTab, setActiveTab] = useState('active');
   const [activeAlarms, setActiveAlarms] = useState([]);
@@ -72,11 +60,7 @@ const Alarms = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [showAckAllConfirm, setShowAckAllConfirm] = useState(false);
   const [error, setError] = useState(null);
-
-  // ─── T020: Priority filter ───
-  const [priorityFilter, setPriorityFilter] = useState(null); // null = all
-
-  // ─── T021: Export ───
+  const [priorityFilter, setPriorityFilter] = useState(null);
   const [exporting, setExporting] = useState(false);
 
   const [formData, setFormData] = useState(initialForm());
@@ -92,7 +76,6 @@ const Alarms = () => {
       priority: 'MEDIUM',
       message: '',
       group: 'Default',
-      // T018 + T019
       soundEnabled: true,
       enableEmail: false,
       emailRecipients: [],
@@ -100,9 +83,6 @@ const Alarms = () => {
     };
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // Load data
-  // ═══════════════════════════════════════════════════════════
   const loadData = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
@@ -129,14 +109,9 @@ const Alarms = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Real-time socket events — ONLY reload data
-  // (Sound + toast + browser notif handled by GLOBAL provider)
-  // ═══════════════════════════════════════════════════════════
   useEffect(() => {
     loadData();
 
-    // ✅ SIMPLIFIED: Only reload data here — no sound/toast (global handler does it)
     const handleAlarmTriggered = () => loadData(true);
     const handleAlarmCleared = () => loadData(true);
     const handleAlarmAcked = () => loadData(true);
@@ -155,9 +130,6 @@ const Alarms = () => {
     };
   }, []);
 
-  // ═══════════════════════════════════════════════════════════
-  // Alarm actions
-  // ═══════════════════════════════════════════════════════════
   const handleAcknowledge = async (id) => {
     try {
       await alarmAPI.acknowledge(id);
@@ -178,17 +150,15 @@ const Alarms = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // ✅ T021: Export CSV (server-side, with priority filter)
-  // ═══════════════════════════════════════════════════════════
   const handleExportCSV = async (type = 'all') => {
     try {
       setExporting(true);
       const params = new URLSearchParams({ type });
       if (priorityFilter) params.append('priority', priorityFilter);
 
-      const token = localStorage.getItem('token');
-      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/alarms/export?${params}`;
+      const token = localStorage.getItem('userToken');
+      const baseUrl = import.meta.env.VITE_API_URL || '/api';
+      const url = `${baseUrl}/alarms/export?${params}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -217,9 +187,6 @@ const Alarms = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Modal helpers
-  // ═══════════════════════════════════════════════════════════
   const handleOpenAdd = () => {
     setEditingAlarm(null);
     setFormData(initialForm());
@@ -282,7 +249,6 @@ const Alarms = () => {
     });
   };
 
-  // Email recipients helpers
   const addEmailRecipient = (email) => {
     const trimmed = email.trim();
     if (!trimmed) return;
@@ -304,9 +270,6 @@ const Alarms = () => {
     });
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Filtered lists (T020)
-  // ═══════════════════════════════════════════════════════════
   const filteredActiveAlarms = priorityFilter
     ? activeAlarms.filter((a) => a.priority === priorityFilter)
     : activeAlarms;
@@ -328,9 +291,6 @@ const Alarms = () => {
     unacked: activeAlarms.filter((a) => !a.isAcknowledged).length,
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // Loading state
-  // ═══════════════════════════════════════════════════════════
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -344,7 +304,7 @@ const Alarms = () => {
 
   return (
     <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* ═══════════ HEADER ═══════════ */}
+      {/* HEADER */}
       <div
         className="p-5 rounded-2xl"
         style={{
@@ -354,7 +314,6 @@ const Alarms = () => {
         }}
       >
         <div className="flex items-center justify-between flex-wrap gap-3">
-          {/* ✅ UI FIX: Removed the icon container, kept cleanly left-aligned text */}
           <div>
             <h1
               className="text-2xl font-bold"
@@ -363,10 +322,7 @@ const Alarms = () => {
               Alarm Management
             </h1>
             <p className="text-sm" style={{ color: C.muted }}>
-              Monitor & manage system alarms
-              <span className="ml-2 text-xs" style={{ color: C.brand, fontWeight: 600 }}>
-                · 🌐 Notifications active on all pages
-              </span>
+              Monitor and manage industrial system thresholds
             </p>
           </div>
 
@@ -381,14 +337,13 @@ const Alarms = () => {
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* ✅ Global sound toggle (persists across pages) */}
             <button
               onClick={() => {
                 setSoundEnabled(!soundEnabled);
                 showToast(
                   !soundEnabled
-                    ? `🔊 Alarm sound ENABLED globally`
-                    : '🔇 Alarm sound DISABLED globally',
+                    ? 'Alarm sound enabled globally'
+                    : 'Alarm sound disabled globally',
                   'info',
                   2500
                 );
@@ -399,28 +354,22 @@ const Alarms = () => {
                 color: soundEnabled ? C.brand : C.muted,
                 border: `1px solid ${soundEnabled ? C.brand : C.border}`,
               }}
-              title={
-                soundEnabled
-                  ? `Alarm sound ON globally — plays on ALL pages`
-                  : 'Alarm sound OFF globally — click to enable'
-              }
+              title={soundEnabled ? 'Sound Enabled' : 'Sound Disabled'}
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
-            {/* Test button */}
             {soundEnabled && (
               <button
                 onClick={() => testSound('MEDIUM')}
                 className="px-3 py-2 rounded-lg text-xs font-semibold transition-all"
                 style={{ background: C.cardSubtle, color: C.text, border: `1px solid ${C.border}` }}
-                title="Test alarm sound (medium priority)"
+                title="Test alarm sound"
               >
-                🔊 Test
+                Test Sound
               </button>
             )}
 
-            {/* ✅ T021: Export CSV */}
             <button
               onClick={() => handleExportCSV(activeTab === 'history' ? 'history' : activeTab === 'active' ? 'active' : 'all')}
               disabled={exporting}
@@ -431,13 +380,11 @@ const Alarms = () => {
                 boxShadow: '0px 2px 8px rgba(22, 163, 74, 0.30)',
                 fontFamily: "'Montserrat', sans-serif",
               }}
-              title="Export current view as CSV"
             >
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               Export
             </button>
 
-            {/* Add button (only in Config tab) */}
             {activeTab === 'config' && (
               <button
                 onClick={handleOpenAdd}
@@ -447,9 +394,6 @@ const Alarms = () => {
                   boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.30)',
                   fontFamily: "'Montserrat', sans-serif",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = C.btnHover; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = C.btnPrimary; }}
-                title="Add new alarm"
               >
                 <Plus className="w-4 h-4 text-white" />
                 Add Alarm
@@ -459,7 +403,6 @@ const Alarms = () => {
         </div>
       </div>
 
-      {/* ═══════════ ERROR BANNER ═══════════ */}
       {error && (
         <div
           className="p-3 rounded-lg text-sm flex items-center gap-2"
@@ -470,7 +413,7 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* ═══════════ STATS BOXES (T020: click to filter) ═══════════ */}
+      {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatBox
           label="All Active"
@@ -514,7 +457,6 @@ const Alarms = () => {
         />
       </div>
 
-      {/* ═══════════ FILTER INDICATOR ═══════════ */}
       {priorityFilter && (
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
@@ -522,49 +464,29 @@ const Alarms = () => {
         >
           <Filter className="w-4 h-4" style={{ color: C.brand }} />
           <span style={{ color: C.text }}>
-            Filtering by:{' '}
-            <strong style={{ color: getPriorityStyle(priorityFilter).dot }}>
-              {priorityFilter}
-            </strong>{' '}
-            priority
+            Filtering by: <strong style={{ color: getPriorityStyle(priorityFilter).dot }}>{priorityFilter}</strong>
           </span>
           <button
             onClick={() => setPriorityFilter(null)}
             className="ml-auto p-1 rounded transition-colors"
             style={{ color: C.muted }}
-            title="Clear filter"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* ═══════════ TABS ═══════════ */}
+      {/* TABS */}
       <div
         className="flex gap-1 p-1 rounded-lg w-fit"
         style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}
       >
-        <TabButton
-          active={activeTab === 'active'}
-          onClick={() => setActiveTab('active')}
-          icon={BellRing}
-          label={`Active (${filteredActiveAlarms.length})`}
-        />
-        <TabButton
-          active={activeTab === 'config'}
-          onClick={() => setActiveTab('config')}
-          icon={Bell}
-          label={`Configuration (${filteredAllAlarms.length})`}
-        />
-        <TabButton
-          active={activeTab === 'history'}
-          onClick={() => setActiveTab('history')}
-          icon={History}
-          label={`History (${filteredHistory.length})`}
-        />
+        <TabButton active={activeTab === 'active'} onClick={() => setActiveTab('active')} icon={BellRing} label={`Active (${filteredActiveAlarms.length})`} />
+        <TabButton active={activeTab === 'config'} onClick={() => setActiveTab('config')} icon={Bell} label={`Configuration (${filteredAllAlarms.length})`} />
+        <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={History} label={`History (${filteredHistory.length})`} />
       </div>
 
-      {/* ═══════════ ACTIVE ALARMS TAB ═══════════ */}
+      {/* ACTIVE TAB */}
       {activeTab === 'active' && (
         <div
           className="rounded-2xl overflow-hidden"
@@ -587,19 +509,13 @@ const Alarms = () => {
                   <button
                     onClick={() => setShowAckAllConfirm(true)}
                     className="px-3 py-2 rounded-lg text-sm font-semibold text-white transition-all"
-                    style={{
-                      background: C.warning,
-                      boxShadow: '0px 2px 6px rgba(245, 158, 11, 0.30)',
-                      fontFamily: "'Montserrat', sans-serif",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#D97706'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = C.warning; }}
+                    style={{ background: C.warning, fontFamily: "'Montserrat', sans-serif" }}
                   >
                     Acknowledge All ({stats.unacked})
                   </button>
                 </div>
               )}
-              <div style={{ borderTop: filteredActiveAlarms.length > 0 ? `1px solid ${C.border}` : 'none' }}>
+              <div>
                 {filteredActiveAlarms.map((alarm, idx) => {
                   const style = getPriorityStyle(alarm.priority);
                   return (
@@ -615,39 +531,26 @@ const Alarms = () => {
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div
-                            className={`w-3 h-3 ${style.dot} rounded-full mt-2 ${!alarm.isAcknowledged ? 'animate-pulse' : ''}`}
+                            className={`w-3 h-3 rounded-full mt-2 ${!alarm.isAcknowledged ? 'animate-pulse' : ''}`}
                             style={{ background: style.dot }}
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
                               <span
                                 className="px-2 py-0.5 text-xs font-bold rounded"
-                                style={{
-                                  background: style.bg,
-                                  color: style.text,
-                                  border: `1px solid ${style.border}`,
-                                }}
+                                style={{ background: style.bg, color: style.text, border: `1px solid ${style.border}` }}
                               >
-                                {style.icon} {alarm.priority}
+                                {alarm.priority}
                               </span>
-                              <h3 className="font-bold" style={{ color: C.heading }}>
-                                {alarm.alarmName}
-                              </h3>
+                              <h3 className="font-bold" style={{ color: C.heading }}>{alarm.alarmName}</h3>
                               {alarm.isAcknowledged && (
-                                <span
-                                  className="px-2 py-0.5 text-xs rounded flex items-center gap-1"
-                                  style={{ background: '#DCFCE7', color: '#15803D' }}
-                                >
+                                <span className="px-2 py-0.5 text-xs rounded flex items-center gap-1" style={{ background: '#DCFCE7', color: '#15803D' }}>
                                   <CheckCircle className="w-3 h-3" />
                                   Ack
                                 </span>
                               )}
                               {alarm.enableEmail && (
-                                <span
-                                  className="px-2 py-0.5 text-xs rounded flex items-center gap-1"
-                                  style={{ background: C.cardHover, color: C.brand }}
-                                  title={`Email sent to ${alarm.emailRecipients?.length || 0} recipient(s)`}
-                                >
+                                <span className="px-2 py-0.5 text-xs rounded flex items-center gap-1" style={{ background: C.cardHover, color: C.brand }}>
                                   <Mail className="w-3 h-3" />
                                   Email
                                 </span>
@@ -675,11 +578,8 @@ const Alarms = () => {
                         {!alarm.isAcknowledged && (
                           <button
                             onClick={() => handleAcknowledge(alarm._id)}
-                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors whitespace-nowrap"
+                            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors"
                             style={{ background: C.success }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#15803D'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = C.success; }}
-                            title="Acknowledge this alarm"
                           >
                             Acknowledge
                           </button>
@@ -694,7 +594,7 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* ═══════════ CONFIGURATION TAB ═══════════ */}
+      {/* CONFIG TAB */}
       {activeTab === 'config' && (
         <div
           className="rounded-2xl overflow-hidden"
@@ -704,21 +604,16 @@ const Alarms = () => {
             <div className="text-center py-20">
               <Bell className="w-16 h-16 mx-auto mb-4" style={{ color: C.subtle }} />
               <h3 className="text-lg font-semibold mb-2" style={{ color: C.heading }}>
-                No Alarms {priorityFilter ? `(${priorityFilter} filter)` : 'Configured'}
+                No Alarms Configured
               </h3>
-              <p style={{ color: C.muted }} className="mb-4">
-                {priorityFilter ? 'Clear filter to see all alarms' : 'Create your first alarm to start monitoring'}
-              </p>
-              {!priorityFilter && (
-                <button
-                  onClick={handleOpenAdd}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold"
-                  style={{ background: C.btnPrimary, fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Alarm
-                </button>
-              )}
+              <button
+                onClick={handleOpenAdd}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold"
+                style={{ background: C.btnPrimary }}
+              >
+                <Plus className="w-4 h-4" />
+                Add Alarm
+              </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -739,20 +634,9 @@ const Alarms = () => {
                   {filteredAllAlarms.map((alarm, idx) => {
                     const style = getPriorityStyle(alarm.priority);
                     return (
-                      <tr
-                        key={alarm._id}
-                        style={{
-                          borderBottom: idx < filteredAllAlarms.length - 1 ? `1px solid ${C.border}` : 'none',
-                          background: C.card,
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = C.cardSubtle; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = C.card; }}
-                      >
+                      <tr key={alarm._id} style={{ borderBottom: idx < filteredAllAlarms.length - 1 ? `1px solid ${C.border}` : 'none' }}>
                         <td className="px-4 py-3">
-                          <div
-                            className={`w-3 h-3 rounded-full ${alarm.isActive ? 'animate-pulse' : ''}`}
-                            style={{ background: alarm.isActive ? C.danger : C.success }}
-                          />
+                          <div className="w-3 h-3 rounded-full" style={{ background: alarm.isActive ? C.danger : C.success }} />
                         </td>
                         <td className="px-4 py-3 font-medium" style={{ color: C.heading }}>{alarm.alarmName}</td>
                         <td className="px-4 py-3 font-mono text-sm" style={{ color: C.text }}>{alarm.tag}</td>
@@ -763,39 +647,22 @@ const Alarms = () => {
                         </td>
                         <td className="px-4 py-3 font-mono" style={{ color: C.text }}>{alarm.setpoint}</td>
                         <td className="px-4 py-3">
-                          <span
-                            className="px-2 py-0.5 text-xs font-bold rounded"
-                            style={{ background: style.bg, color: style.text, border: `1px solid ${style.border}` }}
-                          >
+                          <span className="px-2 py-0.5 text-xs font-bold rounded" style={{ background: style.bg, color: style.text, border: `1px solid ${style.border}` }}>
                             {alarm.priority}
                           </span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
-                            {alarm.soundEnabled !== false && (
-                              <Volume2 className="w-3.5 h-3.5" style={{ color: C.brand }} title="Sound enabled" />
-                            )}
-                            {alarm.enableEmail && (
-                              <Mail className="w-3.5 h-3.5" style={{ color: C.brand }} title={`Email → ${alarm.emailRecipients?.length || 0} recipient(s)`} />
-                            )}
+                            {alarm.soundEnabled !== false && <Volume2 className="w-3.5 h-3.5" style={{ color: C.brand }} />}
+                            {alarm.enableEmail && <Mail className="w-3.5 h-3.5" style={{ color: C.brand }} />}
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleOpenEdit(alarm)}
-                              className="p-1.5 rounded transition-colors"
-                              style={{ background: C.cardHover, color: C.brand }}
-                              title="Edit alarm"
-                            >
+                            <button onClick={() => handleOpenEdit(alarm)} className="p-1.5 rounded" style={{ background: C.cardHover, color: C.brand }}>
                               <Edit2 className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={() => setDeleteId(alarm._id)}
-                              className="p-1.5 rounded transition-colors"
-                              style={{ background: '#FEE2E2', color: C.danger }}
-                              title="Delete alarm"
-                            >
+                            <button onClick={() => setDeleteId(alarm._id)} className="p-1.5 rounded" style={{ background: '#FEE2E2', color: C.danger }}>
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -810,39 +677,23 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* ═══════════ HISTORY TAB ═══════════ */}
+      {/* HISTORY TAB */}
       {activeTab === 'history' && (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)' }}
-        >
+        <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0px 4px 20px rgba(8, 27, 67, 0.06)' }}>
           {filteredHistory.length === 0 ? (
             <div className="text-center py-20">
               <History className="w-16 h-16 mx-auto mb-4" style={{ color: C.subtle }} />
-              <p style={{ color: C.muted }}>No alarm history yet</p>
-              <p className="text-xs mt-1" style={{ color: C.subtle }}>History appears as alarms trigger and clear</p>
+              <p style={{ color: C.muted }}>No alarm history recorded yet</p>
             </div>
           ) : (
             <div className="max-h-[600px] overflow-y-auto">
               {filteredHistory.map((entry, idx) => {
                 const style = getPriorityStyle(entry.priority);
                 return (
-                  <div
-                    key={entry._id}
-                    className="p-3 transition-colors"
-                    style={{
-                      borderBottom: idx < filteredHistory.length - 1 ? `1px solid ${C.border}` : 'none',
-                      borderLeft: `3px solid ${style.dot}`,
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = C.cardSubtle; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                  >
+                  <div key={entry._id} className="p-3" style={{ borderBottom: idx < filteredHistory.length - 1 ? `1px solid ${C.border}` : 'none', borderLeft: `3px solid ${style.dot}` }}>
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <span
-                          className="px-2 py-0.5 text-xs font-bold rounded"
-                          style={{ background: style.bg, color: style.text }}
-                        >
+                        <span className="px-2 py-0.5 text-xs font-bold rounded" style={{ background: style.bg, color: style.text }}>
                           {entry.priority}
                         </span>
                         <span className="font-medium" style={{ color: C.heading }}>{entry.alarmName}</span>
@@ -860,7 +711,7 @@ const Alarms = () => {
         </div>
       )}
 
-      {/* ═══════════ ADD/EDIT MODAL ═══════════ */}
+      {/* MODAL */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingAlarm ? 'Edit Alarm' : 'Add New Alarm'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -875,10 +726,8 @@ const Alarms = () => {
               <label className="block text-sm font-semibold mb-1.5" style={{ color: C.heading }}>Tag *</label>
               <select
                 name="tag" value={formData.tag} onChange={handleChange} required
-                className="w-full px-3 py-2 rounded-lg outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg outline-none"
                 style={{ background: C.cardSubtle, border: `1px solid ${C.border}`, color: C.heading }}
-                onFocus={(e) => e.target.style.borderColor = C.brand}
-                onBlur={(e) => e.target.style.borderColor = C.border}
               >
                 <option value="">Select tag</option>
                 {tags.map((t) => (
@@ -890,10 +739,8 @@ const Alarms = () => {
               <label className="block text-sm font-semibold mb-1.5" style={{ color: C.heading }}>Alarm Type *</label>
               <select
                 name="alarmType" value={formData.alarmType} onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg outline-none"
                 style={{ background: C.cardSubtle, border: `1px solid ${C.border}`, color: C.heading }}
-                onFocus={(e) => e.target.style.borderColor = C.brand}
-                onBlur={(e) => e.target.style.borderColor = C.border}
               >
                 <option value="HIGH">HIGH (greater than)</option>
                 <option value="HIGH_HIGH">HIGH HIGH (critical high)</option>
@@ -910,69 +757,42 @@ const Alarms = () => {
           <div className="grid grid-cols-3 gap-4">
             <Field label="Setpoint" name="setpoint" type="number" value={formData.setpoint} onChange={handleChange} />
             <Field label="Deadband" name="deadband" type="number" value={formData.deadband} onChange={handleChange} />
-
             <div>
               <label className="block text-sm font-semibold mb-1.5" style={{ color: C.heading }}>Priority</label>
               <select
                 name="priority" value={formData.priority} onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg outline-none"
                 style={{ background: C.cardSubtle, border: `1px solid ${C.border}`, color: C.heading }}
-                onFocus={(e) => e.target.style.borderColor = C.brand}
-                onBlur={(e) => e.target.style.borderColor = C.border}
               >
-                <option value="LOW">🔵 LOW</option>
-                <option value="MEDIUM">🟡 MEDIUM</option>
-                <option value="HIGH">🟠 HIGH</option>
-                <option value="CRITICAL">🔴 CRITICAL</option>
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="CRITICAL">CRITICAL</option>
               </select>
             </div>
           </div>
 
           <Field label="Alarm Message" name="message" value={formData.message} onChange={handleChange} />
 
-          <div
-            className="p-3 rounded-lg space-y-2"
-            style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}
-          >
+          <div className="p-3 rounded-lg space-y-2" style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="soundEnabled"
-                checked={formData.soundEnabled}
-                onChange={handleChange}
-                style={{ accentColor: C.brand, width: '16px', height: '16px' }}
-              />
+              <input type="checkbox" name="soundEnabled" checked={formData.soundEnabled} onChange={handleChange} style={{ accentColor: C.brand }} />
               <Volume2 className="w-4 h-4" style={{ color: C.brand }} />
-              <span className="text-sm font-semibold" style={{ color: C.heading }}>
-                Play sound when this alarm triggers
-              </span>
+              <span className="text-sm font-semibold" style={{ color: C.heading }}>Play sound when triggered</span>
             </label>
           </div>
 
-          <div
-            className="p-3 rounded-lg space-y-3"
-            style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}
-          >
+          <div className="p-3 rounded-lg space-y-3" style={{ background: C.cardSubtle, border: `1px solid ${C.border}` }}>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="enableEmail"
-                checked={formData.enableEmail}
-                onChange={handleChange}
-                style={{ accentColor: C.brand, width: '16px', height: '16px' }}
-              />
+              <input type="checkbox" name="enableEmail" checked={formData.enableEmail} onChange={handleChange} style={{ accentColor: C.brand }} />
               <Mail className="w-4 h-4" style={{ color: C.brand }} />
-              <span className="text-sm font-semibold" style={{ color: C.heading }}>
-                Send email notification on trigger
-              </span>
+              <span className="text-sm font-semibold" style={{ color: C.heading }}>Send email notification</span>
             </label>
 
             {formData.enableEmail && (
               <div className="space-y-3 pl-6">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: C.muted }}>
-                    Recipients (press Enter to add)
-                  </label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: C.muted }}>Recipients (press Enter to add)</label>
                   <input
                     type="email"
                     placeholder="engineer@company.com"
@@ -983,25 +803,15 @@ const Alarms = () => {
                         e.target.value = '';
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg outline-none transition-colors text-sm"
+                    className="w-full px-3 py-2 rounded-lg outline-none text-sm"
                     style={{ background: C.card, border: `1px solid ${C.border}`, color: C.heading }}
-                    onFocus={(e) => e.target.style.borderColor = C.brand}
-                    onBlur={(e) => e.target.style.borderColor = C.border}
                   />
                   {formData.emailRecipients.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {formData.emailRecipients.map((email) => (
-                        <span
-                          key={email}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
-                          style={{ background: C.cardHover, color: C.brand, border: `1px solid ${C.brand}40` }}
-                        >
+                        <span key={email} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs" style={{ background: C.cardHover, color: C.brand }}>
                           {email}
-                          <button
-                            type="button"
-                            onClick={() => removeEmailRecipient(email)}
-                            style={{ color: C.brand }}
-                          >
+                          <button type="button" onClick={() => removeEmailRecipient(email)} style={{ color: C.brand }}>
                             <X className="w-3 h-3" />
                           </button>
                         </span>
@@ -1010,13 +820,7 @@ const Alarms = () => {
                   )}
                 </div>
 
-                <Field
-                  label="Throttle (minutes between repeat emails)"
-                  name="emailThrottleMinutes"
-                  type="number"
-                  value={formData.emailThrottleMinutes}
-                  onChange={handleChange}
-                />
+                <Field label="Throttle (minutes)" name="emailThrottleMinutes" type="number" value={formData.emailThrottleMinutes} onChange={handleChange} />
               </div>
             )}
           </div>
@@ -1025,30 +829,15 @@ const Alarms = () => {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors"
-              style={{
-                background: '#FFFFFF',
-                color: C.heading,
-                border: `1.5px solid ${C.border}`,
-                fontFamily: "'Montserrat', sans-serif",
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold"
+              style={{ background: '#FFFFFF', color: C.heading, border: `1.5px solid ${C.border}` }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors"
-              style={{
-                background: C.btnPrimary,
-                boxShadow: '0px 4px 12px rgba(37, 99, 235, 0.25)',
-                fontFamily: "'Montserrat', sans-serif",
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = C.btnHover}
-              onMouseLeave={(e) => e.currentTarget.style.background = C.btnPrimary}
+              className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white"
+              style={{ background: C.btnPrimary }}
             >
               {editingAlarm ? 'Update' : 'Create'} Alarm
             </button>
@@ -1061,10 +850,9 @@ const Alarms = () => {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         title="Delete Alarm?"
-        message="This will permanently delete this alarm configuration. This action cannot be undone."
+        message="This will permanently delete this alarm configuration."
         confirmText="Delete"
         confirmColor="red"
-        icon="warning"
       />
 
       <ConfirmDialog
@@ -1072,18 +860,13 @@ const Alarms = () => {
         onClose={() => setShowAckAllConfirm(false)}
         onConfirm={handleAcknowledgeAll}
         title="Acknowledge All Alarms?"
-        message={`This will acknowledge all ${stats.unacked} unacknowledged alarm(s). Continue?`}
+        message={`This will acknowledge all ${stats.unacked} unacknowledged alarm(s).`}
         confirmText="Acknowledge All"
         confirmColor="green"
-        icon="question"
       />
     </div>
   );
 };
-
-// ═══════════════════════════════════════════════════════════
-// SUB-COMPONENTS
-// ═══════════════════════════════════════════════════════════
 
 const StatBox = ({ label, value, icon: Icon, color, isActive, onClick }) => (
   <button
@@ -1092,16 +875,8 @@ const StatBox = ({ label, value, icon: Icon, color, isActive, onClick }) => (
     style={{
       background: isActive ? `${color}15` : C.card,
       border: `1px solid ${isActive ? color : C.border}`,
-      cursor: 'pointer',
       boxShadow: isActive ? `0px 4px 12px ${color}30` : '0px 4px 20px rgba(8, 27, 67, 0.04)',
     }}
-    onMouseEnter={(e) => {
-      if (!isActive) e.currentTarget.style.borderColor = `${color}80`;
-    }}
-    onMouseLeave={(e) => {
-      if (!isActive) e.currentTarget.style.borderColor = C.border;
-    }}
-    title={isActive ? 'Click to clear filter' : `Click to filter by ${label}`}
   >
     <div className="flex items-center gap-2 mb-1">
       <Icon className="w-4 h-4" style={{ color }} />
@@ -1120,13 +895,6 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
     style={{
       background: active ? C.brand : 'transparent',
       color: active ? '#FFFFFF' : C.muted,
-      fontFamily: "'Inter', sans-serif",
-    }}
-    onMouseEnter={(e) => {
-      if (!active) e.currentTarget.style.color = C.heading;
-    }}
-    onMouseLeave={(e) => {
-      if (!active) e.currentTarget.style.color = C.muted;
     }}
   >
     <Icon className="w-4 h-4" />
@@ -1145,10 +913,8 @@ const Field = ({ label, name, type = 'text', value, onChange, required }) => (
       value={value ?? ''}
       onChange={onChange}
       required={required}
-      className="w-full px-3 py-2 rounded-lg outline-none transition-colors"
+      className="w-full px-3 py-2 rounded-lg outline-none"
       style={{ background: C.cardSubtle, border: `1px solid ${C.border}`, color: C.heading }}
-      onFocus={(e) => e.target.style.borderColor = C.brand}
-      onBlur={(e) => e.target.style.borderColor = C.border}
     />
   </div>
 );
