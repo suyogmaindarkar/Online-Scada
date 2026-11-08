@@ -152,7 +152,10 @@ app.use('/api/signup', require('./src/routes/signupRoutes'));
 app.use('/api/edge', require('./src/routes/edgeRoutes'));
 app.use('/api/edge-pairing', require('./src/routes/edgePairingRoutes'));
 app.use('/api/device-authorization', require('./src/routes/deviceAuthorizationRoutes'));
-
+// Register Factory Connector download routes
+const connectorRoutes = require('./routes/connectorRoutes');
+app.use('/api/v1/connector', connectorRoutes);
+app.use('/api/connector', connectorRoutes);
 app.set('io', io);
 
 // ═══════════════════════════════════════════════════════════
