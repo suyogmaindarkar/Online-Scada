@@ -1,0 +1,24 @@
+name: Auto Deploy Backend to VPS
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**' # Only triggers when you change backend files!
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to CloudOnFire VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /var/www/Online-Scada
+            git pull origin main
+            cd backend
+            npm install --omit=dev
+            pm2 reload onlinescada-api
