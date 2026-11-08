@@ -174,12 +174,20 @@ const PLCManagement = () => {
     return () => clearInterval(interval);
   }, [scanning, showToast]);
 
-  const handleDownloadInstaller = () => {
+   const handleDownloadInstaller = () => {
+    // Get backend base URL (e.g. https://api.onlinescada.in/api/v1)
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.onlinescada.in/api/v1';
+    const downloadUrl = `${backendUrl}/connector/download`;
+
+    // Trigger direct background download without leaving or opening a new tab
     const link = document.createElement('a');
-    link.href = import.meta.env.VITE_CONNECTOR_INSTALLER_URL || '/OnlineSCADA-Factory-Connector-Setup.exe';
-    link.download = 'OnlineSCADA-Factory-Connector-Setup.exe';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link); link.click(); link.remove();
+    link.href = downloadUrl;
+    link.setAttribute('download', 'OnlineSCADA-Factory-Connector-Setup.exe');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Starting Factory Connector download...', 'info');
   };
 
   const handleOpenAdd = () => { setEditingPLC(null); setFormData({ name: '', description: '', protocol: 'OPC_UA', transportProtocol: 'OPC_UA', gatewayDeviceAddress: '', ipAddress: '', port: 4840, rack: 0, slot: 0, unitId: 1, brand: 'OTHER', pollingRate: 1000, opcuaUsername: '', opcuaPassword: '' }); setShowModal(true); };
